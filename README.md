@@ -6,15 +6,16 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 11 decks (animals, colors, numbers to 100, food, body,
-  clothes, house, vehicles, weather), 124 words, tap-to-hear Spanish audio
-  via browser speech synthesis.
+- **Flashcards** — 15 decks (animals, colors, numbers to 100, food, body,
+  clothes, house, vehicles, weather, school, feelings, nature, toys),
+  172 words, tap-to-hear audio via browser speech synthesis — **Spain
+  Spanish** (es-ES voice; coche, ordenador, hierba).
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
   "Las parejas" (memory match), and "Conecta" (connect the columns).
 - **Say-it-back** — a 🎤 on every flashcard records the kid repeating the
   word and plays it straight back; clips are in-memory only (ADR 003).
-- **Las frases** — 24 starter sentences: hear-them cards (👂) and a
+- **Las frases** — 36 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
 - **Kid picker** — 🦖 Dino (listen level, pre-readers) vs 🦄 Úni (read
   level); each game menu shows that kid's one right difficulty.

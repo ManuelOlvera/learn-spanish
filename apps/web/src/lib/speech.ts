@@ -7,7 +7,8 @@
  */
 function pickSpanishVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
-  const preferred = ["es-MX", "es-US", "es-ES"];
+  // Castilian first — the content is Spain Spanish (coche, ordenador…).
+  const preferred = ["es-ES", "es-MX", "es-US"];
   for (const lang of preferred) {
     const match = voices.find((v) => v.lang.replace("_", "-") === lang);
     if (match) return match;
@@ -22,7 +23,7 @@ export function speakSpanish(text: string): void {
   const synth = window.speechSynthesis;
   synth.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "es-MX";
+  utterance.lang = "es-ES";
   const voice = pickSpanishVoice();
   if (voice) {
     utterance.voice = voice;

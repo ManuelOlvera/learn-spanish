@@ -18,6 +18,10 @@ describe("starter pack content", () => {
       "house",
       "vehicles",
       "weather",
+      "school",
+      "feelings",
+      "nature",
+      "toys",
     ]);
   });
 

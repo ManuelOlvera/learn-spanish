@@ -1,5 +1,23 @@
 # Shipped features
 
+## 2026-07-11 — Spain Spanish (es-ES) + 4 more decks and 12 more sentences
+
+**What shipped:** the app now speaks and writes **castellano**. The voice
+preference flipped to `es-ES` (note appended to ADR 001; fallback chain
+unchanged) and the content was audited: *el carro* → **el coche**, *pasto* →
+**hierba**, deck *El clima* → **El tiempo**; everything else (marrón,
+plátano, autobús, bañera…) was already Spain-standard. Four new decks lean
+into Spain vocabulary — **El colegio 🎒** (el ordenador, el imán), **Las
+emociones 😀** (enfadado — bare adjectives like the colors deck), **La
+naturaleza 🌳** (la seta), **Los juguetes 🧸** (el puzle, la cometa) — for
+**15 decks / 172 words**; albums are now 137 per kid. Las frases grew to
+**36 sentences**, adding more first-person verbs (yo juego, yo leo, yo toco,
+yo nado, yo estoy feliz) and *estar* for states ("el gato está dormido").
+
+**Where:** `apps/web/src/lib/speech.ts` (voice order),
+`packages/core/src/infrastructure/starter-pack.ts` + `sentence-pack.ts`,
+`deck-theme.ts` accents, re-pinned content tests, ADR 001 note.
+
 ## 2026-07-11 — Content drop: 5 new decks (+60 words) and 12 new sentences
 
 **What shipped:** the pack grows from 6 decks / 64 words to **11 decks /
