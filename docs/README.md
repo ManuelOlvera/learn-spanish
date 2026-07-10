@@ -7,7 +7,6 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [adr/](adr/) — **[append-log]** architecture decision records (template: [adr/000-template.md](adr/000-template.md))
   - [adr/001-browser-speech-synthesis.md](adr/001-browser-speech-synthesis.md) — audio via the Web Speech API, not recorded files
 
-Referenced by `.claude/CLAUDE.md` but not yet written (create on first need):
-`workflows/adding-a-feature.md`, `workflows/fixing-a-bug.md`,
-`skills/feature-shaping.md`, `skills/debugging.md`, `runbooks.md`,
-`architecture-diagrams.md`.
+Referenced by skills in `.claude/skills/` but not yet written (create on first need):
+`skills/feature-shaping.md` (/shape), `skills/debugging.md` (/investigate),
+`architecture-diagrams.md` (/diagram), `runbooks.md` (/ship, once a deploy target exists).
