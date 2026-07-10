@@ -7,22 +7,16 @@ Project: `learn-spanish` (team `manuelolveras-projects`), root directory `apps/w
 The repo-root `.vercel/` dir links the CLI to the project (gitignored; recreate with
 `npx vercel link --yes --project learn-spanish` from the repo root if missing).
 
-Pushing `main` does **not** auto-deploy: the Vercel project has no git connection
-(verified via API 2026-07-10 — `vercel git connect` fails because the Vercel GitHub
-App lacks access to this repo). Deploy from the repo root:
+**Pushing `main` auto-deploys prod** (Vercel GitHub App granted access + `vercel git
+connect`, 2026-07-10). Gate: only push a change that has cleared verify (`/ship`
+checklist). Don't poll prod afterwards — the dashboard's deployment record is the
+confirmation.
+
+Manual deploy (bypass git, e.g. testing a working-tree state) from the repo root:
 
 ```bash
 npx vercel deploy --prod --yes    # remote build; ~1 min
 ```
-
-Gate: only deploy a change that has cleared verify (`/ship` checklist). Don't poll
-prod afterwards — the deploy result from the CLI is the confirmation.
-
-**To enable push-to-deploy (one click, browser):** grant the Vercel GitHub App access
-to `learn-spanish` at https://github.com/settings/installations (it's installed —
-tower-blaze and workout-tracker use it — just not authorized for this repo), then
-`npx vercel git connect`. Update this section and `.claude/CLAUDE.md`'s Git bullet
-when that happens.
 
 ## Rollback
 
