@@ -19,6 +19,10 @@ const accents: Record<string, string> = {
   feelings: "#f472b6",
   nature: "#4ade80",
   toys: "#e879f9",
+  sports: "#ef4444",
+  bugs: "#a16207",
+  zoo: "#14b8a6",
+  jobs: "#6366f1",
 };
 
 export function deckAccent(deckId: string): string {

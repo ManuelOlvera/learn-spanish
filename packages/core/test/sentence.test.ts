@@ -60,10 +60,10 @@ describe("createSentenceGame", () => {
 describe("sentence pack content", () => {
   const repo = new StaticSentenceRepository();
 
-  it("lists a healthy variety pool of 30-42 sentences (a game plays 6)", async () => {
+  it("lists a healthy variety pool of 40-60 sentences (a game plays 6)", async () => {
     const sentences = await repo.listSentences();
-    expect(sentences.length).toBeGreaterThanOrEqual(30);
-    expect(sentences.length).toBeLessThanOrEqual(42);
+    expect(sentences.length).toBeGreaterThanOrEqual(40);
+    expect(sentences.length).toBeLessThanOrEqual(60);
   });
 
   it("keeps every sentence short: 2-4 tiles of real words", async () => {

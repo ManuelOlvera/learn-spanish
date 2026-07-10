@@ -22,6 +22,10 @@ describe("starter pack content", () => {
       "feelings",
       "nature",
       "toys",
+      "sports",
+      "bugs",
+      "zoo",
+      "jobs",
     ]);
   });
 

@@ -1,5 +1,20 @@
 # Shipped features
 
+## 2026-07-11 — Content drop: sports, bugs, zoo, jobs + 12 grammar-forward sentences
+
+**What shipped:** four more es-ES decks — **Los deportes 🏅** (el baloncesto,
+el esquí), **Los bichos 🐝** (la mariquita, el saltamontes), **El zoo 🐵**
+(el pingüino, la ballena), **Las profesiones 🧑‍🚒** (la médica, el bombero;
+mixed genders on purpose) — for **19 decks / 220 words**; albums are now
+173 per kid. Las frases grew to **48 sentences**, deliberately stretching
+grammar: negation ("el pingüino no vuela"), *tener* + a number ("la araña
+tiene ocho patas", the first 4-tile sentence), *querer* ("yo quiero un
+helado"), *ir* ("el astronauta va a la luna"), *vivir*, and Spain's
+*jugar al* ("yo juego al fútbol").
+
+**Where:** `starter-pack.ts`, `sentence-pack.ts`, `deck-theme.ts`,
+re-pinned content tests (category list, 40–60 sentence pool).
+
 ## 2026-07-11 — Spain Spanish (es-ES) + 4 more decks and 12 more sentences
 
 **What shipped:** the app now speaks and writes **castellano**. The voice
