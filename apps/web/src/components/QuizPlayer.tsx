@@ -88,9 +88,14 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
 
       {done ? (
         <DoneScreen
-          deck={deck}
+          stickerDeckId={deck.id}
           activity={mode === "listen" ? "quiz-listen" : "quiz-read"}
           onReplay={restart}
+          back={{
+            href: `/deck/${deck.id}`,
+            emoji: deck.emoji,
+            label: `More games in ${deck.nameEnglish}`,
+          }}
         />
       ) : !round ? (
         // One frame while the client builds the shuffle.

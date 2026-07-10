@@ -88,9 +88,14 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
 
       {done ? (
         <DoneScreen
-          deck={deck}
+          stickerDeckId={deck.id}
           activity={mode === "listen" ? "si-no-listen" : "si-no-read"}
           onReplay={restart}
+          back={{
+            href: `/deck/${deck.id}`,
+            emoji: deck.emoji,
+            label: `More games in ${deck.nameEnglish}`,
+          }}
         />
       ) : !round ? (
         <section className="flex-1" aria-hidden />

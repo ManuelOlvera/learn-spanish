@@ -16,4 +16,6 @@ export const ACTIVITY_META: Record<
   "si-no-read": { game: "✅", mode: "🔤", english: "Yes or no by word" },
   "match-pictures": { game: "🧩", mode: "🖼️", english: "Pairs: pictures" },
   "match-words": { game: "🧩", mode: "🔤", english: "Pairs: words" },
+  "frases-listen": { game: "💬", mode: "👂", english: "Sentences by ear" },
+  "frases-read": { game: "💬", mode: "🔤", english: "Sentence builder" },
 };

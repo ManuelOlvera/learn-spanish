@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   dailyCard,
+  KID_GAME_MODES,
   type Deck,
   type KidId,
   type Streak,
@@ -137,6 +138,22 @@ export function HomeView({ decks }: Props) {
           )}
         </button>
       )}
+
+      <Link
+        href={kid ? `/frases/${KID_GAME_MODES[kid].quiz}` : "/frases"}
+        aria-label="Las frases — sentences"
+        style={{ "--accent": deckAccent("frases") } as React.CSSProperties}
+        className="sticker pop-in relative flex w-full max-w-md items-center justify-center gap-4 px-6 py-4 active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+      >
+        <span aria-hidden className="sticker-peel" />
+        <span aria-hidden className="text-5xl">
+          💬
+        </span>
+        <span className="flex flex-col text-left">
+          <span className="text-3xl font-extrabold">Las frases</span>
+          <span className="text-sm font-semibold text-ink/50">Sentences</span>
+        </span>
+      </Link>
 
       <div className="grid w-full grid-cols-2 gap-6 sm:gap-8">
         {decks.map((deck, i) => (

@@ -106,9 +106,14 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
 
       {done ? (
         <DoneScreen
-          deck={deck}
+          stickerDeckId={deck.id}
           activity={mode === "pictures" ? "match-pictures" : "match-words"}
           onReplay={restart}
+          back={{
+            href: `/deck/${deck.id}`,
+            emoji: deck.emoji,
+            label: `More games in ${deck.nameEnglish}`,
+          }}
         />
       ) : tiles.length === 0 ? (
         <section className="flex-1" aria-hidden />

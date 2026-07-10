@@ -11,6 +11,8 @@ No reading, no accounts, no setup.
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
   and "Las parejas" (memory match).
+- **Las frases** — 12 starter sentences: hear-them cards (👂) and a
+  tap-the-tiles sentence builder (🔤).
 - **Kid picker** — 🦖 Dino (listen level, pre-readers) vs 🦄 Úni (read
   level); each game menu shows that kid's one right difficulty.
 - **Sticker album** — finishing any activity earns a sticker; `/album`

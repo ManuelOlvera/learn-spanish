@@ -2,38 +2,50 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Deck } from "@learn-spanish/core";
+import {
+  createSentenceGame,
+  SENTENCES_ID,
+  sentenceText,
+  type Sentence,
+  type SentenceGame,
+} from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { DoneScreen } from "@/components/DoneScreen";
 
 interface Props {
-  deck: Deck;
+  sentences: readonly Sentence[];
   accent: string;
 }
 
-export function FlashcardPlayer({ deck, accent }: Props) {
+/** Describe-the-card: a picture whose tap speaks a whole sentence about it. */
+export function FrasesListenPlayer({ sentences, accent }: Props) {
+  // Round order is random, so the game is built client-side only (hydration).
+  const [game, setGame] = useState<SentenceGame | null>(null);
   const [index, setIndex] = useState(0);
   const [wobbleKey, setWobbleKey] = useState(0);
-  const done = index >= deck.cards.length;
-  const card = deck.cards[index];
 
   useEffect(() => {
     warmUpVoices();
-  }, []);
+    setGame(createSentenceGame(sentences));
+  }, [sentences]);
 
-  function hear(text: string) {
-    speakSpanish(text);
+  const rounds = game?.rounds ?? [];
+  const done = game !== null && index >= rounds.length;
+  const round = rounds[index];
+
+  function hear(sentence: Sentence) {
+    speakSpanish(sentenceText(sentence));
     setWobbleKey((k) => k + 1);
   }
 
-  // Deliberately silent on advance/restart: the kid gets to try naming the
-  // picture first — audio only plays when the card itself is tapped.
+  // Silent on advance, like the flashcards: audio only on the card's own tap.
   function next() {
     setIndex((i) => i + 1);
     setWobbleKey(0);
   }
 
   function restart() {
+    setGame(createSentenceGame(sentences));
     setIndex(0);
     setWobbleKey(0);
   }
@@ -52,39 +64,37 @@ export function FlashcardPlayer({ deck, accent }: Props) {
           🏠
         </Link>
         <span aria-hidden className="text-4xl">
-          {deck.emoji}
+          💬
         </span>
       </header>
 
-      {done || !card ? (
+      {done ? (
         <DoneScreen
-          stickerDeckId={deck.id}
-          activity="learn"
+          stickerDeckId={SENTENCES_ID}
+          activity="frases-listen"
           onReplay={restart}
-          back={{
-            href: `/deck/${deck.id}`,
-            emoji: deck.emoji,
-            label: `More games in ${deck.nameEnglish}`,
-          }}
+          back={{ href: "/", emoji: "🏠", label: "Back to all decks" }}
         />
+      ) : !round ? (
+        <section className="flex-1" aria-hidden />
       ) : (
         <>
           <section className="flex flex-1 flex-col items-center justify-center gap-8">
             <button
               type="button"
-              key={`${card.id}-${wobbleKey}`}
-              onClick={() => hear(card.spanish)}
-              aria-label={`Hear ${card.spanish} (${card.english})`}
+              key={`${round.sentence.id}-${wobbleKey}`}
+              onClick={() => hear(round.sentence)}
+              aria-label={`Hear the sentence (${round.sentence.english})`}
               className={`sticker relative flex aspect-square w-full max-w-md flex-col items-center justify-center gap-4 p-8 ${
                 wobbleKey > 0 ? "wobble" : "pop-in"
               }`}
             >
               <span aria-hidden className="sticker-peel" />
               <span aria-hidden className="text-[7rem] leading-none sm:text-[9rem]">
-                {card.emoji}
+                {round.sentence.emoji}
               </span>
-              <span className="text-4xl font-extrabold sm:text-5xl">
-                {card.spanish}
+              <span className="text-3xl font-extrabold sm:text-4xl">
+                {sentenceText(round.sentence)}
               </span>
               <span aria-hidden className="absolute bottom-5 right-6 text-3xl">
                 🔊
@@ -94,12 +104,12 @@ export function FlashcardPlayer({ deck, accent }: Props) {
 
           <footer className="flex items-center justify-between gap-4 pb-2">
             <div
-              className="flex max-w-[55%] flex-wrap items-center gap-1.5"
-              aria-label={`Card ${index + 1} of ${deck.cards.length}`}
+              className="flex flex-wrap items-center gap-1.5"
+              aria-label={`Sentence ${index + 1} of ${rounds.length}`}
             >
-              {deck.cards.map((c, i) => (
+              {rounds.map((r, i) => (
                 <span
-                  key={c.id}
+                  key={r.sentence.id}
                   aria-hidden
                   className={`h-3 w-3 rounded-full border-2 border-ink ${
                     i <= index ? "bg-[var(--accent)]" : "bg-white"
@@ -110,7 +120,7 @@ export function FlashcardPlayer({ deck, accent }: Props) {
             <button
               type="button"
               onClick={next}
-              aria-label="Next card"
+              aria-label="Next sentence"
               className="sticker flex h-20 w-28 items-center justify-center text-5xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
               style={
                 {

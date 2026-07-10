@@ -1,5 +1,34 @@
 # Shipped features
 
+## 2026-07-11 — Las frases: sentence pack, builder, and describe-the-card
+
+**What shipped:** the first sentence-level content and the two features it
+unlocks, packaged as a pack-wide **💬 Las frases** area (home-screen row that
+links straight to the current kid's mode; `/frases` chooser on kid-less deep
+links):
+
+- **Sentence pack** — 12 authored subject-verb-complement sentences
+  (`infrastructure/sentence-pack.ts`), three tiles each, articles glued to
+  nouns, reusing pack vocabulary ("el gato bebe leche"); content tests pin
+  the 2–4-tile shape and kid-sized pack bounds.
+- **Sentence builder (🔤, frases-read)** — hear the sentence via 🔊 + picture
+  hint, tap word tiles into order; right tiles speak and stick, wrong tiles
+  wobble back, the finished sentence speaks whole on a lime flash. 6 rounds,
+  tiles never dealt already-in-order (`createSentenceGame`).
+- **Describe-the-card (👂, frases-listen)** — the flashcard pattern over
+  sentences: picture card whose tap speaks the full sentence, richer input
+  for the pre-reader.
+
+Both earn stickers under a new album section (44 per kid). DoneScreen was
+generalized off `Deck` (sticker scope + back-link props) to host non-deck
+activities.
+
+**Where:** `packages/core` `domain/sentence.ts` (+ repository port,
+`ListSentencesUseCase`, `StaticSentenceRepository`); web
+`FrasesListenPlayer.tsx`, `FrasesBuildPlayer.tsx`, routes `/frases` +
+`/frases/[mode]`, home row in `HomeView.tsx`, album section in
+`AlbumView.tsx`.
+
 ## 2026-07-10 — Kid picker + carta del día (roadmap slices 5–6)
 
 **What shipped:**

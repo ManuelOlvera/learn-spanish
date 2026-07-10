@@ -10,7 +10,22 @@ export { createSiNoGame, SI_NO_ROUNDS } from "./domain/si-no";
 export type { MemoryGame, MemoryMode, MemoryTile } from "./domain/memory";
 export { createMemoryGame, MEMORY_PAIR_COUNT, tilesMatch } from "./domain/memory";
 export type { ActivityId, AlbumStore } from "./domain/album";
-export { ALL_ACTIVITIES, stickerId, upgradeLegacyStickers } from "./domain/album";
+export {
+  ALL_ACTIVITIES,
+  SENTENCE_ACTIVITIES,
+  SENTENCES_ID,
+  stickerId,
+  upgradeLegacyStickers,
+} from "./domain/album";
+export type {
+  Sentence,
+  SentenceGame,
+  SentenceRepository,
+  SentenceRound,
+} from "./domain/sentence";
+export { createSentenceGame, SENTENCE_ROUNDS, sentenceText } from "./domain/sentence";
+export { ListSentencesUseCase } from "./application/list-sentences";
+export { StaticSentenceRepository } from "./infrastructure/static-sentence-repository";
 export type { KidId } from "./domain/kid";
 export { ALL_KIDS, isKidId, KID_GAME_MODES, kidForActivity } from "./domain/kid";
 export type { Streak, StreakStore } from "./domain/daily";

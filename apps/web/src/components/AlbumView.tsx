@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ALL_ACTIVITIES,
+  SENTENCE_ACTIVITIES,
+  SENTENCES_ID,
   stickerId,
+  type ActivityId,
   type Deck,
   type KidId,
 } from "@learn-spanish/core";
@@ -60,8 +63,33 @@ export function AlbumView({ decks }: Props) {
     setKid(other);
   }
 
-  const total = decks.length * ALL_ACTIVITIES.length;
+  const total =
+    decks.length * ALL_ACTIVITIES.length + SENTENCE_ACTIVITIES.length;
   const meta = kid === null ? null : KID_META[kid];
+
+  function slot(deckId: string, activity: ActivityId) {
+    const activityMeta = ACTIVITY_META[activity];
+    const has =
+      kid !== null && (earned?.has(stickerId(kid, deckId, activity)) ?? false);
+    return (
+      <span
+        key={activity}
+        aria-label={`${activityMeta.english}: ${has ? "earned" : "not yet earned"}`}
+        className={`flex h-16 w-16 items-center justify-center rounded-2xl border-4 text-2xl ${
+          has
+            ? "pop-in border-ink bg-[var(--accent)]"
+            : "border-dashed border-ink/25 opacity-40"
+        }`}
+      >
+        <span aria-hidden>
+          {activityMeta.game}
+          {activityMeta.mode && (
+            <span className="text-base">{activityMeta.mode}</span>
+          )}
+        </span>
+      </span>
+    );
+  }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-8 p-4 sm:p-6">
@@ -109,33 +137,26 @@ export function AlbumView({ decks }: Props) {
               <h2 className="text-2xl font-extrabold">{deck.nameSpanish}</h2>
             </div>
             <div className="flex flex-wrap gap-3">
-              {ALL_ACTIVITIES.map((activity) => {
-                const activityMeta = ACTIVITY_META[activity];
-                const has =
-                  kid !== null &&
-                  (earned?.has(stickerId(kid, deck.id, activity)) ?? false);
-                return (
-                  <span
-                    key={activity}
-                    aria-label={`${activityMeta.english}: ${has ? "earned" : "not yet earned"}`}
-                    className={`flex h-16 w-16 items-center justify-center rounded-2xl border-4 text-2xl ${
-                      has
-                        ? "pop-in border-ink bg-[var(--accent)]"
-                        : "border-dashed border-ink/25 opacity-40"
-                    }`}
-                  >
-                    <span aria-hidden>
-                      {activityMeta.game}
-                      {activityMeta.mode && (
-                        <span className="text-base">{activityMeta.mode}</span>
-                      )}
-                    </span>
-                  </span>
-                );
-              })}
+              {ALL_ACTIVITIES.map((activity) => slot(deck.id, activity))}
             </div>
           </section>
         ))}
+
+        <section
+          style={{ "--accent": deckAccent(SENTENCES_ID) } as React.CSSProperties}
+          className="sticker relative flex flex-col gap-3 p-5"
+        >
+          <span aria-hidden className="sticker-peel" />
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="text-4xl">
+              💬
+            </span>
+            <h2 className="text-2xl font-extrabold">Las frases</h2>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {SENTENCE_ACTIVITIES.map((activity) => slot(SENTENCES_ID, activity))}
+          </div>
+        </section>
       </div>
     </main>
   );

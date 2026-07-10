@@ -1,7 +1,7 @@
 import { ALL_KIDS, isKidId } from "./kid";
 import type { KidId } from "./kid";
 
-/** Every completable activity that can earn a sticker, per deck. */
+/** Every completable activity that can earn a sticker. */
 export type ActivityId =
   | "learn"
   | "quiz-listen"
@@ -9,8 +9,11 @@ export type ActivityId =
   | "si-no-listen"
   | "si-no-read"
   | "match-pictures"
-  | "match-words";
+  | "match-words"
+  | "frases-listen"
+  | "frases-read";
 
+/** The activities every deck offers (frases are pack-wide, not per-deck). */
 export const ALL_ACTIVITIES: readonly ActivityId[] = [
   "learn",
   "quiz-listen",
@@ -20,6 +23,14 @@ export const ALL_ACTIVITIES: readonly ActivityId[] = [
   "match-pictures",
   "match-words",
 ];
+
+/** The pack-wide sentence activities; their sticker "deck" is SENTENCES_ID. */
+export const SENTENCE_ACTIVITIES: readonly ActivityId[] = [
+  "frases-listen",
+  "frases-read",
+];
+
+export const SENTENCES_ID = "frases";
 
 export function stickerId(
   kid: KidId,

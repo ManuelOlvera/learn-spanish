@@ -6,7 +6,6 @@ import {
   kidForActivity,
   type ActivityId,
   type AwardResult,
-  type Deck,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { awardSticker } from "@/lib/album";
@@ -14,16 +13,19 @@ import { getSelectedKid } from "@/lib/kid";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 
 interface Props {
-  deck: Deck;
+  /** Which album section the sticker files under (a deck id, or "frases"). */
+  stickerDeckId: string;
   activity: ActivityId;
   onReplay: () => void;
+  /** Where "more games" lives for this activity. */
+  back: { href: string; emoji: string; label: string };
 }
 
 /**
  * The shared 🎉 ¡Muy bien! ending. Finishing any activity awards its sticker
  * here — the one call site for the award use case in the UI.
  */
-export function DoneScreen({ deck, activity, onReplay }: Props) {
+export function DoneScreen({ stickerDeckId, activity, onReplay, back }: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
   const meta = ACTIVITY_META[activity];
 
@@ -33,7 +35,7 @@ export function DoneScreen({ deck, activity, onReplay }: Props) {
     // picked, the activity's own difficulty names the right album.
     const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
     awardSticker
-      .execute(kid, deck.id, activity)
+      .execute(kid, stickerDeckId, activity)
       .then((result) => {
         if (!cancelled) {
           setAward(result);
@@ -45,7 +47,7 @@ export function DoneScreen({ deck, activity, onReplay }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [deck.id, activity]);
+  }, [stickerDeckId, activity]);
 
   return (
     <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
@@ -78,11 +80,11 @@ export function DoneScreen({ deck, activity, onReplay }: Props) {
           🔁
         </button>
         <Link
-          href={`/deck/${deck.id}`}
-          aria-label={`More games in ${deck.nameEnglish}`}
+          href={back.href}
+          aria-label={back.label}
           className="sticker flex h-24 w-24 items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
         >
-          {deck.emoji}
+          {back.emoji}
         </Link>
         <Link
           href="/album"

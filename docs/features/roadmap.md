@@ -41,17 +41,23 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
    still deferred, they need attribute content.)*
 5. ☐ **Say-it-back (voice recording)** — after the card speaks, a big microphone
    button records the kid repeating the word, then plays both back. No grading —
-   the comparison is the learning. Identical at both ages.
+   the comparison is the learning. Identical at both ages. *(Last one standing
+   2026-07-11 — deliberately waiting for a session with the real tablet on hand:
+   mic permissions and MediaRecorder behavior need device testing.)*
 
 ## Mainly for the older kid (younger-safe)
 
-6. ☐ **Sentence builder** — drag 3–4 word tiles (each with a picture hint) into
+6. ☑ **Sentence builder** — drag 3–4 word tiles (each with a picture hint) into
    order: *el gato / come / pescado*; completing it speaks the whole sentence.
    Needs a small new deck of verbs/adjectives — the biggest content lift here.
+   *(Shipped 2026-07-11 as tap-in-order tiles over a 12-sentence pack; 💬 Las
+   frases 🔤.)*
 7. ☐ **Word ↔ word matching** — connect written Spanish to a picture (younger) or
-   to the English word (older, reading practice).
-8. ☐ **Describe-the-card** — the flashcard, but the audio speaks a sentence
-   ("La vaca es grande y blanca") instead of a single word.
+   to the English word (older, reading practice). *(Deprioritized 2026-07-10:
+   Las parejas 🔤 mode already exercises picture↔word pairing.)*
+8. ☑ **Describe-the-card** — the flashcard, but the audio speaks a sentence
+   ("La vaca es grande y blanca") instead of a single word. *(Shipped 2026-07-11
+   as 💬 Las frases 👂, over the same sentence pack.)*
 
 ## Motivation glue (shared)
 
