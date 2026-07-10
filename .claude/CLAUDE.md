@@ -19,7 +19,8 @@ No accounts, no backend, no reading required; kids navigate by pictures and audi
 - All business logic lives in `packages/core`. Apps are presentation-only.
 - `packages/core` is framework-agnostic — never import from `next/*`. Use cases depend
   only on repository/port interfaces from `domain/`; `apps/web/src/lib/container.ts`
-  wires the concrete adapters.
+  wires the concrete adapters (`apps/web/src/lib/album.ts` is its client-side
+  counterpart for browser-storage-backed ports).
 - Follow DDD layering: `domain/` → `application/` → `infrastructure/`.
 - Repository interfaces in `domain/`, implementations in `infrastructure/`.
 - Use cases have one public `execute()` method. No business logic in components or

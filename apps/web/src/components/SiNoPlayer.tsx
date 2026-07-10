@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  createQuiz,
+  createSiNoGame,
   type Deck,
-  type Quiz,
   type QuizMode,
+  type SiNoGame,
 } from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { DoneScreen } from "@/components/DoneScreen";
@@ -19,20 +19,19 @@ interface Props {
 
 const CELEBRATE_MS = 1100;
 
-export function QuizPlayer({ deck, mode, accent }: Props) {
-  // Rounds are random, so the quiz is built client-side only — building it
-  // during SSR would hydrate against a different shuffle.
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
+export function SiNoPlayer({ deck, mode, accent }: Props) {
+  // Rounds are random, so the game is built client-side only (hydration).
+  const [game, setGame] = useState<SiNoGame | null>(null);
   const [index, setIndex] = useState(0);
-  const [correctId, setCorrectId] = useState<string | null>(null);
-  const [wrongTap, setWrongTap] = useState<{ id: string; nonce: number } | null>(
+  const [correctPick, setCorrectPick] = useState<boolean | null>(null);
+  const [wrongTap, setWrongTap] = useState<{ pick: boolean; nonce: number } | null>(
     null,
   );
   const advanceTimer = useRef<number | null>(null);
 
   useEffect(() => {
     warmUpVoices();
-    setQuiz(createQuiz(deck, mode));
+    setGame(createSiNoGame(deck, mode));
     return () => {
       if (advanceTimer.current !== null) {
         window.clearTimeout(advanceTimer.current);
@@ -40,31 +39,32 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
     };
   }, [deck, mode]);
 
-  const rounds = quiz?.rounds ?? [];
-  const done = quiz !== null && index >= rounds.length;
+  const rounds = game?.rounds ?? [];
+  const done = game !== null && index >= rounds.length;
   const round = rounds[index];
 
   function restart() {
-    setQuiz(createQuiz(deck, mode));
+    setGame(createSiNoGame(deck, mode));
     setIndex(0);
-    setCorrectId(null);
+    setCorrectPick(null);
     setWrongTap(null);
   }
 
-  function choose(cardId: string) {
-    if (!round || correctId !== null) {
+  function answer(saidYes: boolean) {
+    if (!round || correctPick !== null) {
       return;
     }
-    if (cardId === round.answer.id) {
-      setCorrectId(cardId);
+    if (saidYes === round.isTrue) {
+      setCorrectPick(saidYes);
       setWrongTap(null);
-      speakSpanish(round.answer.spanish);
+      // Always speak the picture's true name — the reinforcement either way.
+      speakSpanish(round.card.spanish);
       advanceTimer.current = window.setTimeout(() => {
         setIndex((i) => i + 1);
-        setCorrectId(null);
+        setCorrectPick(null);
       }, CELEBRATE_MS);
     } else {
-      setWrongTap((prev) => ({ id: cardId, nonce: (prev?.nonce ?? 0) + 1 }));
+      setWrongTap((prev) => ({ pick: saidYes, nonce: (prev?.nonce ?? 0) + 1 }));
     }
   }
 
@@ -89,49 +89,59 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
       {done ? (
         <DoneScreen
           deck={deck}
-          activity={mode === "listen" ? "quiz-listen" : "quiz-read"}
+          activity={mode === "listen" ? "si-no-listen" : "si-no-read"}
           onReplay={restart}
         />
       ) : !round ? (
-        // One frame while the client builds the shuffle.
         <section className="flex-1" aria-hidden />
       ) : (
         <>
-          <section className="flex flex-1 flex-col items-center justify-center gap-8">
+          <section className="flex flex-1 flex-col items-center justify-center gap-6">
+            <div
+              key={`picture-${round.card.id}`}
+              className="sticker pop-in relative flex aspect-square w-full max-w-64 items-center justify-center p-6"
+              aria-label={`Picture of ${round.card.english}`}
+            >
+              <span aria-hidden className="sticker-peel" />
+              <span aria-hidden className="text-8xl sm:text-9xl">
+                {round.card.emoji}
+              </span>
+            </div>
+
             {mode === "listen" ? (
               <button
                 type="button"
-                onClick={() => speakSpanish(round.answer.spanish)}
-                aria-label={`Hear the word (${round.answer.english})`}
-                className="sticker pop-in flex h-36 w-36 items-center justify-center text-7xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+                onClick={() => speakSpanish(`¿Es ${round.claim.spanish}?`)}
+                aria-label={`Hear the question (is it ${round.claim.english}?)`}
+                className="sticker flex h-28 w-28 items-center justify-center text-6xl active:translate-x-1 active:translate-y-1 active:shadow-none"
               >
                 🔊
               </button>
             ) : (
               <div
-                key={round.answer.id}
-                className="sticker pop-in relative flex w-full max-w-md items-center justify-center px-8 py-6"
+                key={`claim-${round.card.id}`}
+                className="sticker pop-in relative flex w-full max-w-md items-center justify-center px-8 py-5"
               >
                 <span aria-hidden className="sticker-peel" />
-                <span className="text-5xl font-extrabold sm:text-6xl">
-                  {round.answer.spanish}
+                <span className="text-4xl font-extrabold sm:text-5xl">
+                  ¿Es {round.claim.spanish}?
                 </span>
               </div>
             )}
 
             <div className="grid w-full max-w-md grid-cols-2 gap-6">
-              {round.choices.map((choice) => {
-                const isCorrectPick = correctId === choice.id;
-                const isWrongPick = wrongTap?.id === choice.id;
+              {([true, false] as const).map((saidYes) => {
+                const isCorrectPick = correctPick === saidYes;
+                const isWrongPick = wrongTap?.pick === saidYes;
                 return (
                   <button
                     type="button"
-                    key={`${round.answer.id}-${choice.id}-${
+                    key={`${round.card.id}-${saidYes}-${
                       isWrongPick ? wrongTap.nonce : 0
                     }`}
-                    onClick={() => choose(choice.id)}
-                    aria-label={`Pick ${choice.english}`}
-                    className={`sticker relative flex aspect-square flex-col items-center justify-center gap-2 p-4 ${
+                    onClick={() => answer(saidYes)}
+                    aria-label={saidYes ? "Yes" : "No"}
+                    className={`sticker flex h-32 items-center justify-center text-7xl active:translate-x-1 active:translate-y-1 active:shadow-none ${
                       isCorrectPick ? "pop-in" : isWrongPick ? "wobble" : ""
                     }`}
                     style={
@@ -142,22 +152,7 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
                         : undefined
                     }
                   >
-                    <span aria-hidden className="sticker-peel" />
-                    <span
-                      aria-hidden
-                      className={
-                        mode === "listen"
-                          ? "text-8xl sm:text-9xl"
-                          : "text-7xl sm:text-8xl"
-                      }
-                    >
-                      {choice.emoji}
-                    </span>
-                    {isCorrectPick && (
-                      <span className="text-2xl font-extrabold">
-                        {round.answer.spanish}
-                      </span>
-                    )}
+                    {saidYes ? "✅" : "❌"}
                   </button>
                 );
               })}
@@ -171,10 +166,10 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
             >
               {rounds.map((r, i) => (
                 <span
-                  key={r.answer.id}
+                  key={r.card.id}
                   aria-hidden
                   className={`h-3 w-3 rounded-full border-2 border-ink ${
-                    i < index || (i === index && correctId !== null)
+                    i < index || (i === index && correctPick !== null)
                       ? "bg-[var(--accent)]"
                       : "bg-white"
                   }`}

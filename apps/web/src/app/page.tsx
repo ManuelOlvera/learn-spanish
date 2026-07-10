@@ -7,13 +7,20 @@ export default async function HomePage() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center gap-8 p-6">
-      <header className="text-center">
+      <header className="relative w-full text-center">
         <h1 className="text-6xl font-extrabold tracking-tight sm:text-7xl">
           ¡Palabras!
         </h1>
         <p className="mt-1 text-lg font-semibold text-ink/60">
           Tap a sticker to play
         </p>
+        <Link
+          href="/album"
+          aria-label="Open the sticker album"
+          className="sticker absolute right-0 top-0 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+        >
+          📔
+        </Link>
       </header>
 
       <div className="grid w-full grid-cols-2 gap-6 sm:gap-8">

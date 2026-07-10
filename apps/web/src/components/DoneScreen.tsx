@@ -1,0 +1,88 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import type { ActivityId, AwardResult, Deck } from "@learn-spanish/core";
+import { log } from "@learn-spanish/config";
+import { awardSticker } from "@/lib/album";
+import { ACTIVITY_META } from "@/lib/activity-theme";
+
+interface Props {
+  deck: Deck;
+  activity: ActivityId;
+  onReplay: () => void;
+}
+
+/**
+ * The shared 🎉 ¡Muy bien! ending. Finishing any activity awards its sticker
+ * here — the one call site for the award use case in the UI.
+ */
+export function DoneScreen({ deck, activity, onReplay }: Props) {
+  const [award, setAward] = useState<AwardResult | null>(null);
+  const meta = ACTIVITY_META[activity];
+
+  useEffect(() => {
+    let cancelled = false;
+    awardSticker
+      .execute(deck.id, activity)
+      .then((result) => {
+        if (!cancelled) {
+          setAward(result);
+        }
+      })
+      .catch((err: unknown) => {
+        log.error("album", "failed to award sticker", { err });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [deck.id, activity]);
+
+  return (
+    <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
+      <div aria-hidden className="pop-in text-8xl">
+        🎉
+      </div>
+      <h1 className="text-5xl font-extrabold">¡Muy bien!</h1>
+
+      {award?.isNew && (
+        <div
+          className="sticker pop-in relative flex items-center gap-3 px-6 py-3"
+          aria-label={`New sticker earned: ${meta.english}`}
+        >
+          <span aria-hidden className="sticker-peel" />
+          <span aria-hidden className="text-4xl">
+            {meta.game}
+            {meta.mode}
+          </span>
+          <span className="text-2xl font-extrabold">¡Nueva pegatina!</span>
+        </div>
+      )}
+
+      <div className="flex gap-6">
+        <button
+          type="button"
+          onClick={onReplay}
+          aria-label="Play again"
+          className="sticker flex h-24 w-24 items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+        >
+          🔁
+        </button>
+        <Link
+          href={`/deck/${deck.id}`}
+          aria-label={`More games in ${deck.nameEnglish}`}
+          className="sticker flex h-24 w-24 items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+        >
+          {deck.emoji}
+        </Link>
+        <Link
+          href="/album"
+          aria-label="Open the sticker album"
+          className="sticker flex h-24 w-24 items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+        >
+          📔
+        </Link>
+      </div>
+    </section>
+  );
+}

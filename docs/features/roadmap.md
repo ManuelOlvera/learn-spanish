@@ -30,11 +30,14 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
    sentence prompt ("Toca el animal que dice muu") — sentence prompts deferred.
    *(Shipped 2026-07-10: entry via a per-deck choice screen — 📖 Las tarjetas /
    👂 Escucha / 🔤 Lee. See `shipped.md`.)*
-3. ☐ **Memory match (parejas)** — flip-to-match pairs. Younger: picture ↔ picture,
+3. ☑ **Memory match (parejas)** — flip-to-match pairs. Younger: picture ↔ picture,
    every flip speaks the word. Older: picture ↔ written Spanish word (forces reading).
-4. ☐ **"Sí o no" lightning round** — picture + spoken claim, kid taps ✅/❌
+   *(Shipped 2026-07-10.)*
+4. ☑ **"Sí o no" lightning round** — picture + spoken claim, kid taps ✅/❌
    ("¿Es un gato?"). Older mode swaps in sentences ("El plátano es rojo — ¿sí o no?").
-   Cheapest sentence-comprehension feature; needs no text input.
+   Cheapest sentence-comprehension feature; needs no text input. *(Shipped
+   2026-07-10 with word claims — written "¿Es …?" in read mode; sentence claims
+   still deferred, they need attribute content.)*
 5. ☐ **Say-it-back (voice recording)** — after the card speaks, a big microphone
    button records the kid repeating the word, then plays both back. No grading —
    the comparison is the learning. Identical at both ages.
@@ -51,9 +54,11 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
 
 ## Motivation glue (shared)
 
-9. ☐ **Sticker album progress** — each completed deck/game earns a sticker in a
+9. ☑ **Sticker album progress** — each completed deck/game earns a sticker in a
    per-kid album page (fits the Sticker Book design language; delivers the deferred
-   per-kid progress). Light sibling album comparison is the fuel.
+   per-kid progress). Light sibling album comparison is the fuel. *(Shipped
+   2026-07-10 as a device-shared album at `/album` — goes per-kid when the kid
+   picker (1) lands.)*
 10. ☐ **Daily "carta del día"** — one featured word (younger) or sentence (older)
     on the home screen each day, with a small streak of suns/stars.
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Deck } from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
+import { DoneScreen } from "@/components/DoneScreen";
 
 interface Props {
   deck: Deck;
@@ -56,29 +57,7 @@ export function FlashcardPlayer({ deck, accent }: Props) {
       </header>
 
       {done || !card ? (
-        <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
-          <div aria-hidden className="pop-in text-8xl">
-            🎉
-          </div>
-          <h1 className="text-5xl font-extrabold">¡Muy bien!</h1>
-          <div className="flex gap-6">
-            <button
-              type="button"
-              onClick={restart}
-              aria-label="Play again"
-              className="sticker flex h-24 w-24 items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
-            >
-              🔁
-            </button>
-            <Link
-              href="/"
-              aria-label="Back to all decks"
-              className="sticker flex h-24 w-24 items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
-            >
-              🏠
-            </Link>
-          </div>
-        </section>
+        <DoneScreen deck={deck} activity="learn" onReplay={restart} />
       ) : (
         <>
           <section className="flex flex-1 flex-col items-center justify-center gap-8">

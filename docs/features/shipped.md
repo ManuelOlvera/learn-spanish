@@ -1,5 +1,35 @@
 # Shipped features
 
+## 2026-07-10 — Sticker album, ¿Sí o no?, and Las parejas (roadmap slices 2–4)
+
+**What shipped:** three features from `docs/features/roadmap.md`, all reusing
+the existing 64-word pack with the 👂 listen / 🔤 read difficulty axis:
+
+- **Sticker album** — finishing any activity earns a per-deck sticker, awarded
+  on the shared 🎉 *¡Muy bien!* screen (`DoneScreen.tsx`, the one award call
+  site) with a *¡Nueva pegatina!* chip the first time. `/album` shows every
+  deck's 7 slots (earned = accent sticker, unearned = dashed ghost) and an
+  x/42 count. Device-shared (profiles still deferred), persisted in
+  `localStorage` behind the `AlbumStore` port; storage failures degrade to an
+  empty album, never break play. 📔 buttons on home and done screens.
+- **¿Sí o no?** — a picture plus a claim ("¿Es el gato?"), spoken (👂) or
+  written (🔤); kid taps ✅/❌. Correct always speaks the picture's true name;
+  8 rounds, ~50/50 true/false, no repeated picture.
+- **Las parejas (memory match)** — 🖼️ mode: 4 same-picture pairs, every flip
+  speaks the word; 🔤 mode: 6 picture↔word pairs, the word speaks only on a
+  match (read first). Misses wobble and flip back.
+
+The per-deck choice screen became a row-per-game layout (📖 Las tarjetas /
+🔍 ¿Dónde está? / ✅ ¿Sí o no? / 🧩 Las parejas) with the mode glyphs as
+buttons — the same glyphs the album slots use.
+
+**Where:** game assembly + album use cases in `packages/core` (`domain/si-no.ts`,
+`domain/memory.ts`, `domain/album.ts`, shared `domain/random.ts`,
+`application/award-sticker.ts`, `application/get-album.ts`); web adapters in
+`apps/web/src/lib/album-store.ts` (+ `album.ts`, the client-side composition
+root) and UI in `SiNoPlayer.tsx`, `MemoryPlayer.tsx`, `AlbumView.tsx`,
+`DoneScreen.tsx`; routes `…/si-no/[mode]`, `…/match/[mode]`, `/album`.
+
 ## 2026-07-10 — "¿Dónde está…?" quiz + per-deck choice screen
 
 **For:** both kids — the 5-year-old pre-reader *and* the 8-year-old early

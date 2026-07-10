@@ -8,8 +8,11 @@ No reading, no accounts, no setup.
 
 - **Flashcards** — 6 starter decks (animals, colors, numbers to 100, food),
   64 words, tap-to-hear Spanish audio via browser speech synthesis.
-- **"¿Dónde está…?" quiz** — per deck, two difficulties: hear-it-tap-it
-  (2 pictures, pre-readers) and read-it-tap-it (4 pictures, early readers).
+- **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
+  "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
+  and "Las parejas" (memory match).
+- **Sticker album** — finishing any activity earns a sticker; `/album`
+  tracks all 42, persisted on-device (no accounts).
 
 **Live:** https://learn-spanish-manuelolveras-projects.vercel.app
 (deploy/rollback: `docs/runbooks.md`)

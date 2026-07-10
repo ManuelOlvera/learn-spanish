@@ -1,6 +1,8 @@
 import type { Deck } from "./deck";
 import type { VocabularyCard } from "./card";
 import { QuizDeckTooSmallError } from "./errors";
+import { shuffled } from "./random";
+import type { RandomSource } from "./random";
 
 /** "listen": hear the word, pick from 2 pictures (pre-readers).
  *  "read": read the word, pick from 4 pictures (early readers). */
@@ -18,9 +20,6 @@ export interface Quiz {
   readonly rounds: readonly QuizRound[];
 }
 
-/** Returns a number in [0, 1); injectable so quiz assembly is testable. */
-export type RandomSource = () => number;
-
 export const QUIZ_CHOICE_COUNT: Record<QuizMode, number> = {
   listen: 2,
   read: 4,
@@ -28,15 +27,6 @@ export const QUIZ_CHOICE_COUNT: Record<QuizMode, number> = {
 
 /** Kid-sized session: a quiz never asks more than this many rounds. */
 export const MAX_QUIZ_ROUNDS = 8;
-
-function shuffled<T>(items: readonly T[], random: RandomSource): T[] {
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [result[i], result[j]] = [result[j]!, result[i]!];
-  }
-  return result;
-}
 
 export function createQuiz(
   deck: Deck,
