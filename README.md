@@ -11,8 +11,12 @@ No reading, no accounts, no setup.
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
   and "Las parejas" (memory match).
+- **Kid picker** — 🦖 Dino (listen level, pre-readers) vs 🦄 Úni (read
+  level); each game menu shows that kid's one right difficulty.
 - **Sticker album** — finishing any activity earns a sticker; `/album`
-  tracks all 42, persisted on-device (no accounts).
+  tracks 42 per kid, persisted on-device (no accounts).
+- **Carta del día** — a daily featured word on the home screen with a
+  per-kid ☀️ streak.
 
 **Live:** https://learn-spanish-manuelolveras-projects.vercel.app
 (deploy/rollback: `docs/runbooks.md`)

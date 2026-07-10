@@ -16,11 +16,12 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
 
 ## The unlocking feature
 
-1. ☐ **Kid picker (per-kid mode)** — home screen offers two big sticker avatars, no
+1. ☑ **Kid picker (per-kid mode)** — home screen offers two big sticker avatars, no
    text. Picking one sets the difficulty mode for every deck and game. This is the
-   axis all other features scale along. *(Cut from the first slice 2026-07-10 —
-   until it exists, each game exposes its two difficulty modes as separate
-   picture buttons instead of reading a per-kid setting.)*
+   axis all other features scale along. *(Cut from the first slice, then shipped
+   2026-07-10 once three games made the per-play mode buttons sprawl: 🦖 Dino =
+   listen level, 🦄 Úni = read level; per-kid albums; shared-era stickers migrated
+   to both kids.)*
 
 ## Games for both kids
 
@@ -59,8 +60,10 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
    per-kid progress). Light sibling album comparison is the fuel. *(Shipped
    2026-07-10 as a device-shared album at `/album` — goes per-kid when the kid
    picker (1) lands.)*
-10. ☐ **Daily "carta del día"** — one featured word (younger) or sentence (older)
-    on the home screen each day, with a small streak of suns/stars.
+10. ☑ **Daily "carta del día"** — one featured word (younger) or sentence (older)
+    on the home screen each day, with a small streak of suns/stars. *(Shipped
+    2026-07-10: same word for both kids, per-kid ☀️ streak; per-level sentences
+    wait on sentence content.)*
 
 ## Build order
 

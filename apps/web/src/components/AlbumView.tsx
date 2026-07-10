@@ -2,9 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ALL_ACTIVITIES, stickerId, type Deck } from "@learn-spanish/core";
+import {
+  ALL_ACTIVITIES,
+  stickerId,
+  type Deck,
+  type KidId,
+} from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/album";
+import { getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { deckAccent } from "@/lib/deck-theme";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 
@@ -13,13 +19,21 @@ interface Props {
 }
 
 export function AlbumView({ decks }: Props) {
+  const [kid, setKid] = useState<KidId | null>(null);
   // Earned stickers live in browser storage — load after mount.
   const [earned, setEarned] = useState<ReadonlySet<string> | null>(null);
 
   useEffect(() => {
+    setKid(getSelectedKid() ?? "listener");
+  }, []);
+
+  useEffect(() => {
+    if (kid === null) {
+      return;
+    }
     let cancelled = false;
     getAlbum
-      .execute()
+      .execute(kid)
       .then((ids) => {
         if (!cancelled) {
           setEarned(new Set(ids));
@@ -34,9 +48,20 @@ export function AlbumView({ decks }: Props) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [kid]);
+
+  function switchKid() {
+    if (kid === null) {
+      return;
+    }
+    const other: KidId = kid === "listener" ? "reader" : "listener";
+    setSelectedKid(other);
+    setEarned(null);
+    setKid(other);
+  }
 
   const total = decks.length * ALL_ACTIVITIES.length;
+  const meta = kid === null ? null : KID_META[kid];
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-8 p-4 sm:p-6">
@@ -48,13 +73,22 @@ export function AlbumView({ decks }: Props) {
         >
           🏠
         </Link>
-        <span aria-hidden className="text-4xl">
-          📔
-        </span>
+        {meta && (
+          <button
+            type="button"
+            onClick={switchKid}
+            aria-label={`Showing ${meta.name}'s album — tap for the other kid`}
+            className="sticker flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            {meta.avatar}
+          </button>
+        )}
       </header>
 
       <div className="text-center">
-        <h1 className="text-5xl font-extrabold sm:text-6xl">Mi álbum</h1>
+        <h1 className="text-5xl font-extrabold sm:text-6xl">
+          {meta ? `El álbum de ${meta.name}` : "Mi álbum"}
+        </h1>
         <p className="mt-1 text-lg font-semibold text-ink/60">
           {earned === null ? "…" : `${earned.size} / ${total}`}
         </p>
@@ -76,12 +110,14 @@ export function AlbumView({ decks }: Props) {
             </div>
             <div className="flex flex-wrap gap-3">
               {ALL_ACTIVITIES.map((activity) => {
-                const meta = ACTIVITY_META[activity];
-                const has = earned?.has(stickerId(deck.id, activity)) ?? false;
+                const activityMeta = ACTIVITY_META[activity];
+                const has =
+                  kid !== null &&
+                  (earned?.has(stickerId(kid, deck.id, activity)) ?? false);
                 return (
                   <span
                     key={activity}
-                    aria-label={`${meta.english}: ${has ? "earned" : "not yet earned"}`}
+                    aria-label={`${activityMeta.english}: ${has ? "earned" : "not yet earned"}`}
                     className={`flex h-16 w-16 items-center justify-center rounded-2xl border-4 text-2xl ${
                       has
                         ? "pop-in border-ink bg-[var(--accent)]"
@@ -89,9 +125,9 @@ export function AlbumView({ decks }: Props) {
                     }`}
                   >
                     <span aria-hidden>
-                      {meta.game}
-                      {meta.mode && (
-                        <span className="text-base">{meta.mode}</span>
+                      {activityMeta.game}
+                      {activityMeta.mode && (
+                        <span className="text-base">{activityMeta.mode}</span>
                       )}
                     </span>
                   </span>

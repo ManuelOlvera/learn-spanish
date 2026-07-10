@@ -1,5 +1,6 @@
 import { stickerId } from "../domain/album";
 import type { ActivityId, AlbumStore } from "../domain/album";
+import type { KidId } from "../domain/kid";
 
 export interface AwardResult {
   readonly stickerId: string;
@@ -9,8 +10,12 @@ export interface AwardResult {
 export class AwardStickerUseCase {
   constructor(private readonly album: AlbumStore) {}
 
-  async execute(deckId: string, activity: ActivityId): Promise<AwardResult> {
-    const id = stickerId(deckId, activity);
+  async execute(
+    kid: KidId,
+    deckId: string,
+    activity: ActivityId,
+  ): Promise<AwardResult> {
+    const id = stickerId(kid, deckId, activity);
     const earned = await this.album.load();
     if (earned.includes(id)) {
       return { stickerId: id, isNew: false };

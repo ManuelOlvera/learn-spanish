@@ -2,9 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { ActivityId, AwardResult, Deck } from "@learn-spanish/core";
+import {
+  kidForActivity,
+  type ActivityId,
+  type AwardResult,
+  type Deck,
+} from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { awardSticker } from "@/lib/album";
+import { getSelectedKid } from "@/lib/kid";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 
 interface Props {
@@ -23,8 +29,11 @@ export function DoneScreen({ deck, activity, onReplay }: Props) {
 
   useEffect(() => {
     let cancelled = false;
+    // Award the selected kid; on a mode-specific deep link with no kid ever
+    // picked, the activity's own difficulty names the right album.
+    const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
     awardSticker
-      .execute(deck.id, activity)
+      .execute(kid, deck.id, activity)
       .then((result) => {
         if (!cancelled) {
           setAward(result);

@@ -1,0 +1,160 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { KID_GAME_MODES, type Deck, type KidId } from "@learn-spanish/core";
+import { getSelectedKid, KID_META } from "@/lib/kid";
+
+interface Props {
+  deck: Deck;
+  accent: string;
+}
+
+interface ModeLink {
+  glyph: string;
+  href: string;
+  label: string;
+}
+
+/** With a kid selected, each game gets its one right button; without one
+ *  (deep link before ever picking), both difficulty buttons show. */
+function gamesFor(kid: KidId | null): readonly {
+  emoji: string;
+  spanish: string;
+  english: string;
+  modes: readonly ModeLink[];
+}[] {
+  const modes = kid === null ? null : KID_GAME_MODES[kid];
+  const pick = (listen: ModeLink, read: ModeLink): readonly ModeLink[] =>
+    modes === null ? [listen, read] : [modes.quiz === "listen" ? listen : read];
+  const pickMatch = (
+    pictures: ModeLink,
+    words: ModeLink,
+  ): readonly ModeLink[] =>
+    modes === null
+      ? [pictures, words]
+      : [modes.match === "pictures" ? pictures : words];
+
+  return [
+    {
+      emoji: "📖",
+      spanish: "Las tarjetas",
+      english: "Flashcards",
+      modes: [{ glyph: "📖", href: "learn", label: "Flashcards" }],
+    },
+    {
+      emoji: "🔍",
+      spanish: "¿Dónde está?",
+      english: "Find the picture",
+      modes: pick(
+        { glyph: "👂", href: "quiz/listen", label: "Find it by ear" },
+        { glyph: "🔤", href: "quiz/read", label: "Find it by word" },
+      ),
+    },
+    {
+      emoji: "✅",
+      spanish: "¿Sí o no?",
+      english: "Yes or no",
+      modes: pick(
+        { glyph: "👂", href: "si-no/listen", label: "Yes or no by ear" },
+        { glyph: "🔤", href: "si-no/read", label: "Yes or no by word" },
+      ),
+    },
+    {
+      emoji: "🧩",
+      spanish: "Las parejas",
+      english: "Matching pairs",
+      modes: pickMatch(
+        { glyph: "🖼️", href: "match/pictures", label: "Pairs: pictures" },
+        { glyph: "🔤", href: "match/words", label: "Pairs: words" },
+      ),
+    },
+  ];
+}
+
+export function GameMenu({ deck, accent }: Props) {
+  const [kid, setKid] = useState<KidId | null | undefined>(undefined);
+
+  useEffect(() => {
+    setKid(getSelectedKid());
+  }, []);
+
+  if (kid === undefined) {
+    return <main className="min-h-dvh" aria-hidden />;
+  }
+
+  const games = gamesFor(kid);
+
+  return (
+    <main
+      style={{ "--accent": accent } as React.CSSProperties}
+      className="mx-auto flex min-h-dvh max-w-2xl flex-col p-4 sm:p-6"
+    >
+      <header className="flex items-center justify-between">
+        <Link
+          href="/"
+          aria-label="Back to all decks"
+          className="sticker flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+        >
+          🏠
+        </Link>
+        {kid !== null && (
+          <span
+            aria-label={`Playing as ${KID_META[kid].name}`}
+            className="text-4xl"
+          >
+            {KID_META[kid].avatar}
+          </span>
+        )}
+      </header>
+
+      <section className="flex flex-1 flex-col items-center justify-center gap-8 py-6">
+        <div className="pop-in text-center">
+          <span aria-hidden className="block text-7xl sm:text-8xl">
+            {deck.emoji}
+          </span>
+          <h1 className="mt-2 text-4xl font-extrabold sm:text-5xl">
+            {deck.nameSpanish}
+          </h1>
+          <p className="text-lg font-semibold text-ink/50">{deck.nameEnglish}</p>
+        </div>
+
+        <div className="flex w-full max-w-md flex-col gap-5">
+          {games.map((game, i) => (
+            <div
+              key={game.spanish}
+              className="pop-in flex items-center justify-between gap-4"
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
+              <div className="flex items-center gap-3">
+                <span aria-hidden className="text-5xl">
+                  {game.emoji}
+                </span>
+                <span className="flex flex-col">
+                  <span className="text-2xl font-extrabold sm:text-3xl">
+                    {game.spanish}
+                  </span>
+                  <span className="text-sm font-semibold text-ink/50">
+                    {game.english}
+                  </span>
+                </span>
+              </div>
+              <div className="flex gap-3">
+                {game.modes.map((mode) => (
+                  <Link
+                    key={mode.href}
+                    href={`/deck/${deck.id}/${mode.href}`}
+                    aria-label={`${mode.label} — ${deck.nameEnglish}`}
+                    className="sticker flex h-20 w-20 items-center justify-center text-4xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  >
+                    {mode.glyph}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}

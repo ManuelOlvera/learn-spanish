@@ -1,5 +1,32 @@
 # Shipped features
 
+## 2026-07-10 — Kid picker + carta del día (roadmap slices 5–6)
+
+**What shipped:**
+
+- **Kid picker** — first visit asks *¿Quién juega?* with two avatar stickers:
+  🦖 **Dino** (listen level) and 🦄 **Úni** (read level). Core models them
+  semantically (`KidId = "listener" | "reader"`, `domain/kid.ts`); avatars are
+  presentation. Picking a kid collapses every game row to its one right
+  difficulty button (deep links with no kid ever picked still show both), the
+  album becomes per-kid (*El álbum de Dino/Úni*, 42 slots each, avatar chip
+  flips between them), and awards go to the selected kid — or, on mode-specific
+  deep links, to the kid the mode implies. Shared-era stickers are migrated to
+  **both** kids on load (`upgradeLegacyStickers`). Avatar chip on home reopens
+  the picker.
+- **La carta del día** — a deterministic date-hashed word of the day
+  (`domain/daily.ts`, FNV-1a over the UTC day key, computed client-side so
+  static builds don't freeze it) on a wide sticker under the home header.
+  Tapping speaks it and feeds a per-kid streak (☀️ n badge): same day
+  idempotent, next day +1, gap resets — `advanceStreak` + `FeedStreakUseCase`
+  behind a `StreakStore` port, localStorage-backed.
+
+**Where:** `packages/core` `domain/kid.ts`, `domain/daily.ts`, album per-kid
+ids + migration, `application/feed-streak.ts` / `get-streak.ts`; web
+`HomeView.tsx` + `KidPicker.tsx` (home went client-driven), `GameMenu.tsx`
+(replaces the static choice screen), per-kid `AlbumView.tsx` / `DoneScreen.tsx`,
+adapters `lib/kid.ts`, `lib/streak-store.ts`.
+
 ## 2026-07-10 — Sticker album, ¿Sí o no?, and Las parejas (roadmap slices 2–4)
 
 **What shipped:** three features from `docs/features/roadmap.md`, all reusing

@@ -1,6 +1,6 @@
 "use client";
 
-import type { AlbumStore } from "@learn-spanish/core";
+import { upgradeLegacyStickers, type AlbumStore } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 
 const STORAGE_KEY = "palabras.album.v1";
@@ -21,7 +21,8 @@ export class LocalStorageAlbumStore implements AlbumStore {
         Array.isArray(parsed) &&
         parsed.every((entry) => typeof entry === "string")
       ) {
-        return Promise.resolve(parsed);
+        // Shared-era stickers ("deck:activity") become both kids' stickers.
+        return Promise.resolve(upgradeLegacyStickers(parsed));
       }
       log.warn("album", "discarding malformed album payload");
       return Promise.resolve([]);

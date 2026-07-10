@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { AwardStickerUseCase } from "../src/application/award-sticker";
 import { GetAlbumUseCase } from "../src/application/get-album";
-import { stickerId } from "../src/domain/album";
+import { stickerId, upgradeLegacyStickers } from "../src/domain/album";
 import type { AlbumStore } from "../src/domain/album";
 
 class FakeAlbumStore implements AlbumStore {
@@ -16,43 +16,79 @@ class FakeAlbumStore implements AlbumStore {
 }
 
 describe("stickerId", () => {
-  it("derives a stable id from deck and activity", () => {
-    expect(stickerId("animals", "quiz-listen")).toBe("animals:quiz-listen");
+  it("derives a stable per-kid id", () => {
+    expect(stickerId("listener", "animals", "quiz-listen")).toBe(
+      "listener:animals:quiz-listen",
+    );
+  });
+});
+
+describe("upgradeLegacyStickers", () => {
+  it("grants shared-era stickers to both kids", () => {
+    expect(upgradeLegacyStickers(["animals:learn"])).toEqual([
+      "listener:animals:learn",
+      "reader:animals:learn",
+    ]);
+  });
+
+  it("keeps per-kid stickers as they are", () => {
+    const modern = ["reader:food:quiz-read"];
+    expect(upgradeLegacyStickers(modern)).toEqual(modern);
+  });
+
+  it("drops entries that fit no format", () => {
+    expect(upgradeLegacyStickers(["garbage", "a:b:c:d"])).toEqual([]);
+  });
+
+  it("never duplicates when legacy and per-kid entries overlap", () => {
+    expect(
+      upgradeLegacyStickers(["animals:learn", "listener:animals:learn"]),
+    ).toEqual(["listener:animals:learn", "reader:animals:learn"]);
   });
 });
 
 describe("AwardStickerUseCase", () => {
-  it("awards a sticker the first time and persists it", async () => {
+  it("awards a sticker to one kid and persists it", async () => {
     const store = new FakeAlbumStore();
     const award = new AwardStickerUseCase(store);
-    const result = await award.execute("animals", "learn");
-    expect(result).toEqual({ stickerId: "animals:learn", isNew: true });
-    expect(store.stickers).toContain("animals:learn");
+    const result = await award.execute("listener", "animals", "learn");
+    expect(result).toEqual({
+      stickerId: "listener:animals:learn",
+      isNew: true,
+    });
+    expect(store.stickers).toContain("listener:animals:learn");
   });
 
   it("reports a repeat award as not new and does not duplicate it", async () => {
-    const store = new FakeAlbumStore(["animals:learn"]);
+    const store = new FakeAlbumStore(["listener:animals:learn"]);
     const award = new AwardStickerUseCase(store);
-    const result = await award.execute("animals", "learn");
+    const result = await award.execute("listener", "animals", "learn");
     expect(result.isNew).toBe(false);
-    expect(store.stickers).toEqual(["animals:learn"]);
+    expect(store.stickers).toEqual(["listener:animals:learn"]);
   });
 
-  it("keeps previously earned stickers when awarding a new one", async () => {
-    const store = new FakeAlbumStore(["animals:learn"]);
+  it("keeps the other kid's stickers intact", async () => {
+    const store = new FakeAlbumStore(["reader:animals:learn"]);
     const award = new AwardStickerUseCase(store);
-    await award.execute("food", "quiz-read");
-    expect(store.stickers).toEqual(["animals:learn", "food:quiz-read"]);
+    await award.execute("listener", "animals", "learn");
+    expect(store.stickers).toEqual([
+      "reader:animals:learn",
+      "listener:animals:learn",
+    ]);
   });
 });
 
 describe("GetAlbumUseCase", () => {
-  it("returns everything the store holds", async () => {
-    const store = new FakeAlbumStore(["animals:learn", "colors:quiz-listen"]);
+  it("returns only the asked kid's stickers", async () => {
+    const store = new FakeAlbumStore([
+      "listener:animals:learn",
+      "reader:colors:quiz-read",
+      "listener:food:match-pictures",
+    ]);
     const getAlbum = new GetAlbumUseCase(store);
-    await expect(getAlbum.execute()).resolves.toEqual([
-      "animals:learn",
-      "colors:quiz-listen",
+    await expect(getAlbum.execute("listener")).resolves.toEqual([
+      "listener:animals:learn",
+      "listener:food:match-pictures",
     ]);
   });
 });
