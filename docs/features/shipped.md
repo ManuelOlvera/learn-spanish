@@ -1,5 +1,14 @@
 # Shipped features
 
+## 2026-07-10 — Numbers to 100
+
+Two new decks extend counting past ten: **Los números 11–20** (once → veinte,
+complete) and **Las decenas** (diez → cien by tens — the age-appropriate way to
+"count to 100"; in-between numbers are compositional in Spanish and deferred).
+Visuals are composed keycap emoji (4️⃣0️⃣), cien gets 💯. The 1–10 deck was
+renamed "Los números 1–10". Pack is now 6 decks / 64 words; content tests pin
+both sequences and a 10–15 cards-per-deck kid-sized bound.
+
 ## 2026-07-10 — Flashcards v1 (the founding slice)
 
 **For:** pre-readers (ages 3–5) on a shared family tablet — no accounts, no reading required.

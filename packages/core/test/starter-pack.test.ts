@@ -4,24 +4,53 @@ import { StaticDeckRepository } from "../src/infrastructure/static-deck-reposito
 const repo = new StaticDeckRepository();
 
 describe("starter pack content", () => {
-  it("ships the four launch categories", async () => {
+  it("ships the expected categories", async () => {
     const decks = await repo.listDecks();
     expect(decks.map((d) => d.id)).toEqual([
       "animals",
       "colors",
       "numbers",
+      "numbers-11-20",
+      "numbers-tens",
       "food",
     ]);
   });
 
-  it("holds 40-60 words total, at least 10 per deck", async () => {
+  it("keeps decks kid-sized: 10-15 cards each", async () => {
     const decks = await repo.listDecks();
-    const total = decks.reduce((sum, d) => sum + d.cards.length, 0);
-    expect(total).toBeGreaterThanOrEqual(40);
-    expect(total).toBeLessThanOrEqual(60);
     for (const deck of decks) {
       expect(deck.cards.length).toBeGreaterThanOrEqual(10);
+      expect(deck.cards.length).toBeLessThanOrEqual(15);
     }
+  });
+
+  it("counts to 100: 11-20 complete, then every ten up to cien", async () => {
+    const teens = await repo.getDeck("numbers-11-20");
+    expect(teens?.cards.map((c) => c.spanish)).toEqual([
+      "once",
+      "doce",
+      "trece",
+      "catorce",
+      "quince",
+      "dieciséis",
+      "diecisiete",
+      "dieciocho",
+      "diecinueve",
+      "veinte",
+    ]);
+    const tens = await repo.getDeck("numbers-tens");
+    expect(tens?.cards.map((c) => c.spanish)).toEqual([
+      "diez",
+      "veinte",
+      "treinta",
+      "cuarenta",
+      "cincuenta",
+      "sesenta",
+      "setenta",
+      "ochenta",
+      "noventa",
+      "cien",
+    ]);
   });
 
   it("gives every card an id, Spanish word, English gloss, and emoji", async () => {
