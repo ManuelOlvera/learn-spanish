@@ -38,5 +38,8 @@ export { AwardStickerUseCase } from "./application/award-sticker";
 export type { AwardResult } from "./application/award-sticker";
 export { GetAlbumUseCase } from "./application/get-album";
 export { ListDecksUseCase } from "./application/list-decks";
+export type { DeckGroup, DeckGroupRepository } from "./domain/deck-group";
+export { ListDeckGroupsUseCase } from "./application/list-deck-groups";
+export { StaticDeckGroupRepository } from "./infrastructure/static-deck-group-repository";
 export { GetDeckUseCase } from "./application/get-deck";
 export { StaticDeckRepository } from "./infrastructure/static-deck-repository";

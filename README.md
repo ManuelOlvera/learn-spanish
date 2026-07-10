@@ -6,11 +6,10 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 19 decks (animals, colors, numbers to 100, food, body,
-  clothes, house, vehicles, weather, school, feelings, nature, toys,
-  sports, bugs, zoo, jobs), 220 words, tap-to-hear audio via browser
-  speech synthesis — **Spain Spanish** (es-ES voice; coche, ordenador,
-  hierba, baloncesto).
+- **Flashcards** — 19 decks / 220 words on five themed home-screen
+  shelves (animals · numbers & colors · my home & me · the world ·
+  play & learn), tap-to-hear audio via browser speech synthesis —
+  **Spain Spanish** (es-ES voice; coche, ordenador, hierba, baloncesto).
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
   "Las parejas" (memory match), and "Conecta" (connect the columns).

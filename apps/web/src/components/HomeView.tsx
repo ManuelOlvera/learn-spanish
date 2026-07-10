@@ -6,6 +6,7 @@ import {
   dailyCard,
   KID_GAME_MODES,
   type Deck,
+  type DeckGroup,
   type KidId,
   type Streak,
   type VocabularyCard,
@@ -19,9 +20,10 @@ import { KidPicker } from "@/components/KidPicker";
 
 interface Props {
   decks: readonly Deck[];
+  groups: readonly DeckGroup[];
 }
 
-export function HomeView({ decks }: Props) {
+export function HomeView({ decks, groups }: Props) {
   // undefined = still reading storage; null = never picked (show the picker).
   const [kid, setKid] = useState<KidId | null | undefined>(undefined);
   const [daily, setDaily] = useState<VocabularyCard | null>(null);
@@ -139,46 +141,55 @@ export function HomeView({ decks }: Props) {
         </button>
       )}
 
-      <Link
-        href={kid ? `/frases/${KID_GAME_MODES[kid].quiz}` : "/frases"}
-        aria-label="Las frases — sentences"
-        style={{ "--accent": deckAccent("frases") } as React.CSSProperties}
-        className="sticker pop-in relative flex w-full max-w-md items-center justify-center gap-4 px-6 py-4 active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
-      >
-        <span aria-hidden className="sticker-peel" />
-        <span aria-hidden className="text-5xl">
-          💬
-        </span>
-        <span className="flex flex-col text-left">
-          <span className="text-3xl font-extrabold">Las frases</span>
-          <span className="text-sm font-semibold text-ink/50">Sentences</span>
-        </span>
-      </Link>
-
-      <div className="grid w-full grid-cols-2 gap-6 sm:gap-8">
-        {decks.map((deck, i) => (
-          <Link
-            key={deck.id}
-            href={`/deck/${deck.id}`}
-            style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
-            className="sticker pop-in relative flex aspect-square flex-col items-center justify-center gap-2 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
-          >
-            <span aria-hidden className="sticker-peel" />
-            <span
-              aria-hidden
-              className="text-7xl sm:text-8xl"
-              style={{ animationDelay: `${i * 60}ms` }}
+      <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
+        {groups.map((group, i) => {
+          const previews = group.deckIds.flatMap((id) => {
+            const deck = decks.find((d) => d.id === id);
+            return deck ? [deck] : [];
+          });
+          return (
+            <Link
+              key={group.id}
+              href={`/group/${group.id}`}
+              style={{ "--accent": deckAccent(group.id) } as React.CSSProperties}
+              className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
             >
-              {deck.emoji}
-            </span>
-            <span className="text-2xl font-bold sm:text-3xl">
-              {deck.nameSpanish}
-            </span>
-            <span className="text-sm font-semibold text-ink/50">
-              {deck.nameEnglish}
-            </span>
-          </Link>
-        ))}
+              <span aria-hidden className="sticker-peel" />
+              <span
+                aria-hidden
+                className="text-5xl sm:text-6xl"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                {group.emoji}
+              </span>
+              <span className="text-center text-xl font-extrabold sm:text-2xl">
+                {group.nameSpanish}
+              </span>
+              <span className="text-xs font-semibold text-ink/50">
+                {group.nameEnglish}
+              </span>
+              <span aria-hidden className="text-base tracking-wide">
+                {previews.map((d) => d.emoji).join(" ")}
+              </span>
+            </Link>
+          );
+        })}
+
+        <Link
+          href={kid ? `/frases/${KID_GAME_MODES[kid].quiz}` : "/frases"}
+          aria-label="Las frases — sentences"
+          style={{ "--accent": deckAccent("frases") } as React.CSSProperties}
+          className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+        >
+          <span aria-hidden className="sticker-peel" />
+          <span aria-hidden className="text-5xl sm:text-6xl">
+            💬
+          </span>
+          <span className="text-center text-xl font-extrabold sm:text-2xl">
+            Las frases
+          </span>
+          <span className="text-xs font-semibold text-ink/50">Sentences</span>
+        </Link>
       </div>
     </main>
   );

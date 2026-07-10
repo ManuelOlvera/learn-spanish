@@ -23,6 +23,12 @@ const accents: Record<string, string> = {
   bugs: "#a16207",
   zoo: "#14b8a6",
   jobs: "#6366f1",
+  // home-screen shelves (deck groups)
+  animales: "#f59e0b",
+  "numeros-colores": "#38bdf8",
+  "casa-yo": "#fb7185",
+  mundo: "#4ade80",
+  jugar: "#e879f9",
 };
 
 export function deckAccent(deckId: string): string {

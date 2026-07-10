@@ -1,5 +1,26 @@
 # Shipped features
 
+## 2026-07-11 — Grouped home screen: shelves instead of scrolling
+
+**What shipped:** with 19 decks the home grid had become a long scroll, so
+home now shows **six one-screen tiles**: five themed shelves — 🐾 Los
+animales, 🔢 Números y colores, 🏠 Mi casa y yo, 🌍 El mundo, 🎨 Jugar y
+aprender — plus 💬 Las frases. Each shelf tile previews its decks' emoji
+(pre-readers can spot 🐶 on the shelf cover) and opens `/group/[groupId]`,
+a single-screen page of that shelf's 3–4 deck stickers. The verify drive
+asserts `scrollHeight` stays within one viewport on home and on every
+shelf.
+
+Groups are core content (`domain/deck-group.ts`, `DECK_GROUPS`) with a
+test-enforced invariant: **every deck belongs to exactly one group** — an
+unshelved new deck fails the build. Shelves are pinned to 3–5 decks and
+home to ≤6 tiles, so the no-scroll property is also test-guarded.
+
+**Where:** `packages/core` `domain/deck-group.ts` +
+`infrastructure/deck-groups.ts` + `ListDeckGroupsUseCase`; web
+`/group/[groupId]/page.tsx`, regrouped grid in `HomeView.tsx`, shelf
+accents in `deck-theme.ts`.
+
 ## 2026-07-11 — Content drop: sports, bugs, zoo, jobs + 12 grammar-forward sentences
 
 **What shipped:** four more es-ES decks — **Los deportes 🏅** (el baloncesto,

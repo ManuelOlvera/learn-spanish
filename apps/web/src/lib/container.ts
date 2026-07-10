@@ -1,7 +1,9 @@
 import {
   GetDeckUseCase,
+  ListDeckGroupsUseCase,
   ListDecksUseCase,
   ListSentencesUseCase,
+  StaticDeckGroupRepository,
   StaticDeckRepository,
   StaticSentenceRepository,
 } from "@learn-spanish/core";
@@ -14,7 +16,9 @@ import {
  */
 const deckRepository = new StaticDeckRepository();
 const sentenceRepository = new StaticSentenceRepository();
+const deckGroupRepository = new StaticDeckGroupRepository();
 
 export const listDecks = new ListDecksUseCase(deckRepository);
 export const getDeck = new GetDeckUseCase(deckRepository);
 export const listSentences = new ListSentencesUseCase(sentenceRepository);
+export const listDeckGroups = new ListDeckGroupsUseCase(deckGroupRepository);
