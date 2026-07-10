@@ -7,20 +7,14 @@ Project: `learn-spanish` (team `manuelolveras-projects`), root directory `apps/w
 The repo-root `.vercel/` dir links the CLI to the project (gitignored; recreate with
 `npx vercel link --yes --project learn-spanish` from the repo root if missing).
 
-Until the Vercel GitHub App is connected, pushing `main` does **not** deploy.
-Deploy from the repo root:
+**Pushing `main` auto-deploys prod** (Vercel GitHub App, connected 2026-07-10).
+Gate: only push a change that has cleared verify (`/ship` checklist).
+
+Manual deploy (bypass git, e.g. testing a working-tree state) from the repo root:
 
 ```bash
 npx vercel deploy --prod --yes    # remote build; ~1 min
 ```
-
-Gate: only deploy a change that has cleared verify (`/ship` checklist).
-
-**Enable push-to-deploy (one-time, in the browser):** install the Vercel GitHub App
-on the `ManuelOlvera` account with access to `learn-spanish`
-(vercel.com → project → Settings → Git → Connect), or approve it at
-https://github.com/apps/vercel. Then update this runbook and `.claude/CLAUDE.md`'s
-Git section: pushing `main` = deploying prod.
 
 ## Rollback
 

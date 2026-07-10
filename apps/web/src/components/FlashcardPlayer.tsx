@@ -25,22 +25,16 @@ export function FlashcardPlayer({ deck, accent }: Props) {
     setWobbleKey((k) => k + 1);
   }
 
+  // Deliberately silent on advance/restart: the kid gets to try naming the
+  // picture first — audio only plays when the card itself is tapped.
   function next() {
-    const upcoming = deck.cards[index + 1];
     setIndex((i) => i + 1);
     setWobbleKey(0);
-    if (upcoming) {
-      speakSpanish(upcoming.spanish);
-    }
   }
 
   function restart() {
     setIndex(0);
     setWobbleKey(0);
-    const first = deck.cards[0];
-    if (first) {
-      speakSpanish(first.spanish);
-    }
   }
 
   return (
