@@ -1,5 +1,29 @@
 # Shipped features
 
+## 2026-07-11 — Say-it-back recording + Conecta (roadmap slices 9–10, the last two)
+
+**What shipped:**
+
+- **Say-it-back (🎤 on flashcards)** — after hearing the model, the kid taps
+  🎤 in the footer, speaks (red ⏺ sticker, tap to stop, 5-second cap), and
+  the clip plays straight back. **Recordings are ephemeral — in-memory only,
+  never persisted or transmitted (ADR 003)**; the mic stream stops the moment
+  recording ends, advancing a card discards mid-flight clips, and if
+  recording is unsupported or denied the button hides and flashcards work as
+  before. Adapter: `apps/web/src/lib/recorder.ts`. *Verified headless via a
+  stubbed stream (macOS headless getUserMedia hangs) — the record → playback
+  audio path still wants one real-tablet confirmation.*
+- **Conecta (🔗, word↔word matching)** — per-deck connect-the-columns, 2
+  boards × 5 pairs (`domain/connect.ts`; sides never dealt pre-aligned). 👂:
+  Spanish words (tap = hear it) ↔ pictures. 🔤: Spanish ↔ English — the
+  app's first explicit translation reading. Matches lock lime and speak the
+  word; misses wobble. Activities `connect-listen`/`connect-read` grow each
+  kid's album to 56.
+
+**Where:** `packages/core` `domain/connect.ts`; web `ConnectPlayer.tsx`,
+route `…/connect/[mode]`, 🎤 states in `FlashcardPlayer.tsx`,
+`lib/recorder.ts`, `docs/adr/003-ephemeral-voice-recordings.md`.
+
 ## 2026-07-11 — Las frases: sentence pack, builder, and describe-the-card
 
 **What shipped:** the first sentence-level content and the two features it

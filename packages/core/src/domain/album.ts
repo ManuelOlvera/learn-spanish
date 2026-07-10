@@ -10,6 +10,8 @@ export type ActivityId =
   | "si-no-read"
   | "match-pictures"
   | "match-words"
+  | "connect-listen"
+  | "connect-read"
   | "frases-listen"
   | "frases-read";
 
@@ -22,6 +24,8 @@ export const ALL_ACTIVITIES: readonly ActivityId[] = [
   "si-no-read",
   "match-pictures",
   "match-words",
+  "connect-listen",
+  "connect-read",
 ];
 
 /** The pack-wide sentence activities; their sticker "deck" is SENTENCES_ID. */

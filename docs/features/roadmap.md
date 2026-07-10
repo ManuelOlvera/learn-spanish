@@ -39,11 +39,12 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
    Cheapest sentence-comprehension feature; needs no text input. *(Shipped
    2026-07-10 with word claims — written "¿Es …?" in read mode; sentence claims
    still deferred, they need attribute content.)*
-5. ☐ **Say-it-back (voice recording)** — after the card speaks, a big microphone
+5. ☑ **Say-it-back (voice recording)** — after the card speaks, a big microphone
    button records the kid repeating the word, then plays both back. No grading —
-   the comparison is the learning. Identical at both ages. *(Last one standing
-   2026-07-11 — deliberately waiting for a session with the real tablet on hand:
-   mic permissions and MediaRecorder behavior need device testing.)*
+   the comparison is the learning. Identical at both ages. *(Shipped 2026-07-11:
+   🎤 on flashcards, clips ephemeral per ADR 003. Headless-verified with a
+   stubbed stream — give the record→playback path one confirmation on the real
+   tablet.)*
 
 ## Mainly for the older kid (younger-safe)
 
@@ -52,9 +53,10 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
    Needs a small new deck of verbs/adjectives — the biggest content lift here.
    *(Shipped 2026-07-11 as tap-in-order tiles over a 12-sentence pack; 💬 Las
    frases 🔤.)*
-7. ☐ **Word ↔ word matching** — connect written Spanish to a picture (younger) or
-   to the English word (older, reading practice). *(Deprioritized 2026-07-10:
-   Las parejas 🔤 mode already exercises picture↔word pairing.)*
+7. ☑ **Word ↔ word matching** — connect written Spanish to a picture (younger) or
+   to the English word (older, reading practice). *(Briefly deprioritized, then
+   shipped 2026-07-11 as 🔗 Conecta — connect-the-columns per deck; the 🔤 mode
+   is the app's first Spanish↔English translation reading.)*
 8. ☑ **Describe-the-card** — the flashcard, but the audio speaks a sentence
    ("La vaca es grande y blanca") instead of a single word. *(Shipped 2026-07-11
    as 💬 Las frases 👂, over the same sentence pack.)*

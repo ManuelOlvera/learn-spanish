@@ -10,7 +10,9 @@ No reading, no accounts, no setup.
   64 words, tap-to-hear Spanish audio via browser speech synthesis.
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
-  and "Las parejas" (memory match).
+  "Las parejas" (memory match), and "Conecta" (connect the columns).
+- **Say-it-back** — a 🎤 on every flashcard records the kid repeating the
+  word and plays it straight back; clips are in-memory only (ADR 003).
 - **Las frases** — 12 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
 - **Kid picker** — 🦖 Dino (listen level, pre-readers) vs 🦄 Úni (read

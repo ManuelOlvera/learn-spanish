@@ -10,6 +10,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [adr/](adr/) — **[append-log]** architecture decision records (template: [adr/000-template.md](adr/000-template.md))
   - [adr/001-browser-speech-synthesis.md](adr/001-browser-speech-synthesis.md) — audio via the Web Speech API, not recorded files
   - [adr/002-vercel-hosting.md](adr/002-vercel-hosting.md) — Vercel hosting, no database, public prod URL
+  - [adr/003-ephemeral-voice-recordings.md](adr/003-ephemeral-voice-recordings.md) — say-it-back clips live in memory only, never stored or sent
 
 Referenced by skills in `.claude/skills/` but not yet written (create on first need):
 `skills/debugging.md` (/investigate), `architecture-diagrams.md` (/diagram).

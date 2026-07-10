@@ -69,6 +69,15 @@ function gamesFor(kid: KidId | null): readonly {
         { glyph: "🔤", href: "match/words", label: "Pairs: words" },
       ),
     },
+    {
+      emoji: "🔗",
+      spanish: "Conecta",
+      english: "Connect the words",
+      modes: pick(
+        { glyph: "👂", href: "connect/listen", label: "Connect by ear" },
+        { glyph: "🔤", href: "connect/read", label: "Connect by word" },
+      ),
+    },
   ];
 }
 
