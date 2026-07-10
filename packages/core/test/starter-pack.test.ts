@@ -13,6 +13,11 @@ describe("starter pack content", () => {
       "numbers-11-20",
       "numbers-tens",
       "food",
+      "body",
+      "clothes",
+      "house",
+      "vehicles",
+      "weather",
     ]);
   });
 

@@ -1,5 +1,25 @@
 # Shipped features
 
+## 2026-07-11 — Content drop: 5 new decks (+60 words) and 12 new sentences
+
+**What shipped:** the pack grows from 6 decks / 64 words to **11 decks /
+124 words**, and Las frases from 12 to **24 sentences** — every existing
+game, quiz, album slot, and the carta del día picks the new content up
+automatically. New decks (12 cards each, es-MX-friendly wording like *el
+carro*): **El cuerpo 🖐️, La ropa 👕, La casa 🏠, Los vehículos 🚗, El clima
+⛅**. New sentences reuse the new vocabulary ("el mar es azul", "yo duermo
+en la cama", "el avión vuela alto") and introduce first-person *yo veo /
+yo duermo*. Albums are now 101 stickers per kid.
+
+**Supabase considered and declined** — ADR 002's "no database until
+cross-device progress" decision was revisited and upheld (note appended to
+the ADR): content ships in git, progress is deliberately device-local, and
+a backend would cost offline support for zero benefit.
+
+**Where:** `packages/core/src/infrastructure/starter-pack.ts` +
+`sentence-pack.ts`; accents in `apps/web/src/lib/deck-theme.ts`; content
+tests re-pinned (category list, 20–30 sentence pool).
+
 ## 2026-07-11 — Say-it-back recording + Conecta (roadmap slices 9–10, the last two)
 
 **What shipped:**

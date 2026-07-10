@@ -10,6 +10,11 @@ const accents: Record<string, string> = {
   "numbers-tens": "#2dd4bf",
   food: "#fb7185",
   frases: "#c084fc",
+  body: "#fb923c",
+  clothes: "#facc15",
+  house: "#34d399",
+  vehicles: "#60a5fa",
+  weather: "#22d3ee",
 };
 
 export function deckAccent(deckId: string): string {
