@@ -9,6 +9,9 @@ No reading, no accounts, no setup.
 - **Flashcards** — 4 starter decks (animals, colors, numbers, food), 44 words,
   tap-to-hear Spanish audio via browser speech synthesis.
 
+**Live:** https://learn-spanish-manuelolveras-projects.vercel.app
+(deploy/rollback: `docs/runbooks.md`)
+
 ## Getting started
 
 ```bash

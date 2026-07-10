@@ -81,8 +81,11 @@ owning layer → verify → commit.
 
 - Always commit using: `Manuel Olvera <olverask@protonmail.com>` — verify
   `git config user.email` before pushing.
-- No remote / deploy target yet. When hosting lands, document the deploy + rollback
-  rules here and in `docs/runbooks.md` in the same commit.
+- Remote: `github.com/ManuelOlvera/learn-spanish`. Prod hosting is Vercel (ADR 002);
+  pushing `main` does **not** auto-deploy yet — deploy explicitly with
+  `npx vercel deploy --prod --yes` from the repo root, only after verify passes
+  (`/ship`). Deploy + rollback drills: `docs/runbooks.md`. Once the Vercel GitHub
+  App is connected, update this bullet: pushing `main` will then deploy prod.
 
 ## Never
 
