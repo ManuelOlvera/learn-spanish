@@ -1,0 +1,12 @@
+{
+  "name": "learn-spanish",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @learn-spanish/web dev",
+    "build": "pnpm --filter @learn-spanish/web build",
+    "test": "pnpm --filter @learn-spanish/core test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

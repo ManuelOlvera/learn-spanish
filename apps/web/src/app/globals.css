@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #fbf3e2;
+  --color-ink: #221f1a;
+  --color-lime: #a3e635;
+  --color-lime-deep: #4d7c0f;
+  --font-display: var(--font-baloo), ui-rounded, "Comic Sans MS", system-ui,
+    sans-serif;
+}
+
+body {
+  background-color: var(--color-paper);
+  /* faint polka-dot paper grain — the hand-made feel of the sticker book */
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-ink) 6%, transparent) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 26px 26px;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Sticker: white face, thick ink outline, hard offset shadow in the accent color.
+   Face color must come via --sticker-face — unlayered rules here beat
+   Tailwind's layered bg-* utilities, so bg-lime etc. would be ignored. */
+.sticker {
+  background: var(--sticker-face, white);
+  border: 4px solid var(--color-ink);
+  border-radius: 2rem;
+  box-shadow: 8px 8px 0 0 var(--accent, var(--color-lime));
+}
+
+/* Peeling corner — the one memorable detail from the chosen direction */
+.sticker-peel {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-bottom-left-radius: 1.6rem;
+  border-bottom: 4px solid var(--color-ink);
+  border-left: 4px solid var(--color-ink);
+  background: color-mix(in srgb, var(--accent, var(--color-lime)) 45%, white);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 0);
+}
+
+@keyframes wobble {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  20% {
+    transform: rotate(-3deg) scale(1.04);
+  }
+  45% {
+    transform: rotate(3deg) scale(1.05);
+  }
+  70% {
+    transform: rotate(-2deg) scale(1.03);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.wobble {
+  animation: wobble 0.55s ease-in-out;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.6) rotate(-4deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06) rotate(1.5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.pop-in {
+  animation: pop-in 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wobble,
+  .pop-in {
+    animation: none;
+  }
+}
