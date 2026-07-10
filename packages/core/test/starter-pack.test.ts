@@ -66,6 +66,14 @@ describe("starter pack content", () => {
     }
   });
 
+  it("never repeats an emoji within a deck (quiz choices are picture-only)", async () => {
+    const decks = await repo.listDecks();
+    for (const deck of decks) {
+      const emoji = deck.cards.map((c) => c.emoji);
+      expect(new Set(emoji).size).toBe(emoji.length);
+    }
+  });
+
   it("never repeats a card id across the whole pack", async () => {
     const decks = await repo.listDecks();
     const ids = decks.flatMap((d) => d.cards.map((c) => c.id));

@@ -1,5 +1,25 @@
 # Shipped features
 
+## 2026-07-10 — "¿Dónde está…?" quiz + per-deck choice screen
+
+**For:** both kids — the 5-year-old pre-reader *and* the 8-year-old early
+reader (first slice of `docs/features/roadmap.md`; kid profiles were cut,
+so difficulty is picked per-play).
+
+**What shipped:** Tapping a deck now lands on a picture-only choice screen —
+📖 *Las tarjetas* (flashcards, moved to `/deck/[id]/learn`), 👂 *Escucha*
+(hear the word, tap the right picture from 2 giant choices), 🔤 *Lee* (read
+the word, tap the right picture from 4). Right answer speaks the word, turns
+the sticker lime, and advances; wrong answer wobbles and lets the kid retry.
+Quizzes are 8 rounds (shuffled, no repeated answer, same-deck distractors),
+end on the 🎉 *¡Muy bien!* screen, and reshuffle on replay.
+
+**Where:** quiz assembly is a pure domain service in `packages/core`
+(`domain/quiz.ts`: `createQuiz`, injectable `RandomSource`, typed
+`QuizDeckTooSmallError`); UI in `apps/web` (`QuizPlayer.tsx`, routes
+`/deck/[deckId]` → choice, `…/learn`, `…/quiz/[listen|read]`). Content tests
+now also pin per-deck emoji uniqueness (quiz choices are picture-only).
+
 ## 2026-07-10 — Numbers to 100
 
 Two new decks extend counting past ten: **Los números 11–20** (once → veinte,
