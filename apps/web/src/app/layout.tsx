@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ThemeApplier } from "@/components/ThemeApplier";
 
 // Self-hosted (variable, latin subset) so builds never need the network.
 const baloo = localFont({
@@ -26,7 +27,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={baloo.variable}>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        <ThemeApplier />
+        {children}
+      </body>
     </html>
   );
 }

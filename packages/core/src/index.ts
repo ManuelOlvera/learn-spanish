@@ -7,8 +7,16 @@ export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
 export { createQuiz, createQuizRound, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
 export { createSiNoGame, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
-export type { StarStore } from "./domain/stars";
-export { earnedStars, MEAL_COST, MISSION_BONUS } from "./domain/stars";
+export type { StarStore, StarReward } from "./domain/stars";
+export {
+  computeReward,
+  earnedStars,
+  FIRST_TIME_BONUS,
+  MEAL_COST,
+  MISSION_BONUS,
+  PERFECT_BONUS,
+  STREAK_DOUBLE_DAYS,
+} from "./domain/stars";
 export type { MissionKind, MissionState, MissionStore } from "./domain/mission";
 export {
   activityKind,
@@ -19,18 +27,36 @@ export {
 } from "./domain/mission";
 export type { StickerTier } from "./domain/sticker-tiers";
 export { stickerTier, TIER_THRESHOLDS } from "./domain/sticker-tiers";
-export type { PetState, PetStore } from "./domain/mascota";
-export { feedPet, isPetHungry, PET_STAGE_MEALS, petStage } from "./domain/mascota";
+export type { PetState, PetStore, PetSpecies, PetCollection } from "./domain/mascota";
+export {
+  defaultCollection,
+  feedPet,
+  isPetHungry,
+  petEmoji,
+  PET_SPECIES,
+  PET_STAGE_MEALS,
+  petStage,
+  speciesStages,
+  STARTER_SPECIES,
+} from "./domain/mascota";
 export type { Accessory } from "./domain/wardrobe";
 export { ACCESSORIES, buyAccessory } from "./domain/wardrobe";
+export type { SurpriseResult } from "./domain/surprise";
+export { drawSurprise, SURPRISE_COST } from "./domain/surprise";
+export type { AvatarChoice } from "./domain/avatars";
+export {
+  AVATAR_CATALOG,
+  AVATAR_COSTS,
+  avatarCost,
+  isAvatarOwned,
+  STARTER_AVATARS,
+} from "./domain/avatars";
 export type { CountingGame, CountingRound } from "./domain/counting";
 export { COUNTING_ROUNDS, createCountingGame } from "./domain/counting";
 export type { SpellingGame, SpellingRound } from "./domain/spelling";
 export { createSpellingGame, SPELLING_ROUNDS, spellingWord } from "./domain/spelling";
 export type { StickerCountsStore } from "./domain/album";
 export { COMBO_MILESTONES, isComboMilestone } from "./domain/combo";
-export type { AvatarProgress, AvatarRequirement } from "./domain/avatar-unlock";
-export { AVATAR_UNLOCKS, isAvatarUnlocked } from "./domain/avatar-unlock";
 export type { SceneGame, SceneItem } from "./domain/scene";
 export { createSceneGame, SCENE_ITEMS, SCENE_ROUNDS, sceneQuestion } from "./domain/scene";
 export type { DuelGame, DuelRound } from "./domain/duel";

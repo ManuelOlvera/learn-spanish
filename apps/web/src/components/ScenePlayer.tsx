@@ -124,6 +124,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
           activity={mode === "listen" ? "scene-listen" : "scene-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}
+          totalRounds={rounds.length}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

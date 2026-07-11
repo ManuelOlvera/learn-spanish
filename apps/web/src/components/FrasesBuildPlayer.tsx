@@ -123,6 +123,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
           activity="frases-read"
           onReplay={restart}
           firstTryCount={firstTries.current}
+          totalRounds={rounds.length}
           back={{ href: "/", emoji: "🏠", label: "Back to all decks" }}
         />
       ) : !round ? (

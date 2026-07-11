@@ -124,6 +124,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
           activity={mode === "listen" ? "si-no-listen" : "si-no-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}
+          totalRounds={rounds.length}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

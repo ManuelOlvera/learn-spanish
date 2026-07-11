@@ -125,6 +125,7 @@ export function CountingPlayer({ itemPool, numberCards, mode, accent }: Props) {
           onReplay={restart}
           noAward
           firstTryCount={firstTries.current}
+          totalRounds={rounds.length}
           back={{ href: "/deck/numbers", emoji: "🔢", label: "Back to Numbers 1-10" }}
         />
       ) : !round ? (

@@ -26,9 +26,11 @@ No reading, no accounts, no setup.
 - **Las frases** — 72 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
 - **Star economy** — a treasure chest on every finish pays ⭐ per
-  first-try answer; the daily misión adds a +10⭐ bonus chest; stars
-  feed **la mascota** (🥚→🐓, 5⭐ a meal) and buy 🛍️ wardrobe
-  accessories for it; album stickers tier up to
+  first-try answer, with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
+  the daily misión adds a +10⭐ bonus chest. Stars feed and grow **la
+  mascota** (a collection of adoptable pets, 5⭐ a meal), buy 🛍️ wardrobe
+  accessories, open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
+  themes; album stickers tier up to
   silver/gold with replays; `/informe` gives parents each kid's strong
   and tricky words.
 - **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,

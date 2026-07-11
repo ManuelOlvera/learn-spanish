@@ -3,14 +3,17 @@
 import { useEffect, useState } from "react";
 import {
   ALL_KIDS,
-  AVATAR_UNLOCKS,
-  isAvatarUnlocked,
-  type AvatarProgress,
+  avatarCost,
+  isAvatarOwned,
   type KidId,
 } from "@learn-spanish/core";
-import { log } from "@learn-spanish/config";
-import { getAlbum, getStreak } from "@/lib/album";
-import { AVATAR_CHOICES, getAvatar, KID_META, setAvatar } from "@/lib/kid";
+import {
+  AVATAR_CHOICES,
+  getAvatar,
+  KID_META,
+  setAvatar,
+} from "@/lib/kid";
+import { buyAvatar, getOwnedAvatars, getStars } from "@/lib/economy";
 import { feedbackSticker, feedbackWrong } from "@/lib/feedback";
 
 interface Props {
@@ -18,43 +21,25 @@ interface Props {
 }
 
 /** Full-screen "who's playing?" — two avatars, navigable by picture alone.
- *  The 🎨 badge on each tile opens the avatar chooser for that kid. */
+ *  The 🎨 badge opens the avatar shop: free faces plus ones bought with stars. */
 export function KidPicker({ onPick }: Props) {
   const [avatars, setAvatars] = useState<Record<KidId, string> | null>(null);
   const [choosingFor, setChoosingFor] = useState<KidId | null>(null);
-  const [progress, setProgress] = useState<AvatarProgress>({
-    stickerCount: 0,
-    streakDays: 0,
-  });
-  const [lockedTap, setLockedTap] = useState<{ avatar: string; nonce: number } | null>(
-    null,
-  );
+  const [stars, setStars] = useState(0);
+  const [owned, setOwned] = useState<readonly string[]>([]);
+  const [nope, setNope] = useState<{ avatar: string; nonce: number } | null>(null);
 
   useEffect(() => {
     setAvatars({ listener: getAvatar("listener"), reader: getAvatar("reader") });
   }, []);
 
-  // Unlocks are earned per kid: their stickers, their streak.
   useEffect(() => {
     if (choosingFor === null) {
       return;
     }
-    let cancelled = false;
-    Promise.all([getAlbum.execute(choosingFor), getStreak.execute(choosingFor)])
-      .then(([stickers, streak]) => {
-        if (!cancelled) {
-          setProgress({
-            stickerCount: stickers.length,
-            streakDays: streak?.count ?? 0,
-          });
-        }
-      })
-      .catch((err: unknown) =>
-        log.error("avatar-unlock", "failed to load progress", { err }),
-      );
-    return () => {
-      cancelled = true;
-    };
+    setStars(getStars(choosingFor));
+    // The currently-worn face always counts as owned (migration safety).
+    setOwned([...getOwnedAvatars(choosingFor), getAvatar(choosingFor)]);
   }, [choosingFor]);
 
   if (avatars === null) {
@@ -62,77 +47,91 @@ export function KidPicker({ onPick }: Props) {
   }
 
   if (choosingFor !== null) {
+    const kid = choosingFor;
     return (
-      <main className="mx-auto flex min-h-dvh max-w-2xl flex-col items-center justify-center gap-8 p-6">
+      <main className="mx-auto flex min-h-dvh max-w-2xl flex-col items-center justify-center gap-6 p-6">
         <header className="text-center">
-          <h1 className="text-5xl font-extrabold sm:text-6xl">
-            Elige tu cara
-          </h1>
+          <h1 className="text-5xl font-extrabold sm:text-6xl">Elige tu cara</h1>
           <p className="mt-1 text-lg font-semibold text-ink/60">
-            Pick your avatar ({KID_META[choosingFor].english})
+            Pick your avatar ({KID_META[kid].english})
           </p>
         </header>
+        <span
+          aria-label={`You have ${stars} stars`}
+          className="rounded-full border-4 border-ink bg-white px-5 py-1 text-2xl font-extrabold"
+        >
+          ⭐ {stars}
+        </span>
         <div className="grid w-full max-w-md grid-cols-4 gap-4">
           {AVATAR_CHOICES.map((emoji, i) => {
-            const unlocked = isAvatarUnlocked(emoji, progress);
-            const requirement = AVATAR_UNLOCKS[emoji];
-            const isWrong = lockedTap?.avatar === emoji;
+            const isOwned = isAvatarOwned(emoji, owned);
+            const cost = avatarCost(emoji);
+            const isWrong = nope?.avatar === emoji;
+            const selected = avatars[kid] === emoji;
             return (
               <button
                 type="button"
-                key={`${emoji}-${isWrong ? lockedTap.nonce : 0}`}
+                key={`${emoji}-${isWrong ? nope.nonce : 0}`}
                 onClick={() => {
-                  if (!unlocked) {
-                    // Locked: wobble and show what it takes.
-                    feedbackWrong();
-                    setLockedTap((prev) => ({
-                      avatar: emoji,
-                      nonce: (prev?.nonce ?? 0) + 1,
-                    }));
+                  if (isOwned) {
+                    feedbackSticker();
+                    setAvatar(kid, emoji);
+                    setAvatars({ ...avatars, [kid]: emoji });
+                    setChoosingFor(null);
                     return;
                   }
+                  const balance = buyAvatar(kid, emoji, cost);
+                  if (balance === null) {
+                    feedbackWrong();
+                    setNope((prev) => ({ avatar: emoji, nonce: (prev?.nonce ?? 0) + 1 }));
+                    return;
+                  }
+                  // Bought — wear it right away.
                   feedbackSticker();
-                  setAvatar(choosingFor, emoji);
-                  setAvatars({ ...avatars, [choosingFor]: emoji });
+                  setStars(balance);
+                  setOwned([...owned, emoji]);
+                  setAvatar(kid, emoji);
+                  setAvatars({ ...avatars, [kid]: emoji });
                   setChoosingFor(null);
                 }}
                 aria-label={
-                  unlocked
-                    ? `Choose ${emoji}`
-                    : `${emoji} locked — needs ${requirement!.count} ${
-                        requirement!.type === "stickers" ? "stickers" : "day streak"
-                      }`
+                  isOwned ? `Choose ${emoji}` : `Buy ${emoji} for ${cost} stars`
                 }
-                className={`sticker pop-in relative flex aspect-square flex-col items-center justify-center text-5xl ${
-                  unlocked
-                    ? "active:translate-x-1 active:translate-y-1 active:shadow-none"
-                    : "opacity-60"
+                className={`sticker pop-in relative flex aspect-square items-center justify-center text-5xl ${
+                  "active:translate-x-1 active:translate-y-1 active:shadow-none"
                 } ${isWrong ? "wobble" : ""}`}
                 style={
-                  avatars[choosingFor] === emoji
+                  selected
                     ? ({
                         "--sticker-face": "var(--color-lime)",
-                        animationDelay: `${i * 25}ms`,
+                        animationDelay: `${i * 20}ms`,
                       } as React.CSSProperties)
-                    : ({ animationDelay: `${i * 25}ms` } as React.CSSProperties)
+                    : ({ animationDelay: `${i * 20}ms` } as React.CSSProperties)
                 }
               >
-                <span aria-hidden className={unlocked ? "" : "opacity-40 grayscale"}>
+                <span aria-hidden className={isOwned ? "" : "opacity-45"}>
                   {emoji}
                 </span>
-                {!unlocked && requirement && (
+                {!isOwned && (
                   <span
                     aria-hidden
-                    className="absolute -bottom-2 rounded-full border-2 border-ink bg-white px-2 text-xs font-extrabold"
+                    className="absolute -bottom-2 rounded-full border-2 border-ink bg-white px-1.5 text-xs font-extrabold"
                   >
-                    🔒 {requirement.count}
-                    {requirement.type === "stickers" ? "📔" : "☀️"}
+                    {cost}⭐
                   </span>
                 )}
               </button>
             );
           })}
         </div>
+        <button
+          type="button"
+          onClick={() => setChoosingFor(null)}
+          aria-label="Done choosing"
+          className="sticker px-6 py-2 text-lg font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
+        >
+          ✓ Listo
+        </button>
       </main>
     );
   }

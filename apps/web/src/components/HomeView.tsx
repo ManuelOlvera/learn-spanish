@@ -19,12 +19,13 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak, getWordStats } from "@/lib/album";
 import {
   claimMissionBonus,
+  getActivePet,
   getMission,
-  getPet,
+  getPetCollection,
   getStars,
   type MissionView,
 } from "@/lib/economy";
-import { petStage, MISSION_BONUS, type PetState } from "@learn-spanish/core";
+import { MISSION_BONUS, petEmoji } from "@learn-spanish/core";
 import { feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
@@ -43,7 +44,7 @@ export function HomeView({ decks, groups }: Props) {
   const [dailyWobble, setDailyWobble] = useState(0);
   const [mission, setMission] = useState<MissionView | null>(null);
   const [stars, setStars] = useState(0);
-  const [pet, setPet] = useState<PetState | null>(null);
+  const [petFace, setPetFace] = useState("🥚");
 
   useEffect(() => {
     warmUpVoices();
@@ -79,7 +80,7 @@ export function HomeView({ decks, groups }: Props) {
       );
     setMission(getMission(kid));
     setStars(getStars(kid));
-    setPet(getPet(kid));
+    setPetFace(petEmoji(getPetCollection(kid).active, getActivePet(kid).meals));
     return () => {
       cancelled = true;
     };
@@ -290,7 +291,7 @@ export function HomeView({ decks, groups }: Props) {
         >
           <span aria-hidden className="sticker-peel" />
           <span aria-hidden className="text-5xl sm:text-6xl">
-            {["🥚", "🐣", "🐥", "🐓"][petStage(pet?.meals ?? 0)]}
+            {petFace}
           </span>
           <span className="text-center text-xl font-extrabold sm:text-2xl">
             La mascota

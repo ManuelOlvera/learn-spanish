@@ -149,6 +149,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
           onReplay={restart}
           noAward={review}
           firstTryCount={firstTries.current}
+          totalRounds={rounds.length}
           back={
             review
               ? { href: "/", emoji: "🏠", label: "Back to all decks" }

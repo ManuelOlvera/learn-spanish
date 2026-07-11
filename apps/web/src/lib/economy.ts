@@ -6,17 +6,23 @@
  * document per concern, all per-kid keyed, all failure-tolerant.
  */
 import {
+  buyAccessory,
   dailyMission,
   dayKey,
+  defaultCollection,
+  drawSurprise,
   feedPet,
   markMissionDone,
   MEAL_COST,
   MISSION_BONUS,
   missionComplete,
+  SURPRISE_COST,
   type KidId,
   type MissionKind,
   type MissionState,
+  type PetCollection,
   type PetState,
+  type SurpriseResult,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 
@@ -48,8 +54,10 @@ function writeDoc<T>(key: string, kid: KidId, value: T): void {
 
 const STARS_KEY = "palabras.stars.v1";
 const MISSION_KEY = "palabras.mission.v1";
-const PET_KEY = "palabras.pet.v1";
+const PET_KEY = "palabras.pet.v1"; // legacy single pet (migrated to v2)
+const PETS_KEY = "palabras.pets.v2"; // pet collection
 const COUNTS_KEY = "palabras.sticker-counts.v1";
+const OWNED_AVATARS_KEY = "palabras.owned-avatars.v1";
 
 // ---- stars ----
 
@@ -112,25 +120,120 @@ export function claimMissionBonus(kid: KidId): number | null {
   return addStars(kid, MISSION_BONUS);
 }
 
-// ---- mascota ----
+// ---- mascota (a collection of adopted pets) ----
 
-export function getPet(kid: KidId): PetState {
-  return readDoc<PetState>(PET_KEY)[kid] ?? { meals: 0, lastFed: null };
+export function getPetCollection(kid: KidId): PetCollection {
+  const stored = readDoc<PetCollection>(PETS_KEY)[kid];
+  if (
+    stored !== undefined &&
+    typeof stored.active === "string" &&
+    Array.isArray(stored.owned) &&
+    typeof stored.pets === "object"
+  ) {
+    return stored;
+  }
+  // Migrate the pre-collection single pet into the starter slot.
+  const legacy = readDoc<PetState>(PET_KEY)[kid];
+  const collection = defaultCollection();
+  if (legacy !== undefined && typeof legacy.meals === "number") {
+    return {
+      ...collection,
+      pets: { ...collection.pets, [collection.active]: legacy },
+    };
+  }
+  return collection;
 }
 
-/** Spends MEAL_COST stars and feeds; null if the kid cannot afford it. */
-export function feedPetFor(kid: KidId): { pet: PetState; stars: number } | null {
+export function savePetCollection(kid: KidId, collection: PetCollection): void {
+  writeDoc(PETS_KEY, kid, collection);
+}
+
+export function getActivePet(kid: KidId): PetState {
+  const c = getPetCollection(kid);
+  return c.pets[c.active] ?? { meals: 0, lastFed: null };
+}
+
+/** Feed the active pet; spends MEAL_COST, null if unaffordable. */
+export function feedActivePet(
+  kid: KidId,
+): { pet: PetState; stars: number } | null {
   const stars = spendStars(kid, MEAL_COST);
   if (stars === null) {
     return null;
   }
-  const pet = feedPet(getPet(kid), dayKey(new Date()));
-  writeDoc(PET_KEY, kid, pet);
+  const c = getPetCollection(kid);
+  const pet = feedPet(c.pets[c.active] ?? null, dayKey(new Date()));
+  savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: pet } });
   return { pet, stars };
 }
 
-export function savePet(kid: KidId, pet: PetState): void {
-  writeDoc(PET_KEY, kid, pet);
+/** Adopt a new species (a fresh egg) and make it active; null if unaffordable. */
+export function adoptSpecies(
+  kid: KidId,
+  speciesId: string,
+  cost: number,
+): { collection: PetCollection; stars: number } | null {
+  const c = getPetCollection(kid);
+  if (c.owned.includes(speciesId)) {
+    return null;
+  }
+  const stars = spendStars(kid, cost);
+  if (stars === null) {
+    return null;
+  }
+  const collection: PetCollection = {
+    active: speciesId,
+    owned: [...c.owned, speciesId],
+    pets: { ...c.pets, [speciesId]: { meals: 0, lastFed: null } },
+  };
+  savePetCollection(kid, collection);
+  return { collection, stars };
+}
+
+export function setActiveSpecies(kid: KidId, speciesId: string): void {
+  const c = getPetCollection(kid);
+  if (c.owned.includes(speciesId)) {
+    savePetCollection(kid, { ...c, active: speciesId });
+  }
+}
+
+/** Buy a wardrobe accessory for the active pet; null if unaffordable/owned. */
+export function buyAccessoryForActive(
+  kid: KidId,
+  accessoryId: string,
+  cost: number,
+): { pet: PetState; stars: number } | null {
+  const c = getPetCollection(kid);
+  const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
+  if ((pet.accessories ?? []).includes(accessoryId)) {
+    return null;
+  }
+  const stars = spendStars(kid, cost);
+  if (stars === null) {
+    return null;
+  }
+  const dressed = buyAccessory(pet, accessoryId);
+  savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: dressed } });
+  return { pet: dressed, stars };
+}
+
+/** La caja sorpresa: spend, draw, apply. null if unaffordable. */
+export function openSurprise(
+  kid: KidId,
+): { result: SurpriseResult; stars: number } | null {
+  const c = getPetCollection(kid);
+  const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
+  const stars = spendStars(kid, SURPRISE_COST);
+  if (stars === null) {
+    return null;
+  }
+  const result = drawSurprise(Math.random, pet.accessories ?? []);
+  if (result.type === "accessory") {
+    const dressed = buyAccessory(pet, result.id);
+    savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: dressed } });
+    return { result, stars };
+  }
+  return { result, stars: addStars(kid, result.amount) };
 }
 
 // ---- sticker completion counts (tiers) ----
@@ -163,6 +266,35 @@ export function saveStickerCounts(
 
 export function setStars(kid: KidId, amount: number): void {
   writeDoc(STARS_KEY, kid, amount);
+}
+
+// ---- owned avatars (bought with stars) ----
+
+export function getOwnedAvatars(kid: KidId): readonly string[] {
+  const value = readDoc<readonly string[]>(OWNED_AVATARS_KEY)[kid];
+  return Array.isArray(value) ? value.filter((e) => typeof e === "string") : [];
+}
+
+export function saveOwnedAvatars(kid: KidId, owned: readonly string[]): void {
+  writeDoc(OWNED_AVATARS_KEY, kid, owned);
+}
+
+/** Buy an avatar; returns the new balance, or null if unaffordable/owned. */
+export function buyAvatar(
+  kid: KidId,
+  emoji: string,
+  cost: number,
+): number | null {
+  const owned = getOwnedAvatars(kid);
+  if (owned.includes(emoji)) {
+    return null;
+  }
+  const stars = spendStars(kid, cost);
+  if (stars === null) {
+    return null;
+  }
+  saveOwnedAvatars(kid, [...owned, emoji]);
+  return stars;
 }
 
 // ---- reto best scores ----

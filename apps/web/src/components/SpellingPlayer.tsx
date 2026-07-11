@@ -127,6 +127,7 @@ export function SpellingPlayer({ deck, accent }: Props) {
           onReplay={restart}
           noAward
           firstTryCount={firstTries.current}
+          totalRounds={rounds.length}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

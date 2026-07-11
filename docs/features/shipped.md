@@ -1,5 +1,41 @@
 # Shipped features
 
+## 2026-07-12 — Star economy expansion: renewable sinks, avatar shop, richer chest
+
+**What shipped:** stars gained real depth so they never pile up worthless
+(the old economy dead-ended once the pet was grown and the wardrobe bought):
+
+- **Avatars are now bought with stars** (the sticker/streak gating is gone),
+  and there are **29** of them (was 16): 6 free starters plus paid faces
+  15–60⭐. The 🎨 chooser is a shop showing the balance and price badges;
+  buying wears it immediately. (`domain/avatars.ts`; owned per kid.)
+- **Pet collection** — adopt more creatures (🐰 40⭐, 🐱 70⭐, 🐉 120⭐), each
+  a fresh egg to grow independently, switch which is on screen. Every new
+  pet revives the feeding sink — the core renewable mechanic.
+  (`PET_SPECIES`, `PetCollection`.)
+- **Caja sorpresa** — a 15⭐ surprise box giving a random unowned accessory,
+  with a star consolation once all are owned. An endless sink.
+  (`domain/surprise.ts`.)
+- **Themes** — 6 paper-colour skins bought with stars (20–30⭐), applied
+  app-wide via `ThemeApplier`. Ink stays dark so stickers keep contrast; a
+  true dark mode is deliberately deferred.
+- **Richer chest** — the ¡Muy bien! chest now stacks bonuses on the base
+  (1⭐/first-try): ✨ **¡Perfecto!** +5 (no mistakes), 🔥 **Racha** doubles
+  the base on a 7-day streak, 🆕 first-completion +3, each shown as a chip.
+  (`computeReward` in `domain/stars.ts`.)
+
+All new state is per-kid on-device (no backend, ADR 002) and rides the
+transfer code (owned avatars + pet collections added with union/max-merge).
+
+**Deferred:** the *mystery deck* (star-gated content) — it entangles with
+the deck-group partition invariant, so it's cleaner as its own content
+slice. Theme selection is device-local (owned themes could transfer later).
+
+**Where:** core `avatars.ts`, `surprise.ts`, `stars.ts` (`computeReward`),
+`mascota.ts` (species/collection), transfer fields; web `economy.ts`
+(collection + avatars), `theme.ts` + `ThemeApplier`, reworked `MascotaView`
+and `KidPicker`, bonus chips in `DoneScreen`. 20 new core tests (151 total).
+
 ## 2026-07-12 — Four new games: wardrobe, ¿Cuántos hay?, Deletrea, El reto
 
 **What shipped:** four features aimed at depth and fixing the star

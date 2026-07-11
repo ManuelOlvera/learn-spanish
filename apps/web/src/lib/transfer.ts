@@ -5,6 +5,7 @@ import {
   decodeProgress,
   encodeProgress,
   mergeProgress,
+  type PetCollection,
   type ProgressSnapshot,
   type Streak,
   type WordStats,
@@ -16,10 +17,13 @@ import { LocalStorageStreakStore } from "./streak-store";
 import { LocalStorageWordStatsStore } from "./word-stats-store";
 import { getAvatars, setAvatar } from "./kid";
 import {
-  getPet,
+  getActivePet,
+  getOwnedAvatars,
+  getPetCollection,
   getStars,
   getStickerCounts,
-  savePet,
+  saveOwnedAvatars,
+  savePetCollection,
   saveStickerCounts,
   setStars,
 } from "./economy";
@@ -34,6 +38,8 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
   const stats: Partial<Record<KidId, WordStats>> = {};
   const stars: Partial<Record<KidId, number>> = {};
   const pets: Partial<Record<KidId, PetState>> = {};
+  const petCollections: Partial<Record<KidId, PetCollection>> = {};
+  const ownedAvatars: Partial<Record<KidId, readonly string[]>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
     if (streak !== null) {
@@ -44,7 +50,13 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
       stats[kid] = kidStats;
     }
     stars[kid] = getStars(kid);
-    pets[kid] = getPet(kid);
+    // `pets` (active pet) stays for compat; `petCollections` is authoritative.
+    pets[kid] = getActivePet(kid);
+    petCollections[kid] = getPetCollection(kid);
+    const owned = getOwnedAvatars(kid);
+    if (owned.length > 0) {
+      ownedAvatars[kid] = owned;
+    }
   }
   return {
     stickers,
@@ -54,6 +66,8 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
     stars,
     stickerCounts: getStickerCounts(),
     pets,
+    petCollections,
+    ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
   };
 }
 
@@ -90,9 +104,13 @@ export async function importProgressCode(code: string): Promise<ImportOutcome> {
     if (kidStars !== undefined) {
       setStars(kid, kidStars);
     }
-    const kidPet = merged.pets?.[kid];
-    if (kidPet !== undefined) {
-      savePet(kid, kidPet);
+    const kidCollection = merged.petCollections?.[kid];
+    if (kidCollection !== undefined) {
+      savePetCollection(kid, kidCollection);
+    }
+    const kidAvatars = merged.ownedAvatars?.[kid];
+    if (kidAvatars !== undefined) {
+      saveOwnedAvatars(kid, kidAvatars);
     }
   }
   if (merged.stickerCounts !== undefined) {

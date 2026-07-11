@@ -2,7 +2,7 @@ import { isKidId } from "./kid";
 import type { KidId } from "./kid";
 import type { Streak } from "./daily";
 import type { WordStat, WordStats } from "./word-stats";
-import type { PetState } from "./mascota";
+import type { PetCollection, PetState } from "./mascota";
 
 /**
  * One-time progress transfer between devices — a copy-able code, no backend
@@ -19,7 +19,12 @@ export interface ProgressSnapshot {
   /** Economy fields — all optional for backwards compatibility. */
   readonly stars?: Partial<Record<KidId, number>>;
   readonly stickerCounts?: Readonly<Record<string, number>>;
+  /** Legacy single active pet (pre-collection codes); still emitted for
+   *  compat. `petCollections` is authoritative when present. */
   readonly pets?: Partial<Record<KidId, PetState>>;
+  readonly petCollections?: Partial<Record<KidId, PetCollection>>;
+  /** Bought avatars a kid owns (free starters are implicit). */
+  readonly ownedAvatars?: Partial<Record<KidId, readonly string[]>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -134,6 +139,15 @@ export function decodeProgress(code: string): ProgressSnapshot {
       }
     }
   }
+  const petCollections = sanitizeKidRecord(
+    candidate.petCollections,
+    isPetCollection,
+  );
+  const ownedAvatars = sanitizeKidRecord(
+    candidate.ownedAvatars,
+    (v): v is readonly string[] =>
+      Array.isArray(v) && v.every((e) => typeof e === "string"),
+  );
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -146,7 +160,24 @@ export function decodeProgress(code: string): ProgressSnapshot {
     ...(Object.keys(stars).length > 0 ? { stars } : {}),
     ...(Object.keys(stickerCounts).length > 0 ? { stickerCounts } : {}),
     ...(Object.keys(pets).length > 0 ? { pets } : {}),
+    ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),
+    ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
   };
+}
+
+function isPetCollection(value: unknown): value is PetCollection {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const c = value as PetCollection;
+  return (
+    typeof c.active === "string" &&
+    Array.isArray(c.owned) &&
+    c.owned.every((s) => typeof s === "string") &&
+    typeof c.pets === "object" &&
+    c.pets !== null &&
+    Object.values(c.pets).every(isPetState)
+  );
 }
 
 function isPetState(value: unknown): value is PetState {
@@ -234,28 +265,41 @@ export function mergeProgress(
   }
   const pets: Partial<Record<KidId, PetState>> = { ...(current.pets ?? {}) };
   for (const [kid, pet] of Object.entries(incoming.pets ?? {}) as [KidId, PetState][]) {
-    const existing = pets[kid];
+    pets[kid] = mergePet(pets[kid], pet);
+  }
+
+  // Owned avatars union (bought content is never lost on a merge).
+  const ownedAvatars: Partial<Record<KidId, readonly string[]>> = {
+    ...(current.ownedAvatars ?? {}),
+  };
+  for (const [kid, list] of Object.entries(incoming.ownedAvatars ?? {}) as [
+    KidId,
+    readonly string[],
+  ][]) {
+    ownedAvatars[kid] = [...new Set([...(ownedAvatars[kid] ?? []), ...list])];
+  }
+
+  // Pet collections: union owned species, max-merge each pet, keep an active.
+  const petCollections: Partial<Record<KidId, PetCollection>> = {
+    ...(current.petCollections ?? {}),
+  };
+  for (const [kid, incomingCol] of Object.entries(
+    incoming.petCollections ?? {},
+  ) as [KidId, PetCollection][]) {
+    const existing = petCollections[kid];
     if (existing === undefined) {
-      pets[kid] = pet;
+      petCollections[kid] = incomingCol;
       continue;
     }
-    const accessories = [...(existing.accessories ?? [])];
-    for (const a of pet.accessories ?? []) {
-      if (!accessories.includes(a)) {
-        accessories.push(a);
-      }
+    const owned = [...new Set([...existing.owned, ...incomingCol.owned])];
+    const petsBySpecies: Record<string, PetState> = { ...existing.pets };
+    for (const [species, pet] of Object.entries(incomingCol.pets)) {
+      petsBySpecies[species] = mergePet(petsBySpecies[species], pet);
     }
-    pets[kid] = {
-      meals: Math.max(existing.meals, pet.meals),
-      lastFed:
-        existing.lastFed === null
-          ? pet.lastFed
-          : pet.lastFed === null
-            ? existing.lastFed
-            : existing.lastFed > pet.lastFed
-              ? existing.lastFed
-              : pet.lastFed,
-      ...(accessories.length > 0 ? { accessories } : {}),
+    petCollections[kid] = {
+      active: incomingCol.active || existing.active,
+      owned,
+      pets: petsBySpecies,
     };
   }
 
@@ -267,5 +311,27 @@ export function mergeProgress(
     stars,
     stickerCounts,
     pets,
+    ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),
+    ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
+  };
+}
+
+/** Max-merge two pet states (meals, later feed day, accessory union). */
+function mergePet(a: PetState | undefined, b: PetState): PetState {
+  if (a === undefined) {
+    return b;
+  }
+  const accessories = [...new Set([...(a.accessories ?? []), ...(b.accessories ?? [])])];
+  return {
+    meals: Math.max(a.meals, b.meals),
+    lastFed:
+      a.lastFed === null
+        ? b.lastFed
+        : b.lastFed === null
+          ? a.lastFed
+          : a.lastFed > b.lastFed
+            ? a.lastFed
+            : b.lastFed,
+    ...(accessories.length > 0 ? { accessories } : {}),
   };
 }

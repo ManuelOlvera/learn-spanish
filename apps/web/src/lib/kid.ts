@@ -1,6 +1,6 @@
 "use client";
 
-import { isKidId, type KidId } from "@learn-spanish/core";
+import { AVATAR_CATALOG, isKidId, type KidId } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 
 const STORAGE_KEY = "palabras.kid.v1";
@@ -15,11 +15,8 @@ export const KID_META: Record<
   reader: { defaultAvatar: "🦄", glyph: "🔤", english: "read level" },
 };
 
-/** The avatars a kid can pick from (each may be chosen by either kid). */
-export const AVATAR_CHOICES: readonly string[] = [
-  "🦖", "🦄", "🐯", "🦊", "🐼", "🐸", "🐙", "🦋",
-  "🐬", "🦁", "🐰", "🐲", "🤖", "👾", "🦸", "🧚",
-];
+/** The avatars a kid can pick from — the core catalog carries their star costs. */
+export const AVATAR_CHOICES: readonly string[] = AVATAR_CATALOG.map((a) => a.emoji);
 
 function readAvatars(): Partial<Record<KidId, string>> {
   try {

@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   activityKind,
-  earnedStars,
+  computeReward,
   kidForActivity,
   type ActivityId,
   type AwardResult,
+  type StarReward,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { awardSticker } from "@/lib/album";
+import { awardSticker, getStreak } from "@/lib/album";
 import { getSelectedKid } from "@/lib/kid";
 import { addStars, markActivityDone } from "@/lib/economy";
 import { ACTIVITY_META } from "@/lib/activity-theme";
@@ -29,6 +30,8 @@ interface Props {
   noAward?: boolean;
   /** First-try correct answers this run — becomes the chest's stars. */
   firstTryCount?: number;
+  /** Round count for round-based games — enables the "perfect" bonus. */
+  totalRounds?: number;
 }
 
 /**
@@ -42,16 +45,33 @@ export function DoneScreen({
   back,
   noAward = false,
   firstTryCount = 0,
+  totalRounds,
 }: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
+  const [streakDays, setStreakDays] = useState<number | null>(null);
   const meta = ACTIVITY_META[activity];
-  const stars = earnedStars(firstTryCount);
+
+  // The chest waits until the streak (and, for sticker games, the award) have
+  // loaded, so its amount includes every bonus and never changes after render.
+  const ready = streakDays !== null && (noAward || award !== null);
+  const reward: StarReward | null = ready
+    ? computeReward({
+        firstTryCorrect: firstTryCount,
+        totalRounds,
+        streakDays: streakDays ?? 0,
+        firstTime: award?.isNew ?? false,
+      })
+    : null;
 
   useEffect(() => {
     feedbackFanfare();
     // Completing the activity feeds today's mission either way.
     const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
     markActivityDone(kid, activityKind(activity));
+    getStreak
+      .execute(kid)
+      .then((s) => setStreakDays(s?.count ?? 0))
+      .catch(() => setStreakDays(0));
   }, [activity]);
 
   useEffect(() => {
@@ -122,13 +142,36 @@ export function DoneScreen({
         </div>
       )}
 
-      <StarChest
-        amount={stars}
-        onOpen={() => {
-          const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
-          addStars(kid, stars);
-        }}
-      />
+      {reward !== null && (
+        <div className="flex flex-col items-center gap-2">
+          <StarChest
+            amount={reward.total}
+            onOpen={() => {
+              const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
+              addStars(kid, reward.total);
+            }}
+          />
+          {(reward.perfect > 0 || reward.streak > 0 || reward.firstTime > 0) && (
+            <div className="flex flex-wrap justify-center gap-2 text-sm font-extrabold">
+              {reward.perfect > 0 && (
+                <span className="rounded-full border-2 border-ink bg-white px-3 py-0.5">
+                  ✨ ¡Perfecto! +{reward.perfect}
+                </span>
+              )}
+              {reward.streak > 0 && (
+                <span className="rounded-full border-2 border-ink bg-white px-3 py-0.5">
+                  🔥 Racha +{reward.streak}
+                </span>
+              )}
+              {reward.firstTime > 0 && (
+                <span className="rounded-full border-2 border-ink bg-white px-3 py-0.5">
+                  🆕 +{reward.firstTime}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex gap-6">
         <button
