@@ -6,7 +6,7 @@ export type { RandomSource } from "./domain/random";
 export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
 export { createQuiz, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
-export { createSiNoGame, SI_NO_ROUNDS } from "./domain/si-no";
+export { createSiNoGame, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
 export type { ConnectBoard, ConnectGame } from "./domain/connect";
 export { CONNECT_BOARDS, CONNECT_PAIRS, createConnectGame } from "./domain/connect";
 export type { MemoryGame, MemoryMode, MemoryTile } from "./domain/memory";

@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { createSiNoGame, SI_NO_ROUNDS } from "../src/domain/si-no";
+import {
+  createSiNoGame,
+  SI_NO_ROUNDS,
+  siNoQuestion,
+} from "../src/domain/si-no";
 import { QuizDeckTooSmallError } from "../src/domain/errors";
 import type { Deck } from "../src/domain/deck";
 import type { VocabularyCard } from "../src/domain/card";
+import { StaticDeckRepository } from "../src/infrastructure/static-deck-repository";
 
 function card(n: number): VocabularyCard {
   return {
@@ -73,5 +78,33 @@ describe("createSiNoGame", () => {
     expect(() => createSiNoGame(deckOf(1), "listen", seededRandom(6))).toThrow(
       QuizDeckTooSmallError,
     );
+  });
+});
+
+describe("siNoQuestion", () => {
+  it("asks with ser for things and inherent qualities", () => {
+    expect(
+      siNoQuestion({ id: "gato", spanish: "el gato", english: "the cat", emoji: "🐱" }),
+    ).toBe("¿Es el gato?");
+  });
+
+  it("asks with estar for state adjectives (feelings)", () => {
+    expect(
+      siNoQuestion({
+        id: "triste",
+        spanish: "triste",
+        english: "sad",
+        emoji: "😢",
+        usesEstar: true,
+      }),
+    ).toBe("¿Está triste?");
+  });
+
+  it("marks every feelings-deck card as an estar state", async () => {
+    const feelings = await new StaticDeckRepository().getDeck("feelings");
+    expect(feelings).not.toBeNull();
+    for (const card of feelings!.cards) {
+      expect(card.usesEstar, `${card.id} must take estar`).toBe(true);
+    }
   });
 });

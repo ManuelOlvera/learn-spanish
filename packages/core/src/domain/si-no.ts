@@ -21,6 +21,12 @@ export interface SiNoGame {
 
 export const SI_NO_ROUNDS = 8;
 
+/** The claim as a spoken/written question — estar for state adjectives
+ *  ("¿Está triste?"), ser for everything else ("¿Es el gato?"). */
+export function siNoQuestion(claim: VocabularyCard): string {
+  return `¿${claim.usesEstar ? "Está" : "Es"} ${claim.spanish}?`;
+}
+
 export function createSiNoGame(
   deck: Deck,
   mode: QuizMode,
