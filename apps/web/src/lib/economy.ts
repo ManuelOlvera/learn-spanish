@@ -58,6 +58,7 @@ const PET_KEY = "palabras.pet.v1"; // legacy single pet (migrated to v2)
 const PETS_KEY = "palabras.pets.v2"; // pet collection
 const COUNTS_KEY = "palabras.sticker-counts.v1";
 const OWNED_AVATARS_KEY = "palabras.owned-avatars.v1";
+const UNLOCKS_KEY = "palabras.unlocks.v1";
 
 // ---- stars ----
 
@@ -277,6 +278,39 @@ export function getOwnedAvatars(kid: KidId): readonly string[] {
 
 export function saveOwnedAvatars(kid: KidId, owned: readonly string[]): void {
   writeDoc(OWNED_AVATARS_KEY, kid, owned);
+}
+
+// ---- secret deck unlocks (bought with stars) ----
+
+export function getUnlockedDecks(kid: KidId): readonly string[] {
+  const value = readDoc<readonly string[]>(UNLOCKS_KEY)[kid];
+  return Array.isArray(value) ? value.filter((d) => typeof d === "string") : [];
+}
+
+export function saveUnlockedDecks(kid: KidId, decks: readonly string[]): void {
+  writeDoc(UNLOCKS_KEY, kid, decks);
+}
+
+export function isDeckUnlocked(kid: KidId, deckId: string): boolean {
+  return getUnlockedDecks(kid).includes(deckId);
+}
+
+/** Unlock a secret deck; returns the new balance, or null if unaffordable. */
+export function unlockDeck(
+  kid: KidId,
+  deckId: string,
+  cost: number,
+): number | null {
+  const owned = getUnlockedDecks(kid);
+  if (owned.includes(deckId)) {
+    return null;
+  }
+  const stars = spendStars(kid, cost);
+  if (stars === null) {
+    return null;
+  }
+  writeDoc(UNLOCKS_KEY, kid, [...owned, deckId]);
+  return stars;
 }
 
 /** Buy an avatar; returns the new balance, or null if unaffordable/owned. */

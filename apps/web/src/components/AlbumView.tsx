@@ -12,7 +12,7 @@ import {
   type Deck,
   type KidId,
 } from "@learn-spanish/core";
-import { getStickerCounts } from "@/lib/economy";
+import { getStickerCounts, getUnlockedDecks } from "@/lib/economy";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/album";
 import { getAvatar, getSelectedKid, setSelectedKid } from "@/lib/kid";
@@ -30,11 +30,17 @@ export function AlbumView({ decks }: Props) {
   const [earned, setEarned] = useState<ReadonlySet<string> | null>(null);
   const [reloadNonce, setReloadNonce] = useState(0);
   const [counts, setCounts] = useState<Readonly<Record<string, number>>>({});
+  const [unlocked, setUnlocked] = useState<readonly string[]>([]);
 
   useEffect(() => {
-    setKid(getSelectedKid() ?? "listener");
+    const current = getSelectedKid() ?? "listener";
+    setKid(current);
     setCounts(getStickerCounts());
+    setUnlocked(getUnlockedDecks(current));
   }, [reloadNonce]);
+
+  // Secret decks appear as album sections only once that kid has unlocked them.
+  const shownDecks = decks.filter((d) => !d.secret || unlocked.includes(d.id));
 
   useEffect(() => {
     if (kid === null) {
@@ -70,7 +76,7 @@ export function AlbumView({ decks }: Props) {
   }
 
   const total =
-    decks.length * ALL_ACTIVITIES.length + SENTENCE_ACTIVITIES.length;
+    shownDecks.length * ALL_ACTIVITIES.length + SENTENCE_ACTIVITIES.length;
   const avatar = kid === null ? null : getAvatar(kid);
 
   function slot(deckId: string, activity: ActivityId) {
@@ -143,7 +149,7 @@ export function AlbumView({ decks }: Props) {
       </div>
 
       <div className="flex flex-col gap-6 pb-6">
-        {decks.map((deck) => (
+        {shownDecks.map((deck) => (
           <section
             key={deck.id}
             style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}

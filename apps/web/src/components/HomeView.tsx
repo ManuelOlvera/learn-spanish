@@ -23,10 +23,12 @@ import {
   getMission,
   getPetCollection,
   getStars,
+  getUnlockedDecks,
+  unlockDeck,
   type MissionView,
 } from "@/lib/economy";
 import { MISSION_BONUS, petEmoji } from "@learn-spanish/core";
-import { feedbackRacha } from "@/lib/feedback";
+import { feedbackRacha, feedbackWrong } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
 
@@ -45,12 +47,18 @@ export function HomeView({ decks, groups }: Props) {
   const [mission, setMission] = useState<MissionView | null>(null);
   const [stars, setStars] = useState(0);
   const [petFace, setPetFace] = useState("🥚");
+  const [unlockedDecks, setUnlockedDecks] = useState<readonly string[]>([]);
+  const [nope, setNope] = useState(0);
+
+  // Secret decks stay out of the daily card, review, and shelves until bought.
+  const publicDecks = decks.filter((d) => !d.secret);
+  const secretDecks = decks.filter((d) => d.secret);
 
   useEffect(() => {
     warmUpVoices();
     setKid(getSelectedKid());
     // Computed client-side: a build-time "today" would freeze the card.
-    setDaily(dailyCard(decks, new Date()));
+    setDaily(dailyCard(publicDecks, new Date()));
   }, [decks]);
 
   useEffect(() => {
@@ -71,7 +79,7 @@ export function HomeView({ decks, groups }: Props) {
       .then((stats) => {
         if (!cancelled) {
           setWeakCount(
-            pickReviewCards(decks.flatMap((d) => d.cards), stats, 99).length,
+            pickReviewCards(publicDecks.flatMap((d) => d.cards), stats, 99).length,
           );
         }
       })
@@ -81,6 +89,7 @@ export function HomeView({ decks, groups }: Props) {
     setMission(getMission(kid));
     setStars(getStars(kid));
     setPetFace(petEmoji(getPetCollection(kid).active, getActivePet(kid).meals));
+    setUnlockedDecks(getUnlockedDecks(kid));
     return () => {
       cancelled = true;
     };
@@ -319,6 +328,70 @@ export function HomeView({ decks, groups }: Props) {
           </span>
           <span className="text-xs font-semibold text-ink/50">Sentences</span>
         </Link>
+
+        {secretDecks.map((deck) => {
+          const unlocked = unlockedDecks.includes(deck.id);
+          const cost = deck.unlockCost ?? 0;
+          if (unlocked) {
+            return (
+              <Link
+                key={deck.id}
+                href={`/deck/${deck.id}`}
+                aria-label={`${deck.nameEnglish} — unlocked`}
+                style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
+                className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+              >
+                <span aria-hidden className="sticker-peel" />
+                <span aria-hidden className="text-5xl sm:text-6xl">
+                  {deck.emoji}
+                </span>
+                <span className="text-center text-xl font-extrabold sm:text-2xl">
+                  {deck.nameSpanish}
+                </span>
+                <span className="text-xs font-semibold text-ink/50">
+                  {deck.nameEnglish}
+                </span>
+              </Link>
+            );
+          }
+          return (
+            <button
+              type="button"
+              key={`${deck.id}-${nope}`}
+              onClick={() => {
+                if (!kid) return;
+                const balance = unlockDeck(kid, deck.id, cost);
+                if (balance === null) {
+                  feedbackWrong();
+                  setNope((n) => n + 1);
+                  return;
+                }
+                feedbackRacha();
+                setStars(balance);
+                setUnlockedDecks([...unlockedDecks, deck.id]);
+              }}
+              aria-label={`Unlock the mystery deck for ${cost} stars`}
+              style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
+              className={`sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                stars < cost ? "wobble" : ""
+              }`}
+            >
+              <span aria-hidden className="sticker-peel" />
+              <span aria-hidden className="text-5xl opacity-70 sm:text-6xl">
+                🔮
+              </span>
+              <span className="text-center text-xl font-extrabold sm:text-2xl">
+                ??? 🔒
+              </span>
+              <span
+                aria-hidden
+                className="rounded-full border-2 border-ink bg-white px-3 text-base font-extrabold"
+              >
+                {cost}⭐
+              </span>
+            </button>
+          );
+        })}
       </div>
     </main>
   );

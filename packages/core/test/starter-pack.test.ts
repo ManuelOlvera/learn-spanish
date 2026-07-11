@@ -30,6 +30,7 @@ describe("starter pack content", () => {
       "sea",
       "fruit",
       "music",
+      "mystery",
     ]);
   });
 

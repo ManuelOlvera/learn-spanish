@@ -27,6 +27,7 @@ const accents: Record<string, string> = {
   sea: "#0ea5e9",
   fruit: "#f97316",
   music: "#8b5cf6",
+  mystery: "#7c3aed",
   // home-screen shelves (deck groups)
   animales: "#f59e0b",
   "numeros-colores": "#38bdf8",

@@ -7,11 +7,27 @@ const groups = new StaticDeckGroupRepository();
 const decks = new StaticDeckRepository();
 
 describe("deck groups content", () => {
-  it("partitions every deck into exactly one group (home shows groups only)", async () => {
+  it("partitions every non-secret deck into exactly one group (home shows groups only)", async () => {
     const allGroups = await groups.listGroups();
     const grouped = allGroups.flatMap((g) => g.deckIds);
-    const deckIds = (await decks.listDecks()).map((d) => d.id);
+    const deckIds = (await decks.listDecks())
+      .filter((d) => !d.secret)
+      .map((d) => d.id);
     expect([...grouped].sort()).toEqual([...deckIds].sort());
+  });
+
+  it("keeps secret decks off every shelf (they're unlocked with stars)", async () => {
+    const secret = (await decks.listDecks()).filter((d) => d.secret);
+    expect(secret.length).toBeGreaterThan(0);
+    for (const d of secret) {
+      expect(d.unlockCost, `${d.id} needs a price`).toBeGreaterThan(0);
+    }
+    const grouped = new Set(
+      (await groups.listGroups()).flatMap((g) => g.deckIds),
+    );
+    for (const d of secret) {
+      expect(grouped.has(d.id), `${d.id} must not be shelved`).toBe(false);
+    }
   });
 
   it("keeps groups shelf-sized: 3-5 decks each", async () => {

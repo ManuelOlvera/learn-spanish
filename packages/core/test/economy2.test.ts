@@ -156,5 +156,14 @@ describe("transfer: owned avatars and pet collections", () => {
     const decoded = decodeProgress(encodeProgress({ stickers: [], streaks: {}, avatars: {} }));
     expect(decoded.ownedAvatars).toBeUndefined();
     expect(decoded.petCollections).toBeUndefined();
+    expect(decoded.unlockedDecks).toBeUndefined();
+  });
+
+  it("round-trips and unions secret-deck unlocks", () => {
+    const a = { stickers: [], streaks: {}, avatars: {}, unlockedDecks: { listener: ["mystery"] } };
+    const b = { stickers: [], streaks: {}, avatars: {}, unlockedDecks: { reader: ["mystery"] } };
+    expect(decodeProgress(encodeProgress(a))).toEqual(a);
+    const merged = mergeProgress(a, b);
+    expect(merged.unlockedDecks).toEqual({ listener: ["mystery"], reader: ["mystery"] });
   });
 });

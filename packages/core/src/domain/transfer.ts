@@ -25,6 +25,8 @@ export interface ProgressSnapshot {
   readonly petCollections?: Partial<Record<KidId, PetCollection>>;
   /** Bought avatars a kid owns (free starters are implicit). */
   readonly ownedAvatars?: Partial<Record<KidId, readonly string[]>>;
+  /** Secret decks a kid has unlocked with stars. */
+  readonly unlockedDecks?: Partial<Record<KidId, readonly string[]>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -143,11 +145,10 @@ export function decodeProgress(code: string): ProgressSnapshot {
     candidate.petCollections,
     isPetCollection,
   );
-  const ownedAvatars = sanitizeKidRecord(
-    candidate.ownedAvatars,
-    (v): v is readonly string[] =>
-      Array.isArray(v) && v.every((e) => typeof e === "string"),
-  );
+  const isStringArray = (v: unknown): v is readonly string[] =>
+    Array.isArray(v) && v.every((e) => typeof e === "string");
+  const ownedAvatars = sanitizeKidRecord(candidate.ownedAvatars, isStringArray);
+  const unlockedDecks = sanitizeKidRecord(candidate.unlockedDecks, isStringArray);
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -162,6 +163,7 @@ export function decodeProgress(code: string): ProgressSnapshot {
     ...(Object.keys(pets).length > 0 ? { pets } : {}),
     ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
+    ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
   };
 }
 
@@ -279,6 +281,17 @@ export function mergeProgress(
     ownedAvatars[kid] = [...new Set([...(ownedAvatars[kid] ?? []), ...list])];
   }
 
+  // Secret-deck unlocks union too (a bought deck is never lost).
+  const unlockedDecks: Partial<Record<KidId, readonly string[]>> = {
+    ...(current.unlockedDecks ?? {}),
+  };
+  for (const [kid, list] of Object.entries(incoming.unlockedDecks ?? {}) as [
+    KidId,
+    readonly string[],
+  ][]) {
+    unlockedDecks[kid] = [...new Set([...(unlockedDecks[kid] ?? []), ...list])];
+  }
+
   // Pet collections: union owned species, max-merge each pet, keep an active.
   const petCollections: Partial<Record<KidId, PetCollection>> = {
     ...(current.petCollections ?? {}),
@@ -313,6 +326,7 @@ export function mergeProgress(
     pets,
     ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
+    ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
   };
 }
 

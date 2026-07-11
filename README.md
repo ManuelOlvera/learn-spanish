@@ -8,8 +8,9 @@ No reading, no accounts, no setup.
 
 - **Flashcards** — 23 decks / 268 words on five themed home-screen
   shelves (animals · numbers & colors · my home & me · the world ·
-  play & learn), tap-to-hear audio via browser speech synthesis —
-  **Spain Spanish** (es-ES voice; coche, ordenador, hierba, baloncesto).
+  play & learn), plus a star-unlocked bonus deck **El misterio 🔮**
+  (24 decks / 280 words total), tap-to-hear audio via browser speech
+  synthesis — **Spain Spanish** (es-ES voice; coche, ordenador, hierba).
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
   "Las parejas" (memory match), "Conecta" (connect the columns),

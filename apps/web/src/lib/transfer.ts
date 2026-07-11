@@ -22,9 +22,11 @@ import {
   getPetCollection,
   getStars,
   getStickerCounts,
+  getUnlockedDecks,
   saveOwnedAvatars,
   savePetCollection,
   saveStickerCounts,
+  saveUnlockedDecks,
   setStars,
 } from "./economy";
 
@@ -40,6 +42,7 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
   const pets: Partial<Record<KidId, PetState>> = {};
   const petCollections: Partial<Record<KidId, PetCollection>> = {};
   const ownedAvatars: Partial<Record<KidId, readonly string[]>> = {};
+  const unlockedDecks: Partial<Record<KidId, readonly string[]>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
     if (streak !== null) {
@@ -57,6 +60,10 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (owned.length > 0) {
       ownedAvatars[kid] = owned;
     }
+    const unlocked = getUnlockedDecks(kid);
+    if (unlocked.length > 0) {
+      unlockedDecks[kid] = unlocked;
+    }
   }
   return {
     stickers,
@@ -68,6 +75,7 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
     pets,
     petCollections,
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
+    ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
   };
 }
 
@@ -111,6 +119,10 @@ export async function importProgressCode(code: string): Promise<ImportOutcome> {
     const kidAvatars = merged.ownedAvatars?.[kid];
     if (kidAvatars !== undefined) {
       saveOwnedAvatars(kid, kidAvatars);
+    }
+    const kidUnlocks = merged.unlockedDecks?.[kid];
+    if (kidUnlocks !== undefined) {
+      saveUnlockedDecks(kid, kidUnlocks);
     }
   }
   if (merged.stickerCounts !== undefined) {

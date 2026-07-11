@@ -52,7 +52,7 @@ export function InformeView({ decks }: Props) {
   const [reports, setReports] = useState<readonly KidReport[] | null>(null);
 
   useEffect(() => {
-    const cards = decks.flatMap((d) => d.cards);
+    const cards = decks.filter((d) => !d.secret).flatMap((d) => d.cards);
     Promise.all(
       ALL_KIDS.map(async (kid): Promise<KidReport> => {
         const [stats, stickers, streak] = await Promise.all([

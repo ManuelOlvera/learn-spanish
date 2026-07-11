@@ -31,7 +31,7 @@ export default async function CountingPage({
     listDecks.execute(),
   ]);
   const itemPool = allDecks
-    .filter((d) => !d.id.startsWith("numbers"))
+    .filter((d) => !d.id.startsWith("numbers") && !d.secret)
     .flatMap((d) => d.cards);
 
   return (

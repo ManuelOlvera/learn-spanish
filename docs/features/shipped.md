@@ -1,5 +1,29 @@
 # Shipped features
 
+## 2026-07-12 — El misterio: the star-unlocked bonus deck
+
+**What shipped:** the deferred mystery deck, done properly. **El misterio 🔮**
+is a 12-word magical grab-bag (el fantasma 👻, el vampiro 🧛, el genio 🧞, la
+calavera 💀, el murciélago 🦇…) that's a real deck — every game works on it —
+but **secret**: a kid unlocks it once for **100⭐** from a locked 🔮 tile on the
+home screen, then plays it forever.
+
+The entanglement I'd flagged is solved with a `Deck.secret` flag (+`unlockCost`):
+secret decks are excluded from the home shelves (the deck-group partition test
+now covers only non-secret decks, with a new test that secret decks stay
+unshelved and priced), and hidden from the daily card, the review pool, the
+counting item pool, the parent report, and the album **until that kid unlocks
+it** — so nothing spoils the mystery. Once unlocked it becomes a normal deck
+section in that kid's album. Unlock state is per-kid on-device
+(`palabras.unlocks.v1`) and rides the transfer code (`unlockedDecks`,
+union-merged) so a device move keeps the purchase.
+
+**Where:** core `domain/deck.ts` (`secret`/`unlockCost`), the El misterio deck
+in `starter-pack.ts`, partition tests; web `economy.ts` (unlock storage),
+locked/unlocked tile in `HomeView.tsx`, secret-filtering in `AlbumView`,
+`InformeView`, the counting route, the home daily/review pools, and the
+transfer schema. 153 core tests.
+
 ## 2026-07-12 — Star economy expansion: renewable sinks, avatar shop, richer chest
 
 **What shipped:** stars gained real depth so they never pile up worthless
