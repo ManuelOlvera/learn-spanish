@@ -8,4 +8,8 @@ export interface VocabularyCard {
   /** State adjectives (triste, cansado…) take estar, not ser, when games
    *  build questions about the card ("¿Está triste?"). Defaults to ser. */
   readonly usesEstar?: boolean;
+  /** Full question override for cards where neither "¿Es un/una …?" nor
+   *  estar reads natively: mass nouns ("¿Es agua?"), unique entities
+   *  ("¿Es el sol?"), activities ("¿Es tenis?"), idioms ("¿Hace calor?"). */
+  readonly question?: string;
 }

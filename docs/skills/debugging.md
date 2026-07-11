@@ -24,3 +24,11 @@ Find the *true* cause and fix it once, at the right layer.
   flag `usesEstar` + `siNoQuestion()` in core + content test that every
   feelings card carries the flag. Lesson: language rules are business
   logic; the component should only render.
+- **2026-07-11 — "¿Es el gato?"**: same builder, second gap — natives ask
+  about a picture with the *indefinite* article ("¿Es un gato?"), plurals
+  need *Son unos/unas*, mass nouns take no article ("¿Es agua?"), unique
+  entities keep the definite ("¿Es el sol?"), weather is idiomatic
+  ("¿Hace calor?"). Fix: article swap + plural agreement in
+  `siNoQuestion()`, per-card `question` override for the 24 exceptions,
+  all pinned by tests. Lesson: when a grammar bug surfaces, fix the whole
+  class the builder gets wrong, not the one reported word.

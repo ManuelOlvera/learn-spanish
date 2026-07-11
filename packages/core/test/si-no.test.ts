@@ -82,22 +82,42 @@ describe("createSiNoGame", () => {
 });
 
 describe("siNoQuestion", () => {
-  it("asks with ser for things and inherent qualities", () => {
-    expect(
-      siNoQuestion({ id: "gato", spanish: "el gato", english: "the cat", emoji: "🐱" }),
-    ).toBe("¿Es el gato?");
+  function makeCard(spanish: string, extra: Partial<VocabularyCard> = {}): VocabularyCard {
+    return { id: "x", spanish, english: "x", emoji: "❓", ...extra };
+  }
+
+  it("asks about countable nouns with the indefinite article, as a native would", () => {
+    expect(siNoQuestion(makeCard("el gato"))).toBe("¿Es un gato?");
+    expect(siNoQuestion(makeCard("la vaca"))).toBe("¿Es una vaca?");
+  });
+
+  it("uses Son + unos/unas for plural nouns", () => {
+    expect(siNoQuestion(makeCard("los calcetines"))).toBe(
+      "¿Son unos calcetines?",
+    );
+    expect(siNoQuestion(makeCard("las tijeras"))).toBe("¿Son unas tijeras?");
+  });
+
+  it("keeps bare adjectives bare", () => {
+    expect(siNoQuestion(makeCard("rojo"))).toBe("¿Es rojo?");
   });
 
   it("asks with estar for state adjectives (feelings)", () => {
+    expect(siNoQuestion(makeCard("triste", { usesEstar: true }))).toBe(
+      "¿Está triste?",
+    );
+  });
+
+  it("prefers an explicit question override (mass nouns, idioms, unique things)", () => {
     expect(
-      siNoQuestion({
-        id: "triste",
-        spanish: "triste",
-        english: "sad",
-        emoji: "😢",
-        usesEstar: true,
-      }),
-    ).toBe("¿Está triste?");
+      siNoQuestion(makeCard("el agua", { question: "¿Es agua?" })),
+    ).toBe("¿Es agua?");
+    expect(
+      siNoQuestion(makeCard("el calor", { question: "¿Hace calor?" })),
+    ).toBe("¿Hace calor?");
+    expect(
+      siNoQuestion(makeCard("el sol", { question: "¿Es el sol?" })),
+    ).toBe("¿Es el sol?");
   });
 
   it("marks every feelings-deck card as an estar state", async () => {
@@ -105,6 +125,44 @@ describe("siNoQuestion", () => {
     expect(feelings).not.toBeNull();
     for (const card of feelings!.cards) {
       expect(card.usesEstar, `${card.id} must take estar`).toBe(true);
+    }
+  });
+
+  it("gives every mass-noun, idiom, and unique-entity card its native question", async () => {
+    const expected: Record<string, string> = {
+      agua: "¿Es agua?",
+      leche: "¿Es leche?",
+      pan: "¿Es pan?",
+      queso: "¿Es queso?",
+      sol: "¿Es el sol?",
+      luna: "¿Es la luna?",
+      mar: "¿Es el mar?",
+      lluvia: "¿Es lluvia?",
+      nieve: "¿Es nieve?",
+      viento: "¿Es viento?",
+      calor: "¿Hace calor?",
+      frio: "¿Hace frío?",
+      fuego: "¿Es fuego?",
+      papel: "¿Es papel?",
+      futbol: "¿Es fútbol?",
+      baloncesto: "¿Es baloncesto?",
+      tenis: "¿Es tenis?",
+      natacion: "¿Es natación?",
+      beisbol: "¿Es béisbol?",
+      voleibol: "¿Es voleibol?",
+      golf: "¿Es golf?",
+      esqui: "¿Es esquí?",
+      patinaje: "¿Es patinaje?",
+      ciclismo: "¿Es ciclismo?",
+    };
+    const decks = await new StaticDeckRepository().listDecks();
+    const cards = new Map(
+      decks.flatMap((d) => d.cards.map((c) => [c.id, c] as const)),
+    );
+    for (const [id, question] of Object.entries(expected)) {
+      expect(cards.get(id)?.question, `${id} needs a question override`).toBe(
+        question,
+      );
     }
   });
 });

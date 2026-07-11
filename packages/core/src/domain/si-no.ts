@@ -21,10 +21,30 @@ export interface SiNoGame {
 
 export const SI_NO_ROUNDS = 8;
 
-/** The claim as a spoken/written question — estar for state adjectives
- *  ("¿Está triste?"), ser for everything else ("¿Es el gato?"). */
+/** The claim as a native speaker would ask it about a picture:
+ *  countable nouns swap their article for the indefinite ("¿Es un gato?",
+ *  "¿Son unas tijeras?"), state adjectives take estar ("¿Está triste?"),
+ *  bare words stay bare ("¿Es rojo?"), and cards with an explicit
+ *  `question` (mass nouns, unique entities, idioms) use it verbatim. */
 export function siNoQuestion(claim: VocabularyCard): string {
-  return `¿${claim.usesEstar ? "Está" : "Es"} ${claim.spanish}?`;
+  if (claim.question !== undefined) {
+    return claim.question;
+  }
+  if (claim.usesEstar) {
+    return `¿Está ${claim.spanish}?`;
+  }
+  const articleSwaps = [
+    { prefix: "el ", verb: "Es", article: "un" },
+    { prefix: "la ", verb: "Es", article: "una" },
+    { prefix: "los ", verb: "Son", article: "unos" },
+    { prefix: "las ", verb: "Son", article: "unas" },
+  ];
+  for (const { prefix, verb, article } of articleSwaps) {
+    if (claim.spanish.startsWith(prefix)) {
+      return `¿${verb} ${article} ${claim.spanish.slice(prefix.length)}?`;
+    }
+  }
+  return `¿Es ${claim.spanish}?`;
 }
 
 export function createSiNoGame(
