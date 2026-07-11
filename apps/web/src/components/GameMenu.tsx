@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { KID_GAME_MODES, type Deck, type KidId } from "@learn-spanish/core";
-import { getSelectedKid, KID_META } from "@/lib/kid";
+import { getAvatar, getSelectedKid, KID_META } from "@/lib/kid";
 
 interface Props {
   deck: Deck;
@@ -109,10 +109,10 @@ export function GameMenu({ deck, accent }: Props) {
         </Link>
         {kid !== null && (
           <span
-            aria-label={`Playing as ${KID_META[kid].name}`}
+            aria-label={`Playing as the ${KID_META[kid].english} kid`}
             className="text-4xl"
           >
-            {KID_META[kid].avatar}
+            {getAvatar(kid)}
           </span>
         )}
       </header>

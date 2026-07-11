@@ -17,8 +17,12 @@ No reading, no accounts, no setup.
   word and plays it straight back; clips are in-memory only (ADR 003).
 - **Las frases** — 48 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
-- **Kid picker** — 🦖 Dino (listen level, pre-readers) vs 🦄 Úni (read
-  level); each game menu shows that kid's one right difficulty.
+- **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,
+  each with their own chosen avatar (16 to pick from); each game menu
+  shows that kid's one right difficulty.
+- **Device transfer** — a one-time copy-able code (album footer) moves
+  stickers, streaks, and avatars to another device by merge; no accounts,
+  no backend (ADR 002).
 - **Sticker album** — finishing any activity earns a sticker; `/album`
   tracks 42 per kid, persisted on-device (no accounts).
 - **Carta del día** — a daily featured word on the home screen with a

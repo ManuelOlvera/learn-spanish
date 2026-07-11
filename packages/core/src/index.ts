@@ -32,6 +32,13 @@ export type { KidId } from "./domain/kid";
 export { ALL_KIDS, isKidId, KID_GAME_MODES, kidForActivity } from "./domain/kid";
 export type { Streak, StreakStore } from "./domain/daily";
 export { advanceStreak, dailyCard, dayKey } from "./domain/daily";
+export type { ProgressSnapshot } from "./domain/transfer";
+export {
+  decodeProgress,
+  encodeProgress,
+  InvalidTransferCodeError,
+  mergeProgress,
+} from "./domain/transfer";
 export { FeedStreakUseCase } from "./application/feed-streak";
 export { GetStreakUseCase } from "./application/get-streak";
 export { AwardStickerUseCase } from "./application/award-sticker";

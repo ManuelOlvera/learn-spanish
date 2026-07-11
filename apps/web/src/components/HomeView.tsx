@@ -15,7 +15,7 @@ import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak } from "@/lib/album";
-import { getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
+import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
 
 interface Props {
@@ -80,6 +80,7 @@ export function HomeView({ decks, groups }: Props) {
   }
 
   const meta = KID_META[kid];
+  const avatar = getAvatar(kid);
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center gap-8 p-6">
@@ -93,10 +94,10 @@ export function HomeView({ decks, groups }: Props) {
         <button
           type="button"
           onClick={() => setKid(null)}
-          aria-label={`Playing as ${meta.name} (${meta.english}) — tap to switch kids`}
+          aria-label={`Playing as ${avatar} (${meta.english}) — tap to switch kids`}
           className="sticker absolute left-0 top-0 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
         >
-          {meta.avatar}
+          {avatar}
         </button>
         <Link
           href="/album"

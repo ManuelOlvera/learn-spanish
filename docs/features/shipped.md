@@ -1,5 +1,32 @@
 # Shipped features
 
+## 2026-07-11 — Avatar picker + one-time device transfer
+
+**What shipped:**
+
+- **Pick your own avatar** — each kid tile on ¿Quién juega? has a 🎨 badge
+  opening a 16-emoji chooser (*Elige tu cara*); the choice shows everywhere
+  the avatar does (home chip, game menu, album title "El álbum de 🐼").
+  Kids stay semantic in core (`listener`/`reader`); avatars are pure
+  presentation in `lib/kid.ts` (`palabras.avatars.v1`). The fixed
+  Dino/Úni names are gone — avatar + 👂/🔤 glyph is the identity.
+- **One-time progress transfer** — a parent-facing panel at the bottom of
+  `/album` ("¿Cambiáis de dispositivo?") generates a copy-able code
+  (`PALABRAS1.` + base64url JSON of stickers, streaks, avatars) and imports
+  one from another device. Import **merges**, never overwrites: sticker
+  union, later-day streak wins, incoming avatars win. Codes are versioned
+  and self-describing (they survive app updates), malformed entries are
+  dropped, bad codes get a friendly typed error. No backend — ADR 002
+  stands; a code is a snapshot, not a sync.
+
+**Where:** `packages/core/src/domain/transfer.ts` (encode/decode/merge,
+hand-rolled UTF-8-safe base64url, 9 tests); web `lib/transfer.ts`
+orchestration over the existing stores, `TransferPanel.tsx`, avatar
+chooser in `KidPicker.tsx`, avatar storage in `lib/kid.ts`. Verified with
+a two-browser-context drive: avatar change persists, code exports, a
+fresh "device" rejects garbage, merges the real code (+1 sticker, avatar
+arrives), and re-import is a no-op.
+
 ## 2026-07-11 — Grouped home screen: shelves instead of scrolling
 
 **What shipped:** with 19 decks the home grid had become a long scroll, so

@@ -13,9 +13,10 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/album";
-import { getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
+import { getAvatar, getSelectedKid, setSelectedKid } from "@/lib/kid";
 import { deckAccent } from "@/lib/deck-theme";
 import { ACTIVITY_META } from "@/lib/activity-theme";
+import { TransferPanel } from "@/components/TransferPanel";
 
 interface Props {
   decks: readonly Deck[];
@@ -25,6 +26,7 @@ export function AlbumView({ decks }: Props) {
   const [kid, setKid] = useState<KidId | null>(null);
   // Earned stickers live in browser storage — load after mount.
   const [earned, setEarned] = useState<ReadonlySet<string> | null>(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
     setKid(getSelectedKid() ?? "listener");
@@ -51,7 +53,7 @@ export function AlbumView({ decks }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [kid]);
+  }, [kid, reloadNonce]);
 
   function switchKid() {
     if (kid === null) {
@@ -65,7 +67,7 @@ export function AlbumView({ decks }: Props) {
 
   const total =
     decks.length * ALL_ACTIVITIES.length + SENTENCE_ACTIVITIES.length;
-  const meta = kid === null ? null : KID_META[kid];
+  const avatar = kid === null ? null : getAvatar(kid);
 
   function slot(deckId: string, activity: ActivityId) {
     const activityMeta = ACTIVITY_META[activity];
@@ -101,21 +103,21 @@ export function AlbumView({ decks }: Props) {
         >
           🏠
         </Link>
-        {meta && (
+        {avatar && (
           <button
             type="button"
             onClick={switchKid}
-            aria-label={`Showing ${meta.name}'s album — tap for the other kid`}
+            aria-label={`Showing ${avatar}'s album — tap for the other kid`}
             className="sticker flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
           >
-            {meta.avatar}
+            {avatar}
           </button>
         )}
       </header>
 
       <div className="text-center">
         <h1 className="text-5xl font-extrabold sm:text-6xl">
-          {meta ? `El álbum de ${meta.name}` : "Mi álbum"}
+          {avatar ? `El álbum de ${avatar}` : "Mi álbum"}
         </h1>
         <p className="mt-1 text-lg font-semibold text-ink/60">
           {earned === null ? "…" : `${earned.size} / ${total}`}
@@ -158,6 +160,13 @@ export function AlbumView({ decks }: Props) {
           </div>
         </section>
       </div>
+
+      <TransferPanel
+        onImported={() => {
+          setEarned(null);
+          setReloadNonce((n) => n + 1);
+        }}
+      />
     </main>
   );
 }
