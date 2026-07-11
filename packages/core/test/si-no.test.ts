@@ -154,6 +154,8 @@ describe("siNoQuestion", () => {
       esqui: "¿Es esquí?",
       patinaje: "¿Es patinaje?",
       ciclismo: "¿Es ciclismo?",
+      coral: "¿Es coral?",
+      musica: "¿Es música?",
     };
     const decks = await new StaticDeckRepository().listDecks();
     const cards = new Map(

@@ -6,7 +6,7 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 20 decks / 232 words on five themed home-screen
+- **Flashcards** — 23 decks / 268 words on five themed home-screen
   shelves (animals · numbers & colors · my home & me · the world ·
   play & learn), tap-to-hear audio via browser speech synthesis —
   **Spain Spanish** (es-ES voice; coche, ordenador, hierba, baloncesto).
@@ -21,7 +21,7 @@ No reading, no accounts, no setup.
   struggle. Special avatars unlock by sticker count and streaks.
 - **Say-it-back** — a 🎤 on every flashcard records the kid repeating the
   word and plays it straight back; clips are in-memory only (ADR 003).
-- **Las frases** — 60 starter sentences: hear-them cards (👂) and a
+- **Las frases** — 72 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
 - **Star economy** — a treasure chest on every finish pays ⭐ per
   first-try answer; the daily misión adds a +10⭐ bonus chest; stars

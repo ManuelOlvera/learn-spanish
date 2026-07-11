@@ -11,7 +11,7 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "Los animales",
     nameEnglish: "Animals",
     emoji: "🐾",
-    deckIds: ["animals", "zoo", "bugs"],
+    deckIds: ["animals", "zoo", "bugs", "sea"],
   },
   {
     id: "numeros-colores",
@@ -25,7 +25,7 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "Mi casa y yo",
     nameEnglish: "My home & me",
     emoji: "🏠",
-    deckIds: ["body", "food", "house", "clothes"],
+    deckIds: ["body", "food", "house", "clothes", "fruit"],
   },
   {
     id: "mundo",
@@ -39,6 +39,6 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "Jugar y aprender",
     nameEnglish: "Play & learn",
     emoji: "🎨",
-    deckIds: ["toys", "sports", "school", "feelings"],
+    deckIds: ["toys", "sports", "school", "feelings", "music"],
   },
 ];

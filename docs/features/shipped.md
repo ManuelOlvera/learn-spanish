@@ -1,5 +1,19 @@
 # Shipped features
 
+## 2026-07-11 — Content drop: El mar, La fruta, La música + me gusta sentences
+
+**What shipped:** three decks on existing shelves (no new home tiles):
+**El mar 🦀** (la gamba — Spain, not camarón; la foca, el delfín, el pez
+payaso) on Los animales; **La fruta 🍉** (el melocotón — not durazno; la
+sandía, el aguacate) on Mi casa y yo; **La música 🎵** (el piano, los
+auriculares — not audífonos; la música carries a "¿Es música?" mass-noun
+override) on Jugar y aprender. **23 decks / 268 words**, albums 255/kid.
+Las frases grew to **72 sentences**, introducing *me gusta* ("me gusta la
+música", first 2-tile clitic phrase), *sonar* ("la trompeta suena
+fuerte"), and taste adjectives (*ácido, dulce*), plus "el cangrejo camina
+de lado". Tests re-pinned (category list, 60–84 pool, question-override
+map).
+
 ## 2026-07-11 — The star economy: chest, misión, gold stickers, mascota, informe (+ La ciudad)
 
 **What shipped:** ⭐ became the app's real currency, with a visible earn
