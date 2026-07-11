@@ -150,12 +150,18 @@ export function decodeProgress(code: string): ProgressSnapshot {
 }
 
 function isPetState(value: unknown): value is PetState {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const pet = value as PetState;
+  const accessoriesOk =
+    pet.accessories === undefined ||
+    (Array.isArray(pet.accessories) &&
+      pet.accessories.every((a) => typeof a === "string"));
   return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as PetState).meals === "number" &&
-    ((value as PetState).lastFed === null ||
-      typeof (value as PetState).lastFed === "string")
+    typeof pet.meals === "number" &&
+    (pet.lastFed === null || typeof pet.lastFed === "string") &&
+    accessoriesOk
   );
 }
 
@@ -229,20 +235,28 @@ export function mergeProgress(
   const pets: Partial<Record<KidId, PetState>> = { ...(current.pets ?? {}) };
   for (const [kid, pet] of Object.entries(incoming.pets ?? {}) as [KidId, PetState][]) {
     const existing = pets[kid];
-    pets[kid] =
-      existing === undefined
-        ? pet
-        : {
-            meals: Math.max(existing.meals, pet.meals),
-            lastFed:
-              existing.lastFed === null
-                ? pet.lastFed
-                : pet.lastFed === null
-                  ? existing.lastFed
-                  : existing.lastFed > pet.lastFed
-                    ? existing.lastFed
-                    : pet.lastFed,
-          };
+    if (existing === undefined) {
+      pets[kid] = pet;
+      continue;
+    }
+    const accessories = [...(existing.accessories ?? [])];
+    for (const a of pet.accessories ?? []) {
+      if (!accessories.includes(a)) {
+        accessories.push(a);
+      }
+    }
+    pets[kid] = {
+      meals: Math.max(existing.meals, pet.meals),
+      lastFed:
+        existing.lastFed === null
+          ? pet.lastFed
+          : pet.lastFed === null
+            ? existing.lastFed
+            : existing.lastFed > pet.lastFed
+              ? existing.lastFed
+              : pet.lastFed,
+      ...(accessories.length > 0 ? { accessories } : {}),
+    };
   }
 
   return {

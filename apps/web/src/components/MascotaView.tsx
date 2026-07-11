@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  ACCESSORIES,
+  buyAccessory,
   dayKey,
   isPetHungry,
   MEAL_COST,
@@ -12,9 +14,24 @@ import {
   type PetState,
 } from "@learn-spanish/core";
 import { getSelectedKid, getAvatar } from "@/lib/kid";
-import { feedPetFor, getPet, getStars } from "@/lib/economy";
-import { feedbackFanfare, feedbackMatch, feedbackWrong } from "@/lib/feedback";
+import { feedPetFor, getPet, getStars, savePet, spendStars } from "@/lib/economy";
+import {
+  feedbackFanfare,
+  feedbackMatch,
+  feedbackSticker,
+  feedbackWrong,
+} from "@/lib/feedback";
 import { Confetti } from "@/components/Confetti";
+
+/** Where each owned accessory sits on the pet (percent offsets). */
+const ACCESSORY_SPOTS: Record<string, { left: string; top: string }> = {
+  gorro: { left: "50%", top: "-8%" },
+  corona: { left: "24%", top: "-4%" },
+  gafas: { left: "50%", top: "34%" },
+  lazo: { left: "78%", top: "70%" },
+  "globo-fiesta": { left: "6%", top: "30%" },
+  varita: { left: "94%", top: "55%" },
+};
 
 const STAGE_EMOJI = ["🥚", "🐣", "🐥", "🐓"] as const;
 const STAGE_NAMES = ["el huevo", "el pollito", "el pollo", "el gallo"] as const;
@@ -89,12 +106,29 @@ export function MascotaView() {
       <section className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
         <div
           key={`${stage}-${munch}`}
-          className={`text-[9rem] leading-none ${munch > 0 ? "pop-in" : ""} ${
+          className={`relative text-[9rem] leading-none ${munch > 0 ? "pop-in" : ""} ${
             hungry ? "opacity-70 grayscale-[30%]" : ""
           }`}
           aria-label={`Your pet: ${STAGE_NAMES[stage]}, ${pet.meals} meals`}
         >
           {STAGE_EMOJI[stage]}
+          {(pet.accessories ?? []).map((id) => {
+            const item = ACCESSORIES.find((a) => a.id === id);
+            const spot = ACCESSORY_SPOTS[id];
+            if (!item || !spot) {
+              return null;
+            }
+            return (
+              <span
+                key={id}
+                aria-hidden
+                className="absolute -translate-x-1/2 text-5xl"
+                style={{ left: spot.left, top: spot.top }}
+              >
+                {item.emoji}
+              </span>
+            );
+          })}
         </div>
 
         <h1 className="text-4xl font-extrabold sm:text-5xl">La mascota</h1>
@@ -156,6 +190,64 @@ export function MascotaView() {
             Gana más estrellas jugando — win stars in the games!
           </p>
         )}
+
+        <div className="w-full max-w-md">
+          <h2 className="mb-2 text-xl font-extrabold text-ink/70">
+            🛍️ El armario
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            {ACCESSORIES.map((item) => {
+              const owned = (pet.accessories ?? []).includes(item.id);
+              return (
+                <button
+                  type="button"
+                  key={item.id}
+                  disabled={owned}
+                  onClick={() => {
+                    if (kid === null || owned) {
+                      return;
+                    }
+                    const balance = spendStars(kid, item.cost);
+                    if (balance === null) {
+                      feedbackWrong();
+                      setCantAfford((n) => n + 1);
+                      return;
+                    }
+                    const dressed = buyAccessory(pet, item.id);
+                    savePet(kid, dressed);
+                    setPet(dressed);
+                    setStars(balance);
+                    feedbackSticker();
+                  }}
+                  aria-label={
+                    owned
+                      ? `${item.emoji} owned`
+                      : `Buy ${item.emoji} for ${item.cost} stars`
+                  }
+                  className={`sticker flex flex-col items-center gap-1 p-3 ${
+                    owned
+                      ? "opacity-60"
+                      : "active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  }`}
+                  style={
+                    owned
+                      ? ({
+                          "--sticker-face": "var(--color-lime)",
+                        } as React.CSSProperties)
+                      : undefined
+                  }
+                >
+                  <span aria-hidden className="text-4xl">
+                    {item.emoji}
+                  </span>
+                  <span className="text-sm font-extrabold">
+                    {owned ? "✓" : `${item.cost}⭐`}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </section>
     </main>
   );

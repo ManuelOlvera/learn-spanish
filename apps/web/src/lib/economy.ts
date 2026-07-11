@@ -165,6 +165,27 @@ export function setStars(kid: KidId, amount: number): void {
   writeDoc(STARS_KEY, kid, amount);
 }
 
+// ---- reto best scores ----
+
+const RETO_KEY = "palabras.reto.v1";
+
+export function getRetoBest(kid: KidId, deckId: string): number {
+  const doc = readDoc<Record<string, number>>(RETO_KEY)[kid];
+  const value = doc?.[deckId];
+  return typeof value === "number" && value >= 0 ? value : 0;
+}
+
+/** Returns true when the score sets a new record (and saves it). */
+export function saveRetoBest(kid: KidId, deckId: string, score: number): boolean {
+  const best = getRetoBest(kid, deckId);
+  if (score <= best) {
+    return false;
+  }
+  const doc = readDoc<Record<string, number>>(RETO_KEY)[kid] ?? {};
+  writeDoc(RETO_KEY, kid, { ...doc, [deckId]: score });
+  return true;
+}
+
 /** Port adapter for the tier-aware award use case. */
 export class LocalStorageStickerCountsStore {
   load(): Promise<Readonly<Record<string, number>>> {

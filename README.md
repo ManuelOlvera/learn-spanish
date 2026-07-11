@@ -13,7 +13,9 @@ No reading, no accounts, no setup.
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
   "Las parejas" (memory match), "Conecta" (connect the columns),
-  "Busca y toca" (I-spy scene), and "El duelo" (pass-the-tablet versus).
+  "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
+  "El reto" (60-second lightning round), "¿Cuántos hay?" (counting, on
+  the numbers deck), and "Deletrea" (letter-tile spelling, reader-level).
 - **Game feel** — synthesized sounds, haptics, confetti, and a ⚡ racha
   burst at 3/5/10 correct in a row.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward
@@ -25,7 +27,8 @@ No reading, no accounts, no setup.
   tap-the-tiles sentence builder (🔤).
 - **Star economy** — a treasure chest on every finish pays ⭐ per
   first-try answer; the daily misión adds a +10⭐ bonus chest; stars
-  feed **la mascota** (🥚→🐓, 5⭐ a meal); album stickers tier up to
+  feed **la mascota** (🥚→🐓, 5⭐ a meal) and buy 🛍️ wardrobe
+  accessories for it; album stickers tier up to
   silver/gold with replays; `/informe` gives parents each kid's strong
   and tricky words.
 - **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,

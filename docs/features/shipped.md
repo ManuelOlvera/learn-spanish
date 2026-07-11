@@ -1,5 +1,41 @@
 # Shipped features
 
+## 2026-07-12 — Four new games: wardrobe, ¿Cuántos hay?, Deletrea, El reto
+
+**What shipped:** four features aimed at depth and fixing the star
+economy's endgame (once the pet is grown at 15 meals, feeding stops
+being a sink):
+
+- **El armario 🛍️ (pet wardrobe)** — a shop on the mascota screen: six
+  accessories bought with stars (🎩 20⭐ · 🎈 25 · 🕶️ 30 · 🎀 35 · 👑 50 ·
+  🪄 60), rendered layered onto the pet at fixed positions. This is now
+  the economy's permanent star sink. `domain/wardrobe.ts` (catalog +
+  `buyAccessory`); accessories live on `PetState.accessories`, union-merged
+  in the transfer code.
+- **¿Cuántos hay? 🧮 (counting)** — only on the Los números 1–10 deck menu
+  (needs showable quantities): n copies of a picture drawn from the whole
+  pack, answer with keycap numbers (👂 2 choices) or written words (🔤 4).
+  Finally makes the number decks *playable*. `domain/counting.ts`.
+- **Deletrea ✏️ (spelling)** — **reader-only** (hidden from the pre-reader's
+  menu): spell the pictured word from shuffled letter tiles; articles
+  stripped, only 3–8-letter single words (`spellingWord` filters the rest).
+  The app's first orthography skill. `domain/spelling.ts`.
+- **El reto ⏱️ (60-second lightning round)** — per deck, at the kid's own
+  difficulty: answer as many as possible before the clock; a best score is
+  kept per deck+kid, confetti on a new record. `createQuizRound` in core.
+
+**Sticker-less by design:** counting/spelling/reto award **stars only, no
+album slots** — the album keeps its per-deck 7-slot symmetry (a
+content-test invariant), and spelling/reto aren't playable equally by both
+kids. Counting *is* in the daily-mission pool; spelling/reto are not
+(reader-only / timed). All four pay the treasure chest. 11 new core tests
+(141 total).
+
+**Where:** core `wardrobe.ts`, `counting.ts`, `spelling.ts`, `createQuizRound`,
+mission-kind additions; web `CountingPlayer`/`SpellingPlayer`/`RetoPlayer`,
+armario in `MascotaView`, conditional rows in `GameMenu`, reto best-scores
+in `economy.ts`.
+
 ## 2026-07-11 — Content drop: El mar, La fruta, La música + me gusta sentences
 
 **What shipped:** three decks on existing shelves (no new home tiles):

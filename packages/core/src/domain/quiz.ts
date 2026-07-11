@@ -56,6 +56,24 @@ function pickAnswers(
   return picked;
 }
 
+/** One standalone round — El reto generates these until the clock runs out. */
+export function createQuizRound(
+  deck: Deck,
+  mode: QuizMode,
+  random: RandomSource = Math.random,
+): QuizRound {
+  const choiceCount = QUIZ_CHOICE_COUNT[mode];
+  if (deck.cards.length < choiceCount) {
+    throw new QuizDeckTooSmallError(deck.id, deck.cards.length, choiceCount);
+  }
+  const answer = deck.cards[Math.floor(random() * deck.cards.length)]!;
+  const distractors = shuffled(
+    deck.cards.filter((c) => c.id !== answer.id),
+    random,
+  ).slice(0, choiceCount - 1);
+  return { answer, choices: shuffled([answer, ...distractors], random) };
+}
+
 export function createQuiz(
   deck: Deck,
   mode: QuizMode,

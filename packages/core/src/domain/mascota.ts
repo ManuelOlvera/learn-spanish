@@ -6,6 +6,8 @@ export interface PetState {
   readonly meals: number;
   /** dayKey of the last meal; null for an unhatched egg. */
   readonly lastFed: string | null;
+  /** Wardrobe accessory ids the pet owns (see domain/wardrobe.ts). */
+  readonly accessories?: readonly string[];
 }
 
 export interface PetStore {

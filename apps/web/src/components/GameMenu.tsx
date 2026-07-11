@@ -18,7 +18,7 @@ interface ModeLink {
 
 /** With a kid selected, each game gets its one right button; without one
  *  (deep link before ever picking), both difficulty buttons show. */
-function gamesFor(kid: KidId | null): readonly {
+function gamesFor(kid: KidId | null, deckId: string): readonly {
   emoji: string;
   spanish: string;
   english: string;
@@ -93,6 +93,37 @@ function gamesFor(kid: KidId | null): readonly {
       english: "Two-player duel",
       modes: [{ glyph: "⚔️", href: "duel", label: "Two-player duel" }],
     },
+    {
+      emoji: "⏱️",
+      spanish: "El reto",
+      english: "60-second challenge",
+      modes: [{ glyph: "⏱️", href: "reto", label: "60-second challenge" }],
+    },
+    // Counting needs showable quantities — only the 1-10 deck hosts it.
+    ...(deckId === "numbers"
+      ? [
+          {
+            emoji: "🧮",
+            spanish: "¿Cuántos hay?",
+            english: "How many?",
+            modes: pick(
+              { glyph: "👂", href: "counting/listen", label: "Counting by ear" },
+              { glyph: "🔤", href: "counting/read", label: "Counting by word" },
+            ),
+          },
+        ]
+      : []),
+    // Spelling is reader-level; the pre-reader's menu hides it.
+    ...(kid !== "listener"
+      ? [
+          {
+            emoji: "✏️",
+            spanish: "Deletrea",
+            english: "Spell the word",
+            modes: [{ glyph: "🔤", href: "spelling", label: "Spell the word" }],
+          },
+        ]
+      : []),
   ];
 }
 
@@ -107,7 +138,7 @@ export function GameMenu({ deck, accent }: Props) {
     return <main className="min-h-dvh" aria-hidden />;
   }
 
-  const games = gamesFor(kid);
+  const games = gamesFor(kid, deck.id);
 
   return (
     <main

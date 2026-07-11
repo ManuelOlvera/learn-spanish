@@ -22,4 +22,7 @@ export const ACTIVITY_META: Record<
   "scene-read": { game: "👀", mode: "🔤", english: "Seek by word" },
   "frases-listen": { game: "💬", mode: "👂", english: "Sentences by ear" },
   "frases-read": { game: "💬", mode: "🔤", english: "Sentence builder" },
+  "counting-listen": { game: "🧮", mode: "👂", english: "Counting by ear" },
+  "counting-read": { game: "🧮", mode: "🔤", english: "Counting by word" },
+  spelling: { game: "✏️", mode: "🔤", english: "Spelling" },
 };

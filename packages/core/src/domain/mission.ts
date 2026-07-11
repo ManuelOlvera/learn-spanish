@@ -12,8 +12,14 @@ export type MissionKind =
   | "connect"
   | "scene"
   | "frases"
-  | "duel";
+  | "duel"
+  | "counting"
+  | "spelling"
+  | "reto";
 
+/** The daily-mission pool. Spelling and reto stay out: spelling is
+ *  reader-only and reto is timed — missions must be completable by both
+ *  kids without pressure. */
 const ALL_KINDS: readonly MissionKind[] = [
   "learn",
   "quiz",
@@ -23,6 +29,7 @@ const ALL_KINDS: readonly MissionKind[] = [
   "scene",
   "frases",
   "duel",
+  "counting",
 ];
 
 export const MISSION_SIZE = 3;
@@ -40,8 +47,8 @@ export interface MissionStore {
 
 /** Which mission kind an activity feeds. */
 export function activityKind(activity: ActivityId): MissionKind {
-  if (activity === "learn") {
-    return "learn";
+  if (!activity.includes("-")) {
+    return activity as MissionKind;
   }
   const game = activity.slice(0, activity.lastIndexOf("-"));
   return game as MissionKind;
