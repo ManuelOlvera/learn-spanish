@@ -18,6 +18,8 @@ export const ACTIVITY_META: Record<
   "match-words": { game: "🧩", mode: "🔤", english: "Pairs: words" },
   "connect-listen": { game: "🔗", mode: "👂", english: "Connect by ear" },
   "connect-read": { game: "🔗", mode: "🔤", english: "Connect by word" },
+  "scene-listen": { game: "👀", mode: "👂", english: "Seek by ear" },
+  "scene-read": { game: "👀", mode: "🔤", english: "Seek by word" },
   "frases-listen": { game: "💬", mode: "👂", english: "Sentences by ear" },
   "frases-read": { game: "💬", mode: "🔤", english: "Sentence builder" },
 };

@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  createSiNoGame,
+  createSceneGame,
   kidForActivity,
-  siNoQuestion,
+  sceneQuestion,
   type Deck,
   type QuizMode,
-  type SiNoGame,
+  type SceneGame,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
@@ -24,14 +24,15 @@ interface Props {
   accent: string;
 }
 
-const CELEBRATE_MS = 1100;
+const FOUND_MS = 1000;
 
-export function SiNoPlayer({ deck, mode, accent }: Props) {
-  // Rounds are random, so the game is built client-side only (hydration).
-  const [game, setGame] = useState<SiNoGame | null>(null);
+/** Busca y toca: a busy board of pictures; hunt the one the app asks for. */
+export function ScenePlayer({ deck, mode, accent }: Props) {
+  // Layout and rounds are random — built client-side only (hydration).
+  const [game, setGame] = useState<SceneGame | null>(null);
   const [index, setIndex] = useState(0);
-  const [correctPick, setCorrectPick] = useState<boolean | null>(null);
-  const [wrongTap, setWrongTap] = useState<{ pick: boolean; nonce: number } | null>(
+  const [foundId, setFoundId] = useState<string | null>(null);
+  const [wrongTap, setWrongTap] = useState<{ id: string; nonce: number } | null>(
     null,
   );
   const advanceTimer = useRef<number | null>(null);
@@ -40,7 +41,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
 
   useEffect(() => {
     warmUpVoices();
-    setGame(createSiNoGame(deck, mode));
+    setGame(createSceneGame(deck, mode));
     return () => {
       if (advanceTimer.current !== null) {
         window.clearTimeout(advanceTimer.current);
@@ -50,45 +51,44 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
 
   const rounds = game?.rounds ?? [];
   const done = game !== null && index >= rounds.length;
-  const round = rounds[index];
+  const target = rounds[index];
 
   function restart() {
-    setGame(createSiNoGame(deck, mode));
+    setGame(createSceneGame(deck, mode));
     setIndex(0);
-    setCorrectPick(null);
+    setFoundId(null);
     setWrongTap(null);
     roundMissed.current = false;
     combo.reset();
   }
 
-  function answer(saidYes: boolean) {
-    if (!round || correctPick !== null) {
+  function tap(cardId: string) {
+    if (!target || foundId !== null) {
       return;
     }
-    if (saidYes === round.isTrue) {
-      setCorrectPick(saidYes);
+    if (cardId === target.id) {
+      setFoundId(cardId);
       setWrongTap(null);
       combo.correct();
       const kid =
         getSelectedKid() ??
-        kidForActivity(mode === "listen" ? "si-no-listen" : "si-no-read") ??
+        kidForActivity(mode === "listen" ? "scene-listen" : "scene-read") ??
         "listener";
       recordAnswer
-        .execute(kid, round.card.id, !roundMissed.current)
+        .execute(kid, target.id, !roundMissed.current)
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );
       roundMissed.current = false;
-      // Always speak the picture's true name — the reinforcement either way.
-      speakSpanish(round.card.spanish);
+      speakSpanish(target.spanish);
       advanceTimer.current = window.setTimeout(() => {
         setIndex((i) => i + 1);
-        setCorrectPick(null);
-      }, CELEBRATE_MS);
+        setFoundId(null);
+      }, FOUND_MS);
     } else {
       roundMissed.current = true;
       combo.wrong();
-      setWrongTap((prev) => ({ pick: saidYes, nonce: (prev?.nonce ?? 0) + 1 }));
+      setWrongTap((prev) => ({ id: cardId, nonce: (prev?.nonce ?? 0) + 1 }));
     }
   }
 
@@ -116,7 +116,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}
-          activity={mode === "listen" ? "si-no-listen" : "si-no-read"}
+          activity={mode === "listen" ? "scene-listen" : "scene-read"}
           onReplay={restart}
           back={{
             href: `/deck/${deck.id}`,
@@ -124,84 +124,75 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
             label: `More games in ${deck.nameEnglish}`,
           }}
         />
-      ) : !round ? (
+      ) : !target || !game ? (
         <section className="flex-1" aria-hidden />
       ) : (
         <>
-          <section className="flex flex-1 flex-col items-center justify-center gap-6">
-            <div
-              key={`picture-${round.card.id}`}
-              className="sticker pop-in relative flex aspect-square w-full max-w-64 items-center justify-center p-6"
-              aria-label={`Picture of ${round.card.english}`}
-            >
-              <span aria-hidden className="sticker-peel" />
-              <span aria-hidden className="text-8xl sm:text-9xl">
-                {round.card.emoji}
-              </span>
-            </div>
-
+          <section className="flex flex-col items-center gap-4 py-3">
             {mode === "listen" ? (
               <button
                 type="button"
-                onClick={() => speakSpanish(siNoQuestion(round.claim))}
-                aria-label={`Hear the question (is it ${round.claim.english}?)`}
-                className="sticker flex h-28 w-28 items-center justify-center text-6xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+                onClick={() => speakSpanish(sceneQuestion(target))}
+                aria-label={`Hear who to find (${target.english})`}
+                className="sticker flex h-24 w-24 items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
               >
                 🔊
               </button>
             ) : (
               <div
-                key={`claim-${round.card.id}`}
-                className="sticker pop-in relative flex w-full max-w-md items-center justify-center px-8 py-5"
+                key={target.id}
+                className="sticker pop-in relative flex w-full max-w-md items-center justify-center px-6 py-4"
               >
                 <span aria-hidden className="sticker-peel" />
-                <span className="text-4xl font-extrabold sm:text-5xl">
-                  {siNoQuestion(round.claim)}
+                <span className="text-3xl font-extrabold sm:text-4xl">
+                  {sceneQuestion(target)}
                 </span>
               </div>
             )}
+          </section>
 
-            <div className="grid w-full max-w-md grid-cols-2 gap-6">
-              {([true, false] as const).map((saidYes) => {
-                const isCorrectPick = correctPick === saidYes;
-                const isWrongPick = wrongTap?.pick === saidYes;
+          <section className="flex flex-1 items-stretch">
+            <div className="sticker relative w-full" aria-label="The scene">
+              {game.items.map((item) => {
+                const isFound = foundId === item.card.id;
+                const isWrong = wrongTap?.id === item.card.id;
                 return (
                   <button
                     type="button"
-                    key={`${round.card.id}-${saidYes}-${
-                      isWrongPick ? wrongTap.nonce : 0
+                    key={`${item.card.id}-${isWrong ? wrongTap.nonce : 0}`}
+                    onClick={() => tap(item.card.id)}
+                    aria-label={`Scene item ${item.card.english}`}
+                    className={`absolute -translate-x-1/2 -translate-y-1/2 text-5xl transition-transform sm:text-6xl ${
+                      isFound ? "pop-in scale-125" : isWrong ? "wobble" : ""
                     }`}
-                    onClick={() => answer(saidYes)}
-                    aria-label={saidYes ? "Yes" : "No"}
-                    className={`sticker flex h-32 items-center justify-center text-7xl active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                      isCorrectPick ? "pop-in" : isWrongPick ? "wobble" : ""
-                    }`}
-                    style={
-                      isCorrectPick
-                        ? ({
-                            "--sticker-face": "var(--color-lime)",
-                          } as React.CSSProperties)
-                        : undefined
-                    }
+                    style={{ left: `${item.x}%`, top: `${item.y}%` }}
                   >
-                    {saidYes ? "✅" : "❌"}
+                    <span
+                      className={
+                        isFound
+                          ? "rounded-full bg-[var(--color-lime)] p-1 shadow-[0_0_0_4px_var(--color-ink)]"
+                          : ""
+                      }
+                    >
+                      {item.card.emoji}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </section>
 
-          <footer className="flex items-center justify-center pb-2">
+          <footer className="flex items-center justify-center pb-2 pt-3">
             <div
               className="flex flex-wrap items-center gap-1.5"
               aria-label={`Round ${index + 1} of ${rounds.length}`}
             >
               {rounds.map((r, i) => (
                 <span
-                  key={r.card.id}
+                  key={r.id}
                   aria-hidden
                   className={`h-3 w-3 rounded-full border-2 border-ink ${
-                    i < index || (i === index && correctPick !== null)
+                    i < index || (i === index && foundId !== null)
                       ? "bg-[var(--accent)]"
                       : "bg-white"
                   }`}

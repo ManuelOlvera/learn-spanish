@@ -11,6 +11,8 @@ import { log } from "@learn-spanish/config";
 import { awardSticker } from "@/lib/album";
 import { getSelectedKid } from "@/lib/kid";
 import { ACTIVITY_META } from "@/lib/activity-theme";
+import { feedbackFanfare, feedbackSticker } from "@/lib/feedback";
+import { Confetti } from "@/components/Confetti";
 
 interface Props {
   /** Which album section the sticker files under (a deck id, or "frases"). */
@@ -19,17 +21,38 @@ interface Props {
   onReplay: () => void;
   /** Where "more games" lives for this activity. */
   back: { href: string; emoji: string; label: string };
+  /** Repaso sessions celebrate without touching the album. */
+  noAward?: boolean;
 }
 
 /**
  * The shared 🎉 ¡Muy bien! ending. Finishing any activity awards its sticker
  * here — the one call site for the award use case in the UI.
  */
-export function DoneScreen({ stickerDeckId, activity, onReplay, back }: Props) {
+export function DoneScreen({
+  stickerDeckId,
+  activity,
+  onReplay,
+  back,
+  noAward = false,
+}: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
   const meta = ACTIVITY_META[activity];
 
   useEffect(() => {
+    feedbackFanfare();
+  }, []);
+
+  useEffect(() => {
+    if (award?.isNew) {
+      feedbackSticker();
+    }
+  }, [award]);
+
+  useEffect(() => {
+    if (noAward) {
+      return;
+    }
     let cancelled = false;
     // Award the selected kid; on a mode-specific deep link with no kid ever
     // picked, the activity's own difficulty names the right album.
@@ -47,10 +70,11 @@ export function DoneScreen({ stickerDeckId, activity, onReplay, back }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [stickerDeckId, activity]);
+  }, [stickerDeckId, activity, noAward]);
 
   return (
     <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
+      <Confetti />
       <div aria-hidden className="pop-in text-8xl">
         🎉
       </div>

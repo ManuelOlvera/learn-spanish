@@ -7,6 +7,22 @@ export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
 export { createQuiz, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
 export { createSiNoGame, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
+export { COMBO_MILESTONES, isComboMilestone } from "./domain/combo";
+export type { AvatarProgress, AvatarRequirement } from "./domain/avatar-unlock";
+export { AVATAR_UNLOCKS, isAvatarUnlocked } from "./domain/avatar-unlock";
+export type { SceneGame, SceneItem } from "./domain/scene";
+export { createSceneGame, SCENE_ITEMS, SCENE_ROUNDS, sceneQuestion } from "./domain/scene";
+export type { DuelGame, DuelRound } from "./domain/duel";
+export { createDuel, DUEL_ROUNDS } from "./domain/duel";
+export type { WordStat, WordStats, WordStatsStore } from "./domain/word-stats";
+export {
+  pickReviewCards,
+  recordAnswer,
+  REVIEW_MIN,
+  weakScore,
+} from "./domain/word-stats";
+export { RecordAnswerUseCase } from "./application/record-answer";
+export { GetWordStatsUseCase } from "./application/get-word-stats";
 export type { ConnectBoard, ConnectGame } from "./domain/connect";
 export { CONNECT_BOARDS, CONNECT_PAIRS, createConnectGame } from "./domain/connect";
 export type { MemoryGame, MemoryMode, MemoryTile } from "./domain/memory";

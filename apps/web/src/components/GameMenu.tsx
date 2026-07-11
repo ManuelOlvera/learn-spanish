@@ -78,6 +78,21 @@ function gamesFor(kid: KidId | null): readonly {
         { glyph: "🔤", href: "connect/read", label: "Connect by word" },
       ),
     },
+    {
+      emoji: "👀",
+      spanish: "Busca y toca",
+      english: "Seek and find",
+      modes: pick(
+        { glyph: "👂", href: "scene/listen", label: "Seek by ear" },
+        { glyph: "🔤", href: "scene/read", label: "Seek by word" },
+      ),
+    },
+    {
+      emoji: "⚔️",
+      spanish: "El duelo",
+      english: "Two-player duel",
+      modes: [{ glyph: "⚔️", href: "duel", label: "Two-player duel" }],
+    },
   ];
 }
 

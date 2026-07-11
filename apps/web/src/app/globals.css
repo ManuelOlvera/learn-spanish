@@ -86,9 +86,59 @@ body {
   animation: pop-in 0.35s ease-out both;
 }
 
+/* ⚡ combo burst — Duolingo-style racha flash, then gone */
+@keyframes racha-pop {
+  0% {
+    transform: scale(0.3) rotate(-8deg);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1.15) rotate(3deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+}
+
+.racha {
+  animation: racha-pop 1.2s ease-out both;
+}
+
+/* confetti raining on ¡Muy bien! */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-12vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(108vh) rotate(720deg);
+    opacity: 0.7;
+  }
+}
+
+.confetti-piece {
+  position: fixed;
+  top: 0;
+  border: 2px solid var(--color-ink);
+  border-radius: 4px;
+  pointer-events: none;
+  animation: confetti-fall linear both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wobble,
-  .pop-in {
+  .pop-in,
+  .racha,
+  .confetti-piece {
     animation: none;
+  }
+  .confetti-piece {
+    display: none;
   }
 }

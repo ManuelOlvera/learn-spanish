@@ -4,22 +4,31 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createQuiz,
+  kidForActivity,
   type Deck,
   type Quiz,
   type QuizMode,
+  type WordStats,
 } from "@learn-spanish/core";
+import { log } from "@learn-spanish/config";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
+import { getWordStats, recordAnswer } from "@/lib/album";
+import { getSelectedKid } from "@/lib/kid";
+import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
+import { RachaBurst } from "@/components/RachaBurst";
 
 interface Props {
   deck: Deck;
   mode: QuizMode;
   accent: string;
+  /** Repaso sessions: no sticker, no stats re-weighting feedback loop. */
+  review?: boolean;
 }
 
 const CELEBRATE_MS = 1100;
 
-export function QuizPlayer({ deck, mode, accent }: Props) {
+export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
   // Rounds are random, so the quiz is built client-side only — building it
   // during SSR would hydrate against a different shuffle.
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -29,11 +38,37 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
     null,
   );
   const advanceTimer = useRef<number | null>(null);
+  const roundMissed = useRef(false);
+  const statsRef = useRef<WordStats | undefined>(undefined);
+  const combo = useCombo();
+
+  // Only called from effects/handlers — localStorage is client-only.
+  function currentKid() {
+    return (
+      getSelectedKid() ??
+      kidForActivity(mode === "listen" ? "quiz-listen" : "quiz-read") ??
+      "listener"
+    );
+  }
 
   useEffect(() => {
     warmUpVoices();
-    setQuiz(createQuiz(deck, mode));
+    let cancelled = false;
+    // Stats bias the deal toward missed words (smart review).
+    getWordStats
+      .execute(currentKid())
+      .catch((err: unknown) => {
+        log.error("word-stats", "failed to load", { err });
+        return {};
+      })
+      .then((stats) => {
+        if (!cancelled) {
+          statsRef.current = stats;
+          setQuiz(createQuiz(deck, mode, Math.random, stats));
+        }
+      });
     return () => {
+      cancelled = true;
       if (advanceTimer.current !== null) {
         window.clearTimeout(advanceTimer.current);
       }
@@ -45,10 +80,18 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
   const round = rounds[index];
 
   function restart() {
-    setQuiz(createQuiz(deck, mode));
+    setQuiz(createQuiz(deck, mode, Math.random, statsRef.current));
     setIndex(0);
     setCorrectId(null);
     setWrongTap(null);
+    roundMissed.current = false;
+    combo.reset();
+  }
+
+  function tally(cardId: string, firstTry: boolean) {
+    recordAnswer
+      .execute(currentKid(), cardId, firstTry)
+      .catch((err: unknown) => log.error("word-stats", "failed to record", { err }));
   }
 
   function choose(cardId: string) {
@@ -58,12 +101,17 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
     if (cardId === round.answer.id) {
       setCorrectId(cardId);
       setWrongTap(null);
+      combo.correct();
+      tally(round.answer.id, !roundMissed.current);
+      roundMissed.current = false;
       speakSpanish(round.answer.spanish);
       advanceTimer.current = window.setTimeout(() => {
         setIndex((i) => i + 1);
         setCorrectId(null);
       }, CELEBRATE_MS);
     } else {
+      roundMissed.current = true;
+      combo.wrong();
       setWrongTap((prev) => ({ id: cardId, nonce: (prev?.nonce ?? 0) + 1 }));
     }
   }
@@ -75,8 +123,8 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
     >
       <header className="flex items-center justify-between">
         <Link
-          href={`/deck/${deck.id}`}
-          aria-label={`Back to ${deck.nameEnglish}`}
+          href={review ? "/" : `/deck/${deck.id}`}
+          aria-label={review ? "Back to all decks" : `Back to ${deck.nameEnglish}`}
           className="sticker flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
         >
           🏠
@@ -86,16 +134,24 @@ export function QuizPlayer({ deck, mode, accent }: Props) {
         </span>
       </header>
 
+      {combo.racha !== null && !done && (
+        <RachaBurst key={combo.racha} count={combo.racha} />
+      )}
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}
           activity={mode === "listen" ? "quiz-listen" : "quiz-read"}
           onReplay={restart}
-          back={{
-            href: `/deck/${deck.id}`,
-            emoji: deck.emoji,
-            label: `More games in ${deck.nameEnglish}`,
-          }}
+          noAward={review}
+          back={
+            review
+              ? { href: "/", emoji: "🏠", label: "Back to all decks" }
+              : {
+                  href: `/deck/${deck.id}`,
+                  emoji: deck.emoji,
+                  label: `More games in ${deck.nameEnglish}`,
+                }
+          }
         />
       ) : !round ? (
         // One frame while the client builds the shuffle.

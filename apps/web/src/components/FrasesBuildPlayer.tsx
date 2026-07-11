@@ -10,7 +10,9 @@ import {
   type SentenceGame,
 } from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
+import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
+import { RachaBurst } from "@/components/RachaBurst";
 
 interface Props {
   sentences: readonly Sentence[];
@@ -31,6 +33,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
   );
   const [celebrating, setCelebrating] = useState(false);
   const advanceTimer = useRef<number | null>(null);
+  const combo = useCombo();
 
   useEffect(() => {
     warmUpVoices();
@@ -52,6 +55,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
     setPlaced([]);
     setWrongTap(null);
     setCelebrating(false);
+    combo.reset();
   }
 
   function tap(tileIndex: number) {
@@ -61,12 +65,14 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
     const expected = round.sentence.tokens[placed.length];
     const word = round.tiles[tileIndex];
     if (word !== expected) {
+      combo.wrong();
       setWrongTap((prev) => ({ tile: tileIndex, nonce: (prev?.nonce ?? 0) + 1 }));
       return;
     }
     const nowPlaced = [...placed, tileIndex];
     setPlaced(nowPlaced);
     setWrongTap(null);
+    combo.correct();
     if (nowPlaced.length === round.sentence.tokens.length) {
       // The whole sentence, as the reward for finishing it.
       speakSpanish(sentenceText(round.sentence));
@@ -99,6 +105,9 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
         </span>
       </header>
 
+      {combo.racha !== null && !done && (
+        <RachaBurst key={combo.racha} count={combo.racha} />
+      )}
       {done ? (
         <DoneScreen
           stickerDeckId={SENTENCES_ID}

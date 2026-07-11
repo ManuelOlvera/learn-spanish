@@ -1,8 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ALL_KIDS, type KidId } from "@learn-spanish/core";
+import {
+  ALL_KIDS,
+  AVATAR_UNLOCKS,
+  isAvatarUnlocked,
+  type AvatarProgress,
+  type KidId,
+} from "@learn-spanish/core";
+import { log } from "@learn-spanish/config";
+import { getAlbum, getStreak } from "@/lib/album";
 import { AVATAR_CHOICES, getAvatar, KID_META, setAvatar } from "@/lib/kid";
+import { feedbackSticker, feedbackWrong } from "@/lib/feedback";
 
 interface Props {
   onPick: (kid: KidId) => void;
@@ -13,10 +22,40 @@ interface Props {
 export function KidPicker({ onPick }: Props) {
   const [avatars, setAvatars] = useState<Record<KidId, string> | null>(null);
   const [choosingFor, setChoosingFor] = useState<KidId | null>(null);
+  const [progress, setProgress] = useState<AvatarProgress>({
+    stickerCount: 0,
+    streakDays: 0,
+  });
+  const [lockedTap, setLockedTap] = useState<{ avatar: string; nonce: number } | null>(
+    null,
+  );
 
   useEffect(() => {
     setAvatars({ listener: getAvatar("listener"), reader: getAvatar("reader") });
   }, []);
+
+  // Unlocks are earned per kid: their stickers, their streak.
+  useEffect(() => {
+    if (choosingFor === null) {
+      return;
+    }
+    let cancelled = false;
+    Promise.all([getAlbum.execute(choosingFor), getStreak.execute(choosingFor)])
+      .then(([stickers, streak]) => {
+        if (!cancelled) {
+          setProgress({
+            stickerCount: stickers.length,
+            streakDays: streak?.count ?? 0,
+          });
+        }
+      })
+      .catch((err: unknown) =>
+        log.error("avatar-unlock", "failed to load progress", { err }),
+      );
+    return () => {
+      cancelled = true;
+    };
+  }, [choosingFor]);
 
   if (avatars === null) {
     return <main className="min-h-dvh" aria-hidden />;
@@ -34,29 +73,65 @@ export function KidPicker({ onPick }: Props) {
           </p>
         </header>
         <div className="grid w-full max-w-md grid-cols-4 gap-4">
-          {AVATAR_CHOICES.map((emoji, i) => (
-            <button
-              type="button"
-              key={emoji}
-              onClick={() => {
-                setAvatar(choosingFor, emoji);
-                setAvatars({ ...avatars, [choosingFor]: emoji });
-                setChoosingFor(null);
-              }}
-              aria-label={`Choose ${emoji}`}
-              className="sticker pop-in flex aspect-square items-center justify-center text-5xl active:translate-x-1 active:translate-y-1 active:shadow-none"
-              style={
-                avatars[choosingFor] === emoji
-                  ? ({
-                      "--sticker-face": "var(--color-lime)",
-                      animationDelay: `${i * 25}ms`,
-                    } as React.CSSProperties)
-                  : ({ animationDelay: `${i * 25}ms` } as React.CSSProperties)
-              }
-            >
-              {emoji}
-            </button>
-          ))}
+          {AVATAR_CHOICES.map((emoji, i) => {
+            const unlocked = isAvatarUnlocked(emoji, progress);
+            const requirement = AVATAR_UNLOCKS[emoji];
+            const isWrong = lockedTap?.avatar === emoji;
+            return (
+              <button
+                type="button"
+                key={`${emoji}-${isWrong ? lockedTap.nonce : 0}`}
+                onClick={() => {
+                  if (!unlocked) {
+                    // Locked: wobble and show what it takes.
+                    feedbackWrong();
+                    setLockedTap((prev) => ({
+                      avatar: emoji,
+                      nonce: (prev?.nonce ?? 0) + 1,
+                    }));
+                    return;
+                  }
+                  feedbackSticker();
+                  setAvatar(choosingFor, emoji);
+                  setAvatars({ ...avatars, [choosingFor]: emoji });
+                  setChoosingFor(null);
+                }}
+                aria-label={
+                  unlocked
+                    ? `Choose ${emoji}`
+                    : `${emoji} locked — needs ${requirement!.count} ${
+                        requirement!.type === "stickers" ? "stickers" : "day streak"
+                      }`
+                }
+                className={`sticker pop-in relative flex aspect-square flex-col items-center justify-center text-5xl ${
+                  unlocked
+                    ? "active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    : "opacity-60"
+                } ${isWrong ? "wobble" : ""}`}
+                style={
+                  avatars[choosingFor] === emoji
+                    ? ({
+                        "--sticker-face": "var(--color-lime)",
+                        animationDelay: `${i * 25}ms`,
+                      } as React.CSSProperties)
+                    : ({ animationDelay: `${i * 25}ms` } as React.CSSProperties)
+                }
+              >
+                <span aria-hidden className={unlocked ? "" : "opacity-40 grayscale"}>
+                  {emoji}
+                </span>
+                {!unlocked && requirement && (
+                  <span
+                    aria-hidden
+                    className="absolute -bottom-2 rounded-full border-2 border-ink bg-white px-2 text-xs font-extrabold"
+                  >
+                    🔒 {requirement.count}
+                    {requirement.type === "stickers" ? "📔" : "☀️"}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </main>
     );

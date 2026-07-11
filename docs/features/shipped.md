@@ -1,5 +1,39 @@
 # Shipped features
 
+## 2026-07-11 — The interactivity batch: game feel, busca y toca, unlocks, duel, smart review
+
+**What shipped:** five features that make the game *feel* alive and start
+responding to each kid:
+
+- **Contextual game feel** — synthesized Web Audio (no assets, offline):
+  distinct sounds for correct (pitch climbs with the combo), wrong (soft,
+  never punishing), pair-match, fanfare, and new-sticker chime; Android
+  haptics; confetti rain on every ¡Muy bien!; and a Duolingo-style ⚡
+  **¡Racha de N!** burst at 3/5/10 correct in a row (`domain/combo.ts`,
+  `lib/feedback.ts`, `use-combo.ts`, wired into every game).
+- **👀 Busca y toca** — an I-spy scene: 12 pictures scattered on a board
+  (grid-jitter layout, never overlapping), "¿Dónde está el gato?" (spoken
+  👂 / written 🔤; "¿Quién está triste?" for feelings). Activities
+  scene-listen/read; albums now 211 per kid.
+- **Avatar unlocks** — 🐲 (10 stickers), 👾 (25), 🦸 (5-day streak), 🧚 (50)
+  start locked in the chooser with 🔒 badges; collecting has a purpose.
+- **⚔️ El duelo** — pass-the-tablet versus: same 6 words, each kid at their
+  own difficulty (2-choice audio vs 4-choice written), ⭐ per first-try
+  answer, handoff screen, winner/¡Empate! results. No stickers — bragging
+  rights only.
+- **🔁 El repaso (smart review)** — every quiz/sí-o-no/scene answer tallies
+  per-word rights/wrongs on-device (`WordStatsStore`, **no database** —
+  ADR 002 intact; stats ride the transfer code with idempotent max-merge).
+  Quizzes weight their deals toward missed words, and once ≥3 words
+  struggle, home shows an "El repaso" chip → a sticker-less session over
+  exactly those words.
+
+**Where:** core `combo.ts`, `scene.ts`, `avatar-unlock.ts`, `duel.ts`,
+`word-stats.ts` (+ weighted `createQuiz`, transfer stats) — 24 new tests
+(117 total); web `feedback.ts`, `RachaBurst`/`Confetti`, `ScenePlayer`,
+`DuelPlayer`, `RepasoView`, unlock UI in `KidPicker`, recording wired in
+three players.
+
 ## 2026-07-11 — Avatar picker + one-time device transfer
 
 **What shipped:**

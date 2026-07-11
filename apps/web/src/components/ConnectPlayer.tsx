@@ -10,7 +10,9 @@ import {
   type VocabularyCard,
 } from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
+import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
+import { RachaBurst } from "@/components/RachaBurst";
 
 interface Props {
   deck: Deck;
@@ -38,6 +40,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
     nonce: number;
   } | null>(null);
   const advanceTimer = useRef<number | null>(null);
+  const combo = useCombo();
 
   useEffect(() => {
     warmUpVoices();
@@ -61,6 +64,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
     setMatched(new Set());
     setSelected(null);
     setWrongTap(null);
+    combo.reset();
   }
 
   function tap(side: Side, card: VocabularyCard) {
@@ -79,6 +83,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
       const nowMatched = new Set([...matched, card.id]);
       setMatched(nowMatched);
       setSelected(null);
+      combo.correct();
       speakSpanish(card.spanish);
       if (nowMatched.size === board.left.length) {
         advanceTimer.current = window.setTimeout(() => {
@@ -87,6 +92,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
         }, BOARD_DONE_MS);
       }
     } else {
+      combo.wrong();
       setWrongTap((prev) => ({
         side,
         cardId: card.id,
@@ -160,6 +166,9 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
         </span>
       </header>
 
+      {combo.racha !== null && !done && (
+        <RachaBurst key={combo.racha} count={combo.racha} />
+      )}
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}

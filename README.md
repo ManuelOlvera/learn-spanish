@@ -12,7 +12,13 @@ No reading, no accounts, no setup.
   **Spain Spanish** (es-ES voice; coche, ordenador, hierba, baloncesto).
 - **Games** — per deck, each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
-  "Las parejas" (memory match), and "Conecta" (connect the columns).
+  "Las parejas" (memory match), "Conecta" (connect the columns),
+  "Busca y toca" (I-spy scene), and "El duelo" (pass-the-tablet versus).
+- **Game feel** — synthesized sounds, haptics, confetti, and a ⚡ racha
+  burst at 3/5/10 correct in a row.
+- **Smart review** — per-word tallies (on-device) bias quizzes toward
+  missed words; a 🔁 "El repaso" chip appears on home when ≥3 words
+  struggle. Special avatars unlock by sticker count and streaks.
 - **Say-it-back** — a 🎤 on every flashcard records the kid repeating the
   word and plays it straight back; clips are in-memory only (ADR 003).
 - **Las frases** — 48 starter sentences: hear-them cards (👂) and a

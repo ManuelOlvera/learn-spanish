@@ -11,6 +11,7 @@ import {
   type MemoryTile,
 } from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
+import { feedbackMatch, feedbackWrong } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
 
 interface Props {
@@ -72,11 +73,13 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
     if (tilesMatch(first, tile)) {
       setMatched((prev) => new Set([...prev, first.id, tile.id]));
       setFlipped([]);
+      feedbackMatch();
       if (mode === "words") {
         speakSpanish(tile.card.spanish);
       }
     } else {
       setFlipped([first, tile]);
+      feedbackWrong();
       setMissNonce((n) => n + 1);
       flipBackTimer.current = window.setTimeout(() => {
         setFlipped([]);

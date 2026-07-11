@@ -1,6 +1,7 @@
 import { isKidId } from "./kid";
 import type { KidId } from "./kid";
 import type { Streak } from "./daily";
+import type { WordStat, WordStats } from "./word-stats";
 
 /**
  * One-time progress transfer between devices — a copy-able code, no backend
@@ -12,6 +13,8 @@ export interface ProgressSnapshot {
   readonly streaks: Partial<Record<KidId, Streak>>;
   /** Presentation identity travels with progress (opaque emoji per kid). */
   readonly avatars: Partial<Record<KidId, string>>;
+  /** Per-kid word tallies; optional so pre-stats codes still decode. */
+  readonly stats?: Partial<Record<KidId, WordStats>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -112,6 +115,7 @@ export function decodeProgress(code: string): ProgressSnapshot {
         (id): id is string => typeof id === "string" && isValidStickerId(id),
       )
     : [];
+  const stats = sanitizeKidRecord(candidate.stats, isWordStats);
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -119,7 +123,22 @@ export function decodeProgress(code: string): ProgressSnapshot {
       candidate.avatars,
       (v): v is string => typeof v === "string" && v !== "",
     ),
+    // Omitted when absent so pre-stats codes round-trip unchanged.
+    ...(Object.keys(stats).length > 0 ? { stats } : {}),
   };
+}
+
+function isWordStats(value: unknown): value is WordStats {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  return Object.values(value).every(
+    (stat) =>
+      typeof stat === "object" &&
+      stat !== null &&
+      typeof (stat as WordStat).right === "number" &&
+      typeof (stat as WordStat).wrong === "number",
+  );
 }
 
 /** Import = merge, never overwrite: sticker union, later streak day wins
@@ -150,9 +169,27 @@ export function mergeProgress(
     }
   }
 
+  // Per-word maxima keep the merge idempotent (re-importing never inflates).
+  const stats: Partial<Record<KidId, WordStats>> = { ...(current.stats ?? {}) };
+  for (const [kid, incomingStats] of Object.entries(incoming.stats ?? {}) as [
+    KidId,
+    WordStats,
+  ][]) {
+    const merged: Record<string, WordStat> = { ...(stats[kid] ?? {}) };
+    for (const [cardId, stat] of Object.entries(incomingStats)) {
+      const existing = merged[cardId];
+      merged[cardId] = {
+        right: Math.max(existing?.right ?? 0, stat.right),
+        wrong: Math.max(existing?.wrong ?? 0, stat.wrong),
+      };
+    }
+    stats[kid] = merged;
+  }
+
   return {
     stickers,
     streaks,
     avatars: { ...current.avatars, ...incoming.avatars },
+    stats,
   };
 }

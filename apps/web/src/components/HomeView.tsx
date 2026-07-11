@@ -5,6 +5,8 @@ import Link from "next/link";
 import {
   dailyCard,
   KID_GAME_MODES,
+  pickReviewCards,
+  REVIEW_MIN,
   type Deck,
   type DeckGroup,
   type KidId,
@@ -14,7 +16,7 @@ import {
 import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
-import { feedStreak, getStreak } from "@/lib/album";
+import { feedStreak, getStreak, getWordStats } from "@/lib/album";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
 
@@ -28,6 +30,7 @@ export function HomeView({ decks, groups }: Props) {
   const [kid, setKid] = useState<KidId | null | undefined>(undefined);
   const [daily, setDaily] = useState<VocabularyCard | null>(null);
   const [streak, setStreak] = useState<Streak | null>(null);
+  const [weakCount, setWeakCount] = useState(0);
   const [dailyWobble, setDailyWobble] = useState(0);
 
   useEffect(() => {
@@ -50,10 +53,22 @@ export function HomeView({ decks, groups }: Props) {
         }
       })
       .catch((err: unknown) => log.error("streak", "failed to load", { err }));
+    getWordStats
+      .execute(kid)
+      .then((stats) => {
+        if (!cancelled) {
+          setWeakCount(
+            pickReviewCards(decks.flatMap((d) => d.cards), stats, 99).length,
+          );
+        }
+      })
+      .catch((err: unknown) =>
+        log.error("word-stats", "failed to load", { err }),
+      );
     return () => {
       cancelled = true;
     };
-  }, [kid]);
+  }, [kid, decks]);
 
   function pick(id: KidId) {
     setSelectedKid(id);
@@ -140,6 +155,26 @@ export function HomeView({ decks, groups }: Props) {
             </span>
           )}
         </button>
+      )}
+
+      {weakCount >= REVIEW_MIN && (
+        <Link
+          href="/repaso"
+          aria-label={`Review ${weakCount} tricky words`}
+          className="sticker pop-in relative flex items-center gap-3 px-6 py-2 active:translate-x-1 active:translate-y-1 active:shadow-none"
+          style={{ "--accent": "var(--color-lime-deep)" } as React.CSSProperties}
+        >
+          <span aria-hidden className="text-3xl">
+            🔁
+          </span>
+          <span className="text-xl font-extrabold">El repaso</span>
+          <span
+            aria-hidden
+            className="rounded-full border-2 border-ink bg-[var(--color-lime)] px-2 text-sm font-extrabold"
+          >
+            {weakCount}
+          </span>
+        </Link>
       )}
 
       <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
