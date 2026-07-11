@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { AwardStickerUseCase } from "../src/application/award-sticker";
 import { GetAlbumUseCase } from "../src/application/get-album";
 import { stickerId, upgradeLegacyStickers } from "../src/domain/album";
-import type { AlbumStore } from "../src/domain/album";
+import type { AlbumStore, StickerCountsStore } from "../src/domain/album";
 
 class FakeAlbumStore implements AlbumStore {
   constructor(public stickers: readonly string[] = []) {}
@@ -11,6 +11,17 @@ class FakeAlbumStore implements AlbumStore {
   }
   save(stickers: readonly string[]): Promise<void> {
     this.stickers = stickers;
+    return Promise.resolve();
+  }
+}
+
+class FakeCountsStore implements StickerCountsStore {
+  public counts: Record<string, number> = {};
+  load(): Promise<Readonly<Record<string, number>>> {
+    return Promise.resolve({ ...this.counts });
+  }
+  save(counts: Readonly<Record<string, number>>): Promise<void> {
+    this.counts = { ...counts };
     return Promise.resolve();
   }
 }
@@ -50,9 +61,9 @@ describe("upgradeLegacyStickers", () => {
 describe("AwardStickerUseCase", () => {
   it("awards a sticker to one kid and persists it", async () => {
     const store = new FakeAlbumStore();
-    const award = new AwardStickerUseCase(store);
+    const award = new AwardStickerUseCase(store, new FakeCountsStore());
     const result = await award.execute("listener", "animals", "learn");
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       stickerId: "listener:animals:learn",
       isNew: true,
     });
@@ -61,7 +72,7 @@ describe("AwardStickerUseCase", () => {
 
   it("reports a repeat award as not new and does not duplicate it", async () => {
     const store = new FakeAlbumStore(["listener:animals:learn"]);
-    const award = new AwardStickerUseCase(store);
+    const award = new AwardStickerUseCase(store, new FakeCountsStore());
     const result = await award.execute("listener", "animals", "learn");
     expect(result.isNew).toBe(false);
     expect(store.stickers).toEqual(["listener:animals:learn"]);
@@ -69,7 +80,7 @@ describe("AwardStickerUseCase", () => {
 
   it("keeps the other kid's stickers intact", async () => {
     const store = new FakeAlbumStore(["reader:animals:learn"]);
-    const award = new AwardStickerUseCase(store);
+    const award = new AwardStickerUseCase(store, new FakeCountsStore());
     await award.execute("listener", "animals", "learn");
     expect(store.stickers).toEqual([
       "reader:animals:learn",

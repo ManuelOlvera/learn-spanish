@@ -140,6 +140,7 @@ export function FlashcardPlayer({ deck, accent }: Props) {
           stickerDeckId={deck.id}
           activity="learn"
           onReplay={restart}
+          firstTryCount={2}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

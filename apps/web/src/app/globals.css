@@ -131,11 +131,47 @@ body {
   animation: confetti-fall linear both;
 }
 
+/* ⭐ flying out of an opened chest */
+@keyframes star-fly {
+  0% {
+    transform: translate(0, 0) scale(0.4);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--fly-x), var(--fly-y)) scale(1.15) rotate(40deg);
+    opacity: 0;
+  }
+}
+
+.star-fly {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  animation: star-fly 1s ease-out both;
+  pointer-events: none;
+}
+
+@keyframes chest-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-6deg) scale(1.04); }
+  50% { transform: rotate(6deg) scale(1.06); }
+  80% { transform: rotate(-3deg) scale(1.02); }
+}
+
+.chest-tease {
+  animation: chest-shake 1.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wobble,
   .pop-in,
   .racha,
-  .confetti-piece {
+  .confetti-piece,
+  .star-fly,
+  .chest-tease {
     animation: none;
   }
   .confetti-piece {

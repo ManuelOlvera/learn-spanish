@@ -7,6 +7,21 @@ export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
 export { createQuiz, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
 export { createSiNoGame, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
+export type { StarStore } from "./domain/stars";
+export { earnedStars, MEAL_COST, MISSION_BONUS } from "./domain/stars";
+export type { MissionKind, MissionState, MissionStore } from "./domain/mission";
+export {
+  activityKind,
+  dailyMission,
+  markMissionDone,
+  MISSION_SIZE,
+  missionComplete,
+} from "./domain/mission";
+export type { StickerTier } from "./domain/sticker-tiers";
+export { stickerTier, TIER_THRESHOLDS } from "./domain/sticker-tiers";
+export type { PetState, PetStore } from "./domain/mascota";
+export { feedPet, isPetHungry, PET_STAGE_MEALS, petStage } from "./domain/mascota";
+export type { StickerCountsStore } from "./domain/album";
 export { COMBO_MILESTONES, isComboMilestone } from "./domain/combo";
 export type { AvatarProgress, AvatarRequirement } from "./domain/avatar-unlock";
 export { AVATAR_UNLOCKS, isAvatarUnlocked } from "./domain/avatar-unlock";

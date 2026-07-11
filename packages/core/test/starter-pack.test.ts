@@ -26,6 +26,7 @@ describe("starter pack content", () => {
       "bugs",
       "zoo",
       "jobs",
+      "city",
     ]);
   });
 

@@ -28,6 +28,7 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
   const [flipped, setFlipped] = useState<readonly MemoryTile[]>([]);
   const [matched, setMatched] = useState<ReadonlySet<string>>(new Set());
   const [missNonce, setMissNonce] = useState(0);
+  const misses = useRef(0);
   const flipBackTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
     setFlipped([]);
     setMatched(new Set());
     setMissNonce(0);
+    misses.current = 0;
   }
 
   function flip(tile: MemoryTile) {
@@ -80,6 +82,7 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
     } else {
       setFlipped([first, tile]);
       feedbackWrong();
+      misses.current += 1;
       setMissNonce((n) => n + 1);
       flipBackTimer.current = window.setTimeout(() => {
         setFlipped([]);
@@ -112,6 +115,7 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
           stickerDeckId={deck.id}
           activity={mode === "pictures" ? "match-pictures" : "match-words"}
           onReplay={restart}
+          firstTryCount={Math.max(0, tiles.length / 2 - misses.current)}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

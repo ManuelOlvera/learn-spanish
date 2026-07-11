@@ -10,10 +10,19 @@ import {
   type WordStats,
 } from "@learn-spanish/core";
 import type { KidId } from "@learn-spanish/core";
+import type { PetState } from "@learn-spanish/core";
 import { LocalStorageAlbumStore } from "./album-store";
 import { LocalStorageStreakStore } from "./streak-store";
 import { LocalStorageWordStatsStore } from "./word-stats-store";
 import { getAvatars, setAvatar } from "./kid";
+import {
+  getPet,
+  getStars,
+  getStickerCounts,
+  savePet,
+  saveStickerCounts,
+  setStars,
+} from "./economy";
 
 const albumStore = new LocalStorageAlbumStore();
 const streakStore = new LocalStorageStreakStore();
@@ -23,6 +32,8 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
   const stickers = await albumStore.load();
   const streaks: Partial<Record<KidId, Streak>> = {};
   const stats: Partial<Record<KidId, WordStats>> = {};
+  const stars: Partial<Record<KidId, number>> = {};
+  const pets: Partial<Record<KidId, PetState>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
     if (streak !== null) {
@@ -32,8 +43,18 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (Object.keys(kidStats).length > 0) {
       stats[kid] = kidStats;
     }
+    stars[kid] = getStars(kid);
+    pets[kid] = getPet(kid);
   }
-  return { stickers, streaks, avatars: getAvatars(), stats };
+  return {
+    stickers,
+    streaks,
+    avatars: getAvatars(),
+    stats,
+    stars,
+    stickerCounts: getStickerCounts(),
+    pets,
+  };
 }
 
 /** The copy-able one-time code for this device's progress (ADR 002: no backend). */
@@ -65,6 +86,17 @@ export async function importProgressCode(code: string): Promise<ImportOutcome> {
     if (kidStats !== undefined) {
       await wordStatsStore.save(kid, kidStats);
     }
+    const kidStars = merged.stars?.[kid];
+    if (kidStars !== undefined) {
+      setStars(kid, kidStars);
+    }
+    const kidPet = merged.pets?.[kid];
+    if (kidPet !== undefined) {
+      savePet(kid, kidPet);
+    }
+  }
+  if (merged.stickerCounts !== undefined) {
+    saveStickerCounts(merged.stickerCounts);
   }
 
   return { newStickers: merged.stickers.length - current.stickers.length };

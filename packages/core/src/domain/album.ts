@@ -78,3 +78,9 @@ export interface AlbumStore {
   load(): Promise<readonly string[]>;
   save(stickers: readonly string[]): Promise<void>;
 }
+
+/** Completion counts per sticker id — the tier system's ledger. */
+export interface StickerCountsStore {
+  load(): Promise<Readonly<Record<string, number>>>;
+  save(counts: Readonly<Record<string, number>>): Promise<void>;
+}

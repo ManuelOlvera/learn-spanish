@@ -32,7 +32,7 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "El mundo",
     nameEnglish: "The world",
     emoji: "🌍",
-    deckIds: ["nature", "weather", "vehicles", "jobs"],
+    deckIds: ["nature", "weather", "vehicles", "jobs", "city"],
   },
   {
     id: "jugar",

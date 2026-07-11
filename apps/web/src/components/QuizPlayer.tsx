@@ -39,6 +39,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
   );
   const advanceTimer = useRef<number | null>(null);
   const roundMissed = useRef(false);
+  const firstTries = useRef(0);
   const statsRef = useRef<WordStats | undefined>(undefined);
   const combo = useCombo();
 
@@ -85,6 +86,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
     setCorrectId(null);
     setWrongTap(null);
     roundMissed.current = false;
+    firstTries.current = 0;
     combo.reset();
   }
 
@@ -103,6 +105,9 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
       setWrongTap(null);
       combo.correct();
       tally(round.answer.id, !roundMissed.current);
+      if (!roundMissed.current) {
+        firstTries.current += 1;
+      }
       roundMissed.current = false;
       speakSpanish(round.answer.spanish);
       advanceTimer.current = window.setTimeout(() => {
@@ -143,6 +148,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
           activity={mode === "listen" ? "quiz-listen" : "quiz-read"}
           onReplay={restart}
           noAward={review}
+          firstTryCount={firstTries.current}
           back={
             review
               ? { href: "/", emoji: "🏠", label: "Back to all decks" }

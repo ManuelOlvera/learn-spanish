@@ -2,6 +2,7 @@ import { isKidId } from "./kid";
 import type { KidId } from "./kid";
 import type { Streak } from "./daily";
 import type { WordStat, WordStats } from "./word-stats";
+import type { PetState } from "./mascota";
 
 /**
  * One-time progress transfer between devices — a copy-able code, no backend
@@ -15,6 +16,10 @@ export interface ProgressSnapshot {
   readonly avatars: Partial<Record<KidId, string>>;
   /** Per-kid word tallies; optional so pre-stats codes still decode. */
   readonly stats?: Partial<Record<KidId, WordStats>>;
+  /** Economy fields — all optional for backwards compatibility. */
+  readonly stars?: Partial<Record<KidId, number>>;
+  readonly stickerCounts?: Readonly<Record<string, number>>;
+  readonly pets?: Partial<Record<KidId, PetState>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -116,6 +121,19 @@ export function decodeProgress(code: string): ProgressSnapshot {
       )
     : [];
   const stats = sanitizeKidRecord(candidate.stats, isWordStats);
+  const stars = sanitizeKidRecord(
+    candidate.stars,
+    (v): v is number => typeof v === "number" && v >= 0,
+  );
+  const pets = sanitizeKidRecord(candidate.pets, isPetState);
+  const stickerCounts: Record<string, number> = {};
+  if (typeof candidate.stickerCounts === "object" && candidate.stickerCounts !== null) {
+    for (const [id, count] of Object.entries(candidate.stickerCounts)) {
+      if (isValidStickerId(id) && typeof count === "number" && count > 0) {
+        stickerCounts[id] = count;
+      }
+    }
+  }
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -123,9 +141,22 @@ export function decodeProgress(code: string): ProgressSnapshot {
       candidate.avatars,
       (v): v is string => typeof v === "string" && v !== "",
     ),
-    // Omitted when absent so pre-stats codes round-trip unchanged.
+    // Optional fields omitted when absent so older codes round-trip unchanged.
     ...(Object.keys(stats).length > 0 ? { stats } : {}),
+    ...(Object.keys(stars).length > 0 ? { stars } : {}),
+    ...(Object.keys(stickerCounts).length > 0 ? { stickerCounts } : {}),
+    ...(Object.keys(pets).length > 0 ? { pets } : {}),
   };
+}
+
+function isPetState(value: unknown): value is PetState {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as PetState).meals === "number" &&
+    ((value as PetState).lastFed === null ||
+      typeof (value as PetState).lastFed === "string")
+  );
 }
 
 function isWordStats(value: unknown): value is WordStats {
@@ -186,10 +217,41 @@ export function mergeProgress(
     stats[kid] = merged;
   }
 
+  // Economy fields max-merge for idempotence (re-import never inflates).
+  const stars: Partial<Record<KidId, number>> = { ...(current.stars ?? {}) };
+  for (const [kid, value] of Object.entries(incoming.stars ?? {}) as [KidId, number][]) {
+    stars[kid] = Math.max(stars[kid] ?? 0, value);
+  }
+  const stickerCounts: Record<string, number> = { ...(current.stickerCounts ?? {}) };
+  for (const [id, count] of Object.entries(incoming.stickerCounts ?? {})) {
+    stickerCounts[id] = Math.max(stickerCounts[id] ?? 0, count);
+  }
+  const pets: Partial<Record<KidId, PetState>> = { ...(current.pets ?? {}) };
+  for (const [kid, pet] of Object.entries(incoming.pets ?? {}) as [KidId, PetState][]) {
+    const existing = pets[kid];
+    pets[kid] =
+      existing === undefined
+        ? pet
+        : {
+            meals: Math.max(existing.meals, pet.meals),
+            lastFed:
+              existing.lastFed === null
+                ? pet.lastFed
+                : pet.lastFed === null
+                  ? existing.lastFed
+                  : existing.lastFed > pet.lastFed
+                    ? existing.lastFed
+                    : pet.lastFed,
+          };
+  }
+
   return {
     stickers,
     streaks,
     avatars: { ...current.avatars, ...incoming.avatars },
     stats,
+    stars,
+    stickerCounts,
+    pets,
   };
 }

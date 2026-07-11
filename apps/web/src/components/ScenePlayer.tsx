@@ -37,6 +37,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
   );
   const advanceTimer = useRef<number | null>(null);
   const roundMissed = useRef(false);
+  const firstTries = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
     setFoundId(null);
     setWrongTap(null);
     roundMissed.current = false;
+    firstTries.current = 0;
     combo.reset();
   }
 
@@ -79,6 +81,9 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );
+      if (!roundMissed.current) {
+        firstTries.current += 1;
+      }
       roundMissed.current = false;
       speakSpanish(target.spanish);
       advanceTimer.current = window.setTimeout(() => {
@@ -118,6 +123,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
           stickerDeckId={deck.id}
           activity={mode === "listen" ? "scene-listen" : "scene-read"}
           onReplay={restart}
+          firstTryCount={firstTries.current}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

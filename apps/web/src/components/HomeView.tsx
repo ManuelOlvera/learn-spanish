@@ -17,6 +17,15 @@ import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak, getWordStats } from "@/lib/album";
+import {
+  claimMissionBonus,
+  getMission,
+  getPet,
+  getStars,
+  type MissionView,
+} from "@/lib/economy";
+import { petStage, MISSION_BONUS, type PetState } from "@learn-spanish/core";
+import { feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
 
@@ -32,6 +41,9 @@ export function HomeView({ decks, groups }: Props) {
   const [streak, setStreak] = useState<Streak | null>(null);
   const [weakCount, setWeakCount] = useState(0);
   const [dailyWobble, setDailyWobble] = useState(0);
+  const [mission, setMission] = useState<MissionView | null>(null);
+  const [stars, setStars] = useState(0);
+  const [pet, setPet] = useState<PetState | null>(null);
 
   useEffect(() => {
     warmUpVoices();
@@ -65,6 +77,9 @@ export function HomeView({ decks, groups }: Props) {
       .catch((err: unknown) =>
         log.error("word-stats", "failed to load", { err }),
       );
+    setMission(getMission(kid));
+    setStars(getStars(kid));
+    setPet(getPet(kid));
     return () => {
       cancelled = true;
     };
@@ -157,6 +172,62 @@ export function HomeView({ decks, groups }: Props) {
         </button>
       )}
 
+      {mission !== null && (
+        <div
+          className="sticker relative flex w-full max-w-md items-center justify-between gap-3 px-5 py-3"
+          aria-label="Today's mission"
+        >
+          <span aria-hidden className="sticker-peel" />
+          <span className="flex items-center gap-2">
+            <span aria-hidden className="text-3xl">
+              🎯
+            </span>
+            <span className="text-lg font-extrabold">La misión</span>
+          </span>
+          <span className="flex items-center gap-2">
+            {mission.kinds.map((kind) => {
+              const done = mission.state.done.includes(kind);
+              const KIND_EMOJI: Record<string, string> = {
+                learn: "📖", quiz: "🔍", "si-no": "✅", match: "🧩",
+                connect: "🔗", scene: "👀", frases: "💬", duel: "⚔️",
+              };
+              return (
+                <span
+                  key={kind}
+                  aria-label={`${kind}: ${done ? "done" : "to do"}`}
+                  className={`relative flex h-12 w-12 items-center justify-center rounded-2xl border-4 text-2xl ${
+                    done ? "border-ink bg-[var(--color-lime)]" : "border-dashed border-ink/30"
+                  }`}
+                >
+                  <span aria-hidden>{KIND_EMOJI[kind]}</span>
+                </span>
+              );
+            })}
+            {mission.complete && !mission.state.claimed ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const balance = kid ? claimMissionBonus(kid) : null;
+                  if (balance !== null) {
+                    feedbackRacha();
+                    setStars(balance);
+                    setMission(kid ? getMission(kid) : null);
+                  }
+                }}
+                aria-label={`Open the mission chest (+${MISSION_BONUS} stars)`}
+                className="sticker chest-tease flex h-14 w-14 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+              >
+                🎁
+              </button>
+            ) : mission.state.claimed ? (
+              <span aria-label="Mission bonus claimed" className="text-3xl">
+                🏆
+              </span>
+            ) : null}
+          </span>
+        </div>
+      )}
+
       {weakCount >= REVIEW_MIN && (
         <Link
           href="/repaso"
@@ -210,6 +281,27 @@ export function HomeView({ decks, groups }: Props) {
             </Link>
           );
         })}
+
+        <Link
+          href="/mascota"
+          aria-label={`La mascota — feed it with your ${stars} stars`}
+          style={{ "--accent": "#fbbf24" } as React.CSSProperties}
+          className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+        >
+          <span aria-hidden className="sticker-peel" />
+          <span aria-hidden className="text-5xl sm:text-6xl">
+            {["🥚", "🐣", "🐥", "🐓"][petStage(pet?.meals ?? 0)]}
+          </span>
+          <span className="text-center text-xl font-extrabold sm:text-2xl">
+            La mascota
+          </span>
+          <span
+            aria-hidden
+            className="rounded-full border-2 border-ink bg-white px-3 text-base font-extrabold"
+          >
+            ⭐ {stars}
+          </span>
+        </Link>
 
         <Link
           href={kid ? `/frases/${KID_GAME_MODES[kid].quiz}` : "/frases"}

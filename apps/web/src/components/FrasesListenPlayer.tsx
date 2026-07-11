@@ -73,6 +73,7 @@ export function FrasesListenPlayer({ sentences, accent }: Props) {
           stickerDeckId={SENTENCES_ID}
           activity="frases-listen"
           onReplay={restart}
+          firstTryCount={2}
           back={{ href: "/", emoji: "🏠", label: "Back to all decks" }}
         />
       ) : !round ? (

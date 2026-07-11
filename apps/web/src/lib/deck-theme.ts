@@ -23,6 +23,7 @@ const accents: Record<string, string> = {
   bugs: "#a16207",
   zoo: "#14b8a6",
   jobs: "#6366f1",
+  city: "#94a3b8",
   // home-screen shelves (deck groups)
   animales: "#f59e0b",
   "numeros-colores": "#38bdf8",

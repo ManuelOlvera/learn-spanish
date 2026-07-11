@@ -10,10 +10,12 @@ import {
 } from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getAvatar } from "@/lib/kid";
+import { addStars, markActivityDone } from "@/lib/economy";
 import { feedbackFanfare } from "@/lib/feedback";
 import { useCombo } from "@/lib/use-combo";
 import { RachaBurst } from "@/components/RachaBurst";
 import { Confetti } from "@/components/Confetti";
+import { StarChest } from "@/components/StarChest";
 
 interface Props {
   deck: Deck;
@@ -63,6 +65,9 @@ export function DuelPlayer({ deck, accent }: Props) {
   useEffect(() => {
     if (phase.at === "results") {
       feedbackFanfare();
+      // Both kids played; the duel feeds both missions.
+      markActivityDone("listener", "duel");
+      markActivityDone("reader", "duel");
     }
   }, [phase]);
 
@@ -294,6 +299,13 @@ export function DuelPlayer({ deck, accent }: Props) {
               </div>
             ))}
           </div>
+          <StarChest
+            amount={Math.max(1, stars.listener) + Math.max(1, stars.reader)}
+            onOpen={() => {
+              addStars("listener", Math.max(1, stars.listener));
+              addStars("reader", Math.max(1, stars.reader));
+            }}
+          />
           <div className="flex gap-6">
             <button
               type="button"

@@ -40,6 +40,8 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
     nonce: number;
   } | null>(null);
   const advanceTimer = useRef<number | null>(null);
+  const lastWrong = useRef(false);
+  const firstTries = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -64,6 +66,8 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
     setMatched(new Set());
     setSelected(null);
     setWrongTap(null);
+    lastWrong.current = false;
+    firstTries.current = 0;
     combo.reset();
   }
 
@@ -84,6 +88,10 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
       setMatched(nowMatched);
       setSelected(null);
       combo.correct();
+      if (!lastWrong.current) {
+        firstTries.current += 1;
+      }
+      lastWrong.current = false;
       speakSpanish(card.spanish);
       if (nowMatched.size === board.left.length) {
         advanceTimer.current = window.setTimeout(() => {
@@ -93,6 +101,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
       }
     } else {
       combo.wrong();
+      lastWrong.current = true;
       setWrongTap((prev) => ({
         side,
         cardId: card.id,
@@ -174,6 +183,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
           stickerDeckId={deck.id}
           activity={mode === "listen" ? "connect-listen" : "connect-read"}
           onReplay={restart}
+          firstTryCount={firstTries.current}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

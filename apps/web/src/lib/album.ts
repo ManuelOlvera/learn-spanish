@@ -11,6 +11,7 @@ import {
 import { LocalStorageAlbumStore } from "./album-store";
 import { LocalStorageStreakStore } from "./streak-store";
 import { LocalStorageWordStatsStore } from "./word-stats-store";
+import { LocalStorageStickerCountsStore } from "./economy";
 
 /**
  * Client-side composition root: album and streaks live in browser storage,
@@ -21,7 +22,10 @@ const albumStore = new LocalStorageAlbumStore();
 const streakStore = new LocalStorageStreakStore();
 const wordStatsStore = new LocalStorageWordStatsStore();
 
-export const awardSticker = new AwardStickerUseCase(albumStore);
+export const awardSticker = new AwardStickerUseCase(
+  albumStore,
+  new LocalStorageStickerCountsStore(),
+);
 export const getAlbum = new GetAlbumUseCase(albumStore);
 export const feedStreak = new FeedStreakUseCase(streakStore);
 export const getStreak = new GetStreakUseCase(streakStore);

@@ -62,7 +62,7 @@ export function TransferPanel({ onImported }: Props) {
 
   if (!open) {
     return (
-      <footer className="flex justify-center pb-6">
+      <footer className="flex flex-col items-center gap-3 pb-6">
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -70,6 +70,12 @@ export function TransferPanel({ onImported }: Props) {
         >
           🔄 ¿Cambiáis de dispositivo? Transferir progreso
         </button>
+        <a
+          href="/informe"
+          className="text-sm font-semibold text-ink/50 underline underline-offset-4"
+        >
+          📊 Informe para padres
+        </a>
       </footer>
     );
   }

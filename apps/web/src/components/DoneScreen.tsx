@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  activityKind,
+  earnedStars,
   kidForActivity,
   type ActivityId,
   type AwardResult,
@@ -10,9 +12,11 @@ import {
 import { log } from "@learn-spanish/config";
 import { awardSticker } from "@/lib/album";
 import { getSelectedKid } from "@/lib/kid";
+import { addStars, markActivityDone } from "@/lib/economy";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 import { feedbackFanfare, feedbackSticker } from "@/lib/feedback";
 import { Confetti } from "@/components/Confetti";
+import { StarChest } from "@/components/StarChest";
 
 interface Props {
   /** Which album section the sticker files under (a deck id, or "frases"). */
@@ -23,6 +27,8 @@ interface Props {
   back: { href: string; emoji: string; label: string };
   /** Repaso sessions celebrate without touching the album. */
   noAward?: boolean;
+  /** First-try correct answers this run — becomes the chest's stars. */
+  firstTryCount?: number;
 }
 
 /**
@@ -35,13 +41,18 @@ export function DoneScreen({
   onReplay,
   back,
   noAward = false,
+  firstTryCount = 0,
 }: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
   const meta = ACTIVITY_META[activity];
+  const stars = earnedStars(firstTryCount);
 
   useEffect(() => {
     feedbackFanfare();
-  }, []);
+    // Completing the activity feeds today's mission either way.
+    const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
+    markActivityDone(kid, activityKind(activity));
+  }, [activity]);
 
   useEffect(() => {
     if (award?.isNew) {
@@ -80,19 +91,44 @@ export function DoneScreen({
       </div>
       <h1 className="text-5xl font-extrabold">¡Muy bien!</h1>
 
-      {award?.isNew && (
+      {award !== null && (award.isNew || award.tierUp) && (
         <div
           className="sticker pop-in relative flex items-center gap-3 px-6 py-3"
-          aria-label={`New sticker earned: ${meta.english}`}
+          aria-label={
+            award.isNew
+              ? `New sticker earned: ${meta.english}`
+              : `Sticker upgraded to ${award.tier}: ${meta.english}`
+          }
+          style={
+            award.tier === "gold"
+              ? ({ "--sticker-face": "#fde68a" } as React.CSSProperties)
+              : award.tier === "silver"
+                ? ({ "--sticker-face": "#e5e7eb" } as React.CSSProperties)
+                : undefined
+          }
         >
           <span aria-hidden className="sticker-peel" />
           <span aria-hidden className="text-4xl">
             {meta.game}
             {meta.mode}
           </span>
-          <span className="text-2xl font-extrabold">¡Nueva pegatina!</span>
+          <span className="text-2xl font-extrabold">
+            {award.isNew
+              ? "¡Nueva pegatina!"
+              : award.tier === "gold"
+                ? "¡Pegatina de oro! 🥇"
+                : "¡Pegatina de plata! 🥈"}
+          </span>
         </div>
       )}
+
+      <StarChest
+        amount={stars}
+        onOpen={() => {
+          const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
+          addStars(kid, stars);
+        }}
+      />
 
       <div className="flex gap-6">
         <button

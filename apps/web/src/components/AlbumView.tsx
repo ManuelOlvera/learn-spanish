@@ -7,10 +7,12 @@ import {
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
   stickerId,
+  stickerTier,
   type ActivityId,
   type Deck,
   type KidId,
 } from "@learn-spanish/core";
+import { getStickerCounts } from "@/lib/economy";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/album";
 import { getAvatar, getSelectedKid, setSelectedKid } from "@/lib/kid";
@@ -27,10 +29,12 @@ export function AlbumView({ decks }: Props) {
   // Earned stickers live in browser storage — load after mount.
   const [earned, setEarned] = useState<ReadonlySet<string> | null>(null);
   const [reloadNonce, setReloadNonce] = useState(0);
+  const [counts, setCounts] = useState<Readonly<Record<string, number>>>({});
 
   useEffect(() => {
     setKid(getSelectedKid() ?? "listener");
-  }, []);
+    setCounts(getStickerCounts());
+  }, [reloadNonce]);
 
   useEffect(() => {
     if (kid === null) {
@@ -71,17 +75,26 @@ export function AlbumView({ decks }: Props) {
 
   function slot(deckId: string, activity: ActivityId) {
     const activityMeta = ACTIVITY_META[activity];
-    const has =
-      kid !== null && (earned?.has(stickerId(kid, deckId, activity)) ?? false);
+    const id = kid === null ? null : stickerId(kid, deckId, activity);
+    const has = id !== null && (earned?.has(id) ?? false);
+    const tier =
+      id === null ? "none" : stickerTier(counts[id] ?? (has ? 1 : 0));
     return (
       <span
         key={activity}
-        aria-label={`${activityMeta.english}: ${has ? "earned" : "not yet earned"}`}
-        className={`flex h-16 w-16 items-center justify-center rounded-2xl border-4 text-2xl ${
+        aria-label={`${activityMeta.english}: ${has ? tier : "not yet earned"}`}
+        className={`relative flex h-16 w-16 items-center justify-center rounded-2xl border-4 text-2xl ${
           has
             ? "pop-in border-ink bg-[var(--accent)]"
             : "border-dashed border-ink/25 opacity-40"
         }`}
+        style={
+          tier === "gold"
+            ? { backgroundColor: "#fde68a" }
+            : tier === "silver"
+              ? { backgroundColor: "#e5e7eb" }
+              : undefined
+        }
       >
         <span aria-hidden>
           {activityMeta.game}
@@ -89,6 +102,11 @@ export function AlbumView({ decks }: Props) {
             <span className="text-base">{activityMeta.mode}</span>
           )}
         </span>
+        {(tier === "silver" || tier === "gold") && (
+          <span aria-hidden className="absolute -right-2 -top-2 text-lg">
+            {tier === "gold" ? "🥇" : "🥈"}
+          </span>
+        )}
       </span>
     );
   }

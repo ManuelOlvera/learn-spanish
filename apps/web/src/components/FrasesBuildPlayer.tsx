@@ -33,6 +33,8 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
   );
   const [celebrating, setCelebrating] = useState(false);
   const advanceTimer = useRef<number | null>(null);
+  const sentenceMissed = useRef(false);
+  const firstTries = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -55,6 +57,8 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
     setPlaced([]);
     setWrongTap(null);
     setCelebrating(false);
+    sentenceMissed.current = false;
+    firstTries.current = 0;
     combo.reset();
   }
 
@@ -66,6 +70,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
     const word = round.tiles[tileIndex];
     if (word !== expected) {
       combo.wrong();
+      sentenceMissed.current = true;
       setWrongTap((prev) => ({ tile: tileIndex, nonce: (prev?.nonce ?? 0) + 1 }));
       return;
     }
@@ -74,6 +79,10 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
     setWrongTap(null);
     combo.correct();
     if (nowPlaced.length === round.sentence.tokens.length) {
+      if (!sentenceMissed.current) {
+        firstTries.current += 1;
+      }
+      sentenceMissed.current = false;
       // The whole sentence, as the reward for finishing it.
       speakSpanish(sentenceText(round.sentence));
       setCelebrating(true);
@@ -113,6 +122,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
           stickerDeckId={SENTENCES_ID}
           activity="frases-read"
           onReplay={restart}
+          firstTryCount={firstTries.current}
           back={{ href: "/", emoji: "🏠", label: "Back to all decks" }}
         />
       ) : !round ? (

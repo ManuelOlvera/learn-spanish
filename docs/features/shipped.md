@@ -1,5 +1,42 @@
 # Shipped features
 
+## 2026-07-11 — The star economy: chest, misión, gold stickers, mascota, informe (+ La ciudad)
+
+**What shipped:** ⭐ became the app's real currency, with a visible earn
+moment and a reason to spend:
+
+- **The treasure chest** — every ¡Muy bien! now ends with a closed,
+  wiggling 🎁 ("¡Toca el cofre!"); tapping it bursts stars outward and
+  credits **one ⭐ per first-try answer** (min 1) to the kid's balance.
+  Every game counts first-tries; passive card-flipping pays a flat 2. The
+  duel's results chest pays each kid their own score.
+- **La misión del día 🎯** — three activity kinds per day (deterministic
+  per date+kid), shown as a home card with slots that check off as
+  activities complete; finishing all three reveals a bonus chest worth
+  **+10 ⭐** (`domain/mission.ts`).
+- **Gold stickers 🥇** — album slots now tier up with replays: 1× earned,
+  3× silver, 5× gold (completion counts in a new store; pre-tier stickers
+  count as one). Tier-ups get their own done-screen chip and album badges.
+- **La mascota 🐣** — each kid's creature (home tile shows it plus the ⭐
+  balance): feeding costs **5 ⭐** (`MEAL_COST`), 🥚 hatches at 3 meals →
+  🐥 at 8 → 🐓 at 15, gets gently hungry after 2 unfed days, never worse.
+  This is the star *sink* that makes earning matter.
+- **Informe para padres 📊** — `/informe` (linked from the album footer):
+  per kid, the ⭐/📔/☀️ totals plus the strong words and the 5 words worth
+  practicing together, straight from the word-stats.
+- **Content:** deck 20, **La ciudad 🏙️** (semáforo, puente, torre… on the
+  El mundo shelf) and 12 sentences (→60) with *mi casa es bonita*,
+  *la tienda está abierta / el banco está cerrado*. Albums now 222/kid.
+
+All economy state is on-device (no backend; ADR 002) and rides the
+transfer code with idempotent max-merges. *Watch item: home is 7 tiles +
+mission now — one small swipe on tablet; consider compacting if it grows.*
+
+**Where:** core `stars.ts`, `mission.ts`, `sticker-tiers.ts`, `mascota.ts`,
+tier-aware `award-sticker.ts` (13 new tests, 130 total); web `economy.ts`,
+`StarChest.tsx`, `MascotaView.tsx`, `InformeView.tsx`, mission card in
+`HomeView.tsx`, first-try counting in every player.
+
 ## 2026-07-11 — The interactivity batch: game feel, busca y toca, unlocks, duel, smart review
 
 **What shipped:** five features that make the game *feel* alive and start
