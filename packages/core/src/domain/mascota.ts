@@ -40,6 +40,7 @@ export const PET_SPECIES: readonly PetSpecies[] = [
   { id: "tortuga", nameSpanish: "La tortuga", nameEnglish: "Turtle", cost: 100, stages: ["🥚", "🐢"] },
   { id: "pinguino", nameSpanish: "El pingüino", nameEnglish: "Penguin", cost: 110, stages: ["🥚", "🐧"] },
   { id: "dragon", nameSpanish: "El dragón", nameEnglish: "Dragon", cost: 120, stages: ["🥚", "🐲", "🐉"] },
+  { id: "mariposa", nameSpanish: "La mariposa", nameEnglish: "Butterfly", cost: 140, stages: ["🥚", "🐛", "🦋"] },
   { id: "unicornio", nameSpanish: "El unicornio", nameEnglish: "Unicorn", cost: 160, stages: ["🥚", "🦄"] },
 ];
 
