@@ -1,5 +1,23 @@
 # Shipped features
 
+## 2026-07-12 — Hunger is visible where kids land (any pet, not just the active one)
+
+**What shipped:** hunger used to show only on the mascota screen and only for the
+active pet, so a hungry pet a kid wasn't looking at was invisible. Now:
+
+- New core `anyPetHungry(collection, today)` — true when *any* owned pet is
+  hungry (an unfed egg still never counts).
+- **Home screen:** the "La mascota" tile grows a wiggling 🥺 badge
+  (`chest-tease`, reduced-motion-safe) whenever any owned pet is hungry —
+  pulling the kid toward feeding even when the hungry pet isn't the active one.
+  The pet face itself is *not* greyed (it shows the active pet, which may be
+  fine); the badge alone carries the signal.
+- **Mis mascotas grid:** each hungry pet's tile shows a 🥺 badge and a grey
+  tint, so the kid can see *which* pet needs feeding and tap it.
+
+Hunger stays gentle and non-punitive (still just the 2-day droop; nothing is
+ever lost). One new core test (166 total).
+
 ## 2026-07-12 — Pick which growth form a pet shows (go back to a favourite)
 
 **What shipped:** kids can now display any form a pet has already reached — e.g.

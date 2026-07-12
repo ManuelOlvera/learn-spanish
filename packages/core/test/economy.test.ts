@@ -8,7 +8,13 @@ import {
   type MissionState,
 } from "../src/domain/mission";
 import { stickerTier, TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
-import { feedPet, isPetHungry, petStage, type PetState } from "../src/domain/mascota";
+import {
+  anyPetHungry,
+  feedPet,
+  isPetHungry,
+  petStage,
+  type PetState,
+} from "../src/domain/mascota";
 import { AwardStickerUseCase } from "../src/application/award-sticker";
 import type { AlbumStore, StickerCountsStore } from "../src/domain/album";
 import { decodeProgress, encodeProgress, mergeProgress } from "../src/domain/transfer";
@@ -154,6 +160,34 @@ describe("mascota", () => {
     expect(isPetHungry(pet, "2026-07-11")).toBe(false);
     expect(isPetHungry(pet, "2026-07-12")).toBe(true);
     expect(isPetHungry({ meals: 0, lastFed: null }, "2026-07-12")).toBe(false);
+  });
+
+  it("flags the collection when any owned pet is hungry, active or not", () => {
+    const hungryElsewhere = {
+      active: "pollito",
+      owned: ["pollito", "gato"],
+      pets: {
+        pollito: { meals: 2, lastFed: "2026-07-14" }, // active, recently fed
+        gato: { meals: 5, lastFed: "2026-07-10" }, // not active, stale → hungry
+      },
+    };
+    expect(anyPetHungry(hungryElsewhere, "2026-07-15")).toBe(true);
+
+    const allFed = {
+      ...hungryElsewhere,
+      pets: {
+        pollito: { meals: 2, lastFed: "2026-07-14" },
+        gato: { meals: 5, lastFed: "2026-07-14" },
+      },
+    };
+    expect(anyPetHungry(allFed, "2026-07-15")).toBe(false);
+
+    const eggOnly = {
+      active: "pollito",
+      owned: ["pollito"],
+      pets: { pollito: { meals: 0, lastFed: null } },
+    };
+    expect(anyPetHungry(eggOnly, "2026-07-20")).toBe(false);
   });
 });
 

@@ -100,7 +100,8 @@ export function MascotaView() {
   const activeId = collection.active;
   const pet = collection.pets[activeId] ?? { meals: 0, lastFed: null };
   const stage = petStage(pet.meals);
-  const hungry = isPetHungry(pet, dayKey(new Date()));
+  const today = dayKey(new Date());
+  const hungry = isPetHungry(pet, today);
   const nextStageAt = PET_STAGE_MEALS[stage + 1];
   const species = PET_SPECIES.find((s) => s.id === activeId) ?? PET_SPECIES[0]!;
   // Which form to show: the kid may pin an earlier one, capped at the newest
@@ -272,6 +273,7 @@ export function MascotaView() {
             const owned = collection.owned.includes(s.id);
             const isActive = s.id === activeId;
             const p = collection.pets[s.id];
+            const petHungry = owned && isPetHungry(p ?? null, today);
             return (
               <button
                 type="button"
@@ -295,10 +297,12 @@ export function MascotaView() {
                 }}
                 aria-label={
                   owned
-                    ? `Play with ${s.nameEnglish}`
+                    ? petHungry
+                      ? `Play with ${s.nameEnglish} (hungry)`
+                      : `Play with ${s.nameEnglish}`
                     : `Adopt ${s.nameEnglish} for ${s.cost} stars`
                 }
-                className={`sticker flex flex-col items-center gap-1 p-3 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                className={`sticker relative flex flex-col items-center gap-1 p-3 active:translate-x-1 active:translate-y-1 active:shadow-none ${
                   !owned ? "opacity-80" : ""
                 }`}
                 style={
@@ -307,7 +311,18 @@ export function MascotaView() {
                     : undefined
                 }
               >
-                <span aria-hidden className="text-4xl">
+                {petHungry && (
+                  <span
+                    aria-hidden
+                    className="chest-tease absolute -right-1.5 -top-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-ink bg-white text-base"
+                  >
+                    🥺
+                  </span>
+                )}
+                <span
+                  aria-hidden
+                  className={`text-4xl ${petHungry ? "opacity-70 grayscale-[30%]" : ""}`}
+                >
                   {owned
                     ? petFormEmoji(
                         s.id,

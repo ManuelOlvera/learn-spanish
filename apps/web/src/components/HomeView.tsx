@@ -27,7 +27,13 @@ import {
   unlockDeck,
   type MissionView,
 } from "@/lib/economy";
-import { MISSION_BONUS, petFormEmoji, petMaxForm } from "@learn-spanish/core";
+import {
+  anyPetHungry,
+  dayKey,
+  MISSION_BONUS,
+  petFormEmoji,
+  petMaxForm,
+} from "@learn-spanish/core";
 import { feedbackRacha, feedbackWrong } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
@@ -47,6 +53,7 @@ export function HomeView({ decks, groups }: Props) {
   const [mission, setMission] = useState<MissionView | null>(null);
   const [stars, setStars] = useState(0);
   const [petFace, setPetFace] = useState("🥚");
+  const [petHungry, setPetHungry] = useState(false);
   const [unlockedDecks, setUnlockedDecks] = useState<readonly string[]>([]);
   const [nope, setNope] = useState(0);
 
@@ -88,12 +95,13 @@ export function HomeView({ decks, groups }: Props) {
       );
     setMission(getMission(kid));
     setStars(getStars(kid));
-    const activeSpecies = getPetCollection(kid).active;
+    const collection = getPetCollection(kid);
     const activePet = getActivePet(kid);
-    const activeMaxForm = petMaxForm(activeSpecies, activePet.meals);
+    const activeMaxForm = petMaxForm(collection.active, activePet.meals);
     setPetFace(
-      petFormEmoji(activeSpecies, Math.min(activePet.form ?? Infinity, activeMaxForm)),
+      petFormEmoji(collection.active, Math.min(activePet.form ?? Infinity, activeMaxForm)),
     );
+    setPetHungry(anyPetHungry(collection, dayKey(new Date())));
     setUnlockedDecks(getUnlockedDecks(kid));
     return () => {
       cancelled = true;
@@ -299,11 +307,23 @@ export function HomeView({ decks, groups }: Props) {
 
         <Link
           href="/mascota"
-          aria-label={`La mascota — feed it with your ${stars} stars`}
+          aria-label={
+            petHungry
+              ? `La mascota is hungry — feed it with your ${stars} stars`
+              : `La mascota — feed it with your ${stars} stars`
+          }
           style={{ "--accent": "#fbbf24" } as React.CSSProperties}
           className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
         >
           <span aria-hidden className="sticker-peel" />
+          {petHungry && (
+            <span
+              aria-hidden
+              className="chest-tease absolute -right-2 -top-2 flex h-10 w-10 items-center justify-center rounded-full border-4 border-ink bg-white text-2xl"
+            >
+              🥺
+            </span>
+          )}
           <span aria-hidden className="text-5xl sm:text-6xl">
             {petFace}
           </span>

@@ -29,6 +29,7 @@ export type { StickerTier } from "./domain/sticker-tiers";
 export { stickerTier, TIER_THRESHOLDS } from "./domain/sticker-tiers";
 export type { PetState, PetStore, PetSpecies, PetCollection } from "./domain/mascota";
 export {
+  anyPetHungry,
   defaultCollection,
   feedPet,
   isPetHungry,

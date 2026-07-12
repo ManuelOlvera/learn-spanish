@@ -124,3 +124,11 @@ export function isPetHungry(pet: PetState | null, today: string): boolean {
   const now = new Date(`${today}T00:00:00Z`).getTime();
   return now - last >= HUNGRY_AFTER_DAYS * 24 * 60 * 60 * 1000;
 }
+
+/** True when any owned pet is hungry — lets the home screen nudge the kid to
+ *  feed even when the hungry pet isn't the one currently on screen. */
+export function anyPetHungry(collection: PetCollection, today: string): boolean {
+  return collection.owned.some((id) =>
+    isPetHungry(collection.pets[id] ?? null, today),
+  );
+}
