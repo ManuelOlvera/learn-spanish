@@ -51,6 +51,9 @@ export const PET_SPECIES: readonly PetSpecies[] = [
   { id: "dragon", nameSpanish: "El dragón", nameEnglish: "Dragon", cost: 120, stages: ["🥚", "🐲", "🐉"] },
   { id: "mariposa", nameSpanish: "La mariposa", nameEnglish: "Butterfly", cost: 140, stages: ["🥚", "🐛", "🫛", "🦋"] },
   { id: "unicornio", nameSpanish: "El unicornio", nameEnglish: "Unicorn", cost: 160, stages: ["🥚", "🦄"] },
+  { id: "caballito", nameSpanish: "El caballito", nameEnglish: "Pony", cost: 180, stages: ["🐴", "🐎"] },
+  { id: "mono", nameSpanish: "El mono", nameEnglish: "Monkey", cost: 210, stages: ["🐵", "🐒"] },
+  { id: "abeja", nameSpanish: "La abeja", nameEnglish: "Bee", cost: 240, stages: ["🥚", "🐝"] },
 ];
 
 export const STARTER_SPECIES = "pollito";

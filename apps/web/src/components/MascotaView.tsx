@@ -64,6 +64,12 @@ const ACCESSORY_SPOTS: Record<string, { left: string; top: string }> = {
   "globo-fiesta": { left: "12%", top: "18%" }, // 🎈 balloon, floating up-left
   piruli: { left: "16%", top: "60%" }, // 🍭 lollipop, held low-left
   varita: { left: "86%", top: "66%" }, // 🪄 wand, held to the right
+  estrella: { left: "80%", top: "12%" }, // ⭐ star, sparkling up-right
+  medalla: { left: "50%", top: "80%" }, // 🏅 medal, on the chest
+  birrete: { left: "50%", top: "8%" }, // 🎓 grad cap, on the head
+  paraguas: { left: "14%", top: "14%" }, // ☂️ umbrella, held up-left
+  reloj: { left: "82%", top: "74%" }, // ⌚ watch, on a wrist to the side
+  trebol: { left: "28%", top: "20%" }, // 🍀 clover, tucked by one ear
 };
 
 /** The default spot as plain percent numbers — the starting point a kid then

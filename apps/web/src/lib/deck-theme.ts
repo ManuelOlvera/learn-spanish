@@ -25,6 +25,7 @@ const accents: Record<string, string> = {
   jobs: "#6366f1",
   city: "#94a3b8",
   sea: "#0ea5e9",
+  aves: "#0891b2",
   fruit: "#f97316",
   music: "#8b5cf6",
   "verbs-infinitive": "#fb923c",

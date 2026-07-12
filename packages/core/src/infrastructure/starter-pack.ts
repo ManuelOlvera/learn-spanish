@@ -457,6 +457,24 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "partitura", spanish: "la partitura", english: "the sheet music", emoji: "🎼" },
     ],
   },
+  {
+    id: "aves",
+    nameSpanish: "Las aves",
+    nameEnglish: "Birds",
+    emoji: "🦜",
+    cards: [
+      { id: "pato", spanish: "el pato", english: "the duck", emoji: "🦆" },
+      { id: "loro", spanish: "el loro", english: "the parrot", emoji: "🦜" },
+      { id: "pavo", spanish: "el pavo", english: "the turkey", emoji: "🦃" },
+      { id: "cisne", spanish: "el cisne", english: "the swan", emoji: "🦢" },
+      { id: "aguila", spanish: "el águila", english: "the eagle", emoji: "🦅" },
+      { id: "gallo", spanish: "el gallo", english: "the rooster", emoji: "🐓" },
+      { id: "paloma", spanish: "la paloma", english: "the dove", emoji: "🕊️" },
+      { id: "buho", spanish: "el búho", english: "the owl", emoji: "🦉" },
+      { id: "pavo-real", spanish: "el pavo real", english: "the peacock", emoji: "🦚" },
+      { id: "cuervo", spanish: "el cuervo", english: "the crow", emoji: "🐦‍⬛" },
+    ],
+  },
   // Los verbos — action words, one deck per verb form. Learn-only: the games
   // build noun-shaped questions ("¿Es un…?") that don't fit a verb, so these
   // are flashcards-only. All three forms teach the same 12 verbs, same order,
@@ -480,6 +498,9 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "reir", spanish: "reír", english: "to laugh", emoji: "😂" },
       { id: "caminar", spanish: "caminar", english: "to walk", emoji: "🚶" },
       { id: "bailar", spanish: "bailar", english: "to dance", emoji: "💃" },
+      { id: "nadar", spanish: "nadar", english: "to swim", emoji: "🏊" },
+      { id: "pintar", spanish: "pintar", english: "to paint", emoji: "🎨" },
+      { id: "abrazar", spanish: "abrazar", english: "to hug", emoji: "🤗" },
     ],
   },
   {
@@ -501,6 +522,9 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "riendo", spanish: "riendo", english: "laughing", emoji: "😂" },
       { id: "caminando", spanish: "caminando", english: "walking", emoji: "🚶" },
       { id: "bailando", spanish: "bailando", english: "dancing", emoji: "💃" },
+      { id: "nadando", spanish: "nadando", english: "swimming", emoji: "🏊" },
+      { id: "pintando", spanish: "pintando", english: "painting", emoji: "🎨" },
+      { id: "abrazando", spanish: "abrazando", english: "hugging", emoji: "🤗" },
     ],
   },
   {
@@ -522,6 +546,9 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "rie", spanish: "¡ríe!", english: "laugh!", emoji: "😂" },
       { id: "camina", spanish: "¡camina!", english: "walk!", emoji: "🚶" },
       { id: "baila", spanish: "¡baila!", english: "dance!", emoji: "💃" },
+      { id: "nada", spanish: "¡nada!", english: "swim!", emoji: "🏊" },
+      { id: "pinta", spanish: "¡pinta!", english: "paint!", emoji: "🎨" },
+      { id: "abraza", spanish: "¡abraza!", english: "hug!", emoji: "🤗" },
     ],
   },
   {

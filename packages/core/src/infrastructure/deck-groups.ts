@@ -11,7 +11,7 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "Los animales",
     nameEnglish: "Animals",
     emoji: "🐾",
-    deckIds: ["animals", "zoo", "bugs", "sea"],
+    deckIds: ["animals", "zoo", "bugs", "sea", "aves"],
   },
   {
     id: "numeros-colores",

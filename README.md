@@ -6,12 +6,12 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 26 decks / 304 words on six themed home-screen
+- **Flashcards** — 27 decks / 323 words on six themed home-screen
   shelves (animals · numbers & colors · my home & me · the world ·
   play & learn · verbs), plus a star-unlocked bonus deck **El misterio 🔮**
-  (27 decks / 316 words total), tap-to-hear audio via browser speech
+  (28 decks / 335 words total), tap-to-hear audio via browser speech
   synthesis — **Spain Spanish** (es-ES voice; coche, ordenador, hierba).
-  **Los verbos 🏃** is a flashcards-only shelf: 12 action words in three
+  **Los verbos 🏃** is a flashcards-only shelf: 15 action words in three
   forms (infinitivo · gerundio · imperativo).
 - **Games** — per deck (except the flashcards-only verbs shelf), each
   with 👂 listen / 🔤 read difficulties:
@@ -28,7 +28,7 @@ No reading, no accounts, no setup.
   struggle. Special avatars unlock by sticker count and streaks.
 - **Say-it-back** — a 🎤 on every flashcard records the kid repeating the
   word and plays it straight back; clips are in-memory only (ADR 003).
-- **Las frases** — 72 starter sentences: hear-them cards (👂) and a
+- **Las frases** — 84 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
 - **Star economy** — a treasure chest on every finish pays ⭐ per
   first-try answer, with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;

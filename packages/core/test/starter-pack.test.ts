@@ -30,6 +30,7 @@ describe("starter pack content", () => {
       "sea",
       "fruit",
       "music",
+      "aves",
       "verbs-infinitive",
       "verbs-gerund",
       "verbs-imperative",
@@ -109,7 +110,7 @@ describe("starter pack content", () => {
       // Learn-only: verbs break the games' noun-shaped "¿Es un…?" question,
       // so they are flashcards-only until verb-native phrasing exists.
       expect(deck!.learnOnly).toBe(true);
-      expect(deck!.cards).toHaveLength(12);
+      expect(deck!.cards).toHaveLength(15);
     }
     // The three forms teach the same verbs in the same order (same pictures).
     const [inf, ger, imp] = decks;

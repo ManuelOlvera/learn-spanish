@@ -1,5 +1,23 @@
 # Shipped features
 
+## 2026-07-12 — Content expansion across all five pools
+
+A pure-content bump, no new mechanics:
+
+- **Words** — a new **Las aves 🦜** deck (10 birds: pato, loro, pavo, cisne,
+  águila, gallo, paloma, búho, pavo real, cuervo) on the `animales` shelf (now
+  5 decks). Pack: 27 non-secret decks / 323 words (28 / 335 with the bonus).
+- **Verbs** — each of the three verb-form decks grew 12 → 15 (nadar/pintar/
+  abrazar, in all of infinitivo · gerundio · imperativo).
+- **Phrases** — `Las frases` grew 72 → 84 sentences (the content cap), reusing
+  pack vocabulary.
+- **Accessories** — `El armario` grew 12 → 18 (⭐ estrella, 🏅 medalla, 🎓
+  birrete, ☂️ paraguas, ⌚ reloj, 🍀 trébol), each with a default spot.
+- **Mascots** — 9 → 12 species (🐴→🐎 caballito, 🐵→🐒 mono, 🥚→🐝 abeja).
+
+Content tests pin the new deck list, keep the 10–15 cards-per-deck bound, and
+still enforce unique ids pack-wide and unique emoji within a deck.
+
 ## 2026-07-12 — Difficulty levels for Las parejas + drag-to-place accessories
 
 Two independent slices.
