@@ -12,6 +12,7 @@ import {
   PET_SPECIES,
   PET_STAGE_MEALS,
   SURPRISE_COST,
+  wornAccessories,
   type KidId,
   type PetCollection,
 } from "@learn-spanish/core";
@@ -24,6 +25,7 @@ import {
   getStars,
   openSurprise,
   setActiveSpecies,
+  toggleAccessoryForActive,
 } from "@/lib/economy";
 import {
   buyTheme,
@@ -41,14 +43,16 @@ import {
 } from "@/lib/feedback";
 import { Confetti } from "@/components/Confetti";
 
-/** Where each owned accessory sits on the pet (percent offsets). */
+/** Where each accessory's *centre* sits on the pet, as a percent of the emoji
+ *  box (0% = top/left edge). Both axes are centred (see the -translate below),
+ *  so 50%/50% is dead centre. Headwear rides high; held items go to a side. */
 const ACCESSORY_SPOTS: Record<string, { left: string; top: string }> = {
-  gorro: { left: "50%", top: "-8%" },
-  corona: { left: "24%", top: "-4%" },
-  gafas: { left: "50%", top: "34%" },
-  lazo: { left: "78%", top: "70%" },
-  "globo-fiesta": { left: "6%", top: "30%" },
-  varita: { left: "94%", top: "55%" },
+  gorro: { left: "50%", top: "8%" }, // 🎩 hat, on top of the head
+  corona: { left: "50%", top: "6%" }, // 👑 crown, on top of the head
+  gafas: { left: "50%", top: "40%" }, // 🕶️ glasses, over the eyes
+  lazo: { left: "68%", top: "72%" }, // 🎀 bow, to one side near the chin
+  "globo-fiesta": { left: "12%", top: "18%" }, // 🎈 balloon, floating up-left
+  varita: { left: "86%", top: "66%" }, // 🪄 wand, held to the right
 };
 
 /** La mascota: a menagerie fed with the stars won in games. Feeding grows
@@ -144,7 +148,7 @@ export function MascotaView() {
           aria-label={`Your pet: ${species.nameSpanish}, ${pet.meals} meals`}
         >
           {petEmoji(activeId, pet.meals)}
-          {(pet.accessories ?? []).map((id) => {
+          {wornAccessories(pet).map((id) => {
             const item = ACCESSORIES.find((a) => a.id === id);
             const spot = ACCESSORY_SPOTS[id];
             if (!item || !spot) return null;
@@ -152,7 +156,7 @@ export function MascotaView() {
               <span
                 key={id}
                 aria-hidden
-                className="absolute -translate-x-1/2 text-5xl"
+                className="absolute -translate-x-1/2 -translate-y-1/2 text-5xl"
                 style={{ left: spot.left, top: spot.top }}
               >
                 {item.emoji}
@@ -303,13 +307,20 @@ export function MascotaView() {
         <div className="grid grid-cols-3 gap-3">
           {ACCESSORIES.map((item) => {
             const owned = (pet.accessories ?? []).includes(item.id);
+            const worn = wornAccessories(pet).includes(item.id);
             return (
               <button
                 type="button"
                 key={item.id}
-                disabled={owned}
                 onClick={() => {
-                  if (kid === null || owned) return;
+                  if (kid === null) return;
+                  if (owned) {
+                    // Free once owned: just put it on or take it off.
+                    toggleAccessoryForActive(kid, item.id);
+                    feedbackSticker();
+                    refresh(kid);
+                    return;
+                  }
                   const res = buyAccessoryForActive(kid, item.id, item.cost);
                   if (res === null) {
                     feedbackWrong();
@@ -320,13 +331,18 @@ export function MascotaView() {
                   refresh(kid);
                 }}
                 aria-label={
-                  owned ? `${item.emoji} owned` : `Buy ${item.emoji} for ${item.cost} stars`
+                  !owned
+                    ? `Buy ${item.emoji} for ${item.cost} stars`
+                    : worn
+                      ? `Take off ${item.emoji}`
+                      : `Put on ${item.emoji}`
                 }
-                className={`sticker flex flex-col items-center gap-1 p-3 ${
-                  owned ? "opacity-60" : "active:translate-x-1 active:translate-y-1 active:shadow-none"
+                aria-pressed={owned ? worn : undefined}
+                className={`sticker flex flex-col items-center gap-1 p-3 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                  owned && !worn ? "opacity-60" : ""
                 }`}
                 style={
-                  owned
+                  worn
                     ? ({ "--sticker-face": "var(--color-lime)" } as React.CSSProperties)
                     : undefined
                 }
@@ -335,7 +351,7 @@ export function MascotaView() {
                   {item.emoji}
                 </span>
                 <span className="text-sm font-extrabold">
-                  {owned ? "✓" : `${item.cost}⭐`}
+                  {!owned ? `${item.cost}⭐` : worn ? "✓" : "＋"}
                 </span>
               </button>
             );

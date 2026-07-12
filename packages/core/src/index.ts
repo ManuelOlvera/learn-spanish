@@ -40,7 +40,12 @@ export {
   STARTER_SPECIES,
 } from "./domain/mascota";
 export type { Accessory } from "./domain/wardrobe";
-export { ACCESSORIES, buyAccessory } from "./domain/wardrobe";
+export {
+  ACCESSORIES,
+  buyAccessory,
+  toggleAccessory,
+  wornAccessories,
+} from "./domain/wardrobe";
 export type { SurpriseResult } from "./domain/surprise";
 export { drawSurprise, SURPRISE_COST } from "./domain/surprise";
 export type { AvatarChoice } from "./domain/avatars";

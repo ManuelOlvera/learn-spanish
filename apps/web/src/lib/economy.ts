@@ -13,6 +13,7 @@ import {
   drawSurprise,
   feedPet,
   markMissionDone,
+  toggleAccessory,
   MEAL_COST,
   MISSION_BONUS,
   missionComplete,
@@ -216,6 +217,19 @@ export function buyAccessoryForActive(
   const dressed = buyAccessory(pet, accessoryId);
   savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: dressed } });
   return { pet: dressed, stars };
+}
+
+/** Put on / take off an already-owned accessory on the active pet. Free —
+ *  owning is permanent, only the outfit changes. */
+export function toggleAccessoryForActive(
+  kid: KidId,
+  accessoryId: string,
+): PetState {
+  const c = getPetCollection(kid);
+  const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
+  const next = toggleAccessory(pet, accessoryId);
+  savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: next } });
+  return next;
 }
 
 /** La caja sorpresa: spend, draw, apply. null if unaffordable. */

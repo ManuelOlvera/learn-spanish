@@ -187,14 +187,13 @@ function isPetState(value: unknown): value is PetState {
     return false;
   }
   const pet = value as PetState;
-  const accessoriesOk =
-    pet.accessories === undefined ||
-    (Array.isArray(pet.accessories) &&
-      pet.accessories.every((a) => typeof a === "string"));
+  const isStringListOrAbsent = (v: unknown): boolean =>
+    v === undefined || (Array.isArray(v) && v.every((a) => typeof a === "string"));
   return (
     typeof pet.meals === "number" &&
     (pet.lastFed === null || typeof pet.lastFed === "string") &&
-    accessoriesOk
+    isStringListOrAbsent(pet.accessories) &&
+    isStringListOrAbsent(pet.worn)
   );
 }
 
@@ -330,12 +329,16 @@ export function mergeProgress(
   };
 }
 
-/** Max-merge two pet states (meals, later feed day, accessory union). */
+/** Max-merge two pet states (meals, later feed day, accessory union). Owning
+ *  is unioned so bought content is never lost; `worn` is a per-device outfit
+ *  choice, so the receiving device (current) keeps its own. */
 function mergePet(a: PetState | undefined, b: PetState): PetState {
   if (a === undefined) {
     return b;
   }
   const accessories = [...new Set([...(a.accessories ?? []), ...(b.accessories ?? [])])];
+  const wornSource = a.worn ?? b.worn;
+  const worn = wornSource?.filter((id) => accessories.includes(id));
   return {
     meals: Math.max(a.meals, b.meals),
     lastFed:
@@ -347,5 +350,6 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
             ? a.lastFed
             : b.lastFed,
     ...(accessories.length > 0 ? { accessories } : {}),
+    ...(worn !== undefined ? { worn } : {}),
   };
 }

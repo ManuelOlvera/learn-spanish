@@ -8,6 +8,9 @@ export interface PetState {
   readonly lastFed: string | null;
   /** Wardrobe accessory ids the pet owns (see domain/wardrobe.ts). */
   readonly accessories?: readonly string[];
+  /** Owned accessory ids currently on the pet. Undefined means "not yet
+   *  chosen" — treated as every owned item (see wornAccessories). */
+  readonly worn?: readonly string[];
 }
 
 export interface PetStore {
@@ -75,7 +78,9 @@ export function petEmoji(speciesId: string, meals: number): string {
 }
 
 export function feedPet(pet: PetState | null, today: string): PetState {
-  return { meals: (pet?.meals ?? 0) + 1, lastFed: today };
+  // Spread first so the wardrobe (accessories/worn) survives every feed —
+  // growth must never undress the pet.
+  return { ...pet, meals: (pet?.meals ?? 0) + 1, lastFed: today };
 }
 
 const HUNGRY_AFTER_DAYS = 2;

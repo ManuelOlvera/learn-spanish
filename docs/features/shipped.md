@@ -1,5 +1,30 @@
 # Shipped features
 
+## 2026-07-12 — Wardrobe: put-on/take-off, placement fix, feed no longer undresses
+
+**What shipped:** three fixes to El armario, all from kid playtesting.
+
+- **Feeding no longer strips the wardrobe (bug).** `feedPet` rebuilt the pet as
+  a fresh `{ meals, lastFed }` and silently dropped `accessories`, so *every*
+  meal wiped the outfit — most visible on a growth stage, when the sprite
+  changes. `feedPet` now spreads the previous pet first.
+- **Put on / take off (feature).** Owning is permanent, but wearing is now a
+  free toggle. `PetState.worn` holds the on-the-pet subset; `wornAccessories`
+  falls back to "all owned" when `worn` is absent (back-compat for pets saved
+  before this), and `toggleAccessory` flips one item. Buying auto-wears. In the
+  armario, an owned tile taps to put on (dimmed, ＋) or take off (lime, ✓).
+- **Accessories land in the right spot (bug).** `ACCESSORY_SPOTS` centred the
+  crown off to the side and positioned by the item's top-left corner. Spots are
+  retuned (headwear rides high and centred, held items to a side) and the sprite
+  now centres each accessory on both axes (`-translate-y-1/2`).
+
+**Where:** core `domain/wardrobe.ts` (`wornAccessories`, `toggleAccessory`,
+auto-wear `buyAccessory`), `domain/mascota.ts` (`PetState.worn`, `feedPet`
+spread), `domain/transfer.ts` (validate + merge `worn`; `worn` is a per-device
+outfit so the receiving device keeps its own); web `toggleAccessoryForActive`
+in `economy.ts`, armario + sprite in `MascotaView`. 6 new wardrobe tests plus
+feed/transfer regressions (161 core tests).
+
 ## 2026-07-12 — El misterio: the star-unlocked bonus deck
 
 **What shipped:** the deferred mystery deck, done properly. **El misterio 🔮**

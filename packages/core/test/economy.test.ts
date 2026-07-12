@@ -136,6 +136,19 @@ describe("mascota", () => {
     expect(feedPet(fed, "2026-07-12").meals).toBe(2);
   });
 
+  it("feeding never strips the wardrobe (accessories survive growth)", () => {
+    const dressed: PetState = {
+      meals: 2,
+      lastFed: "2026-07-10",
+      accessories: ["gorro", "gafas"],
+      worn: ["gorro"],
+    };
+    const fed = feedPet(dressed, "2026-07-11");
+    expect(fed.meals).toBe(3);
+    expect(fed.accessories).toEqual(["gorro", "gafas"]);
+    expect(fed.worn).toEqual(["gorro"]);
+  });
+
   it("gets hungry after two days without food, never before", () => {
     const pet: PetState = { meals: 4, lastFed: "2026-07-10" };
     expect(isPetHungry(pet, "2026-07-11")).toBe(false);
@@ -166,5 +179,30 @@ describe("economy travels in transfer codes", () => {
       "reader:zoo:learn": 1,
     });
     expect(merged.pets?.listener).toEqual({ meals: 7, lastFed: "2026-07-10" });
+  });
+
+  it("carries the pet's wardrobe (owned + worn) across a transfer", () => {
+    const a = {
+      stickers: [], streaks: {}, avatars: {},
+      pets: {
+        listener: {
+          meals: 5,
+          lastFed: "2026-07-10",
+          accessories: ["gorro", "gafas"],
+          worn: ["gorro"],
+        },
+      },
+    };
+    expect(decodeProgress(encodeProgress(a))).toEqual(a);
+    const b = {
+      stickers: [], streaks: {}, avatars: {},
+      pets: {
+        listener: { meals: 3, lastFed: "2026-07-08", accessories: ["corona"], worn: ["corona"] },
+      },
+    };
+    const merged = mergeProgress(a, b);
+    // Owned unions; worn keeps what the receiving device had on.
+    expect(merged.pets?.listener?.accessories).toEqual(["gorro", "gafas", "corona"]);
+    expect(merged.pets?.listener?.worn).toEqual(["gorro"]);
   });
 });
