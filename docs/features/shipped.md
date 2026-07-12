@@ -1,5 +1,27 @@
 # Shipped features
 
+## 2026-07-12 — Pets grow as their own kind (no more shared egg→chick)
+
+**What shipped (bug):** every species used `["🥚","🐣", <animal>, <grown>]`, so
+the bunny, cat and dragon all hatched from an egg **and passed through the
+chicken's 🐣 chick** before becoming themselves. Now each animal grows as its
+own kind:
+
+- pollito 🥚 → 🐣 → 🐥 → 🐔 (unchanged — the chick keeps its full life)
+- conejo 🐰 → 🐇 · gato 🐱 → 🐈 (mammals are *born* a baby, no egg)
+- dragon 🥚 → 🐲 → 🐉 (still hatches)
+
+`PetSpecies.stages` is now variable-length (was a fixed 4-tuple). `petEmoji`
+scales the meal-based growth level (0–3) onto each species' own stage list, so a
+two-form animal reaches its grown look partway and a four-form one hits every
+beat. The mascota screen celebrates a growth **only when the look actually
+changes** (compares the rendered emoji, not the meal stage), the adopt-grid
+preview uses the last stage instead of `stages[3]`, and the stage-0 caption
+reads "Feed your baby to grow!" for the mammals (kept "…hatch the egg" only when
+the youngest form is really an egg). Existing saved pets are unaffected — only
+meals are stored, and the emoji is derived. New `pet species` growth test
+(162 core tests).
+
 ## 2026-07-12 — Wardrobe: put-on/take-off, placement fix, feed no longer undresses
 
 **What shipped:** three fixes to El armario, all from kid playtesting.

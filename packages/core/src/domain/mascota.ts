@@ -26,15 +26,17 @@ export interface PetSpecies {
   readonly nameEnglish: string;
   /** Stars to adopt (0 = the free starter). */
   readonly cost: number;
-  /** Emoji per stage: [egg, baby, young, grown]. */
-  readonly stages: readonly [string, string, string, string];
+  /** Emoji from youngest to grown — each animal grows as its own kind, so the
+   *  list is species-length: egg-layers (chick, dragon) hatch and pass through
+   *  more forms; mammals (bunny, cat) are born as a baby and grow up once. */
+  readonly stages: readonly string[];
 }
 
 export const PET_SPECIES: readonly PetSpecies[] = [
   { id: "pollito", nameSpanish: "El pollito", nameEnglish: "Chick", cost: 0, stages: ["🥚", "🐣", "🐥", "🐔"] },
-  { id: "conejo", nameSpanish: "El conejo", nameEnglish: "Bunny", cost: 40, stages: ["🥚", "🐣", "🐰", "🐇"] },
-  { id: "gato", nameSpanish: "El gato", nameEnglish: "Cat", cost: 70, stages: ["🥚", "🐣", "🐱", "🐈"] },
-  { id: "dragon", nameSpanish: "El dragón", nameEnglish: "Dragon", cost: 120, stages: ["🥚", "🐣", "🐲", "🐉"] },
+  { id: "conejo", nameSpanish: "El conejo", nameEnglish: "Bunny", cost: 40, stages: ["🐰", "🐇"] },
+  { id: "gato", nameSpanish: "El gato", nameEnglish: "Cat", cost: 70, stages: ["🐱", "🐈"] },
+  { id: "dragon", nameSpanish: "El dragón", nameEnglish: "Dragon", cost: 120, stages: ["🥚", "🐲", "🐉"] },
 ];
 
 export const STARTER_SPECIES = "pollito";
@@ -72,9 +74,18 @@ export function petStage(meals: number): number {
   return stage;
 }
 
-/** The emoji to draw for a species at its current meal count. */
+/** The emoji to draw for a species at its current meal count. Growth level
+ *  (0–3, from meals) is scaled onto the species' own stage list, so a two-form
+ *  animal reaches its grown look partway and a four-form one hits every beat. */
 export function petEmoji(speciesId: string, meals: number): string {
-  return speciesStages(speciesId)[petStage(meals)]!;
+  const stages = speciesStages(speciesId);
+  if (stages.length <= 1) {
+    return stages[0]!;
+  }
+  const level = petStage(meals);
+  const topLevel = PET_STAGE_MEALS.length - 1;
+  const index = Math.round((level / topLevel) * (stages.length - 1));
+  return stages[index]!;
 }
 
 export function feedPet(pet: PetState | null, today: string): PetState {

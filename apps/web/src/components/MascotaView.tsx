@@ -102,7 +102,10 @@ export function MascotaView() {
       setNope((n) => n + 1);
       return;
     }
-    const grewUp = petStage(result.pet.meals) > petStage(before);
+    // Celebrate only when the pet's look actually changes — some species grow
+    // through fewer forms than others, so a meal isn't always a visible stage.
+    const grewUp =
+      petEmoji(activeId, result.pet.meals) !== petEmoji(activeId, before);
     refresh(kid);
     setMunch((n) => n + 1);
     if (grewUp) {
@@ -172,7 +175,9 @@ export function MascotaView() {
           {hungry
             ? "¡Tengo hambre! 🥺"
             : stage === 0
-              ? "Feed the egg to hatch it!"
+              ? petEmoji(activeId, pet.meals) === "🥚"
+                ? "Feed the egg to hatch it!"
+                : "Feed your baby to grow!"
               : "Growing strong!"}
         </p>
 
@@ -257,7 +262,7 @@ export function MascotaView() {
                 }
               >
                 <span aria-hidden className="text-4xl">
-                  {owned ? petEmoji(s.id, p?.meals ?? 0) : s.stages[3]}
+                  {owned ? petEmoji(s.id, p?.meals ?? 0) : s.stages[s.stages.length - 1]}
                 </span>
                 <span className="text-xs font-extrabold">
                   {owned ? (isActive ? "★" : "") : `${s.cost}⭐`}

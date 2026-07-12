@@ -68,6 +68,30 @@ describe("pet species", () => {
     expect(PET_SPECIES.filter((s) => s.cost > 0).length).toBeGreaterThanOrEqual(2);
   });
 
+  it("grows each animal as its own kind — only the chick is a chick", () => {
+    // The chick keeps its full four-stage life.
+    expect(["🥚", "🐣", "🐥", "🐔"]).toEqual([
+      petEmoji("pollito", 0),
+      petEmoji("pollito", 3),
+      petEmoji("pollito", 8),
+      petEmoji("pollito", 15),
+    ]);
+    // Mammals are born as babies (no egg) and grow into the adult once.
+    expect(petEmoji("conejo", 0)).toBe("🐰");
+    expect(petEmoji("conejo", 15)).toBe("🐇");
+    expect(petEmoji("gato", 0)).toBe("🐱");
+    expect(petEmoji("gato", 15)).toBe("🐈");
+    // The dragon hatches: egg → hatchling → dragon.
+    expect(petEmoji("dragon", 0)).toBe("🥚");
+    expect(petEmoji("dragon", 3)).toBe("🐲");
+    // No non-chicken ever passes through the chick 🐣, at any meal count.
+    for (let meals = 0; meals <= 20; meals++) {
+      for (const id of ["conejo", "gato", "dragon"]) {
+        expect(petEmoji(id, meals)).not.toBe("🐣");
+      }
+    }
+  });
+
   it("defaultCollection owns only the starter, active and unhatched", () => {
     const c = defaultCollection();
     expect(c.owned).toEqual([STARTER_SPECIES]);
