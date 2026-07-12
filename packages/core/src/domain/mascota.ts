@@ -11,6 +11,12 @@ export interface PetState {
   /** Owned accessory ids currently on the pet. Undefined means "not yet
    *  chosen" — treated as every owned item (see wornAccessories). */
   readonly worn?: readonly string[];
+  /** Where the kid dragged each accessory, as a percent of the pet box
+   *  (0–100 on each axis). An accessory with no entry sits at the app's
+   *  default spot (see domain/wardrobe.ts placeAccessory). */
+  readonly placements?: Readonly<
+    Record<string, { readonly x: number; readonly y: number }>
+  >;
   /** Which growth form (stage index) to display. Undefined follows the newest
    *  reached form; a kid may pin an earlier one (see petMaxForm/petFormEmoji). */
   readonly form?: number;

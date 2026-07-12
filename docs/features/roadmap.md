@@ -86,6 +86,22 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
       comiendo?") so the verbs shelf can drop `learnOnly` and join the quiz-style
       games. The real lift the learn-only cut deferred.
 
+## Difficulty & play
+
+12. ☑ **Difficulty levels** — 🟢/🟡/🔴 board sizes. *(Shipped 2026-07-12 for
+    Las parejas: 3/5/8 pairs, a new `MemoryDifficulty` axis. See `shipped.md`.)*
+    - ☐ **Difficulty for the other board-scalable games** — quiz choice count
+      (2→4), sí/no round count, reto length. The pattern is proven on parejas.
+    - ☐ **A timer / lose-state on Hard** — pressure mode; deliberately cut to
+      keep the first slice about board size only.
+
+13. ☑ **Drag-to-place accessories** — free creative dress-up on the mascota.
+    *(Shipped 2026-07-12: per-pet `placements`, drag anywhere and it stays. See
+    `shipped.md`.)*
+    - ☐ **Guided placement (learning variant)** — snap to the correct spot with
+      a happy cue; teaches where things go. The other half of the original idea.
+    - ☐ **Resize / rotate accessories** — richer dress-up; out of the first cut.
+
 ## Build order
 
 **First slice: tap-the-right-picture quiz (2), no profiles** — shaped 2026-07-10:

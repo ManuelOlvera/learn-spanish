@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ACCESSORIES,
+  accessoryPlacement,
   dayKey,
   isPetHungry,
   MEAL_COST,
@@ -26,6 +27,7 @@ import {
   getPetCollection,
   getStars,
   openSurprise,
+  placeAccessoryOnActive,
   setActiveSpecies,
   setPetForm,
   toggleAccessoryForActive,
@@ -64,6 +66,13 @@ const ACCESSORY_SPOTS: Record<string, { left: string; top: string }> = {
   varita: { left: "86%", top: "66%" }, // 🪄 wand, held to the right
 };
 
+/** The default spot as plain percent numbers — the starting point a kid then
+ *  drags from. Falls back to dead centre for any unmapped accessory. */
+function defaultSpot(id: string): { x: number; y: number } {
+  const spot = ACCESSORY_SPOTS[id];
+  return { x: parseFloat(spot?.left ?? "50"), y: parseFloat(spot?.top ?? "50") };
+}
+
 /** La mascota: a menagerie fed with the stars won in games. Feeding grows
  *  the active pet; stars also adopt new pets, dress them, open surprise
  *  boxes, and buy themes — a renewable star sink. */
@@ -78,6 +87,19 @@ export function MascotaView() {
   const [ownedAccessories, setOwnedAccessories] = useState<readonly string[]>([]);
   const [ownedThemes, setOwnedThemes] = useState<readonly string[]>([]);
   const [theme, setTheme] = useState("crema");
+  // Live position of the accessory being dragged onto the pet (percent of the
+  // pet box); null when nothing is being dragged.
+  const [drag, setDrag] = useState<{ id: string; x: number; y: number } | null>(
+    null,
+  );
+  // Mirror of `drag` so pointerup reads the final spot without a stale closure.
+  const dragRef = useRef<{ id: string; x: number; y: number } | null>(null);
+  const petBoxRef = useRef<HTMLDivElement>(null);
+
+  function setDragPos(next: { id: string; x: number; y: number } | null) {
+    dragRef.current = next;
+    setDrag(next);
+  }
 
   function refresh(k: KidId) {
     setCollection(getPetCollection(k));
@@ -92,6 +114,44 @@ export function MascotaView() {
     setKid(current);
     refresh(current);
   }, []);
+
+  // While an accessory is being dragged, track the pointer at the window level
+  // so the drag keeps up even when the finger leaves the little emoji, and the
+  // release always lands (no reliance on pointer capture). Re-attaches only when
+  // a drag begins/ends — `drag.id` — reading the live spot from dragRef.
+  const dragId = drag?.id ?? null;
+  useEffect(() => {
+    if (dragId === null) return;
+    const clamp = (n: number) => Math.max(0, Math.min(100, n));
+    const move = (e: PointerEvent) => {
+      const box = petBoxRef.current;
+      if (!box) return;
+      const r = box.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) return;
+      setDragPos({
+        id: dragId,
+        x: clamp(((e.clientX - r.left) / r.width) * 100),
+        y: clamp(((e.clientY - r.top) / r.height) * 100),
+      });
+    };
+    const end = () => {
+      const d = dragRef.current;
+      const k = getSelectedKid() ?? "listener";
+      if (d) {
+        placeAccessoryOnActive(k, d.id, d.x, d.y);
+        refresh(k);
+      }
+      setDragPos(null);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+    };
+  }, [dragId]);
 
   if (kid === null || collection === null) {
     return <main className="min-h-dvh" aria-hidden />;
@@ -160,6 +220,7 @@ export function MascotaView() {
 
       <section className="flex flex-col items-center gap-4 text-center">
         <div
+          ref={petBoxRef}
           key={`${activeId}-${chosenForm}-${munch}`}
           className={`relative text-[8rem] leading-none ${munch > 0 ? "pop-in" : ""} ${
             hungry ? "opacity-70 grayscale-[30%]" : ""
@@ -169,14 +230,24 @@ export function MascotaView() {
           {petFormEmoji(activeId, chosenForm)}
           {wornAccessories(pet).map((id) => {
             const item = ACCESSORIES.find((a) => a.id === id);
-            const spot = ACCESSORY_SPOTS[id];
-            if (!item || !spot) return null;
+            if (!item) return null;
+            // Live drag wins; otherwise the kid's saved spot, else the default.
+            const pos =
+              drag?.id === id
+                ? { x: drag.x, y: drag.y }
+                : accessoryPlacement(pet, id) ?? defaultSpot(id);
+
             return (
               <span
                 key={id}
-                aria-hidden
-                className="absolute -translate-x-1/2 -translate-y-1/2 text-5xl"
-                style={{ left: spot.left, top: spot.top }}
+                role="button"
+                aria-label={`Move ${item.emoji}`}
+                className="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab touch-none select-none text-5xl active:cursor-grabbing"
+                style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  setDragPos({ id, x: pos.x, y: pos.y });
+                }}
               >
                 {item.emoji}
               </span>

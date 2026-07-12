@@ -16,7 +16,8 @@ No reading, no accounts, no setup.
 - **Games** — per deck (except the flashcards-only verbs shelf), each
   with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
-  "Las parejas" (memory match), "Conecta" (connect the columns),
+  "Las parejas" (memory match, with 🟢/🟡/🔴 board sizes — 3/5/8 pairs),
+  "Conecta" (connect the columns),
   "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
   "El reto" (60-second lightning round), "¿Cuántos hay?" (counting, on
   the numbers deck), and "Deletrea" (letter-tile spelling, reader-level).
@@ -33,7 +34,8 @@ No reading, no accounts, no setup.
   first-try answer, with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
   the daily misión adds a +10⭐ bonus chest. Stars feed and grow **la
   mascota** (a collection of adoptable pets, 5⭐ a meal), buy 🛍️ wardrobe
-  accessories, open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
+  accessories and drag them anywhere on the pet (saved per pet),
+  open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
   themes; album stickers tier up to
   silver/gold with replays; `/informe` gives parents each kid's strong
   and tricky words.

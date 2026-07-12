@@ -42,11 +42,13 @@ export {
   speciesStages,
   STARTER_SPECIES,
 } from "./domain/mascota";
-export type { Accessory } from "./domain/wardrobe";
+export type { Accessory, AccessoryPlacement } from "./domain/wardrobe";
 export {
   ACCESSORIES,
+  accessoryPlacement,
   buyAccessory,
   ownsAccessory,
+  placeAccessory,
   toggleWorn,
   wear,
   wornAccessories,
@@ -82,8 +84,19 @@ export { RecordAnswerUseCase } from "./application/record-answer";
 export { GetWordStatsUseCase } from "./application/get-word-stats";
 export type { ConnectBoard, ConnectGame } from "./domain/connect";
 export { CONNECT_BOARDS, CONNECT_PAIRS, createConnectGame } from "./domain/connect";
-export type { MemoryGame, MemoryMode, MemoryTile } from "./domain/memory";
-export { createMemoryGame, MEMORY_PAIR_COUNT, tilesMatch } from "./domain/memory";
+export type {
+  MemoryGame,
+  MemoryMode,
+  MemoryDifficulty,
+  MemoryTile,
+} from "./domain/memory";
+export {
+  createMemoryGame,
+  MEMORY_MODES,
+  MEMORY_DIFFICULTIES,
+  MEMORY_PAIR_COUNT,
+  tilesMatch,
+} from "./domain/memory";
 export type { ActivityId, AlbumStore } from "./domain/album";
 export {
   ALL_ACTIVITIES,

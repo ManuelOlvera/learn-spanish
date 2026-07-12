@@ -1,5 +1,33 @@
 # Shipped features
 
+## 2026-07-12 — Difficulty levels for Las parejas + drag-to-place accessories
+
+Two independent slices.
+
+**Difficulty for the memory game.** `Las parejas` now opens on a difficulty
+chooser — 🟢 Fácil / 🟡 Medio / 🔴 Difícil — that sets the board to **3 / 5 / 8
+pairs**. Board size is a new `MemoryDifficulty` axis in core, orthogonal to the
+pictures/words mode (which is still the kid profile's). Every non-secret deck
+ships ≥10 cards, so any deck fills the hard board. The chooser shows each level's
+pair count as dots, so a pre-reader picks without reading. This slice is matching
+pairs only; other board-scalable games are deferred (see `roadmap.md`).
+
+**Free-drag accessory placement.** Worn accessories used to snap to one
+hardcoded spot each. Now the kid drags each accessory anywhere on the pet and it
+stays, saved per pet. New per-pet `PetState.placements` (percent coords) plus
+core `placeAccessory` / `accessoryPlacement`; the old `ACCESSORY_SPOTS` map is
+now just the default until the kid moves an item. `MascotaView` tracks the drag
+with window-level pointer listeners (so it keeps up when a finger leaves the
+little emoji, and the release always lands — pointer capture proved unreliable),
+persisting via `placeAccessoryOnActive` in `economy.ts`. Pure creative dress-up:
+no right/wrong. The guided "put it in the correct spot" learning variant is
+deferred.
+
+**Where:** `MemoryDifficulty` in `packages/core` memory domain;
+`PetState.placements` + `placeAccessory`/`accessoryPlacement` in the mascota/
+wardrobe domains; `MemoryPlayer` chooser + `MascotaView` drag + `economy.ts`
+persistence in `apps/web`.
+
 ## 2026-07-12 — Los verbos: a flashcards-only verbs shelf
 
 **For:** pre-readers (ages 3–5) — the pack taught only nouns/adjectives/numbers,

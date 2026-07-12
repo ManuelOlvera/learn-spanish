@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
 import {
   DeckNotFoundError,
-  MEMORY_PAIR_COUNT,
+  MEMORY_MODES,
   type MemoryMode,
 } from "@learn-spanish/core";
 import { getDeck, listDecks } from "@/lib/container";
 import { deckAccent } from "@/lib/deck-theme";
 import { MemoryPlayer } from "@/components/MemoryPlayer";
 
-const modes = Object.keys(MEMORY_PAIR_COUNT) as readonly MemoryMode[];
+const modes = MEMORY_MODES;
 
 export async function generateStaticParams() {
   const decks = await listDecks.execute();

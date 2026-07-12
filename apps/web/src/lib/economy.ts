@@ -14,6 +14,7 @@ import {
   feedPet,
   markMissionDone,
   ownsAccessory,
+  placeAccessory,
   toggleWorn,
   wear,
   MEAL_COST,
@@ -273,6 +274,21 @@ export function toggleAccessoryForActive(
   const c = getPetCollection(kid);
   const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
   const next = toggleWorn(pet, accessoryId);
+  savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: next } });
+  return next;
+}
+
+/** Save where the kid dragged an accessory on the active pet (percent coords).
+ *  Free and per-pet, like toggling — only that pet's layout changes. */
+export function placeAccessoryOnActive(
+  kid: KidId,
+  accessoryId: string,
+  x: number,
+  y: number,
+): PetState {
+  const c = getPetCollection(kid);
+  const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
+  const next = placeAccessory(pet, accessoryId, x, y);
   savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: next } });
   return next;
 }

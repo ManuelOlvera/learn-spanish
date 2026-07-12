@@ -64,3 +64,42 @@ export function toggleWorn(pet: PetState, id: string): PetState {
       : [...worn, id],
   };
 }
+
+// ---- placement: where on the pet the kid dragged each accessory ----
+
+/** A spot on the pet box, as a percent of its width/height (0–100). */
+export interface AccessoryPlacement {
+  readonly x: number;
+  readonly y: number;
+}
+
+const clampPercent = (n: number): number => Math.max(0, Math.min(100, n));
+
+/** Move an accessory to a spot the kid dragged it to (percent coords, clamped
+ *  to the pet box). Overwrites this accessory's spot only; others are untouched.
+ *  Non-finite input is ignored so a bad drag can't corrupt the outfit. */
+export function placeAccessory(
+  pet: PetState,
+  id: string,
+  x: number,
+  y: number,
+): PetState {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    return pet;
+  }
+  return {
+    ...pet,
+    placements: {
+      ...(pet.placements ?? {}),
+      [id]: { x: clampPercent(x), y: clampPercent(y) },
+    },
+  };
+}
+
+/** The kid's saved spot for an accessory, or null to use the app's default. */
+export function accessoryPlacement(
+  pet: PetState,
+  id: string,
+): AccessoryPlacement | null {
+  return pet.placements?.[id] ?? null;
+}
