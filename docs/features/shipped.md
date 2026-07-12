@@ -1,5 +1,31 @@
 # Shipped features
 
+## 2026-07-12 — Wardrobe is kid-owned + 4 new pets and 6 new accessories
+
+**What shipped:**
+
+- **Own once, wear per pet.** Accessory *ownership* moved off the individual
+  pet onto the kid — buy a crown a single time and dress *any* mascot with it,
+  each pet keeping its own outfit. Fixes the confusion where switching pets made
+  bought accessories look unowned. New kid-level store
+  `palabras.owned-accessories.v1` (mirrors owned-avatars), with a one-time lazy
+  migration that seeds it from the union of any legacy per-pet `accessories`.
+  `worn` stays per-pet on `PetState`. The transfer code carries
+  `ownedAccessories` (unioned like avatars). Domain `wardrobe.ts` split into
+  ownership (`buyAccessory`/`ownsAccessory` over an owned list) and wearing
+  (`wear`/`toggleWorn`/`wornAccessories` over a pet).
+- **4 new mascots:** 🐕 El perro (90⭐), 🐢 La tortuga (100⭐, hatches),
+  🐧 El pingüino (110⭐, hatches), 🦄 El unicornio (160⭐, hatches) — each with
+  believable stages under the "grow as your own kind" rule.
+- **6 new accessories:** 🌸 flor (18), 🍭 piruli (20), 🧢 gorra (22),
+  🧣 bufanda (24), 👓 gafas-ver (26), 🦋 mariposa (40), each with its own
+  placement spot on the pet. The armario is now 12 items, the menagerie 8 pets.
+
+**Note on lost purchases:** accessories bought *before* the earlier `feedPet`
+fix were erased from local storage by that bug and cannot be recovered — only
+meal counts persisted. Kid-level ownership prevents the re-buy confusion going
+forward. New wardrobe + transfer tests (163 core tests).
+
 ## 2026-07-12 — Pets grow as their own kind (no more shared egg→chick)
 
 **What shipped (bug):** every species used `["🥚","🐣", <animal>, <grown>]`, so

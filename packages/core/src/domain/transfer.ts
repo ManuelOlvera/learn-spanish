@@ -25,6 +25,8 @@ export interface ProgressSnapshot {
   readonly petCollections?: Partial<Record<KidId, PetCollection>>;
   /** Bought avatars a kid owns (free starters are implicit). */
   readonly ownedAvatars?: Partial<Record<KidId, readonly string[]>>;
+  /** Wardrobe accessories a kid owns (kid-level; worn state travels per-pet). */
+  readonly ownedAccessories?: Partial<Record<KidId, readonly string[]>>;
   /** Secret decks a kid has unlocked with stars. */
   readonly unlockedDecks?: Partial<Record<KidId, readonly string[]>>;
 }
@@ -148,6 +150,10 @@ export function decodeProgress(code: string): ProgressSnapshot {
   const isStringArray = (v: unknown): v is readonly string[] =>
     Array.isArray(v) && v.every((e) => typeof e === "string");
   const ownedAvatars = sanitizeKidRecord(candidate.ownedAvatars, isStringArray);
+  const ownedAccessories = sanitizeKidRecord(
+    candidate.ownedAccessories,
+    isStringArray,
+  );
   const unlockedDecks = sanitizeKidRecord(candidate.unlockedDecks, isStringArray);
   return {
     stickers,
@@ -163,6 +169,7 @@ export function decodeProgress(code: string): ProgressSnapshot {
     ...(Object.keys(pets).length > 0 ? { pets } : {}),
     ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
+    ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
   };
 }
@@ -280,6 +287,19 @@ export function mergeProgress(
     ownedAvatars[kid] = [...new Set([...(ownedAvatars[kid] ?? []), ...list])];
   }
 
+  // Owned accessories union too (bought once, kept forever).
+  const ownedAccessories: Partial<Record<KidId, readonly string[]>> = {
+    ...(current.ownedAccessories ?? {}),
+  };
+  for (const [kid, list] of Object.entries(incoming.ownedAccessories ?? {}) as [
+    KidId,
+    readonly string[],
+  ][]) {
+    ownedAccessories[kid] = [
+      ...new Set([...(ownedAccessories[kid] ?? []), ...list]),
+    ];
+  }
+
   // Secret-deck unlocks union too (a bought deck is never lost).
   const unlockedDecks: Partial<Record<KidId, readonly string[]>> = {
     ...(current.unlockedDecks ?? {}),
@@ -325,6 +345,7 @@ export function mergeProgress(
     pets,
     ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
+    ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
   };
 }

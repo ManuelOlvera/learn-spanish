@@ -13,7 +13,9 @@ import {
   drawSurprise,
   feedPet,
   markMissionDone,
-  toggleAccessory,
+  ownsAccessory,
+  toggleWorn,
+  wear,
   MEAL_COST,
   MISSION_BONUS,
   missionComplete,
@@ -59,6 +61,7 @@ const PET_KEY = "palabras.pet.v1"; // legacy single pet (migrated to v2)
 const PETS_KEY = "palabras.pets.v2"; // pet collection
 const COUNTS_KEY = "palabras.sticker-counts.v1";
 const OWNED_AVATARS_KEY = "palabras.owned-avatars.v1";
+const OWNED_ACCESSORIES_KEY = "palabras.owned-accessories.v1";
 const UNLOCKS_KEY = "palabras.unlocks.v1";
 
 // ---- stars ----
@@ -199,35 +202,69 @@ export function setActiveSpecies(kid: KidId, speciesId: string): void {
   }
 }
 
-/** Buy a wardrobe accessory for the active pet; null if unaffordable/owned. */
+/** Wardrobe accessories the kid owns (bought once, wearable on any pet).
+ *  Migrates one-time from the old per-pet `accessories` if the store is
+ *  empty. */
+export function getOwnedAccessories(kid: KidId): readonly string[] {
+  const stored = readDoc<readonly string[]>(OWNED_ACCESSORIES_KEY)[kid];
+  if (Array.isArray(stored)) {
+    return stored.filter((id) => typeof id === "string");
+  }
+  const legacy = [
+    ...new Set(
+      Object.values(getPetCollection(kid).pets).flatMap(
+        (p) => p.accessories ?? [],
+      ),
+    ),
+  ];
+  if (legacy.length > 0) {
+    writeDoc(OWNED_ACCESSORIES_KEY, kid, legacy);
+  }
+  return legacy;
+}
+
+export function saveOwnedAccessories(
+  kid: KidId,
+  owned: readonly string[],
+): void {
+  writeDoc(OWNED_ACCESSORIES_KEY, kid, owned);
+}
+
+/** Buy a wardrobe accessory (kid-level) and put it on the active pet.
+ *  null if unaffordable or already owned. */
 export function buyAccessoryForActive(
   kid: KidId,
   accessoryId: string,
   cost: number,
-): { pet: PetState; stars: number } | null {
-  const c = getPetCollection(kid);
-  const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
-  if ((pet.accessories ?? []).includes(accessoryId)) {
+): { owned: readonly string[]; stars: number } | null {
+  const owned = getOwnedAccessories(kid);
+  if (ownsAccessory(owned, accessoryId)) {
     return null;
   }
   const stars = spendStars(kid, cost);
   if (stars === null) {
     return null;
   }
-  const dressed = buyAccessory(pet, accessoryId);
-  savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: dressed } });
-  return { pet: dressed, stars };
+  const next = buyAccessory(owned, accessoryId);
+  saveOwnedAccessories(kid, next);
+  const c = getPetCollection(kid);
+  const pet = wear(c.pets[c.active] ?? { meals: 0, lastFed: null }, accessoryId);
+  savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: pet } });
+  return { owned: next, stars };
 }
 
-/** Put on / take off an already-owned accessory on the active pet. Free —
- *  owning is permanent, only the outfit changes. */
+/** Put on / take off an owned accessory on the active pet. Free — owning is
+ *  permanent, only that pet's outfit changes. null if the kid doesn't own it. */
 export function toggleAccessoryForActive(
   kid: KidId,
   accessoryId: string,
-): PetState {
+): PetState | null {
+  if (!ownsAccessory(getOwnedAccessories(kid), accessoryId)) {
+    return null;
+  }
   const c = getPetCollection(kid);
   const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
-  const next = toggleAccessory(pet, accessoryId);
+  const next = toggleWorn(pet, accessoryId);
   savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: next } });
   return next;
 }
@@ -236,16 +273,17 @@ export function toggleAccessoryForActive(
 export function openSurprise(
   kid: KidId,
 ): { result: SurpriseResult; stars: number } | null {
-  const c = getPetCollection(kid);
-  const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
+  const owned = getOwnedAccessories(kid);
   const stars = spendStars(kid, SURPRISE_COST);
   if (stars === null) {
     return null;
   }
-  const result = drawSurprise(Math.random, pet.accessories ?? []);
+  const result = drawSurprise(Math.random, owned);
   if (result.type === "accessory") {
-    const dressed = buyAccessory(pet, result.id);
-    savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: dressed } });
+    saveOwnedAccessories(kid, buyAccessory(owned, result.id));
+    const c = getPetCollection(kid);
+    const pet = wear(c.pets[c.active] ?? { meals: 0, lastFed: null }, result.id);
+    savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: pet } });
     return { result, stars };
   }
   return { result, stars: addStars(kid, result.amount) };

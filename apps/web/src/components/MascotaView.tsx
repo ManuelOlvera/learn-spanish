@@ -21,6 +21,7 @@ import {
   adoptSpecies,
   buyAccessoryForActive,
   feedActivePet,
+  getOwnedAccessories,
   getPetCollection,
   getStars,
   openSurprise,
@@ -48,10 +49,16 @@ import { Confetti } from "@/components/Confetti";
  *  so 50%/50% is dead centre. Headwear rides high; held items go to a side. */
 const ACCESSORY_SPOTS: Record<string, { left: string; top: string }> = {
   gorro: { left: "50%", top: "8%" }, // 🎩 hat, on top of the head
+  gorra: { left: "50%", top: "10%" }, // 🧢 cap, on top of the head
   corona: { left: "50%", top: "6%" }, // 👑 crown, on top of the head
-  gafas: { left: "50%", top: "40%" }, // 🕶️ glasses, over the eyes
+  flor: { left: "74%", top: "18%" }, // 🌸 flower, tucked by one ear
+  gafas: { left: "50%", top: "40%" }, // 🕶️ sunglasses, over the eyes
+  "gafas-ver": { left: "50%", top: "40%" }, // 👓 glasses, over the eyes
+  mariposa: { left: "26%", top: "34%" }, // 🦋 butterfly, perched on one side
   lazo: { left: "68%", top: "72%" }, // 🎀 bow, to one side near the chin
+  bufanda: { left: "50%", top: "82%" }, // 🧣 scarf, around the neck
   "globo-fiesta": { left: "12%", top: "18%" }, // 🎈 balloon, floating up-left
+  piruli: { left: "16%", top: "60%" }, // 🍭 lollipop, held low-left
   varita: { left: "86%", top: "66%" }, // 🪄 wand, held to the right
 };
 
@@ -66,12 +73,14 @@ export function MascotaView() {
   const [evolved, setEvolved] = useState(false);
   const [nope, setNope] = useState(0);
   const [surprise, setSurprise] = useState<string | null>(null);
+  const [ownedAccessories, setOwnedAccessories] = useState<readonly string[]>([]);
   const [ownedThemes, setOwnedThemes] = useState<readonly string[]>([]);
   const [theme, setTheme] = useState("crema");
 
   function refresh(k: KidId) {
     setCollection(getPetCollection(k));
     setStars(getStars(k));
+    setOwnedAccessories(getOwnedAccessories(k));
     setOwnedThemes(getOwnedThemes(k));
     setTheme(getSelectedTheme(k));
   }
@@ -311,7 +320,7 @@ export function MascotaView() {
         <h2 className="mb-2 text-lg font-extrabold text-ink/70">🛍️ El armario</h2>
         <div className="grid grid-cols-3 gap-3">
           {ACCESSORIES.map((item) => {
-            const owned = (pet.accessories ?? []).includes(item.id);
+            const owned = ownedAccessories.includes(item.id);
             const worn = wornAccessories(pet).includes(item.id);
             return (
               <button

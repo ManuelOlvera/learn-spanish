@@ -205,4 +205,18 @@ describe("economy travels in transfer codes", () => {
     expect(merged.pets?.listener?.accessories).toEqual(["gorro", "gafas", "corona"]);
     expect(merged.pets?.listener?.worn).toEqual(["gorro"]);
   });
+
+  it("unions kid-level owned accessories across a transfer", () => {
+    const a = { stickers: [], streaks: {}, avatars: {},
+      ownedAccessories: { listener: ["corona", "gafas"] } };
+    const b = { stickers: [], streaks: {}, avatars: {},
+      ownedAccessories: { listener: ["gafas", "varita"], reader: ["flor"] } };
+    expect(decodeProgress(encodeProgress(a)).ownedAccessories?.listener).toEqual([
+      "corona",
+      "gafas",
+    ]);
+    const merged = mergeProgress(a, b);
+    expect(merged.ownedAccessories?.listener).toEqual(["corona", "gafas", "varita"]);
+    expect(merged.ownedAccessories?.reader).toEqual(["flor"]);
+  });
 });

@@ -43,7 +43,9 @@ export type { Accessory } from "./domain/wardrobe";
 export {
   ACCESSORIES,
   buyAccessory,
-  toggleAccessory,
+  ownsAccessory,
+  toggleWorn,
+  wear,
   wornAccessories,
 } from "./domain/wardrobe";
 export type { SurpriseResult } from "./domain/surprise";

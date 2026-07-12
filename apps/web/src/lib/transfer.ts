@@ -18,11 +18,13 @@ import { LocalStorageWordStatsStore } from "./word-stats-store";
 import { getAvatars, setAvatar } from "./kid";
 import {
   getActivePet,
+  getOwnedAccessories,
   getOwnedAvatars,
   getPetCollection,
   getStars,
   getStickerCounts,
   getUnlockedDecks,
+  saveOwnedAccessories,
   saveOwnedAvatars,
   savePetCollection,
   saveStickerCounts,
@@ -42,6 +44,7 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
   const pets: Partial<Record<KidId, PetState>> = {};
   const petCollections: Partial<Record<KidId, PetCollection>> = {};
   const ownedAvatars: Partial<Record<KidId, readonly string[]>> = {};
+  const ownedAccessories: Partial<Record<KidId, readonly string[]>> = {};
   const unlockedDecks: Partial<Record<KidId, readonly string[]>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
@@ -60,6 +63,10 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (owned.length > 0) {
       ownedAvatars[kid] = owned;
     }
+    const accessories = getOwnedAccessories(kid);
+    if (accessories.length > 0) {
+      ownedAccessories[kid] = accessories;
+    }
     const unlocked = getUnlockedDecks(kid);
     if (unlocked.length > 0) {
       unlockedDecks[kid] = unlocked;
@@ -75,6 +82,7 @@ async function currentSnapshot(): Promise<ProgressSnapshot> {
     pets,
     petCollections,
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
+    ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
   };
 }
@@ -119,6 +127,10 @@ export async function importProgressCode(code: string): Promise<ImportOutcome> {
     const kidAvatars = merged.ownedAvatars?.[kid];
     if (kidAvatars !== undefined) {
       saveOwnedAvatars(kid, kidAvatars);
+    }
+    const kidAccessories = merged.ownedAccessories?.[kid];
+    if (kidAccessories !== undefined) {
+      saveOwnedAccessories(kid, kidAccessories);
     }
     const kidUnlocks = merged.unlockedDecks?.[kid];
     if (kidUnlocks !== undefined) {

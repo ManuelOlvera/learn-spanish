@@ -19,12 +19,11 @@ describe("wardrobe", () => {
     expect(new Set(ACCESSORIES.map((a) => a.id)).size).toBe(ACCESSORIES.length);
   });
 
-  it("buying adds an accessory once", () => {
-    const pet = { meals: 5, lastFed: "2026-07-11" };
-    const dressed = buyAccessory(pet, "corona");
-    expect(dressed.accessories).toEqual(["corona"]);
-    expect(buyAccessory(dressed, "corona").accessories).toEqual(["corona"]);
-    expect(buyAccessory(dressed, "gafas").accessories).toEqual(["corona", "gafas"]);
+  it("buying adds an accessory to the owned set once", () => {
+    const owned = buyAccessory([], "corona");
+    expect(owned).toEqual(["corona"]);
+    expect(buyAccessory(owned, "corona")).toEqual(["corona"]);
+    expect(buyAccessory(owned, "gafas")).toEqual(["corona", "gafas"]);
   });
 
   it("accessories union across transfer merges", () => {
