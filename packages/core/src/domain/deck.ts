@@ -11,4 +11,9 @@ export interface Deck {
   readonly secret?: boolean;
   /** Stars to unlock a secret deck. */
   readonly unlockCost?: number;
+  /** Flashcards-only: the deck is never used to generate quiz-style game
+   *  content. Verbs need this because the games build noun-shaped questions
+   *  ("¿Es un…?") that don't fit an action word. The deck's game menu then
+   *  offers Las tarjetas alone. */
+  readonly learnOnly?: boolean;
 }

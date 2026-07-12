@@ -41,4 +41,13 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     emoji: "🎨",
     deckIds: ["toys", "sports", "school", "feelings", "music"],
   },
+  {
+    // One deck per verb form. Grows to hold futuro/condicional later
+    // (shelf caps at 5) once those become pre-reader-buildable.
+    id: "verbos",
+    nameSpanish: "Los verbos",
+    nameEnglish: "Verbs",
+    emoji: "🏃",
+    deckIds: ["verbs-infinitive", "verbs-gerund", "verbs-imperative"],
+  },
 ];

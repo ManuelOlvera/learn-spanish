@@ -30,6 +30,9 @@ describe("starter pack content", () => {
       "sea",
       "fruit",
       "music",
+      "verbs-infinitive",
+      "verbs-gerund",
+      "verbs-imperative",
       "mystery",
     ]);
   });
@@ -96,6 +99,31 @@ describe("starter pack content", () => {
     const decks = await repo.listDecks();
     const ids = decks.flatMap((d) => d.cards.map((c) => c.id));
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("ships the verb forms as one learn-only shelf over the same 12 verbs", async () => {
+    const forms = ["verbs-infinitive", "verbs-gerund", "verbs-imperative"];
+    const decks = await Promise.all(forms.map((id) => repo.getDeck(id)));
+    for (const deck of decks) {
+      expect(deck, "verb-form deck must exist").not.toBeNull();
+      // Learn-only: verbs break the games' noun-shaped "¿Es un…?" question,
+      // so they are flashcards-only until verb-native phrasing exists.
+      expect(deck!.learnOnly).toBe(true);
+      expect(deck!.cards).toHaveLength(12);
+    }
+    // The three forms teach the same verbs in the same order (same pictures).
+    const [inf, ger, imp] = decks;
+    expect(ger!.cards.map((c) => c.emoji)).toEqual(inf!.cards.map((c) => c.emoji));
+    expect(imp!.cards.map((c) => c.emoji)).toEqual(inf!.cards.map((c) => c.emoji));
+  });
+
+  it("keeps learn-only off any deck outside the verbs shelf", async () => {
+    const decks = await repo.listDecks();
+    for (const deck of decks) {
+      if (deck.learnOnly) {
+        expect(deck.id.startsWith("verbs-")).toBe(true);
+      }
+    }
   });
 
   it("finds a deck by id and returns null for unknown ids", async () => {

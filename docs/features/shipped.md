@@ -1,5 +1,33 @@
 # Shipped features
 
+## 2026-07-12 — Los verbos: a flashcards-only verbs shelf
+
+**For:** pre-readers (ages 3–5) — the pack taught only nouns/adjectives/numbers,
+so there was nowhere to learn action words.
+
+**What shipped:** a sixth home shelf **Los verbos 🏃** with three decks over the
+same 12 action verbs, one per verb form — **El infinitivo** (comer), **El
+gerundio** (comiendo), **El imperativo** (¡come!). Each form teaches the same
+verbs in the same order with the same pictures; only the spoken word changes.
+
+The verbs are **learn-only**: a new optional `Deck.learnOnly` flag marks a deck
+that never generates quiz-style game content, because every game builds
+noun-shaped questions ("¿Es un…?") that don't fit an action word. Its game menu
+therefore offers **Las tarjetas** alone, and `learnOnly` decks are excluded from
+the cross-deck counting item pool. Verbs still surface as the daily "carta del
+día" and as album cards (both audio/picture-only, so safe).
+
+**Where:** `Deck.learnOnly` in `packages/core` domain; three decks in
+`starter-pack.ts` and the `verbos` group in `deck-groups.ts`; `GameMenu`
+flashcards-only branch, counting `itemPool` filter, and verb accents in
+`deck-theme.ts` in `apps/web`. Pack is now 26 decks / 304 words on six shelves
+(27 / 316 with the bonus).
+
+**Deferred (not dropped):** verb tenses that need conjugation — **futuro**
+(comeré) and **condicional** (comería) — as sibling decks on the same shelf;
+and verb-native game phrasing so verbs can join the quiz-style games. Both
+parked in `roadmap.md`.
+
 ## 2026-07-12 — Hunger is visible where kids land (any pet, not just the active one)
 
 **What shipped:** hunger used to show only on the mascota screen and only for the

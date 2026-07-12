@@ -18,12 +18,24 @@ interface ModeLink {
 
 /** With a kid selected, each game gets its one right button; without one
  *  (deep link before ever picking), both difficulty buttons show. */
-function gamesFor(kid: KidId | null, deckId: string): readonly {
+function gamesFor(kid: KidId | null, deck: Deck): readonly {
   emoji: string;
   spanish: string;
   english: string;
   modes: readonly ModeLink[];
 }[] {
+  const flashcards = {
+    emoji: "📖",
+    spanish: "Las tarjetas",
+    english: "Flashcards",
+    modes: [{ glyph: "📖", href: "learn", label: "Flashcards" }],
+  };
+  // Learn-only decks (verbs) never generate quiz-style questions — the games
+  // assume nouns ("¿Es un…?"), so only flashcards are offered.
+  if (deck.learnOnly) {
+    return [flashcards];
+  }
+  const deckId = deck.id;
   const modes = kid === null ? null : KID_GAME_MODES[kid];
   const pick = (listen: ModeLink, read: ModeLink): readonly ModeLink[] =>
     modes === null ? [listen, read] : [modes.quiz === "listen" ? listen : read];
@@ -36,12 +48,7 @@ function gamesFor(kid: KidId | null, deckId: string): readonly {
       : [modes.match === "pictures" ? pictures : words];
 
   return [
-    {
-      emoji: "📖",
-      spanish: "Las tarjetas",
-      english: "Flashcards",
-      modes: [{ glyph: "📖", href: "learn", label: "Flashcards" }],
-    },
+    flashcards,
     {
       emoji: "🔍",
       spanish: "¿Dónde está?",
@@ -138,7 +145,7 @@ export function GameMenu({ deck, accent }: Props) {
     return <main className="min-h-dvh" aria-hidden />;
   }
 
-  const games = gamesFor(kid, deck.id);
+  const games = gamesFor(kid, deck);
 
   return (
     <main

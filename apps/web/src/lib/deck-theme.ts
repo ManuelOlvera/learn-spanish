@@ -27,6 +27,9 @@ const accents: Record<string, string> = {
   sea: "#0ea5e9",
   fruit: "#f97316",
   music: "#8b5cf6",
+  "verbs-infinitive": "#fb923c",
+  "verbs-gerund": "#f97316",
+  "verbs-imperative": "#ea580c",
   mystery: "#7c3aed",
   // home-screen shelves (deck groups)
   animales: "#f59e0b",
@@ -34,6 +37,7 @@ const accents: Record<string, string> = {
   "casa-yo": "#fb7185",
   mundo: "#4ade80",
   jugar: "#e879f9",
+  verbos: "#f97316",
 };
 
 export function deckAccent(deckId: string): string {

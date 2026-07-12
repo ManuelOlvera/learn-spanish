@@ -73,6 +73,19 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     2026-07-10: same word for both kids, per-kid ☀️ streak; per-level sentences
     wait on sentence content.)*
 
+## Content shelves
+
+11. ☑ **Los verbos — a verbs shelf** — action words for pre-readers, one deck per
+    verb form. *(Shipped 2026-07-12 as a flashcards-only shelf: El infinitivo /
+    El gerundio / El imperativo over the same 12 verbs. Learn-only because the
+    games build noun-shaped "¿Es un…?" questions. See `shipped.md`.)*
+    - ☐ **Futuro / condicional decks** — sibling decks on the same shelf (comeré,
+      comería). Deferred: conjugations can't be navigated by a single picture and
+      read as advanced for ages 3–5; revisit if the app grows an older-kid mode.
+    - ☐ **Verbs in the games** — verb-native question phrasing (e.g. "¿Está
+      comiendo?") so the verbs shelf can drop `learnOnly` and join the quiz-style
+      games. The real lift the learn-only cut deferred.
+
 ## Build order
 
 **First slice: tap-the-right-picture quiz (2), no profiles** — shaped 2026-07-10:
