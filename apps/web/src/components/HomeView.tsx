@@ -27,7 +27,7 @@ import {
   unlockDeck,
   type MissionView,
 } from "@/lib/economy";
-import { MISSION_BONUS, petEmoji } from "@learn-spanish/core";
+import { MISSION_BONUS, petFormEmoji, petMaxForm } from "@learn-spanish/core";
 import { feedbackRacha, feedbackWrong } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
@@ -88,7 +88,12 @@ export function HomeView({ decks, groups }: Props) {
       );
     setMission(getMission(kid));
     setStars(getStars(kid));
-    setPetFace(petEmoji(getPetCollection(kid).active, getActivePet(kid).meals));
+    const activeSpecies = getPetCollection(kid).active;
+    const activePet = getActivePet(kid);
+    const activeMaxForm = petMaxForm(activeSpecies, activePet.meals);
+    setPetFace(
+      petFormEmoji(activeSpecies, Math.min(activePet.form ?? Infinity, activeMaxForm)),
+    );
     setUnlockedDecks(getUnlockedDecks(kid));
     return () => {
       cancelled = true;

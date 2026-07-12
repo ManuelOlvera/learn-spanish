@@ -9,6 +9,8 @@ import { computeReward, FIRST_TIME_BONUS, PERFECT_BONUS } from "../src/domain/st
 import {
   defaultCollection,
   petEmoji,
+  petFormEmoji,
+  petMaxForm,
   PET_SPECIES,
   STARTER_SPECIES,
 } from "../src/domain/mascota";
@@ -95,6 +97,27 @@ describe("pet species", () => {
         expect(petEmoji(id, meals)).not.toBe("🐣");
       }
     }
+  });
+
+  it("tracks the highest form reached, so kids can pick any earlier one", () => {
+    // The chick unlocks a new form at each growth beat.
+    expect(petMaxForm("pollito", 0)).toBe(0);
+    expect(petMaxForm("pollito", 3)).toBe(1);
+    expect(petMaxForm("pollito", 8)).toBe(2);
+    expect(petMaxForm("pollito", 15)).toBe(3);
+    // Two-form animals reach their top form once.
+    expect(petMaxForm("conejo", 0)).toBe(0);
+    expect(petMaxForm("conejo", 15)).toBe(1);
+  });
+
+  it("renders any chosen form, clamped to the species' real forms", () => {
+    expect(petFormEmoji("pollito", 1)).toBe("🐣"); // the cracked-egg chick
+    expect(petFormEmoji("pollito", 0)).toBe("🥚");
+    expect(petFormEmoji("pollito", 3)).toBe("🐔");
+    // out-of-range choices clamp instead of crashing
+    expect(petFormEmoji("pollito", 9)).toBe("🐔");
+    expect(petFormEmoji("pollito", -1)).toBe("🥚");
+    expect(petFormEmoji("conejo", 5)).toBe("🐇");
   });
 
   it("defaultCollection owns only the starter, active and unhatched", () => {

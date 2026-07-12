@@ -1,5 +1,24 @@
 # Shipped features
 
+## 2026-07-12 — Pick which growth form a pet shows (go back to a favourite)
+
+**What shipped:** kids can now display any form a pet has already reached — e.g.
+keep the 🐣 cracked-egg chick on screen forever instead of the grown 🐔. Growth
+is untouched (still meal-driven); a separate per-pet `form` just pins which look
+to show, capped at the newest form reached (undefined = follow the newest, so
+default behaviour is unchanged).
+
+- Domain split: `petMaxForm(species, meals)` (newest reached index) and
+  `petFormEmoji(species, form)` (bounds-clamped); `petEmoji` now = the newest
+  form. `PetState.form?: number` travels in the transfer code (per-device
+  display choice — the receiving device wins, like `worn`).
+- `setPetForm` in economy; a **form-picker row** of sticker buttons under the
+  pet on the mascota screen (one per unlocked form, selected highlighted lime,
+  only shown once >1 form exists). The "Mis mascotas" thumbnail and the home
+  mascot face both respect the pinned form.
+- Feeding now celebrates on a real new-form unlock (`petMaxForm` increase). Two
+  new core tests (165 total).
+
 ## 2026-07-12 — New pet: La mariposa (full metamorphosis)
 
 **What shipped:** a 🦋 butterfly mascot (140⭐) that grows through its full

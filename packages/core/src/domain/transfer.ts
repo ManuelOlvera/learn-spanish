@@ -200,7 +200,8 @@ function isPetState(value: unknown): value is PetState {
     typeof pet.meals === "number" &&
     (pet.lastFed === null || typeof pet.lastFed === "string") &&
     isStringListOrAbsent(pet.accessories) &&
-    isStringListOrAbsent(pet.worn)
+    isStringListOrAbsent(pet.worn) &&
+    (pet.form === undefined || typeof pet.form === "number")
   );
 }
 
@@ -360,6 +361,8 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
   const accessories = [...new Set([...(a.accessories ?? []), ...(b.accessories ?? [])])];
   const wornSource = a.worn ?? b.worn;
   const worn = wornSource?.filter((id) => accessories.includes(id));
+  // `form` is a per-device display choice, like worn: the receiving device wins.
+  const form = a.form ?? b.form;
   return {
     meals: Math.max(a.meals, b.meals),
     lastFed:
@@ -372,5 +375,6 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
             : b.lastFed,
     ...(accessories.length > 0 ? { accessories } : {}),
     ...(worn !== undefined ? { worn } : {}),
+    ...(form !== undefined ? { form } : {}),
   };
 }

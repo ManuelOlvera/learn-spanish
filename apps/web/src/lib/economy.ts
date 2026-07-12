@@ -202,6 +202,14 @@ export function setActiveSpecies(kid: KidId, speciesId: string): void {
   }
 }
 
+/** Pin which growth form the active pet displays (non-destructive: meals and
+ *  growth are unchanged, only the shown look). */
+export function setPetForm(kid: KidId, form: number): void {
+  const c = getPetCollection(kid);
+  const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
+  savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: { ...pet, form } } });
+}
+
 /** Wardrobe accessories the kid owns (bought once, wearable on any pet).
  *  Migrates one-time from the old per-pet `accessories` if the store is
  *  empty. */

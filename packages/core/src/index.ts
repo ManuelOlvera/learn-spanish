@@ -33,6 +33,8 @@ export {
   feedPet,
   isPetHungry,
   petEmoji,
+  petFormEmoji,
+  petMaxForm,
   PET_SPECIES,
   PET_STAGE_MEALS,
   petStage,

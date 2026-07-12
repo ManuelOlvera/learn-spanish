@@ -11,6 +11,9 @@ export interface PetState {
   /** Owned accessory ids currently on the pet. Undefined means "not yet
    *  chosen" — treated as every owned item (see wornAccessories). */
   readonly worn?: readonly string[];
+  /** Which growth form (stage index) to display. Undefined follows the newest
+   *  reached form; a kid may pin an earlier one (see petMaxForm/petFormEmoji). */
+  readonly form?: number;
 }
 
 export interface PetStore {
@@ -79,18 +82,30 @@ export function petStage(meals: number): number {
   return stage;
 }
 
-/** The emoji to draw for a species at its current meal count. Growth level
- *  (0–3, from meals) is scaled onto the species' own stage list, so a two-form
- *  animal reaches its grown look partway and a four-form one hits every beat. */
-export function petEmoji(speciesId: string, meals: number): string {
+/** The highest form (stage-list index) a species has reached at this meal
+ *  count. Growth level (0–3, from meals) is scaled onto the species' own stage
+ *  list, so a two-form animal reaches its grown look partway and a four-form
+ *  one hits every beat. This is the newest form; a kid may choose an earlier
+ *  one down to 0 (see petFormEmoji). */
+export function petMaxForm(speciesId: string, meals: number): number {
   const stages = speciesStages(speciesId);
   if (stages.length <= 1) {
-    return stages[0]!;
+    return 0;
   }
-  const level = petStage(meals);
   const topLevel = PET_STAGE_MEALS.length - 1;
-  const index = Math.round((level / topLevel) * (stages.length - 1));
+  return Math.round((petStage(meals) / topLevel) * (stages.length - 1));
+}
+
+/** The emoji for a specific form of a species, clamped to its real forms. */
+export function petFormEmoji(speciesId: string, form: number): string {
+  const stages = speciesStages(speciesId);
+  const index = Math.max(0, Math.min(Math.trunc(form), stages.length - 1));
   return stages[index]!;
+}
+
+/** The emoji to draw for a species at its current meal count (its newest form). */
+export function petEmoji(speciesId: string, meals: number): string {
+  return petFormEmoji(speciesId, petMaxForm(speciesId, meals));
 }
 
 export function feedPet(pet: PetState | null, today: string): PetState {

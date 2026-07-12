@@ -7,7 +7,8 @@ import {
   dayKey,
   isPetHungry,
   MEAL_COST,
-  petEmoji,
+  petFormEmoji,
+  petMaxForm,
   petStage,
   PET_SPECIES,
   PET_STAGE_MEALS,
@@ -26,6 +27,7 @@ import {
   getStars,
   openSurprise,
   setActiveSpecies,
+  setPetForm,
   toggleAccessoryForActive,
 } from "@/lib/economy";
 import {
@@ -101,6 +103,10 @@ export function MascotaView() {
   const hungry = isPetHungry(pet, dayKey(new Date()));
   const nextStageAt = PET_STAGE_MEALS[stage + 1];
   const species = PET_SPECIES.find((s) => s.id === activeId) ?? PET_SPECIES[0]!;
+  // Which form to show: the kid may pin an earlier one, capped at the newest
+  // form the pet has reached (undefined = follow the newest).
+  const maxForm = petMaxForm(activeId, pet.meals);
+  const chosenForm = Math.max(0, Math.min(pet.form ?? maxForm, maxForm));
 
   function feed() {
     if (kid === null) return;
@@ -111,10 +117,10 @@ export function MascotaView() {
       setNope((n) => n + 1);
       return;
     }
-    // Celebrate only when the pet's look actually changes — some species grow
-    // through fewer forms than others, so a meal isn't always a visible stage.
+    // Celebrate only when a brand-new form unlocks — some species grow through
+    // fewer forms than others, so a meal isn't always a visible stage.
     const grewUp =
-      petEmoji(activeId, result.pet.meals) !== petEmoji(activeId, before);
+      petMaxForm(activeId, result.pet.meals) > petMaxForm(activeId, before);
     refresh(kid);
     setMunch((n) => n + 1);
     if (grewUp) {
@@ -153,13 +159,13 @@ export function MascotaView() {
 
       <section className="flex flex-col items-center gap-4 text-center">
         <div
-          key={`${activeId}-${stage}-${munch}`}
+          key={`${activeId}-${chosenForm}-${munch}`}
           className={`relative text-[8rem] leading-none ${munch > 0 ? "pop-in" : ""} ${
             hungry ? "opacity-70 grayscale-[30%]" : ""
           }`}
           aria-label={`Your pet: ${species.nameSpanish}, ${pet.meals} meals`}
         >
-          {petEmoji(activeId, pet.meals)}
+          {petFormEmoji(activeId, chosenForm)}
           {wornAccessories(pet).map((id) => {
             const item = ACCESSORIES.find((a) => a.id === id);
             const spot = ACCESSORY_SPOTS[id];
@@ -184,7 +190,7 @@ export function MascotaView() {
           {hungry
             ? "¡Tengo hambre! 🥺"
             : stage === 0
-              ? petEmoji(activeId, pet.meals) === "🥚"
+              ? petFormEmoji(activeId, 0) === "🥚"
                 ? "Feed the egg to hatch it!"
                 : "Feed your baby to grow!"
               : "Growing strong!"}
@@ -225,6 +231,37 @@ export function MascotaView() {
         >
           🍎 ¡A comer! ({MEAL_COST}⭐)
         </button>
+
+        {/* ---- Pick which form to show (only once more than one is unlocked) ---- */}
+        {maxForm >= 1 && (
+          <div
+            className="flex items-center justify-center gap-2"
+            aria-label="Choose which form your pet shows"
+          >
+            {Array.from({ length: maxForm + 1 }, (_, i) => (
+              <button
+                type="button"
+                key={i}
+                onClick={() => {
+                  if (kid === null) return;
+                  setPetForm(kid, i);
+                  feedbackSticker();
+                  refresh(kid);
+                }}
+                aria-label={`Show form ${i + 1}`}
+                aria-pressed={i === chosenForm}
+                className="sticker flex h-14 w-14 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+                style={
+                  i === chosenForm
+                    ? ({ "--sticker-face": "var(--color-lime)" } as React.CSSProperties)
+                    : undefined
+                }
+              >
+                {petFormEmoji(activeId, i)}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ---- Mis mascotas: switch + adopt ---- */}
@@ -271,7 +308,12 @@ export function MascotaView() {
                 }
               >
                 <span aria-hidden className="text-4xl">
-                  {owned ? petEmoji(s.id, p?.meals ?? 0) : s.stages[s.stages.length - 1]}
+                  {owned
+                    ? petFormEmoji(
+                        s.id,
+                        Math.min(p?.form ?? Infinity, petMaxForm(s.id, p?.meals ?? 0)),
+                      )
+                    : s.stages[s.stages.length - 1]}
                 </span>
                 <span className="text-xs font-extrabold">
                   {owned ? (isActive ? "★" : "") : `${s.cost}⭐`}
