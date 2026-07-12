@@ -102,6 +102,20 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
       a happy cue; teaches where things go. The other half of the original idea.
     - ☐ **Resize / rotate accessories** — richer dress-up; out of the first cut.
 
+## Streaks & retention
+
+14. ☑ **Weekly streaks & freezes** — an active week (daily misión on 3 days)
+    grows a 🔥 weekly streak; ❄️ escudos cover a missed week. *(Shipped
+    2026-07-13: 3 starter escudos, buy for 30⭐ or win from the caja sorpresa,
+    three rollover animations. See `shipped.md`.)*
+    - ☐ **Weekly missions (richer)** — a separate set of bigger week-spanning
+      goals, distinct from reusing the daily misión as the active-day signal.
+    - ☐ **Weekly state in the transfer code** — carry weekly streak + escudo
+      counts across devices; today they stay per-device (deferred with the rest
+      of cross-device sync).
+    - ☐ **More escudo sources** — mission-chest drops, streak milestones. Today
+      it's the 3 starters, buying, and the surprise box only.
+
 ## Build order
 
 **First slice: tap-the-right-picture quiz (2), no profiles** — shaped 2026-07-10:

@@ -54,7 +54,23 @@ export {
   wornAccessories,
 } from "./domain/wardrobe";
 export type { SurpriseResult } from "./domain/surprise";
-export { drawSurprise, SURPRISE_COST } from "./domain/surprise";
+export { drawSurprise, SURPRISE_COST, SURPRISE_FREEZE_CHANCE } from "./domain/surprise";
+export type {
+  WeekProgress,
+  WeeklyStreak,
+  RolloverOutcome,
+  RolloverResult,
+} from "./domain/weekly";
+export {
+  ACTIVE_WEEK_DAYS,
+  FREEZE_COST,
+  markActiveDay,
+  rollWeek,
+  STARTING_FREEZES,
+  weekActiveDayCount,
+  weekIsActive,
+  weekKey,
+} from "./domain/weekly";
 export type { AvatarChoice } from "./domain/avatars";
 export {
   AVATAR_CATALOG,

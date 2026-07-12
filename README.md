@@ -49,6 +49,12 @@ No reading, no accounts, no setup.
   tracks 42 per kid, persisted on-device (no accounts).
 - **Carta del día** — a daily featured word on the home screen with a
   per-kid ☀️ streak.
+- **Weekly streaks** — finishing the daily misión on 3 days makes an
+  active 🔥 week; each active week bumps the weekly streak, celebrated by
+  a first-open-of-the-week animation (grew / an ❄️ escudo saved it / start
+  again). Kids start with 3 escudos, buy more for 30⭐ on home, or win one
+  from the 🎁 caja sorpresa; a missed week spends an escudo before the
+  streak resets. `/informe` shows each kid's 🔥 and ❄️ counts.
 
 **Live:** https://learn-spanish-manuelolveras-projects.vercel.app
 (deploy/rollback: `docs/runbooks.md`)

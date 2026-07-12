@@ -134,16 +134,28 @@ describe("drawSurprise", () => {
     const r = drawSurprise(seededRandom(1), []);
     if (r.type === "accessory") {
       expect(ACCESSORIES.some((a) => a.id === r.id)).toBe(true);
-    } else {
+    } else if (r.type === "stars") {
       expect(r.amount).toBeGreaterThan(0);
+    } else {
+      expect(r.type).toBe("freeze");
     }
   });
 
-  it("only gives stars once every accessory is owned", () => {
+  it("never awards an accessory once every accessory is owned", () => {
     const allOwned = ACCESSORIES.map((a) => a.id);
     for (let seed = 0; seed < 10; seed++) {
-      expect(drawSurprise(seededRandom(seed), allOwned).type).toBe("stars");
+      expect(drawSurprise(seededRandom(seed), allOwned).type).not.toBe(
+        "accessory",
+      );
     }
+  });
+
+  it("can award a freeze as the consolation prize", () => {
+    const allOwned = ACCESSORIES.map((a) => a.id);
+    const results = Array.from({ length: 60 }, (_, s) =>
+      drawSurprise(seededRandom(s), allOwned),
+    );
+    expect(results.some((r) => r.type === "freeze")).toBe(true);
   });
 
   it("can award an unowned accessory when some remain", () => {

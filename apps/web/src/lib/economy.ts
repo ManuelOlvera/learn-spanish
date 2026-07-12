@@ -12,21 +12,30 @@ import {
   defaultCollection,
   drawSurprise,
   feedPet,
+  markActiveDay,
   markMissionDone,
   ownsAccessory,
   placeAccessory,
+  rollWeek,
   toggleWorn,
   wear,
+  weekActiveDayCount,
+  weekKey,
+  FREEZE_COST,
   MEAL_COST,
   MISSION_BONUS,
   missionComplete,
+  STARTING_FREEZES,
   SURPRISE_COST,
   type KidId,
   type MissionKind,
   type MissionState,
   type PetCollection,
   type PetState,
+  type RolloverOutcome,
   type SurpriseResult,
+  type WeekProgress,
+  type WeeklyStreak,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 
@@ -64,6 +73,9 @@ const COUNTS_KEY = "palabras.sticker-counts.v1";
 const OWNED_AVATARS_KEY = "palabras.owned-avatars.v1";
 const OWNED_ACCESSORIES_KEY = "palabras.owned-accessories.v1";
 const UNLOCKS_KEY = "palabras.unlocks.v1";
+const WEEKLY_KEY = "palabras.weekly.v1"; // WeeklyStreak per kid
+const WEEK_PROGRESS_KEY = "palabras.week-progress.v1"; // WeekProgress per kid
+const FREEZES_KEY = "palabras.freezes.v1"; // freeze count per kid
 
 // ---- stars ----
 
@@ -113,7 +125,12 @@ export function markActivityDone(kid: KidId, kind: MissionKind): MissionView {
   const stored = readDoc<MissionState>(MISSION_KEY)[kid] ?? null;
   const next = markMissionDone(stored, today, kind);
   writeDoc(MISSION_KEY, kid, next);
-  return getMission(kid);
+  const view = getMission(kid);
+  // Finishing the daily mission makes today count toward the weekly streak.
+  if (view.complete) {
+    markMissionActiveDay(kid);
+  }
+  return view;
 }
 
 /** The +10⭐ bonus chest; a no-op if already claimed or incomplete. */
@@ -124,6 +141,89 @@ export function claimMissionBonus(kid: KidId): number | null {
   }
   writeDoc(MISSION_KEY, kid, { ...mission.state, claimed: true });
   return addStars(kid, MISSION_BONUS);
+}
+
+// ---- weekly streak & freezes ----
+
+export interface WeeklyView {
+  /** The weekly streak to show (active weeks earned so far). */
+  readonly count: number;
+  readonly freezes: number;
+  /** Active days recorded this week (0…ACTIVE_WEEK_DAYS). */
+  readonly activeDays: number;
+  /** What the week rollover did — drives the once-per-week animation. */
+  readonly outcome: RolloverOutcome;
+}
+
+/** Freezes default to STARTING_FREEZES for a kid who has never had the key
+ *  (so every profile starts with three); a stored 0 stays 0. */
+export function getFreezes(kid: KidId): number {
+  const value = readDoc<number>(FREEZES_KEY)[kid];
+  return typeof value === "number" && value >= 0 ? value : STARTING_FREEZES;
+}
+
+function setFreezes(kid: KidId, count: number): void {
+  writeDoc(FREEZES_KEY, kid, Math.max(0, count));
+}
+
+function getWeekProgress(kid: KidId): WeekProgress | null {
+  const stored = readDoc<WeekProgress>(WEEK_PROGRESS_KEY)[kid];
+  return stored !== undefined &&
+    typeof stored.week === "string" &&
+    Array.isArray(stored.days)
+    ? stored
+    : null;
+}
+
+/** Mark today as an active day toward this week's streak (idempotent). */
+export function markMissionActiveDay(kid: KidId): void {
+  const now = new Date();
+  const progress = markActiveDay(getWeekProgress(kid), weekKey(now), dayKey(now));
+  writeDoc(WEEK_PROGRESS_KEY, kid, progress);
+}
+
+/** Read the weekly streak, rolling finished weeks over first. Persists the new
+ *  streak/freeze state so the rollover animation fires only on the first call
+ *  of a new week. Call this on app open. */
+export function rolloverWeekly(kid: KidId): WeeklyView {
+  const currentWeek = weekKey(new Date());
+  const stored = readDoc<WeeklyStreak>(WEEKLY_KEY)[kid] ?? null;
+  const freezes = getFreezes(kid);
+  const result = rollWeek(stored, freezes, getWeekProgress(kid), currentWeek);
+  if (
+    stored === null ||
+    stored.week !== result.streak.week ||
+    stored.count !== result.streak.count
+  ) {
+    writeDoc(WEEKLY_KEY, kid, result.streak);
+  }
+  if (result.freezes !== freezes) {
+    setFreezes(kid, result.freezes);
+  }
+  return {
+    count: result.streak.count,
+    freezes: result.freezes,
+    activeDays: weekActiveDayCount(getWeekProgress(kid), currentWeek),
+    outcome: result.outcome,
+  };
+}
+
+/** Buy one freeze for FREEZE_COST⭐. null when the kid can't afford it. */
+export function buyFreeze(
+  kid: KidId,
+): { freezes: number; stars: number } | null {
+  const stars = spendStars(kid, FREEZE_COST);
+  if (stars === null) {
+    return null;
+  }
+  const freezes = getFreezes(kid) + 1;
+  setFreezes(kid, freezes);
+  return { freezes, stars };
+}
+
+/** Read the weekly streak without rolling over (parent report, InformeView). */
+export function getWeeklyCount(kid: KidId): number {
+  return readDoc<WeeklyStreak>(WEEKLY_KEY)[kid]?.count ?? 0;
 }
 
 // ---- mascota (a collection of adopted pets) ----
@@ -308,6 +408,10 @@ export function openSurprise(
     const c = getPetCollection(kid);
     const pet = wear(c.pets[c.active] ?? { meals: 0, lastFed: null }, result.id);
     savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: pet } });
+    return { result, stars };
+  }
+  if (result.type === "freeze") {
+    setFreezes(kid, getFreezes(kid) + 1);
     return { result, stars };
   }
   return { result, stars: addStars(kid, result.amount) };

@@ -1,5 +1,34 @@
 # Shipped features
 
+## 2026-07-13 — Weekly streaks & freezes
+
+A longer-horizon habit loop on top of the daily streak, reusing the existing
+daily misión as its heartbeat.
+
+**For:** both kids. An **active week** = the daily misión finished on 3 distinct
+days (Monday-based, UTC). Each active week bumps the **weekly streak**; the first
+app-open of a new week rolls the finished weeks over and plays one of three
+distinct animations — **increased** (🔥 confetti burst), **frozen** (❄️ "un
+escudo guardó tu racha"), or **reset** (🌱 "a empezar", no scolding).
+
+**Freezes (escudos):** every kid starts with **3**. An idle week auto-spends one
+escudo to hold the streak instead of resetting; with none left, the streak resets
+to 0. Escudos are earned three ways: the 3 starters, **buying** one for **30⭐**
+on the home screen, or **winning** one from the 🎁 caja sorpresa (a new
+consolation outcome). Freezes only protect a live streak — a 0-streak never burns
+one. `/informe` shows each kid's 🔥 weekly streak and ❄️ escudo counts.
+
+**Where:** pure rules in `packages/core/src/domain/weekly.ts` (`weekKey`,
+`markActiveDay`, `weekIsActive`, `rollWeek` — 100% covered) plus a `freeze`
+outcome on `drawSurprise`; localStorage orchestration in
+`apps/web/src/lib/economy.ts` (`rolloverWeekly`, `buyFreeze`,
+`markMissionActiveDay`, `getFreezes`); UI in `HomeView` (badge + buy),
+`WeeklyBurst.tsx` (the three animations), and `InformeView`.
+
+**Deferred (parked in roadmap.md):** a separate richer "weekly mission" concept;
+carrying weekly streak/escudos in the device-transfer code; freeze sources beyond
+buying, the starters, and the surprise box.
+
 ## 2026-07-12 — Content expansion across all five pools
 
 A pure-content bump, no new mechanics:

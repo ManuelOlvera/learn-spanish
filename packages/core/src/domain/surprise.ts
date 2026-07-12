@@ -6,8 +6,12 @@ import type { RandomSource } from "./random";
  *  consolation so it never feels like a pure loss. */
 export const SURPRISE_COST = 15;
 
+/** How often the consolation is a streak freeze (❄️) rather than stars. */
+export const SURPRISE_FREEZE_CHANCE = 0.15;
+
 export type SurpriseResult =
   | { readonly type: "accessory"; readonly id: string }
+  | { readonly type: "freeze" }
   | { readonly type: "stars"; readonly amount: number };
 
 export function drawSurprise(
@@ -21,6 +25,10 @@ export function drawSurprise(
       id: unowned[Math.floor(random() * unowned.length)]!.id,
     };
   }
-  // 3–8 stars back when there's nothing new to win (or on the 30% roll).
+  // Nothing new to win (or the 30% roll): usually 3–8 stars, occasionally a
+  // freeze so the safety net can be earned, not only bought.
+  if (random() < SURPRISE_FREEZE_CHANCE) {
+    return { type: "freeze" };
+  }
   return { type: "stars", amount: 3 + Math.floor(random() * 6) };
 }

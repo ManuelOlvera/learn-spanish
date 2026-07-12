@@ -18,22 +18,28 @@ import { deckAccent } from "@/lib/deck-theme";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak, getWordStats } from "@/lib/album";
 import {
+  buyFreeze,
   claimMissionBonus,
   getActivePet,
   getMission,
   getPetCollection,
   getStars,
   getUnlockedDecks,
+  rolloverWeekly,
   unlockDeck,
   type MissionView,
+  type WeeklyView,
 } from "@/lib/economy";
 import {
+  ACTIVE_WEEK_DAYS,
   anyPetHungry,
   dayKey,
+  FREEZE_COST,
   MISSION_BONUS,
   petFormEmoji,
   petMaxForm,
 } from "@learn-spanish/core";
+import { WeeklyBurst } from "@/components/WeeklyBurst";
 import { feedbackRacha, feedbackWrong } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
@@ -55,6 +61,8 @@ export function HomeView({ decks, groups }: Props) {
   const [petFace, setPetFace] = useState("🥚");
   const [petHungry, setPetHungry] = useState(false);
   const [unlockedDecks, setUnlockedDecks] = useState<readonly string[]>([]);
+  const [weekly, setWeekly] = useState<WeeklyView | null>(null);
+  const [burst, setBurst] = useState<WeeklyView["outcome"] | null>(null);
   const [nope, setNope] = useState(0);
 
   // Secret decks stay out of the daily card, review, and shelves until bought.
@@ -103,6 +111,11 @@ export function HomeView({ decks, groups }: Props) {
     );
     setPetHungry(anyPetHungry(collection, dayKey(new Date())));
     setUnlockedDecks(getUnlockedDecks(kid));
+    const week = rolloverWeekly(kid);
+    setWeekly(week);
+    if (week.outcome !== "none") {
+      setBurst(week.outcome);
+    }
     return () => {
       cancelled = true;
     };
@@ -137,6 +150,13 @@ export function HomeView({ decks, groups }: Props) {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center gap-8 p-6">
+      {burst !== null && burst !== "none" && (
+        <WeeklyBurst
+          outcome={burst}
+          count={weekly?.count ?? 0}
+          onDone={() => setBurst(null)}
+        />
+      )}
       <header className="relative w-full text-center">
         <h1 className="text-6xl font-extrabold tracking-tight sm:text-7xl">
           ¡Palabras!
@@ -248,6 +268,67 @@ export function HomeView({ decks, groups }: Props) {
               </span>
             ) : null}
           </span>
+        </div>
+      )}
+
+      {weekly !== null && (
+        <div
+          className="sticker relative flex w-full max-w-md items-center justify-between gap-3 px-5 py-3"
+          aria-label={`Weekly streak: ${weekly.count} weeks, ${weekly.activeDays} of ${ACTIVE_WEEK_DAYS} days this week, ${weekly.freezes} freezes`}
+        >
+          <span aria-hidden className="sticker-peel" />
+          <span className="flex items-center gap-2">
+            <span aria-hidden className="text-3xl">
+              🔥
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-lg font-extrabold">
+                Semana {weekly.count}
+              </span>
+              <span aria-hidden className="mt-1 flex gap-1">
+                {Array.from({ length: ACTIVE_WEEK_DAYS }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`h-3 w-3 rounded-full border-2 border-ink ${
+                      i < weekly.activeDays ? "bg-[var(--color-lime)]" : "bg-white"
+                    }`}
+                  />
+                ))}
+              </span>
+            </span>
+          </span>
+          <button
+            type="button"
+            key={`freeze-${nope}`}
+            onClick={() => {
+              if (!kid) return;
+              const res = buyFreeze(kid);
+              if (res === null) {
+                feedbackWrong();
+                setNope((n) => n + 1);
+                return;
+              }
+              feedbackRacha();
+              setStars(res.stars);
+              setWeekly((w) => (w ? { ...w, freezes: res.freezes } : w));
+            }}
+            aria-label={`Buy a freeze for ${FREEZE_COST} stars — you have ${weekly.freezes}`}
+            className={`sticker flex items-center gap-1 px-3 py-2 text-lg font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none ${
+              stars < FREEZE_COST ? "wobble" : ""
+            }`}
+            style={{ "--accent": "#7dd3fc" } as React.CSSProperties}
+          >
+            <span aria-hidden className="text-2xl">
+              ❄️
+            </span>
+            <span>{weekly.freezes}</span>
+            <span
+              aria-hidden
+              className="ml-1 rounded-full border-2 border-ink bg-white px-2 text-sm"
+            >
+              +{FREEZE_COST}⭐
+            </span>
+          </button>
         </div>
       )}
 

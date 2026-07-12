@@ -15,7 +15,7 @@ import {
 import { log } from "@learn-spanish/config";
 import { getAlbum, getStreak, getWordStats } from "@/lib/album";
 import { getAvatar, KID_META } from "@/lib/kid";
-import { getStars } from "@/lib/economy";
+import { getFreezes, getStars, getWeeklyCount } from "@/lib/economy";
 
 interface Props {
   decks: readonly Deck[];
@@ -26,6 +26,8 @@ interface KidReport {
   readonly avatar: string;
   readonly stars: number;
   readonly streak: Streak | null;
+  readonly weeklyStreak: number;
+  readonly freezes: number;
   readonly stickers: number;
   readonly strong: readonly VocabularyCard[];
   readonly tricky: readonly VocabularyCard[];
@@ -65,6 +67,8 @@ export function InformeView({ decks }: Props) {
           avatar: getAvatar(kid),
           stars: getStars(kid),
           streak,
+          weeklyStreak: getWeeklyCount(kid),
+          freezes: getFreezes(kid),
           stickers: stickers.length,
           strong: strongWords(cards, stats, 5),
           tricky: pickReviewCards(cards, stats, 5),
@@ -129,6 +133,18 @@ export function InformeView({ decks }: Props) {
               </span>
               <span className="rounded-full border-2 border-ink bg-white px-3">
                 ☀️ {report.streak?.count ?? 0}
+              </span>
+              <span
+                className="rounded-full border-2 border-ink bg-white px-3"
+                title="Weekly streak"
+              >
+                🔥 {report.weeklyStreak}
+              </span>
+              <span
+                className="rounded-full border-2 border-ink bg-white px-3"
+                title="Streak freezes"
+              >
+                ❄️ {report.freezes}
               </span>
             </div>
             <div>

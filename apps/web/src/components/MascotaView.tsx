@@ -434,7 +434,9 @@ export function MascotaView() {
             setSurprise(
               r.type === "accessory"
                 ? `¡${ACCESSORIES.find((a) => a.id === r.id)?.emoji ?? "🎁"} nuevo!`
-                : `+${r.amount} ⭐`,
+                : r.type === "freeze"
+                  ? "❄️ ¡nuevo!"
+                  : `+${r.amount} ⭐`,
             );
           }}
           aria-label={`Open a surprise box for ${SURPRISE_COST} stars`}
