@@ -2,10 +2,11 @@
 
 ## 2026-07-12 — New pet: La mariposa (full metamorphosis)
 
-**What shipped:** a 🦋 butterfly mascot (140⭐) that grows through its real
-lifecycle — 🥚 egg → 🐛 caterpillar → 🦋 butterfly — using the existing
-grow-as-your-own-kind stage scaling (3 forms, like the dragon). The menagerie
-is now 9 pets. One core assertion added to the pet-species growth test.
+**What shipped:** a 🦋 butterfly mascot (140⭐) that grows through its full
+metamorphosis — 🥚 egg → 🐛 caterpillar → 🫛 chrysalis → 🦋 butterfly — a
+four-stage line (🫛 pea pod stands in for the chrysalis, since Unicode has no
+cocoon emoji), using the existing grow-as-your-own-kind stage scaling. The
+menagerie is now 9 pets. Core assertions added to the pet-species growth test.
 
 ## 2026-07-12 — Wardrobe is kid-owned + 4 new pets and 6 new accessories
 

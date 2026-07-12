@@ -84,9 +84,10 @@ describe("pet species", () => {
     // The dragon hatches: egg → hatchling → dragon.
     expect(petEmoji("dragon", 0)).toBe("🥚");
     expect(petEmoji("dragon", 3)).toBe("🐲");
-    // The butterfly metamorphoses: egg → caterpillar → butterfly.
+    // The butterfly metamorphoses: egg → caterpillar → chrysalis → butterfly.
     expect(petEmoji("mariposa", 0)).toBe("🥚");
     expect(petEmoji("mariposa", 3)).toBe("🐛");
+    expect(petEmoji("mariposa", 8)).toBe("🫛");
     expect(petEmoji("mariposa", 15)).toBe("🦋");
     // No non-chicken ever passes through the chick 🐣, at any meal count.
     for (let meals = 0; meals <= 20; meals++) {
