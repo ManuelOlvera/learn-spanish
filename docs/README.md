@@ -10,7 +10,9 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [skills/frontend-design.md](skills/frontend-design.md) — **[living]** the app's visual language (Sticker Book); read before building any UI
 - [skills/feature-shaping.md](skills/feature-shaping.md) — **[living]** the /shape process: forcing questions + shape block
 - [skills/debugging.md](skills/debugging.md) — **[living]** the /investigate discipline + case log
+- [architecture-diagrams.md](architecture-diagrams.md) — **[living]** the system on one page: monorepo graph, sync sequence, localStorage key inventory
 - [runbooks.md](runbooks.md) — **[living]** deploy, rollback, and Vercel gotchas
+- `supabase/migrations/` — not docs, but load-bearing: SQL applied by hand to the live project per the runbook, **before** the code that needs it ships
 - [fable-review/](fable-review/) — **[archived]** point-in-time implementation review (2026-07-13):
   [security](fable-review/security.md) · [code quality](fable-review/code-quality.md) ·
   [architecture](fable-review/architecture.md) · [docs](fable-review/docs.md) ·
@@ -21,6 +23,3 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
   - [adr/003-ephemeral-voice-recordings.md](adr/003-ephemeral-voice-recordings.md) — say-it-back clips live in memory only, never stored or sent
   - [adr/004-optional-supabase-sync.md](adr/004-optional-supabase-sync.md) — local-first with optional Supabase sync; pairing code as capability, no accounts
   - [adr/005-hand-rolled-service-worker.md](adr/005-hand-rolled-service-worker.md) — offline via a hand-rolled service worker, not next-pwa/Workbox
-
-Referenced by `/diagram` but not yet written (create on first need):
-`architecture-diagrams.md`.

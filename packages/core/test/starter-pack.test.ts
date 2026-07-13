@@ -38,6 +38,19 @@ describe("starter pack content", () => {
     ]);
   });
 
+  it("matches the README's advertised pack size (update both together)", async () => {
+    // The root README's Features section states these totals ("27 decks /
+    // 323 words … 28 decks / 335 words total"). This test turns silent README
+    // drift into a red build: when content changes, recount, update the
+    // README bullet, then these numbers — in the same change.
+    const decks = await repo.listDecks();
+    const publicDecks = decks.filter((d) => !d.secret);
+    expect(decks).toHaveLength(28);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(335);
+    expect(publicDecks).toHaveLength(27);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(323);
+  });
+
   it("keeps decks kid-sized: 10-15 cards each", async () => {
     const decks = await repo.listDecks();
     for (const deck of decks) {

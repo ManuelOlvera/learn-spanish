@@ -1,10 +1,12 @@
 # Documentation review — 2026-07-13
 
-> **Status update (2026-07-13):** #1 resolved by building the missing feature
-> (the service worker, ADR 005) rather than weakening the docs; #2 resolved
-> (workflow docs written and indexed with the skills pass); #3 resolved
-> (pairing.md carries the key warning). #4's ADR-004 bit-count and #5's
-> overview diagrams remain open; the README-counts test idea stands.
+> **Status update (2026-07-13):** all findings resolved. #1 by building the
+> missing feature (the service worker, ADR 005) rather than weakening the
+> docs; #2 workflow docs written and indexed; #3 pairing.md carries the key
+> warning; #4 the pack-counts test exists in `starter-pack.test.ts`, ADR 004
+> says ~100 bits, and `supabase/` is in the docs index; #5
+> `docs/architecture-diagrams.md` exists (monorepo graph, sync sequence,
+> localStorage key inventory — both diagrams machine-verified to parse).
 
 Documentation is a genuine strength: a curated index with lifecycle markers
 (`docs/README.md`), four honest ADRs that record *forces* and *costs*, a

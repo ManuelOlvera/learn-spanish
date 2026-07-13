@@ -27,7 +27,8 @@ Forces that shaped the choice:
 
 - **Pre-readers can't log in.** So linking is parent-mediated and invisible to the kid.
   A pairing code reuses the mental model already shipped (the transfer code).
-- **No account = the code must be the secret.** A 128-bit code is the capability. The
+- **No account = the code must be the secret.** A ~100-bit code (20 Crockford-base32
+  symbols, see `domain/sync.ts`) is the capability. The
   Supabase table is fenced behind two `SECURITY DEFINER` RPCs, `get_progress(p_id)` /
   `put_progress(p_id, p_snapshot)`, each requiring the code as an argument; RLS denies all
   direct table access, so rows cannot be enumerated or dumped with the public anon key.
