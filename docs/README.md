@@ -4,6 +4,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 
 - [features/shipped.md](features/shipped.md) — **[append-log]** write-ups of shipped features
 - [features/roadmap.md](features/roadmap.md) — **[living]** planned two-kid interactivity features and build order
+- [features/pairing.md](features/pairing.md) — **[living]** parent-facing how-to for cross-device sync (pairing codes)
 - [skills/frontend-design.md](skills/frontend-design.md) — **[living]** the app's visual language (Sticker Book); read before building any UI
 - [skills/feature-shaping.md](skills/feature-shaping.md) — **[living]** the /shape process: forcing questions + shape block
 - [skills/debugging.md](skills/debugging.md) — **[living]** the /investigate discipline + case log
