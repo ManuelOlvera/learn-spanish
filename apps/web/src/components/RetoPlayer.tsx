@@ -9,6 +9,7 @@ import {
   type KidId,
   type QuizRound,
 } from "@learn-spanish/core";
+import { emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getSelectedKid, getAvatar } from "@/lib/kid";
 import { addStars, getRetoBest, saveRetoBest } from "@/lib/economy";
@@ -234,7 +235,10 @@ export function RetoPlayer({ deck, accent }: Props) {
                       flashed ? (flash.good ? "pop-in" : "wobble") : ""
                     }`}
                   >
-                    <span aria-hidden className="text-6xl sm:text-7xl">
+                    <span
+                      aria-hidden
+                      className={emojiSizeClass(choice.emoji, "text-6xl sm:text-7xl", "text-4xl sm:text-5xl")}
+                    >
                       {choice.emoji}
                     </span>
                   </button>

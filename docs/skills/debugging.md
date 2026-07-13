@@ -19,6 +19,23 @@ Find the *true* cause and fix it once, at the right layer.
 
 ## Case log (patterns worth remembering)
 
+- **2026-07-14 — accessories missing on the tablet**: reported as "sync
+  doesn't sync". The snapshot pipeline (encode → sanitize → merge) was
+  *innocent* — a pipeline test proved it and became the regression lock. Root
+  cause: `syncPush` fired only on game-complete and misión-claim, so
+  purchases (accessories, pets, avatars, freezes, unlocks, themes) drifted
+  until the buying device happened to finish a game. Fix: every
+  star-mutating action pushes. Lesson: for sync bugs, separate "the data
+  moves wrongly" from "the data never moves" — test the pipeline first to
+  pick the branch.
+- **2026-07-14 — number tiles overflow on iPad**: the big-number decks use
+  two-keycap emoji ("9️⃣0️⃣") that paint ~2× wide; at font sizes chosen for one
+  glyph they burst out of fixed squares — only above the `sm:` breakpoint,
+  which is why phones looked fine. Fix: `lib/emoji.ts` `emojiSizeClass()`
+  (grapheme-aware via `Intl.Segmenter`) applied to all nine card-emoji
+  renderers, not just the reported quiz. Lesson: a "spacing on iPad" report
+  is usually a breakpoint-dependent size; reproduce at 820×1180 and look at
+  pixels, and fix the whole class of render sites.
 - **2026-07-11 — "¿Es triste?"**: sí-o-no hardcoded *ser* in the component.
   Root cause was a *domain gap* — cards had no copula concept. Fix: content
   flag `usesEstar` + `siNoQuestion()` in core + content test that every

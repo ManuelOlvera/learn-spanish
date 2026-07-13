@@ -224,6 +224,40 @@ describe("mergeProgress", () => {
     });
   });
 
+  it("carries a full phone wardrobe to an empty tablet (bugs.md #5 repro)", () => {
+    // The reported symptom: accessories bought on the phone not all showing
+    // on the tablet. This pins the snapshot pipeline itself — a pushed
+    // phone snapshot merged into a stale tablet must surface every owned
+    // accessory (union, sanitizer included).
+    const phone: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      ownedAccessories: {
+        listener: ["gorro", "lazo", "corona", "varita", "gafas"],
+      },
+      petCollections: {
+        listener: {
+          active: "pollito",
+          owned: ["pollito"],
+          pets: { pollito: { meals: 4, lastFed: "2026-07-13", worn: ["gorro"] } },
+        },
+      },
+    };
+    const tablet: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      ownedAccessories: { listener: ["flor"] },
+    };
+    const pushed = sanitizeSnapshot(decodeProgress(encodeProgress(phone)));
+    const merged = mergeProgress(tablet, pushed);
+    expect(merged.ownedAccessories?.listener).toEqual(
+      expect.arrayContaining(["flor", "gorro", "lazo", "corona", "varita", "gafas"]),
+    );
+    expect(merged.petCollections?.listener?.pets["pollito"]?.worn).toEqual(["gorro"]);
+  });
+
   it("round-trips the new fields through encode/decode", () => {
     const full: ProgressSnapshot = {
       stickers: ["listener:animals:learn"],

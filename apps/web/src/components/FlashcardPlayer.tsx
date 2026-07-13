@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Deck } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import {
   canRecord,
@@ -160,7 +161,10 @@ export function FlashcardPlayer({ deck, accent }: Props) {
               }`}
             >
               <span aria-hidden className="sticker-peel" />
-              <span aria-hidden className="text-[7rem] leading-none sm:text-[9rem]">
+              <span
+                aria-hidden
+                className={`leading-none ${emojiSizeClass(card.emoji, "text-[7rem] sm:text-[9rem]", "text-[4rem] sm:text-[5rem]")}`}
+              >
                 {card.emoji}
               </span>
               <span className="text-4xl font-extrabold sm:text-5xl">

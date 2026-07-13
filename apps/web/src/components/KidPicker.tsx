@@ -14,6 +14,7 @@ import {
   setAvatar,
 } from "@/lib/kid";
 import { buyAvatar, getOwnedAvatars, getStars } from "@/lib/economy";
+import { syncPush } from "@/lib/sync";
 import { feedbackSticker, feedbackWrong } from "@/lib/feedback";
 
 interface Props {
@@ -86,8 +87,10 @@ export function KidPicker({ onPick }: Props) {
                     setNope((prev) => ({ avatar: emoji, nonce: (prev?.nonce ?? 0) + 1 }));
                     return;
                   }
-                  // Bought — wear it right away.
+                  // Bought — wear it right away, and push so the other
+                  // device gains the avatar without waiting for a game.
                   feedbackSticker();
+                  void syncPush();
                   setStars(balance);
                   setOwned([...owned, emoji]);
                   setAvatar(kid, emoji);

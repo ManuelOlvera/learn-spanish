@@ -13,6 +13,7 @@ import {
   type MemoryDifficulty,
   type MemoryTile,
 } from "@learn-spanish/core";
+import { emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedbackMatch, feedbackWrong } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
@@ -220,7 +221,10 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
                 >
                   {isUp ? (
                     tile.face === "picture" ? (
-                      <span aria-hidden className="text-5xl sm:text-6xl">
+                      <span
+                        aria-hidden
+                        className={emojiSizeClass(tile.card.emoji, "text-5xl sm:text-6xl", "text-3xl sm:text-4xl")}
+                      >
                         {tile.card.emoji}
                       </span>
                     ) : (

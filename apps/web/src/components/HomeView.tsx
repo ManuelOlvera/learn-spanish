@@ -184,6 +184,7 @@ export function HomeView({ decks, groups }: Props) {
     feedbackRacha();
     setStars(res.stars);
     setWeekly((w) => (w ? { ...w, freezes: res.freezes } : w));
+    void syncPush();
     return true;
   }
 
@@ -199,6 +200,7 @@ export function HomeView({ decks, groups }: Props) {
     feedbackRacha();
     setStars(balance);
     setUnlockedDecks((prev) => [...prev, deckId]);
+    void syncPush();
     return true;
   }
 

@@ -46,6 +46,7 @@ import {
   feedbackSticker,
 } from "@/lib/feedback";
 import { useDeniedWobble } from "@/lib/use-denied-wobble";
+import { syncPush } from "@/lib/sync";
 import { Confetti } from "@/components/Confetti";
 
 /** Where each accessory's *centre* sits on the pet, as a percent of the emoji
@@ -188,6 +189,9 @@ export function MascotaView() {
     const grewUp =
       petMaxForm(activeId, result.pet.meals) > petMaxForm(activeId, before);
     refresh(kid);
+    // Purchases are progress: push so the other device sees the meal/stars
+    // without waiting for the next game to complete (bugs.md #5).
+    void syncPush();
     setMunch((n) => n + 1);
     if (grewUp) {
       setEvolved(true);
@@ -369,6 +373,7 @@ export function MascotaView() {
                   }
                   feedbackFanfare();
                   refresh(kid);
+                  void syncPush();
                 }}
                 aria-label={
                   owned
@@ -427,6 +432,7 @@ export function MascotaView() {
             }
             feedbackRacha();
             refresh(kid);
+            void syncPush();
             const r = res.result;
             setSurprise(
               r.type === "accessory"
@@ -475,6 +481,7 @@ export function MascotaView() {
                   }
                   feedbackSticker();
                   refresh(kid);
+                  void syncPush();
                 }}
                 aria-label={
                   !owned
@@ -529,6 +536,8 @@ export function MascotaView() {
                     wobble.deny();
                     return;
                   }
+                  // Themes stay per-device, but the stars they cost sync.
+                  void syncPush();
                   setStars(balance);
                   setOwnedThemes([...ownedThemes, t.id]);
                   setSelectedTheme(kid, t.id);

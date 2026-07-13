@@ -10,6 +10,7 @@ import {
   type VocabularyCard,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
@@ -196,7 +197,10 @@ export function CountingPlayer({ itemPool, numberCards, mode, accent }: Props) {
                     }
                   >
                     {mode === "listen" ? (
-                      <span aria-hidden className="text-4xl sm:text-5xl">
+                      <span
+                        aria-hidden
+                        className={emojiSizeClass(choice.emoji, "text-4xl sm:text-5xl", "text-2xl sm:text-3xl")}
+                      >
                         {choice.emoji}
                       </span>
                     ) : (

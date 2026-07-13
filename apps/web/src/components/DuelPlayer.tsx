@@ -8,6 +8,7 @@ import {
   type DuelGame,
   type KidId,
 } from "@learn-spanish/core";
+import { emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getAvatar } from "@/lib/kid";
 import { addStars, markActivityDone } from "@/lib/economy";
@@ -184,7 +185,10 @@ export function DuelPlayer({ deck, accent }: Props) {
                       : undefined
                   }
                 >
-                  <span aria-hidden className="text-7xl sm:text-8xl">
+                  <span
+                    aria-hidden
+                    className={emojiSizeClass(choice.emoji, "text-7xl sm:text-8xl", "text-4xl sm:text-5xl")}
+                  >
                     {choice.emoji}
                   </span>
                 </button>
