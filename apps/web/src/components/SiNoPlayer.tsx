@@ -11,7 +11,7 @@ import {
   type SiNoGame,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { emojiSizeClass } from "@/lib/emoji";
+import { cardFace, emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
@@ -145,9 +145,9 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
               <span aria-hidden className="sticker-peel" />
               <span
                 aria-hidden
-                className={emojiSizeClass(round.card.emoji, "text-8xl sm:text-9xl", "text-5xl sm:text-6xl")}
+                className={emojiSizeClass(cardFace(round.card.emoji), "text-8xl sm:text-9xl", "text-5xl sm:text-6xl")}
               >
-                {round.card.emoji}
+                {cardFace(round.card.emoji)}
               </span>
             </div>
 

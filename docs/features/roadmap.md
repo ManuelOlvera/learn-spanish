@@ -140,6 +140,9 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     - ☑ **Letter games** — shipped same day: quiz/reto/duel speak the bare
       name, scene gets "¿Dónde está la be?" from the article rule, sí-o-no
       from per-card unique-entity overrides.
+    - ☑ **Case switch + full-alphabet run** — shipped same day: A/a/Aa
+      per-kid display choice (upper by default) and El abecedario, all 27
+      letters in order as one flashcard run.
     - ☐ **Letter→word association** — "A de avión": pair each letter with a
       pack word starting with it.
 17. ☑ **Las centenas** — 100–1000 with digit-face cards, game-enabled.

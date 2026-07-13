@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Deck } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { emojiSizeClass } from "@/lib/emoji";
+import { cardFace, emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import {
   canRecord,
@@ -17,6 +17,11 @@ import { DoneScreen } from "@/components/DoneScreen";
 interface Props {
   deck: Deck;
   accent: string;
+  /** Skip the sticker award — for assembled runs (el abecedario) that have
+   *  no album deck of their own. */
+  noAward?: boolean;
+  /** Where the done screen's back button leads; defaults to the deck page. */
+  backHref?: string;
 }
 
 /** Say-it-back states; "hidden" when recording is unsupported or denied. */
@@ -24,7 +29,7 @@ type MicState = "hidden" | "idle" | "recording" | "playing";
 
 const MAX_RECORDING_MS = 5000;
 
-export function FlashcardPlayer({ deck, accent }: Props) {
+export function FlashcardPlayer({ deck, accent, noAward, backHref }: Props) {
   const [index, setIndex] = useState(0);
   const [wobbleKey, setWobbleKey] = useState(0);
   const [mic, setMic] = useState<MicState>("hidden");
@@ -32,9 +37,15 @@ export function FlashcardPlayer({ deck, accent }: Props) {
   const autoStop = useRef<number | null>(null);
   const done = index >= deck.cards.length;
   const card = deck.cards[index];
+  // The letter-case preference lives in localStorage, so the cased face can
+  // only be drawn after mount — SSR and the first client render must agree
+  // (hydration), so they show the stored face and the case applies right after.
+  const [caseReady, setCaseReady] = useState(false);
+  const face = card === undefined || !caseReady ? card?.emoji ?? "" : cardFace(card.emoji);
 
   useEffect(() => {
     warmUpVoices();
+    setCaseReady(true);
     setMic(canRecord() ? "idle" : "hidden");
     return () => {
       // Leaving discards any in-flight clip and releases the mic (ADR 003).
@@ -141,9 +152,10 @@ export function FlashcardPlayer({ deck, accent }: Props) {
           stickerDeckId={deck.id}
           activity="learn"
           onReplay={restart}
+          noAward={noAward}
           firstTryCount={2}
           back={{
-            href: `/deck/${deck.id}`,
+            href: backHref ?? `/deck/${deck.id}`,
             emoji: deck.emoji,
             label: `More games in ${deck.nameEnglish}`,
           }}
@@ -163,9 +175,9 @@ export function FlashcardPlayer({ deck, accent }: Props) {
               <span aria-hidden className="sticker-peel" />
               <span
                 aria-hidden
-                className={`leading-none ${emojiSizeClass(card.emoji, "text-[7rem] sm:text-[9rem]", "text-[4rem] sm:text-[5rem]")}`}
+                className={`leading-none ${emojiSizeClass(face, "text-[7rem] sm:text-[9rem]", "text-[4rem] sm:text-[5rem]")}`}
               >
-                {card.emoji}
+                {face}
               </span>
               <span className="text-4xl font-extrabold sm:text-5xl">
                 {card.spanish}

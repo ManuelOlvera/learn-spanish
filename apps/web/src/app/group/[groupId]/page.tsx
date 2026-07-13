@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listDeckGroups, listDecks } from "@/lib/container";
 import { deckAccent } from "@/lib/deck-theme";
+import { LetterCasePicker } from "@/components/LetterCasePicker";
 
 export async function generateStaticParams() {
   const groups = await listDeckGroups.execute();
@@ -55,6 +56,9 @@ export default async function GroupPage({
           </p>
         </div>
 
+        {/* The letters shelf gets its case switch: A / a / Aa. */}
+        {group.id === "letras" && <LetterCasePicker />}
+
         <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
           {decks.map((deck, i) => (
             <Link
@@ -79,6 +83,24 @@ export default async function GroupPage({
               </span>
             </Link>
           ))}
+          {group.id === "letras" && (
+            <Link
+              href="/abecedario"
+              style={{ "--accent": deckAccent("letras") } as React.CSSProperties}
+              className="sticker pop-in relative flex min-h-44 flex-col items-center justify-center gap-2 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+            >
+              <span aria-hidden className="sticker-peel" />
+              <span aria-hidden className="text-6xl sm:text-7xl">
+                🔠
+              </span>
+              <span className="text-center text-xl font-bold sm:text-2xl">
+                El abecedario
+              </span>
+              <span className="text-sm font-semibold text-ink/50">
+                The whole alphabet
+              </span>
+            </Link>
+          )}
         </div>
       </section>
     </main>

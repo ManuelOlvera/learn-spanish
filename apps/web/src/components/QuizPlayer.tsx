@@ -11,7 +11,7 @@ import {
   type WordStats,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { emojiSizeClass } from "@/lib/emoji";
+import { cardFace, emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getWordStats, recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
@@ -219,11 +219,11 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
                       aria-hidden
                       className={
                         mode === "listen"
-                          ? emojiSizeClass(choice.emoji, "text-8xl sm:text-9xl", "text-5xl sm:text-6xl")
-                          : emojiSizeClass(choice.emoji, "text-7xl sm:text-8xl", "text-4xl sm:text-5xl")
+                          ? emojiSizeClass(cardFace(choice.emoji), "text-8xl sm:text-9xl", "text-5xl sm:text-6xl")
+                          : emojiSizeClass(cardFace(choice.emoji), "text-7xl sm:text-8xl", "text-4xl sm:text-5xl")
                       }
                     >
-                      {choice.emoji}
+                      {cardFace(choice.emoji)}
                     </span>
                     {isCorrectPick && (
                       <span className="text-2xl font-extrabold">

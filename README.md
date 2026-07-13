@@ -13,10 +13,12 @@ No reading, no accounts, no setup.
   browser speech synthesis — **Spain Spanish** (es-ES voice; coche,
   ordenador, hierba). **Los verbos 🏃** is a flashcards-only shelf:
   15 action words in three forms (infinitivo · gerundio · imperativo).
-  **Las letras 🔤** is a game-enabled alphabet shelf: both cases on the
-  card ("Bb"), tapping speaks the letter's name ("la be"; Las vocales
-  pairs each vowel with its accented form); **Las centenas 💯** counts
-  100–1000 with digit-face cards.
+  **Las letras 🔤** is a game-enabled alphabet shelf: an A/a/Aa switch
+  picks which case a kid sees (uppercase by default — one case at a time
+  while learning), tapping speaks the letter's name ("la be"; Las
+  vocales pairs each vowel with its accented form), and **El abecedario
+  🔠** runs all 27 letters in order; **Las centenas 💯** counts 100–1000
+  with digit-face cards.
 - **Games** — per deck (except the flashcards-only verbs shelf), each
   with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),

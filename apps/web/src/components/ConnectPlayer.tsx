@@ -9,7 +9,7 @@ import {
   type QuizMode,
   type VocabularyCard,
 } from "@learn-spanish/core";
-import { emojiSizeClass } from "@/lib/emoji";
+import { cardFace, emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
@@ -148,9 +148,9 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
         {side === "right" && mode === "listen" ? (
           <span
             aria-hidden
-            className={emojiSizeClass(card.emoji, "text-5xl sm:text-6xl", "text-3xl sm:text-4xl")}
+            className={emojiSizeClass(cardFace(card.emoji), "text-5xl sm:text-6xl", "text-3xl sm:text-4xl")}
           >
-            {card.emoji}
+            {cardFace(card.emoji)}
           </span>
         ) : (
           <span className="text-xl font-extrabold sm:text-2xl">

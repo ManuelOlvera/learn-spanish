@@ -1,5 +1,9 @@
 "use client";
 
+import { applyLetterCase, isCasePairGlyph } from "@learn-spanish/core";
+import { getLetterCase } from "./letter-case";
+import { getSelectedKid } from "./kid";
+
 /**
  * Card-emoji sizing (bugs.md #3). Most cards draw one emoji glyph, but the
  * big-number decks use keycap sequences ("2️⃣0️⃣") that paint roughly twice as
@@ -29,4 +33,17 @@ export function emojiSizeClass(
   wide: string,
 ): string {
   return isWideEmoji(emoji) ? wide : single;
+}
+
+/** The face a card actually draws for the selected kid: letter-pair glyphs
+ *  ("Bb") collapse to the kid's chosen case (upper by default — one case at
+ *  a time while learning); every other face passes through. Size with
+ *  emojiSizeClass on THIS value, not the stored one — "B" alone earns the
+ *  full single-glyph size. */
+export function cardFace(emoji: string): string {
+  if (!isCasePairGlyph(emoji)) {
+    return emoji;
+  }
+  const kid = getSelectedKid();
+  return applyLetterCase(emoji, kid === null ? "upper" : getLetterCase(kid));
 }

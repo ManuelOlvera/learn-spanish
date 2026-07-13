@@ -11,7 +11,7 @@ import {
   type SceneGame,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { emojiSizeClass } from "@/lib/emoji";
+import { cardFace, emojiSizeClass } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
@@ -171,7 +171,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
                     onClick={() => tap(item.card.id)}
                     aria-label={`Scene item ${item.card.english}`}
                     className={`absolute -translate-x-1/2 -translate-y-1/2 transition-transform ${emojiSizeClass(
-                      item.card.emoji,
+                      cardFace(item.card.emoji),
                       "text-5xl sm:text-6xl",
                       "text-3xl sm:text-4xl",
                     )} ${isFound ? "pop-in scale-125" : isWrong ? "wobble" : ""}`}
@@ -184,7 +184,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
                           : ""
                       }
                     >
-                      {item.card.emoji}
+                      {cardFace(item.card.emoji)}
                     </span>
                   </button>
                 );

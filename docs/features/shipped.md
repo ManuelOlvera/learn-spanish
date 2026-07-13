@@ -1,5 +1,23 @@
 # Shipped features
 
+## 2026-07-14 — Letter-case switch + El abecedario completo
+
+Parent follow-ups to the letras shelf, same day.
+
+- **A / a / Aa switch** on the letters shelf: which case a kid sees on every
+  letter card and game face — uppercase by default (one case at a time while
+  learning), lowercase, or both. Per-kid, remembered on-device (a display
+  choice like the theme, per ADR 004; the spoken name never changes). Pure
+  rules in `domain/letters.ts` (`isCasePairGlyph` detects letter-pair faces
+  so real emoji, keycaps, and digit faces pass through untouched — tested);
+  the players draw every face through `cardFace()`, and a single "B" earns
+  the full single-glyph size automatically.
+- **El abecedario 🔠** — a fourth tile on the letters shelf: all 27 letters
+  in alphabet order (ñ after n, accented vowels excluded — they're
+  spellings, not alphabet members), one flashcard run, like singing the ABC.
+  Assembled from the letter decks (`buildAlphabetDeck`, order pinned by a
+  test); no sticker of its own — progress lives in the three real decks.
+
 ## 2026-07-14 — Las letras shelf + Las centenas (bugs.md ideas, shaped & built)
 
 Two of the four parent ideas from `docs/bugs.md`, shaped via `/shape` (picks:

@@ -207,3 +207,12 @@ export {
   TREND_WEEKS_CAP,
 } from "./domain/trend";
 export { SampleTrendUseCase } from "./application/sample-trend";
+export type { LetterCase } from "./domain/letters";
+export {
+  applyLetterCase,
+  buildAlphabetDeck,
+  isCasePairGlyph,
+  isLetterCase,
+  LETTER_CASES,
+  LETTER_DECK_IDS,
+} from "./domain/letters";
