@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  activitiesForKid,
   ALL_ACTIVITIES,
+  categoryTier,
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
   stickerId,
@@ -11,6 +13,7 @@ import {
   type ActivityId,
   type Deck,
   type KidId,
+  type StickerTier,
 } from "@learn-spanish/core";
 import { getStickerCounts, getUnlockedDecks } from "@/lib/economy";
 import { log } from "@learn-spanish/config";
@@ -75,16 +78,55 @@ export function AlbumView({ decks }: Props) {
     setKid(other);
   }
 
+  // Only the games this kid can actually reach count toward — and appear in —
+  // their album, so a pre-reader's category can hit 100% (a reader never sees
+  // the same slots). `kid` is briefly null before mount; default the layout to
+  // the pre-reader's set, which re-renders once storage is read.
+  const viewKid: KidId = kid ?? "listener";
+  const deckActivities = activitiesForKid(ALL_ACTIVITIES, viewKid);
+  const sentenceActivities = activitiesForKid(SENTENCE_ACTIVITIES, viewKid);
   const total =
-    shownDecks.length * ALL_ACTIVITIES.length + SENTENCE_ACTIVITIES.length;
+    shownDecks.length * deckActivities.length + sentenceActivities.length;
   const avatar = kid === null ? null : getAvatar(kid);
+
+  function slotCount(deckId: string, activity: ActivityId): number {
+    const id = kid === null ? null : stickerId(kid, deckId, activity);
+    if (id === null) {
+      return 0;
+    }
+    // A sticker earned before the tier system has no count — treat it as one.
+    return counts[id] ?? (earned?.has(id) ? 1 : 0);
+  }
+
+  const MEDAL: Record<StickerTier, string> = {
+    none: "",
+    earned: "🥉",
+    silver: "🥈",
+    gold: "🥇",
+  };
+
+  function categoryMedal(deckId: string, activities: readonly ActivityId[]) {
+    const tier = categoryTier(
+      activitiesForKid(activities, viewKid).map((a) => slotCount(deckId, a)),
+    );
+    if (tier === "none") {
+      return null;
+    }
+    return (
+      <span
+        aria-label={`Category complete: ${tier}`}
+        className="pop-in ml-auto text-3xl"
+      >
+        {MEDAL[tier]}
+      </span>
+    );
+  }
 
   function slot(deckId: string, activity: ActivityId) {
     const activityMeta = ACTIVITY_META[activity];
     const id = kid === null ? null : stickerId(kid, deckId, activity);
     const has = id !== null && (earned?.has(id) ?? false);
-    const tier =
-      id === null ? "none" : stickerTier(counts[id] ?? (has ? 1 : 0));
+    const tier = id === null ? "none" : stickerTier(slotCount(deckId, activity));
     return (
       <span
         key={activity}
@@ -161,9 +203,10 @@ export function AlbumView({ decks }: Props) {
                 {deck.emoji}
               </span>
               <h2 className="text-2xl font-extrabold">{deck.nameSpanish}</h2>
+              {categoryMedal(deck.id, ALL_ACTIVITIES)}
             </div>
             <div className="flex flex-wrap gap-3">
-              {ALL_ACTIVITIES.map((activity) => slot(deck.id, activity))}
+              {deckActivities.map((activity) => slot(deck.id, activity))}
             </div>
           </section>
         ))}
@@ -178,9 +221,10 @@ export function AlbumView({ decks }: Props) {
               💬
             </span>
             <h2 className="text-2xl font-extrabold">Las frases</h2>
+            {categoryMedal(SENTENCES_ID, SENTENCE_ACTIVITIES)}
           </div>
           <div className="flex flex-wrap gap-3">
-            {SENTENCE_ACTIVITIES.map((activity) => slot(SENTENCES_ID, activity))}
+            {sentenceActivities.map((activity) => slot(SENTENCES_ID, activity))}
           </div>
         </section>
       </div>

@@ -108,6 +108,28 @@ describe("mergeProgress", () => {
     expect(merged.avatars).toEqual({ listener: "🦖", reader: "🐼" });
   });
 
+  it("keeps the higher category-award tier per deck (never re-pays a chest)", () => {
+    const merged = mergeProgress(
+      {
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        categoryAwards: { listener: { animals: "gold", colors: "earned" } },
+      },
+      {
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        categoryAwards: { listener: { animals: "silver", numbers: "earned" } },
+      },
+    );
+    expect(merged.categoryAwards?.listener).toEqual({
+      animals: "gold", // gold beats incoming silver
+      colors: "earned", // kept though incoming never mentions it
+      numbers: "earned", // gained from incoming
+    });
+  });
+
   it("max-merges freezes per kid (never loses a bought freeze)", () => {
     const merged = mergeProgress(
       { stickers: [], streaks: {}, avatars: {}, freezes: { listener: 3, reader: 0 } },

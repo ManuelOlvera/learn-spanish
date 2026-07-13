@@ -1,5 +1,32 @@
 # Shipped features
 
+## 2026-07-13 — Completable categories + tiered completion chests
+
+The album showed all 11 activity slots per category to every kid, but a kid only
+ever reaches their **own** difficulty variant through the menus — so a pre-reader
+could never fill the 5 read/words slots, and their counter never hit 100%. Now
+each album section shows only the games that kid can earn (the shared `learn`
+plus their listen/pictures **or** read/words set — 6 per deck, 1 for frases), so
+completion is actually reachable. The `total` and the per-slot rendering both
+use `activitiesForKid`.
+
+**Finishing a whole category now pays off, and keeps paying.** A section's tier
+is its **weakest** slot (gold only when every earnable sticker is gold). Reaching
+each tier opens a one-time **completion chest** — 🥉 bronce **+15⭐** (all games
+earned), 🥈 plata **+30⭐** (all silver), 🥇 oro **+50⭐** (all gold) — and stamps
+a matching **medal** on the category header in the album. Completion is detected
+on the `DoneScreen` right after the sticker award (so a replay that tiers up the
+last slot triggers it too) and celebrated with a full-screen `CategoryBurst`
+(the deck emoji + medal, confetti, star chest; tap or auto-dismiss).
+
+**Where:** `domain/category.ts` (`activitiesForKid`, `categoryTier`,
+`categoryReward`, `pendingCategoryTier`) + tests; client ledger + claim in
+`lib/economy.ts` (`palabras.category-awards.v1`, keyed deck→highest-claimed-tier,
+each chest opens once); `CategoryBurst`, wired in `DoneScreen`; medal + earnable
+slots in `AlbumView`. The claim ledger is **synced** (added to `ProgressSnapshot`,
+`mergeProgress` keeps the higher tier per deck) so a completion chest never
+re-pays after sticker counts converge on a second paired device.
+
 ## 2026-07-13 — Cross-device sync (optional, local-first)
 
 Kids can now open the latest progress on any device. Local-first is preserved:

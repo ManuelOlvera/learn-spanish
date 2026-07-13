@@ -4,20 +4,30 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   activityKind,
+  ALL_ACTIVITIES,
   computeReward,
   kidForActivity,
+  SENTENCE_ACTIVITIES,
+  SENTENCES_ID,
   type ActivityId,
   type AwardResult,
   type StarReward,
+  type StickerTier,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { awardSticker, getStreak } from "@/lib/album";
+import { awardSticker, getAlbum, getStreak } from "@/lib/album";
 import { getSelectedKid } from "@/lib/kid";
-import { addStars, markActivityDone } from "@/lib/economy";
+import {
+  addStars,
+  claimCategoryReward,
+  getCategoryTier,
+  markActivityDone,
+} from "@/lib/economy";
 import { syncPush } from "@/lib/sync";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 import { feedbackFanfare, feedbackSticker } from "@/lib/feedback";
 import { Confetti } from "@/components/Confetti";
+import { CategoryBurst } from "@/components/CategoryBurst";
 import { StarChest } from "@/components/StarChest";
 
 interface Props {
@@ -50,6 +60,11 @@ export function DoneScreen({
 }: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
   const [streakDays, setStreakDays] = useState<number | null>(null);
+  // Set when this finish also completed (or levelled up) the whole category.
+  const [categoryPrize, setCategoryPrize] = useState<{
+    tier: Exclude<StickerTier, "none">;
+    bonus: number;
+  } | null>(null);
   const meta = ACTIVITY_META[activity];
 
   // The chest waits until the streak (and, for sticker games, the award) have
@@ -96,9 +111,26 @@ export function DoneScreen({
     const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
     awardSticker
       .execute(kid, stickerDeckId, activity)
-      .then((result) => {
-        if (!cancelled) {
-          setAward(result);
+      .then(async (result) => {
+        if (cancelled) {
+          return;
+        }
+        setAward(result);
+        // Did this finish complete — or level up — the whole category? The
+        // just-earned sticker is now in the album and its count is saved, so
+        // recompute the category's tier and open its chest if it advanced.
+        const activities =
+          stickerDeckId === SENTENCES_ID ? SENTENCE_ACTIVITIES : ALL_ACTIVITIES;
+        const earned = new Set(await getAlbum.execute(kid));
+        const tier = getCategoryTier(kid, stickerDeckId, activities, earned);
+        if (tier === "none") {
+          return;
+        }
+        const bonus = claimCategoryReward(kid, stickerDeckId, tier);
+        if (!cancelled && bonus !== null) {
+          setCategoryPrize({ tier, bonus });
+          // Bank the completion chest + award ledger up to the cloud now.
+          void syncPush();
         }
       })
       .catch((err: unknown) => {
@@ -111,6 +143,14 @@ export function DoneScreen({
 
   return (
     <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
+      {categoryPrize !== null && (
+        <CategoryBurst
+          tier={categoryPrize.tier}
+          bonus={categoryPrize.bonus}
+          categoryEmoji={back.emoji}
+          onDone={() => setCategoryPrize(null)}
+        />
+      )}
       <Confetti />
       <div aria-hidden className="pop-in text-8xl">
         🎉

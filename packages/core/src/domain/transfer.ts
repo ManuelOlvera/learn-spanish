@@ -4,6 +4,8 @@ import type { Streak } from "./daily";
 import type { WordStat, WordStats } from "./word-stats";
 import type { PetCollection, PetState } from "./mascota";
 import type { WeekProgress, WeeklyStreak } from "./weekly";
+import { tierRank } from "./category";
+import type { StickerTier } from "./sticker-tiers";
 
 /**
  * One-time progress transfer between devices — a copy-able code, no backend
@@ -37,6 +39,9 @@ export interface ProgressSnapshot {
   /** The in-progress week's active days — merge unions within a week, else the
    *  later week wins. */
   readonly weekProgress?: Partial<Record<KidId, WeekProgress>>;
+  /** Highest category-completion tier each deck's chest has been paid out for,
+   *  per kid — merge keeps the higher tier so a chest never re-pays on sync. */
+  readonly categoryAwards?: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -202,6 +207,10 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   );
   const weekly = sanitizeKidRecord(candidate.weekly, isWeeklyStreak);
   const weekProgress = sanitizeKidRecord(candidate.weekProgress, isWeekProgress);
+  const categoryAwards = sanitizeKidRecord(
+    candidate.categoryAwards,
+    isCategoryAwards,
+  );
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -221,7 +230,23 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     ...(Object.keys(freezes).length > 0 ? { freezes } : {}),
     ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
     ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
+    ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
   };
+}
+
+const CLAIMABLE_TIERS: readonly StickerTier[] = ["earned", "silver", "gold"];
+
+/** A deck→tier ledger: keys must be sticker-deck-like, values real claim tiers. */
+function isCategoryAwards(
+  value: unknown,
+): value is Readonly<Record<string, StickerTier>> {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  return Object.values(value).every(
+    (tier): tier is StickerTier =>
+      typeof tier === "string" && CLAIMABLE_TIERS.includes(tier as StickerTier),
+  );
 }
 
 function isPetCollection(value: unknown): value is PetCollection {
@@ -407,6 +432,29 @@ export function mergeProgress(
     }
   }
 
+  // Category awards: per deck keep the higher tier, so a completion chest that
+  // already paid on one device never re-pays after the sticker counts sync in.
+  const categoryAwards: Partial<Record<KidId, Record<string, StickerTier>>> = {};
+  for (const [kid, record] of Object.entries(current.categoryAwards ?? {}) as [
+    KidId,
+    Record<string, StickerTier>,
+  ][]) {
+    categoryAwards[kid] = { ...record };
+  }
+  for (const [kid, record] of Object.entries(incoming.categoryAwards ?? {}) as [
+    KidId,
+    Record<string, StickerTier>,
+  ][]) {
+    const merged: Record<string, StickerTier> = { ...(categoryAwards[kid] ?? {}) };
+    for (const [deckId, tier] of Object.entries(record)) {
+      const existing = merged[deckId];
+      if (existing === undefined || tierRank(tier) > tierRank(existing)) {
+        merged[deckId] = tier;
+      }
+    }
+    categoryAwards[kid] = merged;
+  }
+
   // Pet collections: union owned species, max-merge each pet, keep an active.
   const petCollections: Partial<Record<KidId, PetCollection>> = {
     ...(current.petCollections ?? {}),
@@ -446,6 +494,7 @@ export function mergeProgress(
     ...(Object.keys(freezes).length > 0 ? { freezes } : {}),
     ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
     ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
+    ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
   };
 }
 

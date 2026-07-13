@@ -49,7 +49,10 @@ No reading, no accounts, no setup.
 - **Device transfer** — a one-time copy-able code (album footer) moves
   progress to another device by merge; the no-connection fallback to sync.
 - **Sticker album** — finishing any activity earns a sticker; `/album`
-  tracks 42 per kid, persisted on-device (no accounts).
+  shows only the games a kid can actually play (so a category is completable),
+  persisted on-device (no accounts). Filling a whole category — and levelling it
+  to silver, then gold — stamps a 🥉/🥈/🥇 medal and opens an escalating
+  completion chest (+15 / +30 / +50⭐).
 - **Carta del día** — a daily featured word on the home screen with a
   per-kid ☀️ streak.
 - **Weekly streaks** — finishing the daily misión on 3 days makes an

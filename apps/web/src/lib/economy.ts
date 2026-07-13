@@ -6,7 +6,10 @@
  * document per concern, all per-kid keyed, all failure-tolerant.
  */
 import {
+  activitiesForKid,
   buyAccessory,
+  categoryReward,
+  categoryTier,
   dailyMission,
   dayKey,
   defaultCollection,
@@ -15,8 +18,10 @@ import {
   markActiveDay,
   markMissionDone,
   ownsAccessory,
+  pendingCategoryTier,
   placeAccessory,
   rollWeek,
+  stickerId,
   toggleWorn,
   wear,
   weekActiveDayCount,
@@ -27,12 +32,14 @@ import {
   missionComplete,
   STARTING_FREEZES,
   SURPRISE_COST,
+  type ActivityId,
   type KidId,
   type MissionKind,
   type MissionState,
   type PetCollection,
   type PetState,
   type RolloverOutcome,
+  type StickerTier,
   type SurpriseResult,
   type WeekProgress,
   type WeeklyStreak,
@@ -76,6 +83,7 @@ const UNLOCKS_KEY = "palabras.unlocks.v1";
 const WEEKLY_KEY = "palabras.weekly.v1"; // WeeklyStreak per kid
 const WEEK_PROGRESS_KEY = "palabras.week-progress.v1"; // WeekProgress per kid
 const FREEZES_KEY = "palabras.freezes.v1"; // freeze count per kid
+const CATEGORY_AWARDS_KEY = "palabras.category-awards.v1"; // highest category tier claimed, per deck
 
 // ---- stars ----
 
@@ -472,6 +480,60 @@ export function saveStickerCounts(
 
 export function setStars(kid: KidId, amount: number): void {
   writeDoc(STARS_KEY, kid, amount);
+}
+
+// ---- category completion (whole-album-section chests) ----
+
+/** The completion tier of one album section for a kid, from its earnable
+ *  slots' counts. A slot earned before the tier system (in the album but with
+ *  no count) reads as one completion, matching the album's own tier display. */
+export function getCategoryTier(
+  kid: KidId,
+  deckId: string,
+  activities: readonly ActivityId[],
+  earned: ReadonlySet<string>,
+): StickerTier {
+  const counts = getStickerCounts();
+  const slots = activitiesForKid(activities, kid).map((activity) => {
+    const id = stickerId(kid, deckId, activity);
+    return counts[id] ?? (earned.has(id) ? 1 : 0);
+  });
+  return categoryTier(slots);
+}
+
+/** The highest category tier this kid has already been paid out for. */
+export function getClaimedCategoryTier(kid: KidId, deckId: string): StickerTier {
+  return getCategoryAwards(kid)[deckId] ?? "none";
+}
+
+/** The whole per-kid ledger (deck → highest claimed tier) — for sync. */
+export function getCategoryAwards(kid: KidId): Readonly<Record<string, StickerTier>> {
+  return readDoc<Record<string, StickerTier>>(CATEGORY_AWARDS_KEY)[kid] ?? {};
+}
+
+export function saveCategoryAwards(
+  kid: KidId,
+  awards: Readonly<Record<string, StickerTier>>,
+): void {
+  writeDoc(CATEGORY_AWARDS_KEY, kid, awards);
+}
+
+/** Bank the chest for reaching `tier` in a category, once. Returns the star
+ *  bonus paid, or null if that tier (or higher) was already claimed. */
+export function claimCategoryReward(
+  kid: KidId,
+  deckId: string,
+  tier: StickerTier,
+): number | null {
+  const claimed = getClaimedCategoryTier(kid, deckId);
+  if (pendingCategoryTier(tier, claimed) === null) {
+    return null;
+  }
+  const record = getCategoryAwards(kid);
+  saveCategoryAwards(kid, { ...record, [deckId]: tier });
+  const bonus = categoryReward(tier);
+  addStars(kid, bonus);
+  return bonus;
 }
 
 // ---- owned avatars (bought with stars) ----

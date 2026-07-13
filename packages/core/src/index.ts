@@ -121,6 +121,14 @@ export {
   stickerId,
   upgradeLegacyStickers,
 } from "./domain/album";
+export {
+  activitiesForKid,
+  categoryReward,
+  categoryTier,
+  CATEGORY_BONUS,
+  pendingCategoryTier,
+  tierRank,
+} from "./domain/category";
 export type {
   Sentence,
   SentenceGame,

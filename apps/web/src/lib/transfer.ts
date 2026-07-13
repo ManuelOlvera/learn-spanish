@@ -7,6 +7,7 @@ import {
   mergeProgress,
   type PetCollection,
   type ProgressSnapshot,
+  type StickerTier,
   type Streak,
   type WeeklyStreak,
   type WeekProgress,
@@ -20,6 +21,7 @@ import { LocalStorageWordStatsStore } from "./word-stats-store";
 import { getAvatars, setAvatar } from "./kid";
 import {
   getActivePet,
+  getCategoryAwards,
   getFreezes,
   getOwnedAccessories,
   getOwnedAvatars,
@@ -29,6 +31,7 @@ import {
   getUnlockedDecks,
   getWeeklyStreak,
   getWeekProgressDoc,
+  saveCategoryAwards,
   saveOwnedAccessories,
   saveOwnedAvatars,
   savePetCollection,
@@ -59,6 +62,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
   const freezes: Partial<Record<KidId, number>> = {};
   const weekly: Partial<Record<KidId, WeeklyStreak>> = {};
   const weekProgress: Partial<Record<KidId, WeekProgress>> = {};
+  const categoryAwards: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
     if (streak !== null) {
@@ -93,6 +97,10 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (unlocked.length > 0) {
       unlockedDecks[kid] = unlocked;
     }
+    const awards = getCategoryAwards(kid);
+    if (Object.keys(awards).length > 0) {
+      categoryAwards[kid] = awards;
+    }
   }
   return {
     stickers,
@@ -109,6 +117,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
     ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
+    ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
   };
 }
 
@@ -169,6 +178,10 @@ export async function applySnapshot(merged: ProgressSnapshot): Promise<void> {
     const kidWeekProgress = merged.weekProgress?.[kid];
     if (kidWeekProgress !== undefined) {
       saveWeekProgress(kid, kidWeekProgress);
+    }
+    const kidAwards = merged.categoryAwards?.[kid];
+    if (kidAwards !== undefined) {
+      saveCategoryAwards(kid, kidAwards);
     }
   }
   if (merged.stickerCounts !== undefined) {
