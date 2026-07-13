@@ -11,6 +11,8 @@ export interface RemoteProgressStore {
   load(code: string): Promise<ProgressSnapshot | null>;
   /** Overwrite the snapshot stored for a code. */
   save(code: string, snapshot: ProgressSnapshot): Promise<void>;
+  /** Remove the row for a code entirely; a no-op when it never existed. */
+  delete(code: string): Promise<void>;
 }
 
 /** A random source returning one byte (0…255). Injected for testability. */

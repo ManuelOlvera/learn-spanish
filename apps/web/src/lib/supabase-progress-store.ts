@@ -11,10 +11,16 @@ import { supabaseConfig, log } from "@learn-spanish/config";
  * public by design (RLS denies direct table access, the RPCs require the code).
  *
  *   get_progress(p_code text) -> jsonb            (null when no row)
- *   put_progress(p_code text, p_snapshot jsonb)   (upsert)
+ *   put_progress(p_code text, p_snapshot jsonb)   (upsert; rejects malformed
+ *                                                  codes and rows over 64 KB)
+ *   delete_progress(p_code text)                  (remove the row)
  *
- * See docs/runbooks.md for the SQL migration.
+ * See docs/runbooks.md for the SQL migrations.
  */
+
+/** The RPC caps rows at 64 KB on write; anything bigger in a response is not
+ *  ours and gets dropped before JSON.parse can balloon it into memory. */
+const MAX_RESPONSE_BYTES = 256 * 1024;
 export class SupabaseProgressStore implements RemoteProgressStore {
   private readonly base: string;
   private readonly anonKey: string;
@@ -45,7 +51,14 @@ export class SupabaseProgressStore implements RemoteProgressStore {
     if (!res.ok) {
       throw new Error(`supabase rpc ${fn} failed: ${res.status}`);
     }
-    return res.status === 204 ? null : await res.json();
+    if (res.status === 204) {
+      return null;
+    }
+    const text = await res.text();
+    if (text.length > MAX_RESPONSE_BYTES) {
+      throw new Error(`supabase rpc ${fn} returned an oversized payload`);
+    }
+    return JSON.parse(text) as unknown;
   }
 
   async load(code: string): Promise<ProgressSnapshot | null> {
@@ -61,5 +74,10 @@ export class SupabaseProgressStore implements RemoteProgressStore {
   async save(code: string, snapshot: ProgressSnapshot): Promise<void> {
     await this.rpc("put_progress", { p_code: code, p_snapshot: snapshot });
     log.info("sync", "pushed snapshot", { stickers: snapshot.stickers.length });
+  }
+
+  async delete(code: string): Promise<void> {
+    await this.rpc("delete_progress", { p_code: code });
+    log.info("sync", "deleted cloud row");
   }
 }

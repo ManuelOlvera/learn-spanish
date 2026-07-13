@@ -1,5 +1,32 @@
 # Shipped features
 
+## 2026-07-13 — Sync hardening + borrar la nube (security review follow-up)
+
+Implements `docs/fable-review/security.md` #1–#5. The write path was the
+exposed surface (the anon key is public by design): `put_progress` accepted any
+code string and any payload size, so anyone could script unbounded row creation.
+
+- **RPC hardening** (`supabase/migrations/0002_progress_hardening.sql`):
+  `put_progress` now rejects non-pairing-code-shaped codes and rows over 64 KB;
+  all RPCs pin `search_path = public, pg_temp`; a weekly pg_cron sweep deletes
+  rows untouched for 12 months. **Apply to the Supabase project before
+  deploying this code** (runbook).
+- **Borrar el progreso en la nube** — new `delete_progress` RPC +
+  `DeleteProgressUseCase` + a two-tap action in the sync panel: a family can
+  remove its cloud row, not just abandon it. Local progress everywhere is
+  untouched.
+- **Sanitizer magnitude caps** (`domain/transfer.ts`): counts must be safe
+  integers ≤ 1 000 000 (no more sticky `Infinity` under max-merge), text fields
+  ≤ 64 chars, lists capped — plus size caps on transfer codes (256 KB) and RPC
+  responses, so a hostile payload can't fill a device's localStorage.
+- **Safer pairing:** the code is persisted only after the first round-trip
+  succeeds, and joining now requires the cloud row to exist — a
+  mistyped-but-well-formed code gets "no encontramos ese código" instead of
+  silently forking the family's progress into a fresh row.
+- **Security headers** (`next.config.ts`): strict same-origin CSP (+ Supabase
+  connect, blob media for say-it-back), nosniff, frame denial, and a
+  Permissions-Policy that grants only the microphone.
+
 ## 2026-07-13 — Fix: the daily misión now syncs across devices
 
 **Bug:** a kid could finish today's misión on one device and still see it as

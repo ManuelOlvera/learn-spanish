@@ -4,6 +4,7 @@ import {
   isPairingCode,
   normalizePairingCode,
 } from "../src/domain/sync";
+import { DeleteProgressUseCase } from "../src/application/delete-progress";
 import { PullProgressUseCase } from "../src/application/pull-progress";
 import { PushProgressUseCase } from "../src/application/push-progress";
 import type { RemoteProgressStore } from "../src/domain/sync";
@@ -24,6 +25,10 @@ class FakeRemoteStore implements RemoteProgressStore {
   save(code: string, snapshot: ProgressSnapshot): Promise<void> {
     this.saves += 1;
     this.rows[code] = snapshot;
+    return Promise.resolve();
+  }
+  delete(code: string): Promise<void> {
+    delete this.rows[code];
     return Promise.resolve();
   }
 }
@@ -81,6 +86,21 @@ describe("PullProgressUseCase", () => {
     expect(result.stickers).toEqual(["a:b:c", "x:y:z"]);
     expect(result.freezes).toEqual({ listener: 4 });
     expect(store.saves).toBe(0); // pull is read-only
+  });
+});
+
+describe("DeleteProgressUseCase", () => {
+  it("removes the cloud row for a code", async () => {
+    const store = new FakeRemoteStore({ CODE: empty });
+    await new DeleteProgressUseCase(store).execute("CODE");
+    expect(await store.load("CODE")).toBeNull();
+  });
+
+  it("is a safe no-op when the row is already gone", async () => {
+    const store = new FakeRemoteStore();
+    await expect(
+      new DeleteProgressUseCase(store).execute("CODE"),
+    ).resolves.toBeUndefined();
   });
 });
 

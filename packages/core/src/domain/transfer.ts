@@ -92,7 +92,38 @@ function fromBase64Url(encoded: string): string {
   return new TextDecoder().decode(new Uint8Array(bytes));
 }
 
+/*
+ * Magnitude caps for anything crossing a trust boundary. Shape checks alone
+ * aren't enough: `Infinity` passes `typeof === "number"`, sticks forever under
+ * max-merge, and stringifies to `null` in storage; unbounded strings/arrays
+ * let one hostile payload fill a device's ~5 MB localStorage quota. Ceilings
+ * are generous — orders of magnitude above anything a kid can earn.
+ */
+const MAX_COUNT = 1_000_000;
+const MAX_TEXT = 64;
+const MAX_LIST = 5_000;
+
+function isSaneCount(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isSafeInteger(value) &&
+    value >= 0 &&
+    value <= MAX_COUNT
+  );
+}
+
+function isSaneText(value: unknown): value is string {
+  return typeof value === "string" && value !== "" && value.length <= MAX_TEXT;
+}
+
+function isSaneStringList(value: unknown, max = MAX_LIST): value is readonly string[] {
+  return Array.isArray(value) && value.length <= max && value.every(isSaneText);
+}
+
 function isValidStickerId(id: string): boolean {
+  if (id.length > MAX_TEXT) {
+    return false;
+  }
   const parts = id.split(":");
   return parts.length === 3 && isKidId(parts[0]!) && parts.every((p) => p !== "");
 }
@@ -101,8 +132,8 @@ function isStreak(value: unknown): value is Streak {
   return (
     typeof value === "object" &&
     value !== null &&
-    typeof (value as Streak).day === "string" &&
-    typeof (value as Streak).count === "number"
+    isSaneText((value as Streak).day) &&
+    isSaneCount((value as Streak).count)
   );
 }
 
@@ -110,8 +141,8 @@ function isWeeklyStreak(value: unknown): value is WeeklyStreak {
   return (
     typeof value === "object" &&
     value !== null &&
-    typeof (value as WeeklyStreak).week === "string" &&
-    typeof (value as WeeklyStreak).count === "number"
+    isSaneText((value as WeeklyStreak).week) &&
+    isSaneCount((value as WeeklyStreak).count)
   );
 }
 
@@ -119,9 +150,9 @@ function isWeekProgress(value: unknown): value is WeekProgress {
   return (
     typeof value === "object" &&
     value !== null &&
-    typeof (value as WeekProgress).week === "string" &&
-    Array.isArray((value as WeekProgress).days) &&
-    (value as WeekProgress).days.every((d) => typeof d === "string")
+    isSaneText((value as WeekProgress).week) &&
+    // A week has at most 7 active days; 366 leaves room without being a bomb.
+    isSaneStringList((value as WeekProgress).days, 366)
   );
 }
 
@@ -145,8 +176,15 @@ export function encodeProgress(snapshot: ProgressSnapshot): string {
   return PREFIX + toBase64Url(JSON.stringify(snapshot));
 }
 
+/** Real codes are a few KB; anything near this is a storage-filling payload,
+ *  not progress. Rejected before the O(n) decode + parse even starts. */
+const MAX_CODE_LENGTH = 256 * 1024;
+
 export function decodeProgress(code: string): ProgressSnapshot {
   const trimmed = code.trim();
+  if (trimmed.length > MAX_CODE_LENGTH) {
+    throw new InvalidTransferCodeError("code too large");
+  }
   if (!trimmed.startsWith(PREFIX)) {
     throw new InvalidTransferCodeError("unknown code format or version");
   }
@@ -176,20 +214,19 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   }
   const candidate = raw as Record<string, unknown>;
   const stickers = Array.isArray(candidate.stickers)
-    ? candidate.stickers.filter(
-        (id): id is string => typeof id === "string" && isValidStickerId(id),
-      )
+    ? candidate.stickers
+        .filter(
+          (id): id is string => typeof id === "string" && isValidStickerId(id),
+        )
+        .slice(0, MAX_LIST)
     : [];
   const stats = sanitizeKidRecord(candidate.stats, isWordStats);
-  const stars = sanitizeKidRecord(
-    candidate.stars,
-    (v): v is number => typeof v === "number" && v >= 0,
-  );
+  const stars = sanitizeKidRecord(candidate.stars, isSaneCount);
   const pets = sanitizeKidRecord(candidate.pets, isPetState);
   const stickerCounts: Record<string, number> = {};
   if (typeof candidate.stickerCounts === "object" && candidate.stickerCounts !== null) {
-    for (const [id, count] of Object.entries(candidate.stickerCounts)) {
-      if (isValidStickerId(id) && typeof count === "number" && count > 0) {
+    for (const [id, count] of Object.entries(candidate.stickerCounts).slice(0, MAX_LIST)) {
+      if (isValidStickerId(id) && isSaneCount(count) && count > 0) {
         stickerCounts[id] = count;
       }
     }
@@ -199,17 +236,14 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     isPetCollection,
   );
   const isStringArray = (v: unknown): v is readonly string[] =>
-    Array.isArray(v) && v.every((e) => typeof e === "string");
+    isSaneStringList(v);
   const ownedAvatars = sanitizeKidRecord(candidate.ownedAvatars, isStringArray);
   const ownedAccessories = sanitizeKidRecord(
     candidate.ownedAccessories,
     isStringArray,
   );
   const unlockedDecks = sanitizeKidRecord(candidate.unlockedDecks, isStringArray);
-  const freezes = sanitizeKidRecord(
-    candidate.freezes,
-    (v): v is number => typeof v === "number" && v >= 0,
-  );
+  const freezes = sanitizeKidRecord(candidate.freezes, isSaneCount);
   const weekly = sanitizeKidRecord(candidate.weekly, isWeeklyStreak);
   const weekProgress = sanitizeKidRecord(candidate.weekProgress, isWeekProgress);
   const categoryAwards = sanitizeKidRecord(
@@ -220,10 +254,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
-    avatars: sanitizeKidRecord(
-      candidate.avatars,
-      (v): v is string => typeof v === "string" && v !== "",
-    ),
+    avatars: sanitizeKidRecord(candidate.avatars, isSaneText),
     // Optional fields omitted when absent so older codes round-trip unchanged.
     ...(Object.keys(stats).length > 0 ? { stats } : {}),
     ...(Object.keys(stars).length > 0 ? { stars } : {}),
@@ -247,9 +278,9 @@ function isMissionState(value: unknown): value is MissionState {
   }
   const m = value as MissionState;
   return (
-    typeof m.day === "string" &&
-    Array.isArray(m.done) &&
-    m.done.every((kind) => typeof kind === "string") &&
+    isSaneText(m.day) &&
+    // A mission holds a handful of activity kinds; 32 is already absurd.
+    isSaneStringList(m.done, 32) &&
     typeof m.claimed === "boolean"
   );
 }
@@ -263,9 +294,15 @@ function isCategoryAwards(
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  return Object.values(value).every(
-    (tier): tier is StickerTier =>
-      typeof tier === "string" && CLAIMABLE_TIERS.includes(tier as StickerTier),
+  const entries = Object.entries(value);
+  return (
+    entries.length <= MAX_LIST &&
+    entries.every(
+      ([deckId, tier]) =>
+        isSaneText(deckId) &&
+        typeof tier === "string" &&
+        CLAIMABLE_TIERS.includes(tier as StickerTier),
+    )
   );
 }
 
@@ -275,12 +312,15 @@ function isPetCollection(value: unknown): value is PetCollection {
   }
   const c = value as PetCollection;
   return (
-    typeof c.active === "string" &&
-    Array.isArray(c.owned) &&
-    c.owned.every((s) => typeof s === "string") &&
+    isSaneText(c.active) &&
+    // The species catalog is small; 100 owned/kept pets is already absurd.
+    isSaneStringList(c.owned, 100) &&
     typeof c.pets === "object" &&
     c.pets !== null &&
-    Object.values(c.pets).every(isPetState)
+    Object.entries(c.pets).length <= 100 &&
+    Object.entries(c.pets).every(
+      ([species, pet]) => isSaneText(species) && isPetState(pet),
+    )
   );
 }
 
@@ -290,13 +330,14 @@ function isPetState(value: unknown): value is PetState {
   }
   const pet = value as PetState;
   const isStringListOrAbsent = (v: unknown): boolean =>
-    v === undefined || (Array.isArray(v) && v.every((a) => typeof a === "string"));
+    // A wardrobe holds tens of accessories; 200 is already absurd.
+    v === undefined || isSaneStringList(v, 200);
   return (
-    typeof pet.meals === "number" &&
-    (pet.lastFed === null || typeof pet.lastFed === "string") &&
+    isSaneCount(pet.meals) &&
+    (pet.lastFed === null || isSaneText(pet.lastFed)) &&
     isStringListOrAbsent(pet.accessories) &&
     isStringListOrAbsent(pet.worn) &&
-    (pet.form === undefined || typeof pet.form === "number")
+    (pet.form === undefined || isSaneCount(pet.form))
   );
 }
 
@@ -304,12 +345,17 @@ function isWordStats(value: unknown): value is WordStats {
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  return Object.values(value).every(
-    (stat) =>
-      typeof stat === "object" &&
-      stat !== null &&
-      typeof (stat as WordStat).right === "number" &&
-      typeof (stat as WordStat).wrong === "number",
+  const entries = Object.entries(value);
+  return (
+    entries.length <= MAX_LIST &&
+    entries.every(
+      ([cardId, stat]) =>
+        isSaneText(cardId) &&
+        typeof stat === "object" &&
+        stat !== null &&
+        isSaneCount((stat as WordStat).right) &&
+        isSaneCount((stat as WordStat).wrong),
+    )
   );
 }
 

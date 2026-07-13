@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { log } from "@learn-spanish/config";
 import {
+  deleteCloudProgress,
   getSyncCode,
   isPaired,
   isSyncAvailable,
@@ -27,6 +28,8 @@ export function SyncPanel({ onSynced }: Props) {
   const [joinText, setJoinText] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Deleting the cloud row is destructive-ish; ask for a second tap.
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Sync is only offered when a backend is configured for this deployment.
   if (!isSyncAvailable()) {
@@ -52,9 +55,15 @@ export function SyncPanel({ onSynced }: Props) {
     setBusy(true);
     setMessage(null);
     try {
-      const ok = await joinWithCode(joinText);
-      if (!ok) {
+      const result = await joinWithCode(joinText);
+      if (result === "malformed") {
         setMessage("Ese código no es válido — cópialo entero e inténtalo otra vez.");
+        return;
+      }
+      if (result === "not-found") {
+        setMessage(
+          "No encontramos ese código. Crea el código en el otro dispositivo y cópialo tal cual.",
+        );
         return;
       }
       setPaired(true);
@@ -74,7 +83,33 @@ export function SyncPanel({ onSynced }: Props) {
     unpair();
     setPaired(false);
     setCode(null);
+    setConfirmDelete(false);
     setMessage("Este dispositivo ya no se sincroniza. Tu progreso sigue aquí.");
+  }
+
+  /** Remove the cloud row too (the code is the only authorization), then
+   *  unpair. Local progress on every device is untouched. */
+  async function deleteCloud() {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    setBusy(true);
+    setMessage(null);
+    try {
+      await deleteCloudProgress();
+      setPaired(false);
+      setCode(null);
+      setMessage(
+        "Progreso en la nube borrado. Cada dispositivo conserva lo suyo.",
+      );
+    } catch (err) {
+      log.error("sync", "could not delete cloud progress", { err });
+      setMessage("No se pudo borrar. Revisa tu internet e inténtalo otra vez.");
+    } finally {
+      setBusy(false);
+      setConfirmDelete(false);
+    }
   }
 
   return (
@@ -104,6 +139,16 @@ export function SyncPanel({ onSynced }: Props) {
             className="self-start text-sm font-semibold text-ink/50 underline underline-offset-4"
           >
             Dejar de sincronizar en este dispositivo
+          </button>
+          <button
+            type="button"
+            onClick={() => void deleteCloud()}
+            disabled={busy}
+            className="self-start text-sm font-semibold text-ink/50 underline underline-offset-4 disabled:opacity-40"
+          >
+            {confirmDelete
+              ? "¿Seguro? Toca otra vez para borrar la nube"
+              : "Borrar el progreso en la nube"}
           </button>
         </>
       ) : (

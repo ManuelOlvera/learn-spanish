@@ -158,6 +158,7 @@ export {
 } from "./domain/sync";
 export { PullProgressUseCase } from "./application/pull-progress";
 export { PushProgressUseCase } from "./application/push-progress";
+export { DeleteProgressUseCase } from "./application/delete-progress";
 export { FeedStreakUseCase } from "./application/feed-streak";
 export { GetStreakUseCase } from "./application/get-streak";
 export { AwardStickerUseCase } from "./application/award-sticker";

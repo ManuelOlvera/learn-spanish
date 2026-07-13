@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  DeleteProgressUseCase,
   generatePairingCode,
   isPairingCode,
+  mergeProgress,
   normalizePairingCode,
   PullProgressUseCase,
   PushProgressUseCase,
@@ -65,34 +67,58 @@ function cryptoByteSource(): () => number {
 }
 
 /** Start hosting: mint (or reuse) this device's code and seed the cloud row
- *  with its progress. Returns the code for the parent to enter on device B. */
+ *  with its progress. Returns the code for the parent to enter on device B.
+ *  The code is persisted only after the seed push succeeds — a network failure
+ *  must not leave the device "paired" to a row that was never created. */
 export async function startHosting(): Promise<string> {
   if (remote === null) {
     throw new Error("sync not configured");
   }
   const code = getSyncCode() ?? generatePairingCode(cryptoByteSource());
-  setSyncCode(code);
   await new PushProgressUseCase(remote).execute(code, await currentSnapshot());
+  setSyncCode(code);
   return code;
 }
 
-/** Join an existing pairing: validate the code, store it, pull + merge the
- *  cloud state in, then push the union back so the host also gains anything
- *  unique to this device. Returns false when the code is malformed. */
-export async function joinWithCode(input: string): Promise<boolean> {
+export type JoinResult = "joined" | "malformed" | "not-found";
+
+/** Join an existing pairing: validate the code, require its cloud row to
+ *  exist, merge the cloud state in, push the union back so the host also gains
+ *  anything unique to this device, and only then store the code. Requiring an
+ *  existing row means a mistyped-but-well-formed code can't silently create a
+ *  fresh row and fork the family's progress; persisting the code last means a
+ *  failed round-trip can't leave the device paired to an unverified code (the
+ *  thrown network error reaches the caller either way). */
+export async function joinWithCode(input: string): Promise<JoinResult> {
   if (remote === null) {
     throw new Error("sync not configured");
   }
   const code = normalizePairingCode(input);
   if (code === "") {
-    return false;
+    return "malformed";
   }
-  setSyncCode(code);
-  const pull = new PullProgressUseCase(remote);
-  const merged = await pull.execute(code, await currentSnapshot());
+  const cloud = await remote.load(code);
+  if (cloud === null) {
+    return "not-found";
+  }
+  const merged = mergeProgress(await currentSnapshot(), cloud);
   await applySnapshot(merged);
   await new PushProgressUseCase(remote).execute(code, merged);
-  return true;
+  setSyncCode(code);
+  return "joined";
+}
+
+/** Delete this pairing's cloud row, then unpair this device. Other devices
+ *  keep their local progress (and would re-create the row on their next push
+ *  unless they also unpair). Throws on network failure — the caller shows the
+ *  error and nothing is unpaired, so the action is all-or-nothing. */
+export async function deleteCloudProgress(): Promise<void> {
+  const code = getSyncCode();
+  if (remote === null || code === null) {
+    return;
+  }
+  await new DeleteProgressUseCase(remote).execute(code);
+  unpair();
 }
 
 /** Pull latest on app open and merge it in. No-op when unpaired or sync is off;
