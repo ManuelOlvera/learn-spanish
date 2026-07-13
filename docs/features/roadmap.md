@@ -132,6 +132,30 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     - ☐ **Multi-parent / household sharing** — one shared code is the whole model
       for now.
 
+## Parent ideas (from docs/bugs.md, shaped 2026-07-14)
+
+16. ☑ **Las letras — alphabet shelf** — vowels (with accented forms) + full
+    alphabet as a seventh shelf, both cases on the card face ("Bb"), names
+    by ear. *(Shipped 2026-07-14. See `shipped.md`.)*
+    - ☑ **Letter games** — shipped same day: quiz/reto/duel speak the bare
+      name, scene gets "¿Dónde está la be?" from the article rule, sí-o-no
+      from per-card unique-entity overrides.
+    - ☐ **Letter→word association** — "A de avión": pair each letter with a
+      pack word starting with it.
+17. ☑ **Las centenas** — 100–1000 with digit-face cards, game-enabled.
+    *(Shipped 2026-07-14.)*
+    - ☐ **Los miles y millones** — deferred: sparse card set, and the numbers
+      shelf is full again; needs its own shelf thinking.
+18. ☐ **Listener→reader upgrade path** — the parent's real "age bracket" need
+    (2026-07-14): when the 5-year-old learns to read, promote her profile's
+    level *without* losing her progress. Today the level is welded to the kid
+    identity; an upgrade means a `level` field per kid (or a progress
+    migration listener→reader). Shape when the day approaches.
+19. ✗ **Rethink la caja sorpresa** — considered 2026-07-14 and deliberately
+    kept as-is: yes, the 15⭐ box is the cheap path to accessories, and the
+    parent decided that's fine — the box is joy, prices are theater. Don't
+    re-propose without new evidence (e.g. stars stop feeling scarce).
+
 ## Build order
 
 **First slice: tap-the-right-picture quiz (2), no profiles** — shaped 2026-07-10:

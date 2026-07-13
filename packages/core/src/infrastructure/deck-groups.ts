@@ -18,7 +18,7 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "Números y colores",
     nameEnglish: "Numbers & colors",
     emoji: "🔢",
-    deckIds: ["numbers", "numbers-11-20", "numbers-tens", "colors"],
+    deckIds: ["numbers", "numbers-11-20", "numbers-tens", "centenas", "colors"],
   },
   {
     id: "casa-yo",
@@ -40,6 +40,13 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameEnglish: "Play & learn",
     emoji: "🎨",
     deckIds: ["toys", "sports", "school", "feelings", "music"],
+  },
+  {
+    id: "letras",
+    nameSpanish: "Las letras",
+    nameEnglish: "Letters",
+    emoji: "🔤",
+    deckIds: ["vocales", "letras-b-m", "letras-n-z"],
   },
   {
     // One deck per verb form. Grows to hold futuro/condicional later

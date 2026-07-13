@@ -37,10 +37,12 @@ describe("deck groups content", () => {
     }
   });
 
-  it("keeps home one screen: at most 6 groups", async () => {
+  it("keeps home one screen: at most 7 groups", async () => {
+    // Raised from 6 to seat Las letras (2026-07-14) — home's 2-column grid
+    // absorbs one more shelf tile without scrolling meaningfully further.
     const allGroups = await groups.listGroups();
     expect(allGroups.length).toBeGreaterThanOrEqual(3);
-    expect(allGroups.length).toBeLessThanOrEqual(6);
+    expect(allGroups.length).toBeLessThanOrEqual(7);
   });
 
   it("gives every group an id, names, and a picture", async () => {

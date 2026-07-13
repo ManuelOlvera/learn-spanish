@@ -1,5 +1,51 @@
 # Shipped features
 
+## 2026-07-14 — Las letras shelf + Las centenas (bugs.md ideas, shaped & built)
+
+Two of the four parent ideas from `docs/bugs.md`, shaped via `/shape` (picks:
+letters as their own area with vowels emphasized; hundreds only for now) and
+built via `/add-content`.
+
+- **Las letras 🔤** — a new seventh home shelf (group cap deliberately raised
+  6→7 in `deck-group.test.ts`): **Las vocales** (a e i o u + á é í ó ú — ten
+  cards, the accented pairing teaches tildes), **Las letras B–M**, **Las
+  letras N–Z** (ñ included; the full 27-letter alphabet is pinned by a pack
+  test). Both cases on the card face ("Bb" — no emoji exists; the display
+  font is the art) and `spanish` carries the letter's *name with its
+  article* ("la be", "la eñe"), so tap-to-hear teaches names by ear.
+  **Game-enabled from day one** (parent's call on approval): quiz/reto/duel
+  speak the bare name, scene's "¿Dónde está la be?" falls out of the article
+  rule, and sí-o-no uses the unique-entity `question` override ("¿Es la
+  be?", never "¿Es una be?"). Accented vowels are spoken "con tilde" so a
+  listen round dealing both a and á stays answerable by ear.
+- **Las centenas 💯** — cien to mil (10 cards) on the numbers shelf, playable
+  in all games. Digit strings as card faces ("200"), not keycap sequences —
+  three-plus keycaps were exactly the iPad overflow bug, and the new
+  wide-glyph sizing handles digit widths automatically.
+- Pack is now **31 decks / 365 words** public (32 / 377 with the mystery
+  deck); README and the counts test updated together.
+
+## 2026-07-14 — Fixes: purchases now sync, big numbers fit their tiles
+
+Two parent-reported bugs (`docs/bugs.md` #5 and #3), both root-caused per
+`/investigate`.
+
+- **Purchases never pushed** (#5): `syncPush` fired only on game-complete and
+  misión-claim, so anything bought on one device — wardrobe accessories,
+  pets, avatars, freezes, deck unlocks, theme star-spends — stayed local
+  until that device happened to finish a game, and the other device showed a
+  stale subset. The snapshot pipeline itself was proven innocent by a new
+  regression test (a full phone wardrobe survives encode → sanitize → merge
+  into a stale tablet). Fix: every star-mutating action pushes, matching the
+  existing game-complete pattern.
+- **Big-number tiles overflowed on iPad** (#3): the 11–20 and tens decks use
+  two-keycap emoji ("9️⃣0️⃣") that paint ~2× wide; above the `sm:` breakpoint
+  (tablets) they burst out of the games' fixed squares — reproduced and
+  re-verified in headless screenshots at 820×1180. Fix: grapheme-aware
+  `emojiSizeClass()` (`apps/web/src/lib/emoji.ts`) steps wide sequences down
+  to ~60% in all nine card-emoji render sites (quiz, parejas, conecta,
+  sí/no, escena, cuántos, reto, duelo, flashcards).
+
 ## 2026-07-13 — Offline PWA, per-kid misión, parent trend, sync-on-visible
 
 Implements `docs/fable-review/features.md` #1, #4, #5, and the remaining

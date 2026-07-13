@@ -98,6 +98,27 @@ export const STARTER_PACK: readonly Deck[] = [
     ],
   },
   {
+    id: "centenas",
+    nameSpanish: "Las centenas",
+    nameEnglish: "Hundreds to 1000",
+    emoji: "💯",
+    // Digit strings as the card face (not keycap sequences — three-plus
+    // keycaps overflowed tiles once already; plain digits render in the
+    // display font and the wide-emoji sizing handles their width).
+    cards: [
+      { id: "cien-centena", spanish: "cien", english: "one hundred", emoji: "100" },
+      { id: "doscientos", spanish: "doscientos", english: "two hundred", emoji: "200" },
+      { id: "trescientos", spanish: "trescientos", english: "three hundred", emoji: "300" },
+      { id: "cuatrocientos", spanish: "cuatrocientos", english: "four hundred", emoji: "400" },
+      { id: "quinientos", spanish: "quinientos", english: "five hundred", emoji: "500" },
+      { id: "seiscientos", spanish: "seiscientos", english: "six hundred", emoji: "600" },
+      { id: "setecientos", spanish: "setecientos", english: "seven hundred", emoji: "700" },
+      { id: "ochocientos", spanish: "ochocientos", english: "eight hundred", emoji: "800" },
+      { id: "novecientos", spanish: "novecientos", english: "nine hundred", emoji: "900" },
+      { id: "mil", spanish: "mil", english: "one thousand", emoji: "1000" },
+    ],
+  },
+  {
     id: "food",
     nameSpanish: "La comida",
     nameEnglish: "Food",
@@ -549,6 +570,69 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "nada", spanish: "¡nada!", english: "swim!", emoji: "🏊" },
       { id: "pinta", spanish: "¡pinta!", english: "paint!", emoji: "🎨" },
       { id: "abraza", spanish: "¡abraza!", english: "hug!", emoji: "🤗" },
+    ],
+  },
+  /* El abecedario — the letter glyphs ARE the card face, both cases ("Bb";
+   * letters have no emoji, the display font is the art). `spanish` is the
+   * letter's NAME with its article — letter names are feminine ("la be"),
+   * which makes scene's "¿Dónde está la be?" fall out of the article rule.
+   * Sí-o-no needs the unique-entity override ("¿Es la be?", never "¿Es una
+   * be?"); quiz/reto/duel speak the name as-is. Accented vowels are spoken
+   * "con tilde" so a listen round dealing a and á stays answerable by ear. */
+  {
+    id: "vocales",
+    nameSpanish: "Las vocales",
+    nameEnglish: "Vowels",
+    emoji: "🅰️",
+    cards: [
+      { id: "letra-a", spanish: "la a", english: "letter a", emoji: "Aa", question: "¿Es la a?" },
+      { id: "letra-e", spanish: "la e", english: "letter e", emoji: "Ee", question: "¿Es la e?" },
+      { id: "letra-i", spanish: "la i", english: "letter i", emoji: "Ii", question: "¿Es la i?" },
+      { id: "letra-o", spanish: "la o", english: "letter o", emoji: "Oo", question: "¿Es la o?" },
+      { id: "letra-u", spanish: "la u", english: "letter u", emoji: "Uu", question: "¿Es la u?" },
+      { id: "letra-a-tilde", spanish: "la a con tilde", english: "accented a", emoji: "Áá", question: "¿Es la a con tilde?" },
+      { id: "letra-e-tilde", spanish: "la e con tilde", english: "accented e", emoji: "Éé", question: "¿Es la e con tilde?" },
+      { id: "letra-i-tilde", spanish: "la i con tilde", english: "accented i", emoji: "Íí", question: "¿Es la i con tilde?" },
+      { id: "letra-o-tilde", spanish: "la o con tilde", english: "accented o", emoji: "Óó", question: "¿Es la o con tilde?" },
+      { id: "letra-u-tilde", spanish: "la u con tilde", english: "accented u", emoji: "Úú", question: "¿Es la u con tilde?" },
+    ],
+  },
+  {
+    id: "letras-b-m",
+    nameSpanish: "Las letras B–M",
+    nameEnglish: "Letters B–M",
+    emoji: "🔤",
+    cards: [
+      { id: "letra-b", spanish: "la be", english: "letter b", emoji: "Bb", question: "¿Es la be?" },
+      { id: "letra-c", spanish: "la ce", english: "letter c", emoji: "Cc", question: "¿Es la ce?" },
+      { id: "letra-d", spanish: "la de", english: "letter d", emoji: "Dd", question: "¿Es la de?" },
+      { id: "letra-f", spanish: "la efe", english: "letter f", emoji: "Ff", question: "¿Es la efe?" },
+      { id: "letra-g", spanish: "la ge", english: "letter g", emoji: "Gg", question: "¿Es la ge?" },
+      { id: "letra-h", spanish: "la hache", english: "letter h", emoji: "Hh", question: "¿Es la hache?" },
+      { id: "letra-j", spanish: "la jota", english: "letter j", emoji: "Jj", question: "¿Es la jota?" },
+      { id: "letra-k", spanish: "la ka", english: "letter k", emoji: "Kk", question: "¿Es la ka?" },
+      { id: "letra-l", spanish: "la ele", english: "letter l", emoji: "Ll", question: "¿Es la ele?" },
+      { id: "letra-m", spanish: "la eme", english: "letter m", emoji: "Mm", question: "¿Es la eme?" },
+    ],
+  },
+  {
+    id: "letras-n-z",
+    nameSpanish: "Las letras N–Z",
+    nameEnglish: "Letters N–Z",
+    emoji: "🔡",
+    cards: [
+      { id: "letra-n", spanish: "la ene", english: "letter n", emoji: "Nn", question: "¿Es la ene?" },
+      { id: "letra-enye", spanish: "la eñe", english: "letter ñ", emoji: "Ññ", question: "¿Es la eñe?" },
+      { id: "letra-p", spanish: "la pe", english: "letter p", emoji: "Pp", question: "¿Es la pe?" },
+      { id: "letra-q", spanish: "la cu", english: "letter q", emoji: "Qq", question: "¿Es la cu?" },
+      { id: "letra-r", spanish: "la erre", english: "letter r", emoji: "Rr", question: "¿Es la erre?" },
+      { id: "letra-s", spanish: "la ese", english: "letter s", emoji: "Ss", question: "¿Es la ese?" },
+      { id: "letra-t", spanish: "la te", english: "letter t", emoji: "Tt", question: "¿Es la te?" },
+      { id: "letra-v", spanish: "la uve", english: "letter v", emoji: "Vv", question: "¿Es la uve?" },
+      { id: "letra-w", spanish: "la uve doble", english: "letter w", emoji: "Ww", question: "¿Es la uve doble?" },
+      { id: "letra-x", spanish: "la equis", english: "letter x", emoji: "Xx", question: "¿Es la equis?" },
+      { id: "letra-y", spanish: "la ye", english: "letter y", emoji: "Yy", question: "¿Es la ye?" },
+      { id: "letra-z", spanish: "la zeta", english: "letter z", emoji: "Zz", question: "¿Es la zeta?" },
     ],
   },
   {

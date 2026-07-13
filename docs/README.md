@@ -4,6 +4,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 
 - [features/shipped.md](features/shipped.md) — **[append-log]** write-ups of shipped features
 - [features/roadmap.md](features/roadmap.md) — **[living]** planned two-kid interactivity features and build order
+- [bugs.md](bugs.md) — **[living]** the parent's running bug/idea inbox; items get struck through with their resolution as they're fixed, shipped, or parked
 - [features/pairing.md](features/pairing.md) — **[living]** parent-facing how-to for cross-device sync (pairing codes)
 - [workflows/adding-a-feature.md](workflows/adding-a-feature.md) — **[living]** the feature pipeline: shape → design → TDD → verify → docs → ship
 - [workflows/fixing-a-bug.md](workflows/fixing-a-bug.md) — **[living]** the bug pipeline: investigate → regression test → fix at the owning layer → ship

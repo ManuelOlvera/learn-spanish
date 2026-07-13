@@ -12,6 +12,7 @@ describe("starter pack content", () => {
       "numbers",
       "numbers-11-20",
       "numbers-tens",
+      "centenas",
       "food",
       "body",
       "clothes",
@@ -34,21 +35,70 @@ describe("starter pack content", () => {
       "verbs-infinitive",
       "verbs-gerund",
       "verbs-imperative",
+      "vocales",
+      "letras-b-m",
+      "letras-n-z",
       "mystery",
     ]);
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("27 decks /
-    // 323 words … 28 decks / 335 words total"). This test turns silent README
+    // The root README's Features section states these totals ("31 decks /
+    // 365 words … 32 decks / 377 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(28);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(335);
-    expect(publicDecks).toHaveLength(27);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(323);
+    expect(decks).toHaveLength(32);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(377);
+    expect(publicDecks).toHaveLength(31);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(365);
+  });
+
+  it("ships the whole alphabet as a game-enabled letters shelf", async () => {
+    const decks = await repo.listDecks();
+    const letterDecks = ["vocales", "letras-b-m", "letras-n-z"].map((id) =>
+      decks.find((d) => d.id === id),
+    );
+    for (const deck of letterDecks) {
+      expect(deck, "letter deck must exist").toBeDefined();
+      // Letters play the games: quiz/reto/duel speak the bare name, scene
+      // gets "¿Dónde está la …?" from the article, sí-o-no from overrides.
+      expect(deck!.learnOnly).toBeUndefined();
+    }
+    // Every letter of the Spanish alphabet (ñ included) appears exactly once
+    // across the three decks — the card face shows both cases ("Bb").
+    const glyphs = letterDecks.flatMap((d) => d!.cards.map((c) => c.emoji));
+    const alphabet = [..."ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"];
+    for (const letter of alphabet) {
+      expect(
+        glyphs.some((g) => g.startsWith(letter)),
+        `missing ${letter}`,
+      ).toBe(true);
+    }
+    expect(new Set(glyphs).size).toBe(glyphs.length);
+    // Las vocales: the five vowels plus their accented forms — ten cards.
+    const vocales = letterDecks[0]!;
+    expect(vocales.cards.map((c) => c.emoji)).toEqual([
+      "Aa", "Ee", "Ii", "Oo", "Uu", "Áá", "Éé", "Íí", "Óó", "Úú",
+    ]);
+  });
+
+  it("phrases letter questions natively (letters are feminine unique entities)", async () => {
+    const decks = await repo.listDecks();
+    const letterCards = ["vocales", "letras-b-m", "letras-n-z"].flatMap(
+      (id) => decks.find((d) => d.id === id)!.cards,
+    );
+    for (const card of letterCards) {
+      // Spoken/shown with the article ("la be"), never "¿Es una be?" —
+      // each card overrides sí-o-no with "¿Es la …?".
+      expect(card.spanish.startsWith("la "), card.id).toBe(true);
+      expect(card.question, card.id).toBe(`¿Es ${card.spanish}?`);
+    }
+    // Accented vowels must SOUND distinct from their plain twins, or a
+    // listen-mode quiz dealing both is unanswerable by ear.
+    const acute = letterCards.find((c) => c.id === "letra-a-tilde")!;
+    expect(acute.spanish).toBe("la a con tilde");
   });
 
   it("keeps decks kid-sized: 10-15 cards each", async () => {

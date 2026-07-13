@@ -1,0 +1,7 @@
+- ~~add ABC category for kids to learn letters~~ ✅ shipped 2026-07-14: Las letras shelf (vocales + full alphabet); letter games on the roadmap
+- Profile should have age bracket which you use to display relevant games → parked as roadmap #18 (listener→reader upgrade path) per 2026-07-14 discussion
+- ~~Spacing numbers in iPad is not working properly. numbers are bigger than the square. works fine on my phone~~ ✅ fixed 2026-07-14 (wide keycap emoji now size down; see shipped.md)
+- ~~Add hundreds, thousands,millions to numbers~~ ✅ shipped 2026-07-14: Las centenas (100–1000); miles/millones deferred to roadmap #17
+- ~~Syncing doesn't seem to sync properly. On the phone my daughter has all accesorios bought but not all show as available on the tablet~~ ✅ fixed 2026-07-14 (purchases now push immediately; see shipped.md) — after updating, buy anything or finish a game on the phone once, then open the tablet
+- ~~The chest is like a workaround to get cheap accessories. Maybe we need to rethink it~~ ✓ decided 2026-07-14: keep as-is (the box is joy, prices are theater) — roadmap #19 records the reasoning
+- a new feature, add the game Squaredle with hidden words within a matrix. matrix cells depend on difficulty (easy, medium, hard)
