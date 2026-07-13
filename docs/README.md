@@ -9,6 +9,10 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [skills/feature-shaping.md](skills/feature-shaping.md) — **[living]** the /shape process: forcing questions + shape block
 - [skills/debugging.md](skills/debugging.md) — **[living]** the /investigate discipline + case log
 - [runbooks.md](runbooks.md) — **[living]** deploy, rollback, and Vercel gotchas
+- [fable-review/](fable-review/) — **[archived]** point-in-time implementation review (2026-07-13):
+  [security](fable-review/security.md) · [code quality](fable-review/code-quality.md) ·
+  [architecture](fable-review/architecture.md) · [docs](fable-review/docs.md) ·
+  [claude skills](fable-review/claude-skills.md) · [features](fable-review/features.md)
 - [adr/](adr/) — **[append-log]** architecture decision records (template: [adr/000-template.md](adr/000-template.md))
   - [adr/001-browser-speech-synthesis.md](adr/001-browser-speech-synthesis.md) — audio via the Web Speech API, not recorded files
   - [adr/002-vercel-hosting.md](adr/002-vercel-hosting.md) — Vercel hosting, no database, public prod URL
