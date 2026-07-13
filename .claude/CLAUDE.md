@@ -19,8 +19,11 @@ No accounts, no backend, no reading required; kids navigate by pictures and audi
 - All business logic lives in `packages/core`. Apps are presentation-only.
 - `packages/core` is framework-agnostic — never import from `next/*`. Use cases depend
   only on repository/port interfaces from `domain/`; `apps/web/src/lib/container.ts`
-  wires the concrete adapters (`apps/web/src/lib/album.ts` is its client-side
-  counterpart for browser-storage-backed ports).
+  wires the concrete adapters (`apps/web/src/lib/client-container.ts` is its
+  client-side counterpart — the ONLY place browser-storage/remote adapters are
+  constructed; no other module may `new` an adapter).
+- localStorage schema changes go through the versioned run-once registry in
+  `apps/web/src/lib/storage-migrations.ts` — never migrate inside a reader.
 - Follow DDD layering: `domain/` → `application/` → `infrastructure/`.
 - Repository interfaces in `domain/`, implementations in `infrastructure/`.
 - Use cases have one public `execute()` method. No business logic in components or
@@ -51,6 +54,8 @@ No accounts, no backend, no reading required; kids navigate by pictures and audi
 Custom project skills (in `.claude/skills/`, invokable as slash commands):
 
 - `/shape` — pin a feature's scope before any code.
+- `/add-content` — add/edit decks, words, or sentences; walks the full
+  invariant map (pack, shelf, accent, tests, README counts).
 - `/design-variants` — explore 3–6 UI directions before committing
   (doc: `docs/skills/frontend-design.md`).
 - `/investigate` — root-cause a bug, reproduce-first, three-fix cap.

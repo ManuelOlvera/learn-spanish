@@ -12,7 +12,7 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
-import { getWordStats, recordAnswer } from "@/lib/album";
+import { getWordStats, recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
@@ -74,6 +74,9 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
         window.clearTimeout(advanceTimer.current);
       }
     };
+    // currentKid reads client-only storage and is stable per mount; the deal
+    // must re-run only when the deck or mode changes, not per render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deck, mode]);
 
   const rounds = quiz?.rounds ?? [];

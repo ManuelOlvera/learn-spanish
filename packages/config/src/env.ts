@@ -35,6 +35,14 @@ export function isDevelopment(): boolean {
   return env().NODE_ENV === "development";
 }
 
+/** Build-phase flag that is safe in CLIENT bundles: read as an explicit
+ *  member expression so Next statically inlines it. The `env()` helpers above
+ *  parse the whole `process.env` object, which does not exist in the browser
+ *  — use them server-side, use this in client components. */
+export function isProductionBuild(): boolean {
+  return process.env.NODE_ENV === "production";
+}
+
 /**
  * Optional cross-device sync config (ADR 004). Both are browser-public
  * (`NEXT_PUBLIC_`), so security rests on the capability-code RPCs and RLS, not

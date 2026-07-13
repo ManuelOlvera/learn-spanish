@@ -80,7 +80,7 @@ export function KidPicker({ onPick }: Props) {
                     setChoosingFor(null);
                     return;
                   }
-                  const balance = buyAvatar(kid, emoji, cost);
+                  const balance = buyAvatar(kid, emoji);
                   if (balance === null) {
                     feedbackWrong();
                     setNope((prev) => ({ avatar: emoji, nonce: (prev?.nonce ?? 0) + 1 }));

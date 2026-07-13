@@ -11,20 +11,22 @@ import {
 } from "../src/domain/weekly";
 import type { WeekProgress, WeeklyStreak } from "../src/domain/weekly";
 
+// Local-time constructions (no Z) on purpose — a week belongs to the local
+// day it contains, and these tests must pass in any timezone.
 describe("weekKey", () => {
-  it("returns the Monday (UTC) of the week", () => {
+  it("returns the Monday of the local week", () => {
     // 2026-07-13 is a Monday; the whole week maps to it.
-    expect(weekKey(new Date("2026-07-13T00:00:00Z"))).toBe("2026-07-13");
-    expect(weekKey(new Date("2026-07-15T12:00:00Z"))).toBe("2026-07-13");
-    expect(weekKey(new Date("2026-07-19T23:59:00Z"))).toBe("2026-07-13"); // Sunday
+    expect(weekKey(new Date("2026-07-13T00:00:00"))).toBe("2026-07-13");
+    expect(weekKey(new Date("2026-07-15T12:00:00"))).toBe("2026-07-13");
+    expect(weekKey(new Date("2026-07-19T23:59:00"))).toBe("2026-07-13"); // Sunday
   });
 
-  it("rolls to the previous Monday just before midnight UTC Sunday", () => {
-    expect(weekKey(new Date("2026-07-12T23:59:00Z"))).toBe("2026-07-06");
+  it("rolls to the previous Monday just before local midnight Sunday", () => {
+    expect(weekKey(new Date("2026-07-12T23:59:00"))).toBe("2026-07-06");
   });
 
   it("handles a week that spans a year boundary", () => {
-    expect(weekKey(new Date("2026-01-01T00:00:00Z"))).toBe("2025-12-29");
+    expect(weekKey(new Date("2026-01-01T00:00:00"))).toBe("2025-12-29");
   });
 });
 

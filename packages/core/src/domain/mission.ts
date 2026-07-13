@@ -17,10 +17,9 @@ export type MissionKind =
   | "spelling"
   | "reto";
 
-/** The daily-mission pool. Spelling and reto stay out: spelling is
- *  reader-only and reto is timed — missions must be completable by both
- *  kids without pressure. */
-const ALL_KINDS: readonly MissionKind[] = [
+/** Kinds either kid can complete at their own difficulty. Reto stays out for
+ *  both: it's timed, and the misión must be pressure-free. */
+const SHARED_KINDS: readonly MissionKind[] = [
   "learn",
   "quiz",
   "si-no",
@@ -32,17 +31,20 @@ const ALL_KINDS: readonly MissionKind[] = [
   "counting",
 ];
 
+/** Each kid draws from their own pool: the reader's adds spelling (reading
+ *  practice a pre-reader can't do), so the misión leans into what that kid
+ *  is actually working on. */
+const KIND_POOLS: Record<KidId, readonly MissionKind[]> = {
+  listener: SHARED_KINDS,
+  reader: [...SHARED_KINDS, "spelling"],
+};
+
 export const MISSION_SIZE = 3;
 
 export interface MissionState {
   readonly day: string;
   readonly done: readonly MissionKind[];
   readonly claimed: boolean;
-}
-
-export interface MissionStore {
-  load(kid: KidId): Promise<MissionState | null>;
-  save(kid: KidId, state: MissionState): Promise<void>;
 }
 
 /** Which mission kind an activity feeds. */
@@ -61,7 +63,7 @@ export function dailyMission(date: Date, kid: KidId): readonly MissionKind[] {
     hash ^= char.charCodeAt(0);
     hash = Math.imul(hash, 0x01000193);
   }
-  const kinds = [...ALL_KINDS];
+  const kinds = [...KIND_POOLS[kid]];
   const picked: MissionKind[] = [];
   for (let i = 0; i < MISSION_SIZE; i++) {
     hash = Math.imul(hash ^ (hash >>> 15), 0x2c1b3c6d);

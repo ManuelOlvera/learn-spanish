@@ -79,6 +79,7 @@ export function RetoPlayer({ deck, accent }: Props) {
       setIsRecord(saveRetoBest(kid, deck.id, score));
     }
     // deliberately keyed on phase alone: score/kid are read when time is up
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
   function choose(cardId: string) {

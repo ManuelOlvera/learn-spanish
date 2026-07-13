@@ -44,8 +44,8 @@ import {
   feedbackMatch,
   feedbackRacha,
   feedbackSticker,
-  feedbackWrong,
 } from "@/lib/feedback";
+import { useDeniedWobble } from "@/lib/use-denied-wobble";
 import { Confetti } from "@/components/Confetti";
 
 /** Where each accessory's *centre* sits on the pet, as a percent of the emoji
@@ -88,7 +88,7 @@ export function MascotaView() {
   const [stars, setStars] = useState(0);
   const [munch, setMunch] = useState(0);
   const [evolved, setEvolved] = useState(false);
-  const [nope, setNope] = useState(0);
+  const wobble = useDeniedWobble();
   const [surprise, setSurprise] = useState<string | null>(null);
   const [ownedAccessories, setOwnedAccessories] = useState<readonly string[]>([]);
   const [ownedThemes, setOwnedThemes] = useState<readonly string[]>([]);
@@ -180,8 +180,7 @@ export function MascotaView() {
     const before = pet.meals;
     const result = feedActivePet(kid);
     if (result === null) {
-      feedbackWrong();
-      setNope((n) => n + 1);
+      wobble.deny();
       return;
     }
     // Celebrate only when a brand-new form unlocks — some species grow through
@@ -299,7 +298,7 @@ export function MascotaView() {
 
         <button
           type="button"
-          key={nope}
+          key={wobble.nonce}
           onClick={feed}
           aria-label={`Feed the pet (costs ${MEAL_COST} stars)`}
           className={`sticker flex items-center gap-2 px-6 py-3 text-2xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none ${
@@ -363,10 +362,9 @@ export function MascotaView() {
                     refresh(kid);
                     return;
                   }
-                  const res = adoptSpecies(kid, s.id, s.cost);
+                  const res = adoptSpecies(kid, s.id);
                   if (res === null) {
-                    feedbackWrong();
-                    setNope((n) => n + 1);
+                    wobble.deny();
                     return;
                   }
                   feedbackFanfare();
@@ -424,8 +422,7 @@ export function MascotaView() {
             if (kid === null) return;
             const res = openSurprise(kid);
             if (res === null) {
-              feedbackWrong();
-              setNope((n) => n + 1);
+              wobble.deny();
               return;
             }
             feedbackRacha();
@@ -471,10 +468,9 @@ export function MascotaView() {
                     refresh(kid);
                     return;
                   }
-                  const res = buyAccessoryForActive(kid, item.id, item.cost);
+                  const res = buyAccessoryForActive(kid, item.id);
                   if (res === null) {
-                    feedbackWrong();
-                    setNope((n) => n + 1);
+                    wobble.deny();
                     return;
                   }
                   feedbackSticker();
@@ -530,8 +526,7 @@ export function MascotaView() {
                   }
                   const balance = buyTheme(kid, t.id, t.cost);
                   if (balance === null) {
-                    feedbackWrong();
-                    setNope((n) => n + 1);
+                    wobble.deny();
                     return;
                   }
                   setStars(balance);

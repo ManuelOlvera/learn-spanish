@@ -23,7 +23,7 @@ Read `docs/skills/feature-shaping.md` and apply it. The short version:
    - Affected layers (`domain` / `application` / `infrastructure` / `apps/web`)
    - How we'll know it works (the test or observable behavior)
 4. **Get a yes** before coding. Then hand off to the feature workflow in
-   `docs/workflows/adding-a-feature.md`.
+   [`docs/workflows/adding-a-feature.md`](../../../docs/workflows/adding-a-feature.md).
 
 Do not produce architecture, file lists, or code in this skill — that's the
 planning step inside the feature workflow. This skill only fixes *what* and

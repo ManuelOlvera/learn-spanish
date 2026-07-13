@@ -5,6 +5,8 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [features/shipped.md](features/shipped.md) — **[append-log]** write-ups of shipped features
 - [features/roadmap.md](features/roadmap.md) — **[living]** planned two-kid interactivity features and build order
 - [features/pairing.md](features/pairing.md) — **[living]** parent-facing how-to for cross-device sync (pairing codes)
+- [workflows/adding-a-feature.md](workflows/adding-a-feature.md) — **[living]** the feature pipeline: shape → design → TDD → verify → docs → ship
+- [workflows/fixing-a-bug.md](workflows/fixing-a-bug.md) — **[living]** the bug pipeline: investigate → regression test → fix at the owning layer → ship
 - [skills/frontend-design.md](skills/frontend-design.md) — **[living]** the app's visual language (Sticker Book); read before building any UI
 - [skills/feature-shaping.md](skills/feature-shaping.md) — **[living]** the /shape process: forcing questions + shape block
 - [skills/debugging.md](skills/debugging.md) — **[living]** the /investigate discipline + case log
@@ -18,6 +20,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
   - [adr/002-vercel-hosting.md](adr/002-vercel-hosting.md) — Vercel hosting, no database, public prod URL
   - [adr/003-ephemeral-voice-recordings.md](adr/003-ephemeral-voice-recordings.md) — say-it-back clips live in memory only, never stored or sent
   - [adr/004-optional-supabase-sync.md](adr/004-optional-supabase-sync.md) — local-first with optional Supabase sync; pairing code as capability, no accounts
+  - [adr/005-hand-rolled-service-worker.md](adr/005-hand-rolled-service-worker.md) — offline via a hand-rolled service worker, not next-pwa/Workbox
 
-Referenced by skills in `.claude/skills/` but not yet written (create on first need):
-`architecture-diagrams.md` (/diagram).
+Referenced by `/diagram` but not yet written (create on first need):
+`architecture-diagrams.md`.

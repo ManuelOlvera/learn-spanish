@@ -2,9 +2,17 @@ import type { Deck } from "./deck";
 import type { VocabularyCard } from "./card";
 import type { KidId } from "./kid";
 
-/** Calendar day in UTC, e.g. "2026-07-10" — the unit of daily-card time. */
+/** The device's LOCAL calendar day, e.g. "2026-07-10" — the unit of all
+ *  daily time (carta del día, streaks, misión). Local, not UTC: the kids
+ *  play in the evening, and a UTC day would flip the card and the misión
+ *  mid-evening anywhere west of Greenwich. Paired devices share a household
+ *  timezone, so sync merges compare like with like. */
 export function dayKey(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  return new Date(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+  )
+    .toISOString()
+    .slice(0, 10);
 }
 
 /** The featured card of the day: deterministic for a date, varies day to day. */

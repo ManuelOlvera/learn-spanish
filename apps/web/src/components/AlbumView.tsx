@@ -17,7 +17,7 @@ import {
 } from "@learn-spanish/core";
 import { getStickerCounts, getUnlockedDecks } from "@/lib/economy";
 import { log } from "@learn-spanish/config";
-import { getAlbum } from "@/lib/album";
+import { getAlbum } from "@/lib/client-container";
 import { getAvatar, getSelectedKid, setSelectedKid } from "@/lib/kid";
 import { deckAccent } from "@/lib/deck-theme";
 import { ACTIVITY_META } from "@/lib/activity-theme";

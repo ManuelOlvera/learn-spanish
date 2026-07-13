@@ -26,25 +26,31 @@ No reading, no accounts, no setup.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward
   missed words; a 🔁 "El repaso" chip appears on home when ≥3 words
   struggle. Special avatars unlock by sticker count and streaks.
+- **Offline** — a hand-rolled service worker (ADR 005) makes the installed
+  PWA work with no network after one online visit; sync simply catches up
+  later.
 - **Say-it-back** — a 🎤 on every flashcard records the kid repeating the
   word and plays it straight back; clips are in-memory only (ADR 003).
 - **Las frases** — 84 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
 - **Star economy** — a treasure chest on every finish pays ⭐ per
   first-try answer, with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
-  the daily misión adds a +10⭐ bonus chest. Stars feed and grow **la
+  the daily misión (drawn from each kid's own pool — the reader's
+  includes ✏️ Deletrea) adds a +10⭐ bonus chest. Stars feed and grow **la
   mascota** (a collection of adoptable pets, 5⭐ a meal), buy 🛍️ wardrobe
   accessories and drag them anywhere on the pet (saved per pet),
   open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
   themes; album stickers tier up to
   silver/gold with replays; `/informe` gives parents each kid's strong
-  and tricky words.
+  and tricky words plus a 📈 weekly learned-words trend (sampled
+  on-device each time the informe opens).
 - **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,
   each with their own chosen avatar (16 to pick from); each game menu
   shows that kid's one right difficulty.
 - **Cross-device sync** — optional, local-first (ADR 004). Pair devices once
-  with a capability code; progress pulls on open and pushes on game-complete,
-  additively merged so nothing is lost. Off unless `NEXT_PUBLIC_SUPABASE_*`
+  with a capability code; progress pulls on open (and again whenever the
+  app returns to view) and pushes on game-complete, additively merged so
+  nothing is lost. Off unless `NEXT_PUBLIC_SUPABASE_*`
   are set, in which case the app stays pure-local.
 - **Device transfer** — a one-time copy-able code (album footer) moves
   progress to another device by merge; the no-connection fallback to sync.

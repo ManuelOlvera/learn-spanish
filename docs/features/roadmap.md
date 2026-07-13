@@ -122,7 +122,9 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     local-first, pull-on-open / push-on-game-complete, additive merge (ADR 004).
     *(Shipped 2026-07-13. See `shipped.md`.)*
     - ☐ **Live realtime** — cross-device updates while both apps are open
-      (Supabase Realtime). Today a device already open won't update mid-session.
+      (Supabase Realtime). *Mostly covered cheaply 2026-07-13: home re-pulls
+      whenever the tab becomes visible again — only two devices actively open
+      side-by-side still miss mid-session updates.*
     - ☐ **Daily misión / reto state in sync** — ephemeral and daily-resetting, so
       cut from the first slice; add if drift proves annoying.
     - ☐ **Accounts & recovery** — no accounts today means a lost code + lost

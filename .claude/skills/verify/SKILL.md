@@ -34,3 +34,15 @@ card (speech path; silent headless, assert no pageerror) → next through all ca
 end. Collect `pageerror` + console errors throughout; screenshot each screen and look
 at them — visual regressions (e.g. Tailwind `bg-*` losing to the unlayered `.sticker`
 background rule) only show up in pixels.
+
+Also worth checking when the change is anywhere near them:
+
+- **Sync panel gating:** with `NEXT_PUBLIC_SUPABASE_*` set, the album footer's
+  Progreso panel must show *Sincronizar entre dispositivos*; without them it must
+  not — a regression here silently disables (or falsely advertises) pairing.
+- **Album screenshot:** the tier medals (🥉/🥈/🥇) and per-kid slot filtering are
+  the pixels most likely to regress; screenshot `/album` and look.
+- **Offline (ADR 005):** load `/` once online (the SW registers on prod builds
+  and precaches the shell), wait for `navigator.serviceWorker.ready`, then
+  `context.setOffline(true)` and reload — home must still render. The worker
+  only registers on production builds, so this needs `next start`, not dev.

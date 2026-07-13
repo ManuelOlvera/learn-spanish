@@ -1,5 +1,11 @@
 # Documentation review — 2026-07-13
 
+> **Status update (2026-07-13):** #1 resolved by building the missing feature
+> (the service worker, ADR 005) rather than weakening the docs; #2 resolved
+> (workflow docs written and indexed with the skills pass); #3 resolved
+> (pairing.md carries the key warning). #4's ADR-004 bit-count and #5's
+> overview diagrams remain open; the README-counts test idea stands.
+
 Documentation is a genuine strength: a curated index with lifecycle markers
 (`docs/README.md`), four honest ADRs that record *forces* and *costs*, a
 runbook with hard-won gotchas, parent-facing feature docs, and inline comments

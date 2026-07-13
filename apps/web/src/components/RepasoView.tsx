@@ -10,7 +10,7 @@ import {
   type KidId,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { getWordStats } from "@/lib/album";
+import { getWordStats } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { QuizPlayer } from "@/components/QuizPlayer";
 

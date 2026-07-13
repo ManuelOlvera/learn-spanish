@@ -3,6 +3,7 @@ export {
   isProduction,
   isTest,
   isDevelopment,
+  isProductionBuild,
   supabaseConfig,
   isSyncEnabled,
   type Env,

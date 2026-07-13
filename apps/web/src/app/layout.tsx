@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
 import { ThemeApplier } from "@/components/ThemeApplier";
 
 // Self-hosted (variable, latin subset) so builds never need the network.
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en" className={baloo.variable}>
       <body className="min-h-dvh">
         <ThemeApplier />
+        <ServiceWorkerRegistrar />
         {children}
       </body>
     </html>

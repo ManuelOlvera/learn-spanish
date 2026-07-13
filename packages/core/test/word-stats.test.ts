@@ -7,7 +7,7 @@ import {
 } from "../src/domain/word-stats";
 import { createQuiz } from "../src/domain/quiz";
 import { decodeProgress, encodeProgress, mergeProgress } from "../src/domain/transfer";
-import { card, deckOf, seededRandom } from "./helpers";
+import { deckOf, seededRandom } from "./helpers";
 
 describe("recordAnswer", () => {
   it("accumulates rights and wrongs per word without mutating", () => {

@@ -1,5 +1,11 @@
 # Feature recommendations — 2026-07-13
 
+> **Status update (2026-07-13):** #1 (service worker, ADR 005), #4 (per-kid
+> misión pools), #5 (parent trend report), and all of #6 (delete RPC, local
+> dayKey, visibilitychange pull, maskable icon) are shipped — see
+> `docs/features/shipped.md`. Still open: #2 (CI on GitHub) and #3 (no-Spanish-
+> voice fallback).
+
 The roadmap (`docs/features/roadmap.md`) is healthy — shipped items get moved
 with dates, deferred items carry reasons. These recommendations either aren't
 on it or deserve a priority bump. Ordered by expected value for the two actual

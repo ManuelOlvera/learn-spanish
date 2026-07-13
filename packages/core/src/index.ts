@@ -7,7 +7,7 @@ export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
 export { createQuiz, createQuizRound, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
 export { createSiNoGame, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
-export type { StarStore, StarReward } from "./domain/stars";
+export type { StarReward } from "./domain/stars";
 export {
   computeReward,
   earnedStars,
@@ -17,7 +17,7 @@ export {
   PERFECT_BONUS,
   STREAK_DOUBLE_DAYS,
 } from "./domain/stars";
-export type { MissionKind, MissionState, MissionStore } from "./domain/mission";
+export type { MissionKind, MissionState } from "./domain/mission";
 export {
   activityKind,
   dailyMission,
@@ -27,7 +27,7 @@ export {
 } from "./domain/mission";
 export type { StickerTier } from "./domain/sticker-tiers";
 export { stickerTier, TIER_THRESHOLDS } from "./domain/sticker-tiers";
-export type { PetState, PetStore, PetSpecies, PetCollection } from "./domain/mascota";
+export type { PetState, PetSpecies, PetCollection } from "./domain/mascota";
 export {
   anyPetHungry,
   defaultCollection,
@@ -64,6 +64,7 @@ export type {
 export {
   ACTIVE_WEEK_DAYS,
   FREEZE_COST,
+  freezesOrStarting,
   markActiveDay,
   rollWeek,
   STARTING_FREEZES,
@@ -125,6 +126,7 @@ export {
   activitiesForKid,
   categoryReward,
   categoryTier,
+  categoryTierFromAlbum,
   CATEGORY_BONUS,
   pendingCategoryTier,
   tierRank,
@@ -147,6 +149,11 @@ export {
   decodeProgress,
   encodeProgress,
   InvalidTransferCodeError,
+  isCategoryAwards,
+  isMissionState,
+  isPetCollection,
+  isWeekProgress,
+  isWeeklyStreak,
   mergeProgress,
   sanitizeSnapshot,
 } from "./domain/transfer";
@@ -170,3 +177,33 @@ export { ListDeckGroupsUseCase } from "./application/list-deck-groups";
 export { StaticDeckGroupRepository } from "./infrastructure/static-deck-group-repository";
 export { GetDeckUseCase } from "./application/get-deck";
 export { StaticDeckRepository } from "./infrastructure/static-deck-repository";
+export type { EconomyStore } from "./domain/economy";
+export { EarnStarsUseCase } from "./application/earn-stars";
+export { SpendStarsUseCase } from "./application/spend-stars";
+export { GetMissionUseCase } from "./application/get-mission";
+export type { MissionView } from "./application/get-mission";
+export { MarkActivityDoneUseCase } from "./application/mark-activity-done";
+export { ClaimMissionBonusUseCase } from "./application/claim-mission-bonus";
+export { RolloverWeeklyUseCase } from "./application/rollover-weekly";
+export type { WeeklyView } from "./application/rollover-weekly";
+export { BuyFreezeUseCase } from "./application/buy-freeze";
+export { FeedPetUseCase } from "./application/feed-pet";
+export { AdoptSpeciesUseCase } from "./application/adopt-species";
+export { SetActiveSpeciesUseCase } from "./application/set-active-species";
+export { BuyAccessoryUseCase } from "./application/buy-accessory";
+export { ToggleAccessoryUseCase } from "./application/toggle-accessory";
+export { PlaceAccessoryUseCase } from "./application/place-accessory";
+export { OpenSurpriseUseCase } from "./application/open-surprise";
+export { BuyAvatarUseCase } from "./application/buy-avatar";
+export { UnlockDeckUseCase } from "./application/unlock-deck";
+export { ClaimCategoryRewardUseCase } from "./application/claim-category-reward";
+export { SaveRetoBestUseCase } from "./application/save-reto-best";
+export type { TrendHistory, TrendSample, TrendStore } from "./domain/trend";
+export {
+  isLearnedStat,
+  learnedCount,
+  learnedThisWeek,
+  recordSample,
+  TREND_WEEKS_CAP,
+} from "./domain/trend";
+export { SampleTrendUseCase } from "./application/sample-trend";

@@ -1,5 +1,105 @@
 # Shipped features
 
+## 2026-07-13 — Offline PWA, per-kid misión, parent trend, sync-on-visible
+
+Implements `docs/fable-review/features.md` #1, #4, #5, and the remaining
+half of #6 (the delete-cloud RPC and local dayKey in #6 had already shipped).
+
+- **Real offline (ADR 005):** a hand-rolled service worker
+  (`apps/web/public/sw.js`) — network-first navigations (deploys win when
+  online; the last-seen page, then the home shell, when not), cache-first for
+  Next's immutable hashed assets, sync RPCs untouched. Registered in
+  production builds only via `ServiceWorkerRegistrar` +
+  `isProductionBuild()` (a client-inlinable env read added to
+  `packages/config`). After one online visit the installed PWA launches and
+  plays with no network.
+- **Per-kid misión pools:** `dailyMission` now draws from each kid's own
+  pool — the reader's adds ✏️ spelling (reading practice a pre-reader can't
+  do); reto stays out for both (timed). A finished spelling game already
+  marked the misión via `DoneScreen`, so completion works end to end.
+- **Parent trend report:** `/informe` gains 📈 Progreso — total learned words
+  ("right at least once and not struggling", the same bar as palabras
+  fuertes), a "+N esta semana" delta, and a mini bar per sampled week. One
+  cumulative sample per local week, appended on-device (`domain/trend.ts`,
+  `SampleTrendUseCase`, `palabras.trend.v1`), capped at 12 weeks, refreshed
+  whenever the informe opens. Deliberately device-local: word stats sync, so
+  each device grows an equivalent history; first-ever week shows "primera
+  semana registrada" instead of a fake delta.
+- **Sync-on-visible:** the home screen re-runs the sync pull whenever the tab
+  becomes visible again, so a tablet left open all afternoon picks up the
+  phone's progress without a reload.
+- **Maskable icon:** `icon-maskable.svg` (full-bleed, safe-zone art) joins the
+  manifest so Android launchers mask instead of letterboxing.
+
+## 2026-07-13 — Local-day daily time + lint floor + skills grounding (review follow-ups)
+
+Implements `docs/fable-review/code-quality.md` #2–#5 and all of
+`docs/fable-review/claude-skills.md`.
+
+- **The "day" is now the LOCAL calendar day** (`dayKey`/`weekKey` in core).
+  Before, days flipped at UTC midnight — mid-evening in the Americas: the
+  carta del día changed during dinner, a 7pm session fed *tomorrow's* misión,
+  and an evening-then-morning pattern could read as a streak gap. Kid-visible
+  fix; tests rewritten timezone-portable (local-time constructions, plus a
+  regression test pinning 23:59 local to the same local day). One-time
+  transition wrinkle: the first open after this deploy may see the daily card
+  change once mid-day. Sync note: paired devices share a household timezone,
+  so merged day strings stay comparable.
+- **Storage reads validate:** the sanitizer's type guards (`isMissionState`,
+  `isWeeklyStreak`, `isWeekProgress`, `isPetCollection`, `isCategoryAwards`)
+  are exported from core and applied in `economy-store.ts` — a corrupt
+  localStorage document now reads as absent instead of surfacing as a shape
+  surprise inside a use case.
+- **Lint floor raised:** `packages/core` and `packages/config` now have eslint
+  (`pnpm lint` covers all three packages — it immediately caught two dead
+  imports); `apps/web` adds `react-hooks/rules-of-hooks` (error),
+  `react-hooks/exhaustive-deps` (warn), and the Next plugin. The four
+  surfaced dep warnings were fixed (HomeView memoizes its derived deck lists)
+  or annotated where deliberate (QuizPlayer, RetoPlayer).
+- **HomeView decomposed:** `MissionCard`, `WeeklyCard`, and `SecretDeckTile`
+  extracted (HomeView 534 → ~370 lines), `KIND_EMOJI` at module scope, and
+  the buy-refused wobble beat is one shared `useDeniedWobble()` hook (also
+  adopted by MascotaView).
+- **Skills grounded in this repo:** `diagram`/`adr`/`ship` no longer describe
+  a previous project (phantom ADRs, `@workout-tracker/core`, a shared prod
+  DB); `ship` runs the gates explicitly and checks README pack counts;
+  `docs/workflows/adding-a-feature.md` + `fixing-a-bug.md` now exist so every
+  skill hand-off resolves; `/add-content` (new) maps the content-pack
+  invariants; `verify` gained sync-panel gating and album-screenshot checks;
+  `expo.dev` removed from settings permissions.
+
+## 2026-07-13 — Economy logic moved into core (architecture review follow-up)
+
+Implements `docs/fable-review/architecture.md` #1–#4. No behavior change
+intended — this is the app's most intricate rules (money, claims, cascades)
+moving under the test floor.
+
+- **Economy use cases in core:** a synchronous `EconomyStore` port
+  (`domain/economy.ts` — localStorage is sync; async would be ceremony) plus
+  18 use cases in `application/` carrying every rule that lived untested in
+  `apps/web/src/lib/economy.ts`: spend-before-write ordering, purchase
+  idempotence, misión claim-once, the misión→weekly-active-day cascade,
+  weekly rollover persistence, surprise-draw application, category-chest
+  never-re-pays, reto record-keeping. 28 new tests against an in-memory fake.
+  `economy.ts` keeps its public API as a thin facade.
+- **Prices come from catalogs, not callers:** `adoptSpecies`,
+  `buyAccessoryForActive`, and `buyAvatar` dropped their `cost` parameter —
+  core looks prices up in `PET_SPECIES` / `ACCESSORIES` / `AVATAR_CATALOG`,
+  so a component can no longer pass an arbitrary price. Free-starter avatars
+  are now unbuyable (they're implicitly owned).
+- **One client composition root:** `client-container.ts` is now the only
+  place browser-storage/remote adapters are constructed. `album.ts` is gone
+  (components import use cases from the container); `transfer.ts` and
+  `sync.ts` take shared store instances from it. The dead async
+  `StarStore`/`MissionStore`/`PetStore` ports were removed from core.
+- **Versioned storage migrations:** the pet-v1→collection and
+  per-pet-accessories→wardrobe moves left their readers and live in
+  `storage-migrations.ts` — a run-once-per-device registry (applied set
+  persisted), executed on the session's first storage access.
+- **ADR 004 addendum:** the sync push race (last-write-wins, self-healing)
+  is now recorded with the two options a future session should weigh before
+  "fixing" it.
+
 ## 2026-07-13 — Sync hardening + borrar la nube (security review follow-up)
 
 Implements `docs/fable-review/security.md` #1–#5. The write path was the

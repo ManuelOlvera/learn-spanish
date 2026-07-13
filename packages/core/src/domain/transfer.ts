@@ -137,7 +137,7 @@ function isStreak(value: unknown): value is Streak {
   );
 }
 
-function isWeeklyStreak(value: unknown): value is WeeklyStreak {
+export function isWeeklyStreak(value: unknown): value is WeeklyStreak {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -146,7 +146,7 @@ function isWeeklyStreak(value: unknown): value is WeeklyStreak {
   );
 }
 
-function isWeekProgress(value: unknown): value is WeekProgress {
+export function isWeekProgress(value: unknown): value is WeekProgress {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -272,7 +272,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   };
 }
 
-function isMissionState(value: unknown): value is MissionState {
+export function isMissionState(value: unknown): value is MissionState {
   if (typeof value !== "object" || value === null) {
     return false;
   }
@@ -288,7 +288,7 @@ function isMissionState(value: unknown): value is MissionState {
 const CLAIMABLE_TIERS: readonly StickerTier[] = ["earned", "silver", "gold"];
 
 /** A deck→tier ledger: keys must be sticker-deck-like, values real claim tiers. */
-function isCategoryAwards(
+export function isCategoryAwards(
   value: unknown,
 ): value is Readonly<Record<string, StickerTier>> {
   if (typeof value !== "object" || value === null) {
@@ -306,7 +306,7 @@ function isCategoryAwards(
   );
 }
 
-function isPetCollection(value: unknown): value is PetCollection {
+export function isPetCollection(value: unknown): value is PetCollection {
   if (typeof value !== "object" || value === null) {
     return false;
   }

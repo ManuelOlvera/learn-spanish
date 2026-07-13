@@ -1,5 +1,3 @@
-import type { KidId } from "./kid";
-
 /** La mascota: each kid's creature, fed with stars, growing in stages.
  *  It can get hungry (a gentle droop) but never suffers worse. */
 export interface PetState {
@@ -20,11 +18,6 @@ export interface PetState {
   /** Which growth form (stage index) to display. Undefined follows the newest
    *  reached form; a kid may pin an earlier one (see petMaxForm/petFormEmoji). */
   readonly form?: number;
-}
-
-export interface PetStore {
-  load(kid: KidId): Promise<PetState | null>;
-  save(kid: KidId, pet: PetState): Promise<void>;
 }
 
 /** Adoptable creatures — a renewable star sink: each new pet starts as a

@@ -1,5 +1,14 @@
 # Claude skills review — 2026-07-13
 
+> **Status update (2026-07-13):** all findings implemented — `diagram`, `adr`,
+> and `ship` rewritten for this repo (real ADR list, real architecture, no
+> phantom shared-prod-DB); `docs/workflows/adding-a-feature.md` and
+> `fixing-a-bug.md` written and indexed so every skill hand-off resolves;
+> `ship` now runs the gates explicitly (no CI) and checks README pack counts;
+> `investigate`'s offline-queue line corrected; `verify` gained the sync-panel
+> gating and album-screenshot checks; the `/add-content` skill exists;
+> `expo.dev` dropped from settings permissions.
+
 The skill set is well-designed as a system: shape → design-variants → TDD →
 verify → ship mirrors the CLAUDE.md workflow, descriptions carry real trigger
 conditions, and `verify` encodes sandbox lessons that would otherwise be

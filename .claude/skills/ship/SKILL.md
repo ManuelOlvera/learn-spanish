@@ -1,55 +1,62 @@
 ---
 name: ship
-description: Use to push a verified change to `main` — the deploy step at the tail of the feature and bug workflows. Pushing `main` auto-deploys `apps/web` to prod, so this skill walks the prod-safety checklist: confirm the verify gate passed, enforce migration-before-push ordering (expand/contract), clean up test data, verify the git identity, then commit and push. Do NOT use to push a change that has not cleared `/verify`.
+description: Use to push a verified change to `main` — the deploy step at the tail of the feature and bug workflows. Pushing `main` auto-deploys `apps/web` to prod, so this skill walks the prod-safety checklist: run the gates (there is no CI — this checklist is the only gate), confirm `/verify` passed, enforce migration-before-push ordering, clean up test data, verify the git identity, then commit and push. Do NOT use to push a change that has not cleared `/verify`.
 ---
 
 # Ship a verified change to `main`
 
 Goal: get a change onto `main` **safely**, given that pushing `main`
-auto-deploys `apps/web` straight to prod against the one shared prod database.
-This skill is the codification of the workflows' final "ship" step — run it
-instead of pushing by hand. The failure mode it prevents is a deploy that
-depends on schema not yet live, or a push on the wrong identity / a failed gate.
-
-Authoritative procedure lives in [`docs/runbooks.md`](../../../docs/runbooks.md)
-(migrations, rollback). This skill is the checklist; the runbook is the detail.
+auto-deploys `apps/web` straight to prod and **there is no CI** — this
+checklist is the only thing between a bad commit and a deployed one. It is the
+final step of [`docs/workflows/adding-a-feature.md`](../../../docs/workflows/adding-a-feature.md)
+and [`fixing-a-bug.md`](../../../docs/workflows/fixing-a-bug.md); the deploy
+and rollback detail lives in [`docs/runbooks.md`](../../../docs/runbooks.md).
 
 ## The gate — do not skip
 
-1. **Confirm `/verify` cleared.** Only ship on a `PASS` or a `SKIP` (no runtime
-   surface). On `FAIL` or `BLOCKED`, **stop** — do not push; report and keep
-   working. A verify pass is standing authorization to push without asking
-   (`docs/workflows/adding-a-feature.md` step 11); a non-pass revokes it.
+1. **Run the gates explicitly** (nobody else will):
+   ```
+   pnpm test && pnpm typecheck && pnpm lint && pnpm build
+   ```
+   Any failure stops the ship.
 
-2. **Migration-before-push ordering.** Check whether the push includes
+2. **Confirm `/verify` cleared.** Only ship on a `PASS` or a `SKIP` (no runtime
+   surface). On `FAIL` or `BLOCKED`, **stop** — do not push; report and keep
+   working. A verify pass is standing authorization to push without asking;
+   a non-pass revokes it.
+
+3. **Migration-before-push ordering.** Check whether the push includes
    `supabase/migrations/**`:
    ```
    git diff --name-only @{push}.. -- supabase/migrations/ 2>/dev/null || git diff --name-only origin/main -- supabase/migrations/
    ```
-   If it lists any file, the migration **must already be applied to the prod DB**
-   before you push — new code may never depend on schema that isn't live yet
-   (ADR-005, `docs/adr/005-forward-only-migrations.md`). Follow the
-   expand/contract sequence in the runbook, apply the SQL to prod by hand, verify
-   with a quick read query, **then** push. Migrations are forward-only — never
-   revert; fix forward. If it lists nothing, this step is a no-op.
+   If it lists any file, that SQL **must already be applied to the live
+   Supabase project** before you push — new code may never depend on schema
+   that isn't live yet (the app's delete/put RPC calls fail otherwise). Apply
+   per the runbook (`supabase db push` or the SQL editor), verify with a quick
+   call, **then** push. Fix schema problems forward with a new migration;
+   never edit an applied one. If it lists nothing, this step is a no-op.
 
-3. **Clean up throwaway test data.** If `/verify` created test accounts or rows
-   in the shared prod DB, delete them now — the prod DB is shared.
+4. **Clean up throwaway test data.** If `/verify` or a smoke test wrote rows to
+   the shared Supabase `progress` table, delete them (the `delete_progress`
+   RPC exists for exactly this).
 
-4. **Verify the git identity.** `git config user.email` must be
+5. **Verify the git identity.** `git config user.email` must be
    `olverask@protonmail.com` before committing or pushing.
 
-5. **Docs hygiene.** Confirm behavior/interface/config changes carried their docs
-   in the same change (README, `docs/features/*`, inline comments, `docs/README.md`
-   index for any new doc). Don't ship docs trailing the code.
+6. **Docs hygiene.** Confirm behavior/interface/config changes carried their
+   docs in the same change: README (including the deck/word **pack counts** in
+   the Features section — the drift that actually happens),
+   `docs/features/shipped.md`, roadmap check-offs, inline comments,
+   `docs/README.md` index for any new doc.
 
 ## Then push
 
 Commit and push to `main` as `Manuel Olvera <olverask@protonmail.com>` — no
 feature branch, no PR (trunk-based solo flow). Once the gate above is clear,
-push **without asking for confirmation**.
+push **without asking for confirmation**. After the push: report and stop —
+never poll prod or wait for propagation.
 
-If the deploy turns out bad, recovery is [Rolling back a bad
-deploy](../../../docs/runbooks.md#rolling-back-a-bad-deploy) — remember a Vercel
-rollback turns auto-deploy **off** until you Undo Rollback, and it does **not**
-roll back the schema.
+If the deploy turns out bad, recovery is the Rollback section of
+[`docs/runbooks.md`](../../../docs/runbooks.md) — `npx vercel rollback` aliases
+the previous build instantly, and it does **not** roll back Supabase schema.

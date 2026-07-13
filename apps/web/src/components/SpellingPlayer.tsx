@@ -9,7 +9,7 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
-import { recordAnswer } from "@/lib/album";
+import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";

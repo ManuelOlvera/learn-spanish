@@ -16,9 +16,7 @@ import {
 } from "@learn-spanish/core";
 import type { KidId } from "@learn-spanish/core";
 import type { PetState } from "@learn-spanish/core";
-import { LocalStorageAlbumStore } from "./album-store";
-import { LocalStorageStreakStore } from "./streak-store";
-import { LocalStorageWordStatsStore } from "./word-stats-store";
+import { albumStore, streakStore, wordStatsStore } from "./client-container";
 import { getAvatars, setAvatar } from "./kid";
 import {
   getActivePet,
@@ -45,10 +43,6 @@ import {
   setFreezesCount,
   setStars,
 } from "./economy";
-
-const albumStore = new LocalStorageAlbumStore();
-const streakStore = new LocalStorageStreakStore();
-const wordStatsStore = new LocalStorageWordStatsStore();
 
 /** Build a ProgressSnapshot of everything on this device worth syncing. Shared
  *  by the transfer-code export and the cross-device sync (ADR 004). */

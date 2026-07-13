@@ -56,3 +56,16 @@ Forces that shaped the choice:
   anon key).
 - Device-local preferences (theme, selected kid) deliberately **do not** sync — they are
   per-device pointers, not progress.
+
+## Addendum (2026-07-13): concurrent pushes are last-write-wins, by design
+
+`put_progress` is a plain read-merge-write with no concurrency control: two devices
+pushing at once can race, and the loser's newest rewards vanish **from the cloud row
+only** — never from the losing device, whose local copy re-merges them in on its next
+pull/push, so the system self-heals within one exchange. For a family app whose writes
+are one-per-game-complete, that window is acceptable and not worth machinery.
+
+**Do not "fix" this** without weighing the two real options: (a) merge server-side in
+`put_progress` (jsonb union in SQL — makes pushes commutative but duplicates
+`mergeProgress` in a second language), or (b) an `updated_at` compare-and-swap with
+client retry. Revisit only if a lost-reward report is actually traced to this race.

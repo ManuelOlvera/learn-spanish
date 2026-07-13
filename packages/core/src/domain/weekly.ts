@@ -3,11 +3,13 @@
  *  ACTIVE_WEEK_DAYS distinct days; each active week bumps the weekly streak.
  *  Freezes (❄️) cover an idle week so one missed week can't wipe the streak. */
 
-/** Monday (UTC) of the week `date` falls in, as a dayKey "YYYY-MM-DD". Weeks
- *  are Monday-based, so the key sorts chronologically like a dayKey does. */
+/** Monday of the LOCAL week `date` falls in, as a dayKey "YYYY-MM-DD" — local
+ *  for the same reason dayKey is (see domain/daily.ts): a day must belong to
+ *  the week the family experiences, not the UTC one. Weeks are Monday-based,
+ *  so the key sorts chronologically like a dayKey does. */
 export function weekKey(date: Date): string {
   const d = new Date(
-    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
   );
   const sinceMonday = (d.getUTCDay() + 6) % 7; // 0 = Sun … 6 = Sat → days back
   d.setUTCDate(d.getUTCDate() - sinceMonday);
@@ -26,6 +28,12 @@ export const ACTIVE_WEEK_DAYS = 3;
 
 /** Every kid begins with three freezes in their profile. */
 export const STARTING_FREEZES = 3;
+
+/** A kid who has never had the freezes key starts with STARTING_FREEZES;
+ *  a stored 0 stays 0 (they really spent them all). */
+export function freezesOrStarting(stored: number | null): number {
+  return stored ?? STARTING_FREEZES;
+}
 
 /** What one freeze costs at the home store, in ⭐. */
 export const FREEZE_COST = 30;

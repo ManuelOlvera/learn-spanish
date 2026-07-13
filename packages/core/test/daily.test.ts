@@ -7,30 +7,39 @@ import { deckOf } from "./helpers";
 
 const decks = [deckOf(12), { ...deckOf(10), id: "other-deck" }];
 
+// Dates below are constructed in LOCAL time (no Z suffix) on purpose: a "day"
+// is the local calendar day, and these tests must pass in any timezone.
 describe("dayKey", () => {
-  it("formats a date as YYYY-MM-DD in UTC", () => {
-    expect(dayKey(new Date("2026-07-10T23:59:00Z"))).toBe("2026-07-10");
-    expect(dayKey(new Date("2026-01-02T00:00:00Z"))).toBe("2026-01-02");
+  it("formats the local calendar day as YYYY-MM-DD", () => {
+    expect(dayKey(new Date("2026-07-10T12:00:00"))).toBe("2026-07-10");
+    expect(dayKey(new Date("2026-01-02T00:00:00"))).toBe("2026-01-02");
+  });
+
+  it("keeps a late local evening on the same local day (the UTC regression)", () => {
+    // Under a UTC dayKey, 23:59 local is already "tomorrow" anywhere west of
+    // Greenwich — the carta del día flipped mid-evening and streaks skipped.
+    expect(dayKey(new Date(2026, 6, 10, 23, 59))).toBe("2026-07-10");
+    expect(dayKey(new Date(2026, 6, 10, 0, 0))).toBe("2026-07-10");
   });
 });
 
 describe("dailyCard", () => {
-  it("picks the same card all day", () => {
-    const a = dailyCard(decks, new Date("2026-07-10T08:00:00Z"));
-    const b = dailyCard(decks, new Date("2026-07-10T20:30:00Z"));
+  it("picks the same card all (local) day", () => {
+    const a = dailyCard(decks, new Date("2026-07-10T08:00:00"));
+    const b = dailyCard(decks, new Date("2026-07-10T20:30:00"));
     expect(a.id).toBe(b.id);
   });
 
   it("picks from the combined pack", () => {
     const all = new Set(decks.flatMap((d) => d.cards.map((c) => c.id)));
-    const card = dailyCard(decks, new Date("2026-07-10T08:00:00Z"));
+    const card = dailyCard(decks, new Date("2026-07-10T08:00:00"));
     expect(all.has(card.id)).toBe(true);
   });
 
   it("varies across days", () => {
     const picks = new Set<string>();
     for (let day = 1; day <= 14; day++) {
-      const date = new Date(`2026-07-${String(day).padStart(2, "0")}T12:00:00Z`);
+      const date = new Date(`2026-07-${String(day).padStart(2, "0")}T12:00:00`);
       picks.add(dailyCard(decks, date).id);
     }
     expect(picks.size).toBeGreaterThan(1);
@@ -88,7 +97,7 @@ describe("FeedStreakUseCase", () => {
       listener: { day: "2026-07-09", count: 2 },
     });
     const feed = new FeedStreakUseCase(store);
-    const result = await feed.execute("listener", new Date("2026-07-10T12:00:00Z"));
+    const result = await feed.execute("listener", new Date("2026-07-10T12:00:00"));
     expect(result).toEqual({ day: "2026-07-10", count: 3 });
     await expect(store.load("listener")).resolves.toEqual(result);
     await expect(store.load("reader")).resolves.toBeNull();
@@ -99,7 +108,7 @@ describe("FeedStreakUseCase", () => {
       reader: { day: "2026-07-10", count: 5 },
     });
     const feed = new FeedStreakUseCase(store);
-    const result = await feed.execute("reader", new Date("2026-07-10T20:00:00Z"));
+    const result = await feed.execute("reader", new Date("2026-07-10T20:00:00"));
     expect(result.count).toBe(5);
     expect(store.saves).toBe(0);
   });

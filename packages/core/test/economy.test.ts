@@ -33,17 +33,32 @@ describe("earnedStars", () => {
 
 describe("dailyMission", () => {
   it("gives 3 distinct tasks, stable all day, different per kid", () => {
-    const a1 = dailyMission(new Date("2026-07-11T08:00:00Z"), "listener");
-    const a2 = dailyMission(new Date("2026-07-11T21:00:00Z"), "listener");
+    const a1 = dailyMission(new Date("2026-07-11T08:00:00"), "listener");
+    const a2 = dailyMission(new Date("2026-07-11T21:00:00"), "listener");
     expect(a1).toEqual(a2);
     expect(new Set(a1).size).toBe(3);
     const days = new Set<string>();
     for (let d = 1; d <= 10; d++) {
       days.add(
-        dailyMission(new Date(`2026-07-${String(d).padStart(2, "0")}T09:00:00Z`), "listener").join(","),
+        dailyMission(new Date(`2026-07-${String(d).padStart(2, "0")}T09:00:00`), "listener").join(","),
       );
     }
     expect(days.size).toBeGreaterThan(3); // varies day to day
+  });
+
+  it("draws each kid's misión from their own pool (reader gets spelling)", () => {
+    // Spelling is reading practice a pre-reader can't do: it must never be
+    // asked of the listener, and over enough days it must show up for the
+    // reader — otherwise the per-kid pool isn't real.
+    let readerSawSpelling = false;
+    for (let d = 1; d <= 28; d++) {
+      const date = new Date(2026, 6, d, 9, 0);
+      expect(dailyMission(date, "listener")).not.toContain("spelling");
+      if (dailyMission(date, "reader").includes("spelling")) {
+        readerSawSpelling = true;
+      }
+    }
+    expect(readerSawSpelling).toBe(true);
   });
 
   it("maps activities to mission kinds", () => {

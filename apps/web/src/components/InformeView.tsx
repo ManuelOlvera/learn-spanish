@@ -4,16 +4,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ALL_KIDS,
+  isLearnedStat,
+  learnedThisWeek,
   pickReviewCards,
-  weakScore,
   type Deck,
   type KidId,
   type Streak,
+  type TrendHistory,
   type VocabularyCard,
   type WordStats,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { getAlbum, getStreak, getWordStats } from "@/lib/album";
+import {
+  getAlbum,
+  getStreak,
+  getWordStats,
+  sampleTrend,
+} from "@/lib/client-container";
 import { getAvatar, KID_META } from "@/lib/kid";
 import { getFreezes, getStars, getWeeklyCount } from "@/lib/economy";
 
@@ -31,6 +38,7 @@ interface KidReport {
   readonly stickers: number;
   readonly strong: readonly VocabularyCard[];
   readonly tricky: readonly VocabularyCard[];
+  readonly trend: TrendHistory;
 }
 
 function strongWords(
@@ -39,13 +47,59 @@ function strongWords(
   max: number,
 ): readonly VocabularyCard[] {
   return cards
-    .filter((c) => (stats[c.id]?.right ?? 0) > 0 && weakScore(stats[c.id]!) <= 0)
+    .filter((c) => stats[c.id] !== undefined && isLearnedStat(stats[c.id]!))
     .sort(
       (a, b) =>
         (stats[b.id]!.right - stats[b.id]!.wrong) -
         (stats[a.id]!.right - stats[a.id]!.wrong),
     )
     .slice(0, max);
+}
+
+/** The per-kid trend line: total learned, this week's delta, and a tiny bar
+ *  per sampled week. Parent-facing, so text is fine. */
+function TrendBlock({ trend }: { trend: TrendHistory }) {
+  const newest = trend[trend.length - 1];
+  if (newest === undefined) {
+    return null;
+  }
+  const delta = learnedThisWeek(trend);
+  const max = Math.max(...trend.map((s) => s.learned), 1);
+  return (
+    <div>
+      <h3 className="text-base font-extrabold text-ink/70">📈 Progreso</h3>
+      <p className="text-lg font-semibold">
+        {newest.learned} palabras aprendidas
+        {delta !== null ? (
+          <span className="ml-2 rounded-full border-2 border-ink bg-[var(--color-lime)] px-2 text-base font-extrabold">
+            {delta > 0 ? `+${delta}` : "="} esta semana
+          </span>
+        ) : (
+          <span className="ml-2 text-base font-semibold text-ink/50">
+            primera semana registrada
+          </span>
+        )}
+      </p>
+      {trend.length > 1 && (
+        <div
+          aria-label={`Learned words by week: ${trend
+            .map((s) => `${s.week}: ${s.learned}`)
+            .join(", ")}`}
+          className="mt-2 flex h-12 items-end gap-1"
+        >
+          {trend.map((sample) => (
+            <span
+              key={sample.week}
+              aria-hidden
+              title={`${sample.week}: ${sample.learned}`}
+              className="w-4 rounded-t-md border-2 border-ink bg-[var(--color-lime)]"
+              style={{ height: `${Math.max(12, (sample.learned / max) * 100)}%` }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 /** Parent-facing summary (text is fine here): what each kid has earned and
@@ -57,10 +111,12 @@ export function InformeView({ decks }: Props) {
     const cards = decks.filter((d) => !d.secret).flatMap((d) => d.cards);
     Promise.all(
       ALL_KIDS.map(async (kid): Promise<KidReport> => {
-        const [stats, stickers, streak] = await Promise.all([
+        const [stats, stickers, streak, trend] = await Promise.all([
           getWordStats.execute(kid),
           getAlbum.execute(kid),
           getStreak.execute(kid),
+          // Opening the informe takes (or refreshes) this week's trend sample.
+          sampleTrend.execute(kid, new Date()),
         ]);
         return {
           kid,
@@ -72,6 +128,7 @@ export function InformeView({ decks }: Props) {
           stickers: stickers.length,
           strong: strongWords(cards, stats, 5),
           tricky: pickReviewCards(cards, stats, 5),
+          trend,
         };
       }),
     )
@@ -147,6 +204,7 @@ export function InformeView({ decks }: Props) {
                 ❄️ {report.freezes}
               </span>
             </div>
+            <TrendBlock trend={report.trend} />
             <div>
               <h3 className="text-base font-extrabold text-ink/70">
                 💪 Palabras fuertes

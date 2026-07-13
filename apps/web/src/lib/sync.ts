@@ -10,7 +10,7 @@ import {
   PushProgressUseCase,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { SupabaseProgressStore } from "./supabase-progress-store";
+import { remoteProgress } from "./client-container";
 import { applySnapshot, currentSnapshot } from "./transfer";
 
 /**
@@ -20,8 +20,8 @@ import { applySnapshot, currentSnapshot } from "./transfer";
  */
 const SYNC_KEY = "palabras.sync.v1";
 
-// Configured once from env; null keeps the whole app local (pre-ADR-004).
-const remote = SupabaseProgressStore.fromEnv();
+// Wired in the client container; null keeps the whole app local (pre-ADR-004).
+const remote = remoteProgress;
 
 /** True only when a sync backend is configured for this deployment. */
 export function isSyncAvailable(): boolean {

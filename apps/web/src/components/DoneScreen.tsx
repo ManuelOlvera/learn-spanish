@@ -15,7 +15,7 @@ import {
   type StickerTier,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { awardSticker, getAlbum, getStreak } from "@/lib/album";
+import { awardSticker, getAlbum, getStreak } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import {
   addStars,

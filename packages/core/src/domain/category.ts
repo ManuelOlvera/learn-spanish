@@ -1,3 +1,4 @@
+import { stickerId } from "./album";
 import type { ActivityId } from "./album";
 import { kidForActivity } from "./kid";
 import type { KidId } from "./kid";
@@ -22,6 +23,23 @@ export function activitiesForKid(
     const owner = kidForActivity(activity);
     return owner === null || owner === kid;
   });
+}
+
+/** The completion tier of one album section for a kid, from its earnable
+ *  slots' counts. A slot earned before the tier system (in the album but with
+ *  no count) reads as one completion, matching the album's own tier display. */
+export function categoryTierFromAlbum(
+  kid: KidId,
+  deckId: string,
+  activities: readonly ActivityId[],
+  counts: Readonly<Record<string, number>>,
+  earned: ReadonlySet<string>,
+): StickerTier {
+  const slots = activitiesForKid(activities, kid).map((activity) => {
+    const id = stickerId(kid, deckId, activity);
+    return counts[id] ?? (earned.has(id) ? 1 : 0);
+  });
+  return categoryTier(slots);
 }
 
 /** Tiers low→high; `none` = not yet earned. Index doubles as rank. */

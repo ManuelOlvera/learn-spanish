@@ -1,6 +1,17 @@
 # Code-quality review — 2026-07-13
 
-State at review: 217/217 core tests pass, coverage 96.9% (floor 80), typecheck
+> **Status update (2026-07-13):** findings 1–5 implemented — #1 with the
+> security pass (join persists last + requires an existing row); #2 `dayKey`/
+> `weekKey` are now the LOCAL calendar day/week, with timezone-portable tests;
+> #3 economy-store reads validate with the exported core guards; #4 all three
+> packages lint (`rules-of-hooks` error + `exhaustive-deps` warn + Next plugin
+> in web — the four surfaced dep warnings were fixed or annotated); #5
+> `MissionCard`/`WeeklyCard`/`SecretDeckTile` extracted from HomeView,
+> `KIND_EMOJI` at module scope, `useDeniedWobble()` shared with MascotaView.
+> **#6 deferred deliberately:** the sanitize/merge registry refactor of
+> `transfer.ts` buys little until the *next* snapshot field lands, and the
+> current code is locked by exhaustive merge tests — do the registry as the
+> first step of whichever change next adds a field. 217/217 core tests pass, coverage 96.9% (floor 80), typecheck
 clean in all three packages, TypeScript strict, no unjustified `any` found.
 Quality is high — comments explain *why*, invariants (idempotent merges, trust
 boundaries) are named where they're enforced. Findings in priority order.

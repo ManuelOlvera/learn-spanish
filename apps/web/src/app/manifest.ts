@@ -17,6 +17,14 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/svg+xml",
         purpose: "any",
       },
+      {
+        // Full-bleed art inside the safe zone, so Android launchers can mask
+        // it into their shape instead of letterboxing the "any" icon.
+        src: "/icon-maskable.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+        purpose: "maskable",
+      },
     ],
   };
 }

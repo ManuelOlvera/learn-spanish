@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   dailyCard,
@@ -17,7 +17,7 @@ import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
 import { syncPull, syncPush } from "@/lib/sync";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
-import { feedStreak, getStreak, getWordStats } from "@/lib/album";
+import { feedStreak, getStreak, getWordStats } from "@/lib/client-container";
 import {
   buyFreeze,
   claimMissionBonus,
@@ -32,17 +32,18 @@ import {
   type WeeklyView,
 } from "@/lib/economy";
 import {
-  ACTIVE_WEEK_DAYS,
   anyPetHungry,
   dayKey,
-  FREEZE_COST,
   MISSION_BONUS,
   petFormEmoji,
   petMaxForm,
 } from "@learn-spanish/core";
 import { WeeklyBurst } from "@/components/WeeklyBurst";
 import { MissionBurst } from "@/components/MissionBurst";
-import { feedbackFanfare, feedbackRacha, feedbackWrong } from "@/lib/feedback";
+import { MissionCard } from "@/components/MissionCard";
+import { WeeklyCard } from "@/components/WeeklyCard";
+import { SecretDeckTile } from "@/components/SecretDeckTile";
+import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
 
@@ -67,32 +68,44 @@ export function HomeView({ decks, groups }: Props) {
   const [burst, setBurst] = useState<WeeklyView["outcome"] | null>(null);
   // True while the daily-mission trophy celebration is on screen.
   const [missionBurst, setMissionBurst] = useState(false);
-  const [nope, setNope] = useState(0);
   // Bumped when a cross-device pull applies changes, to re-read home state.
   const [syncNonce, setSyncNonce] = useState(0);
 
   // Secret decks stay out of the daily card, review, and shelves until bought.
-  const publicDecks = decks.filter((d) => !d.secret);
-  const secretDecks = decks.filter((d) => d.secret);
+  // Memoized so the effects below can depend on them without re-running every
+  // render (the filter would otherwise mint a fresh array identity each time).
+  const publicDecks = useMemo(() => decks.filter((d) => !d.secret), [decks]);
+  const secretDecks = useMemo(() => decks.filter((d) => d.secret), [decks]);
 
   useEffect(() => {
     warmUpVoices();
     setKid(getSelectedKid());
     // Computed client-side: a build-time "today" would freeze the card.
     setDaily(dailyCard(publicDecks, new Date()));
-  }, [decks]);
+  }, [publicDecks]);
 
-  // Cross-device sync (ADR 004): pull the latest on app open, then re-read
-  // home state if anything merged in. No-op when unpaired; never blocks render.
+  // Cross-device sync (ADR 004): pull the latest on app open — and again each
+  // time the tab becomes visible, so a tablet left open all afternoon still
+  // picks up the phone's progress. No-op when unpaired; never blocks render.
   useEffect(() => {
     let cancelled = false;
-    void syncPull().then((applied) => {
-      if (applied && !cancelled) {
-        setSyncNonce((n) => n + 1);
+    const pull = () => {
+      void syncPull().then((applied) => {
+        if (applied && !cancelled) {
+          setSyncNonce((n) => n + 1);
+        }
+      });
+    };
+    pull();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        pull();
       }
-    });
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, []);
 
@@ -139,11 +152,54 @@ export function HomeView({ decks, groups }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [kid, decks, syncNonce]);
+  }, [kid, publicDecks, syncNonce]);
 
   function pick(id: KidId) {
     setSelectedKid(id);
     setKid(id);
+  }
+
+  /** Open the misión chest: bank the bonus, celebrate, and push the claimed
+   *  flag so the other device sees it done (no re-claim). */
+  function claimBonus() {
+    const balance = kid ? claimMissionBonus(kid) : null;
+    if (balance !== null) {
+      feedbackFanfare();
+      setStars(balance);
+      setMission(kid ? getMission(kid) : null);
+      setMissionBurst(true);
+      void syncPush();
+    }
+  }
+
+  /** Try to buy a ❄️; false lets the WeeklyCard play its denied wobble. */
+  function handleBuyFreeze(): boolean {
+    if (!kid) {
+      return false;
+    }
+    const res = buyFreeze(kid);
+    if (res === null) {
+      return false;
+    }
+    feedbackRacha();
+    setStars(res.stars);
+    setWeekly((w) => (w ? { ...w, freezes: res.freezes } : w));
+    return true;
+  }
+
+  /** Try to unlock a secret deck; false lets the tile play its denied wobble. */
+  function handleUnlock(deckId: string, cost: number): boolean {
+    if (!kid) {
+      return false;
+    }
+    const balance = unlockDeck(kid, deckId, cost);
+    if (balance === null) {
+      return false;
+    }
+    feedbackRacha();
+    setStars(balance);
+    setUnlockedDecks((prev) => [...prev, deckId]);
+    return true;
   }
 
   function hearDaily(card: VocabularyCard) {
@@ -241,125 +297,10 @@ export function HomeView({ decks, groups }: Props) {
         </button>
       )}
 
-      {mission !== null && (
-        <div
-          className="sticker relative flex w-full max-w-md items-center justify-between gap-3 px-5 py-3"
-          aria-label="Today's mission"
-        >
-          <span aria-hidden className="sticker-peel" />
-          <span className="flex items-center gap-2">
-            <span aria-hidden className="text-3xl">
-              🎯
-            </span>
-            <span className="text-lg font-extrabold">La misión</span>
-          </span>
-          <span className="flex items-center gap-2">
-            {mission.kinds.map((kind) => {
-              const done = mission.state.done.includes(kind);
-              const KIND_EMOJI: Record<string, string> = {
-                learn: "📖", quiz: "🔍", "si-no": "✅", match: "🧩",
-                connect: "🔗", scene: "👀", frases: "💬", duel: "⚔️",
-              };
-              return (
-                <span
-                  key={kind}
-                  aria-label={`${kind}: ${done ? "done" : "to do"}`}
-                  className={`relative flex h-12 w-12 items-center justify-center rounded-2xl border-4 text-2xl ${
-                    done ? "border-ink bg-[var(--color-lime)]" : "border-dashed border-ink/30"
-                  }`}
-                >
-                  <span aria-hidden>{KIND_EMOJI[kind]}</span>
-                </span>
-              );
-            })}
-            {mission.complete && !mission.state.claimed ? (
-              <button
-                type="button"
-                onClick={() => {
-                  const balance = kid ? claimMissionBonus(kid) : null;
-                  if (balance !== null) {
-                    feedbackFanfare();
-                    setStars(balance);
-                    setMission(kid ? getMission(kid) : null);
-                    setMissionBurst(true);
-                    // Push the claimed flag + bonus stars so the other device
-                    // sees the mission as done-and-claimed (no re-claim).
-                    void syncPush();
-                  }
-                }}
-                aria-label={`Open the mission chest (+${MISSION_BONUS} stars)`}
-                className="sticker chest-tease flex h-14 w-14 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
-              >
-                🎁
-              </button>
-            ) : mission.state.claimed ? (
-              <span aria-label="Mission bonus claimed" className="text-3xl">
-                🏆
-              </span>
-            ) : null}
-          </span>
-        </div>
-      )}
+      {mission !== null && <MissionCard mission={mission} onClaim={claimBonus} />}
 
       {weekly !== null && (
-        <div
-          className="sticker relative flex w-full max-w-md items-center justify-between gap-3 px-5 py-3"
-          aria-label={`Weekly streak: ${weekly.count} weeks, ${weekly.activeDays} of ${ACTIVE_WEEK_DAYS} days this week, ${weekly.freezes} freezes`}
-        >
-          <span aria-hidden className="sticker-peel" />
-          <span className="flex items-center gap-2">
-            <span aria-hidden className="text-3xl">
-              🔥
-            </span>
-            <span className="flex flex-col leading-tight">
-              <span className="text-lg font-extrabold">
-                Semana {weekly.count}
-              </span>
-              <span aria-hidden className="mt-1 flex gap-1">
-                {Array.from({ length: ACTIVE_WEEK_DAYS }, (_, i) => (
-                  <span
-                    key={i}
-                    className={`h-3 w-3 rounded-full border-2 border-ink ${
-                      i < weekly.activeDays ? "bg-[var(--color-lime)]" : "bg-white"
-                    }`}
-                  />
-                ))}
-              </span>
-            </span>
-          </span>
-          <button
-            type="button"
-            key={`freeze-${nope}`}
-            onClick={() => {
-              if (!kid) return;
-              const res = buyFreeze(kid);
-              if (res === null) {
-                feedbackWrong();
-                setNope((n) => n + 1);
-                return;
-              }
-              feedbackRacha();
-              setStars(res.stars);
-              setWeekly((w) => (w ? { ...w, freezes: res.freezes } : w));
-            }}
-            aria-label={`Buy a freeze for ${FREEZE_COST} stars — you have ${weekly.freezes}`}
-            className={`sticker flex items-center gap-1 px-3 py-2 text-lg font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none ${
-              stars < FREEZE_COST ? "wobble" : ""
-            }`}
-            style={{ "--accent": "#7dd3fc" } as React.CSSProperties}
-          >
-            <span aria-hidden className="text-2xl">
-              ❄️
-            </span>
-            <span>{weekly.freezes}</span>
-            <span
-              aria-hidden
-              className="ml-1 rounded-full border-2 border-ink bg-white px-2 text-sm"
-            >
-              +{FREEZE_COST}⭐
-            </span>
-          </button>
-        </div>
+        <WeeklyCard weekly={weekly} stars={stars} onBuyFreeze={handleBuyFreeze} />
       )}
 
       {weakCount >= REVIEW_MIN && (
@@ -465,69 +406,15 @@ export function HomeView({ decks, groups }: Props) {
           <span className="text-xs font-semibold text-ink/50">Sentences</span>
         </Link>
 
-        {secretDecks.map((deck) => {
-          const unlocked = unlockedDecks.includes(deck.id);
-          const cost = deck.unlockCost ?? 0;
-          if (unlocked) {
-            return (
-              <Link
-                key={deck.id}
-                href={`/deck/${deck.id}`}
-                aria-label={`${deck.nameEnglish} — unlocked`}
-                style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
-                className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
-              >
-                <span aria-hidden className="sticker-peel" />
-                <span aria-hidden className="text-5xl sm:text-6xl">
-                  {deck.emoji}
-                </span>
-                <span className="text-center text-xl font-extrabold sm:text-2xl">
-                  {deck.nameSpanish}
-                </span>
-                <span className="text-xs font-semibold text-ink/50">
-                  {deck.nameEnglish}
-                </span>
-              </Link>
-            );
-          }
-          return (
-            <button
-              type="button"
-              key={`${deck.id}-${nope}`}
-              onClick={() => {
-                if (!kid) return;
-                const balance = unlockDeck(kid, deck.id, cost);
-                if (balance === null) {
-                  feedbackWrong();
-                  setNope((n) => n + 1);
-                  return;
-                }
-                feedbackRacha();
-                setStars(balance);
-                setUnlockedDecks([...unlockedDecks, deck.id]);
-              }}
-              aria-label={`Unlock the mystery deck for ${cost} stars`}
-              style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
-              className={`sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                stars < cost ? "wobble" : ""
-              }`}
-            >
-              <span aria-hidden className="sticker-peel" />
-              <span aria-hidden className="text-5xl opacity-70 sm:text-6xl">
-                🔮
-              </span>
-              <span className="text-center text-xl font-extrabold sm:text-2xl">
-                ??? 🔒
-              </span>
-              <span
-                aria-hidden
-                className="rounded-full border-2 border-ink bg-white px-3 text-base font-extrabold"
-              >
-                {cost}⭐
-              </span>
-            </button>
-          );
-        })}
+        {secretDecks.map((deck) => (
+          <SecretDeckTile
+            key={deck.id}
+            deck={deck}
+            unlocked={unlockedDecks.includes(deck.id)}
+            stars={stars}
+            onUnlock={() => handleUnlock(deck.id, deck.unlockCost ?? 0)}
+          />
+        ))}
       </div>
     </main>
   );

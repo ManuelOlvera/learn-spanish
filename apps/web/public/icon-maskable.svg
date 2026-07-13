@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Maskable variant: full-bleed background (the launcher supplies the
+       shape) and the card kept inside the ~80% safe zone so no mask crops it. -->
+  <rect width="512" height="512" fill="#a3e635"/>
+  <rect x="112" y="112" width="288" height="288" rx="56" fill="#ffffff" stroke="#221f1a" stroke-width="18"/>
+  <text x="256" y="290" font-size="170" text-anchor="middle">🦋</text>
+</svg>

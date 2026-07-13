@@ -1,5 +1,14 @@
 # Architecture review — 2026-07-13
 
+> **Status update (2026-07-13):** findings 1–4 implemented — the economy
+> orchestration now lives in core as an `EconomyStore` port + 18 tested use
+> cases (`apps/web/src/lib/economy.ts` is a thin facade; purchase prices come
+> from core catalogs, not callers); all client adapters are constructed only
+> in `apps/web/src/lib/client-container.ts`; localStorage migrations run once
+> from `storage-migrations.ts`; the sync last-write-wins trade-off is recorded
+> as an addendum in ADR 004. Findings 5–6 were no-action-by-design and stand.
+> See `docs/features/shipped.md` for the write-up.
+
 The declared architecture (DDD layering in `packages/core`, presentation-only
 apps, ports in `domain/`, adapters wired at composition roots) is real, not
 aspirational: core has zero runtime dependencies, never imports a framework,
