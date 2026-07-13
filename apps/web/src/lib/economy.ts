@@ -128,6 +128,16 @@ export function getMission(kid: KidId): MissionView {
   return { kinds, state, complete: missionComplete(state, kinds) };
 }
 
+/** The raw stored mission state (any day), for sync. `getMission` is the
+ *  today-scoped view; this is the untouched record the snapshot carries. */
+export function getStoredMission(kid: KidId): MissionState | null {
+  return readDoc<MissionState>(MISSION_KEY)[kid] ?? null;
+}
+
+export function saveStoredMission(kid: KidId, state: MissionState): void {
+  writeDoc(MISSION_KEY, kid, state);
+}
+
 export function markActivityDone(kid: KidId, kind: MissionKind): MissionView {
   const today = dayKey(new Date());
   const stored = readDoc<MissionState>(MISSION_KEY)[kid] ?? null;

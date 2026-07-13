@@ -15,7 +15,7 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
-import { syncPull } from "@/lib/sync";
+import { syncPull, syncPush } from "@/lib/sync";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak, getWordStats } from "@/lib/album";
 import {
@@ -282,6 +282,9 @@ export function HomeView({ decks, groups }: Props) {
                     setStars(balance);
                     setMission(kid ? getMission(kid) : null);
                     setMissionBurst(true);
+                    // Push the claimed flag + bonus stars so the other device
+                    // sees the mission as done-and-claimed (no re-claim).
+                    void syncPush();
                   }
                 }}
                 aria-label={`Open the mission chest (+${MISSION_BONUS} stars)`}

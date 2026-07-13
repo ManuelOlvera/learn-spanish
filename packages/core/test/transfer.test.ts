@@ -108,6 +108,58 @@ describe("mergeProgress", () => {
     expect(merged.avatars).toEqual({ listener: "🦖", reader: "🐼" });
   });
 
+  it("merges today's mission across devices (union done, sticky claimed)", () => {
+    const merged = mergeProgress(
+      {
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        missions: {
+          reader: { day: "2026-07-14", done: ["quiz"], claimed: false },
+        },
+      },
+      {
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        missions: {
+          reader: { day: "2026-07-14", done: ["match", "quiz"], claimed: true },
+        },
+      },
+    );
+    expect(merged.missions?.reader).toEqual({
+      day: "2026-07-14",
+      done: ["quiz", "match"], // union, no duplicates
+      claimed: true, // claimed on either device stays claimed
+    });
+  });
+
+  it("lets a later mission day supersede an earlier one", () => {
+    const merged = mergeProgress(
+      {
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        missions: {
+          listener: { day: "2026-07-13", done: ["learn", "duel"], claimed: true },
+        },
+      },
+      {
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        missions: {
+          listener: { day: "2026-07-14", done: ["scene"], claimed: false },
+        },
+      },
+    );
+    expect(merged.missions?.listener).toEqual({
+      day: "2026-07-14",
+      done: ["scene"],
+      claimed: false,
+    });
+  });
+
   it("keeps the higher category-award tier per deck (never re-pays a chest)", () => {
     const merged = mergeProgress(
       {

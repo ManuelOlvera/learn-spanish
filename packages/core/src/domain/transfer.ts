@@ -6,6 +6,7 @@ import type { PetCollection, PetState } from "./mascota";
 import type { WeekProgress, WeeklyStreak } from "./weekly";
 import { tierRank } from "./category";
 import type { StickerTier } from "./sticker-tiers";
+import type { MissionState } from "./mission";
 
 /**
  * One-time progress transfer between devices — a copy-able code, no backend
@@ -42,6 +43,10 @@ export interface ProgressSnapshot {
   /** Highest category-completion tier each deck's chest has been paid out for,
    *  per kid — merge keeps the higher tier so a chest never re-pays on sync. */
   readonly categoryAwards?: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>>;
+  /** Today's daily-mission state per kid — merge unions the done kinds within a
+   *  day (later day supersedes) and keeps `claimed` once set, so a completed
+   *  mission shows complete on every device and the bonus can't be re-claimed. */
+  readonly missions?: Partial<Record<KidId, MissionState>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -211,6 +216,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     candidate.categoryAwards,
     isCategoryAwards,
   );
+  const missions = sanitizeKidRecord(candidate.missions, isMissionState);
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -231,7 +237,21 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
     ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
+    ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
+}
+
+function isMissionState(value: unknown): value is MissionState {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const m = value as MissionState;
+  return (
+    typeof m.day === "string" &&
+    Array.isArray(m.done) &&
+    m.done.every((kind) => typeof kind === "string") &&
+    typeof m.claimed === "boolean"
+  );
 }
 
 const CLAIMABLE_TIERS: readonly StickerTier[] = ["earned", "silver", "gold"];
@@ -455,6 +475,25 @@ export function mergeProgress(
     categoryAwards[kid] = merged;
   }
 
+  // Daily mission: a later day supersedes; within the same day, union the done
+  // kinds and keep `claimed` once either device has claimed the bonus.
+  const missions: Partial<Record<KidId, MissionState>> = { ...(current.missions ?? {}) };
+  for (const [kid, incomingMission] of Object.entries(incoming.missions ?? {}) as [
+    KidId,
+    MissionState,
+  ][]) {
+    const existing = missions[kid];
+    if (existing === undefined || incomingMission.day > existing.day) {
+      missions[kid] = incomingMission;
+    } else if (incomingMission.day === existing.day) {
+      missions[kid] = {
+        day: existing.day,
+        done: [...new Set([...existing.done, ...incomingMission.done])],
+        claimed: existing.claimed || incomingMission.claimed,
+      };
+    }
+  }
+
   // Pet collections: union owned species, max-merge each pet, keep an active.
   const petCollections: Partial<Record<KidId, PetCollection>> = {
     ...(current.petCollections ?? {}),
@@ -495,6 +534,7 @@ export function mergeProgress(
     ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
     ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
+    ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
 }
 

@@ -1,5 +1,23 @@
 # Shipped features
 
+## 2026-07-13 — Fix: the daily misión now syncs across devices
+
+**Bug:** a kid could finish today's misión on one device and still see it as
+incomplete on another — the `ProgressSnapshot` carried everything *except* the
+mission, so completion never propagated. Because mission-complete also feeds the
+weekly streak (`weekProgress`, which *did* sync), a device could even show the
+week advancing while the mission card looked untouched; and the un-synced
+`claimed` flag let the +10⭐ chest be claimed once per device.
+
+**Fix:** added `missions` to `ProgressSnapshot`. `mergeProgress` unions the done
+kinds within a day (a later day supersedes) and keeps `claimed` once either
+device has set it — so a finished misión reads complete everywhere and the bonus
+can't be re-claimed. Wired through `currentSnapshot`/`applySnapshot`
+(`getStoredMission`/`saveStoredMission`) and pushed on claim as well as on game
+complete. `packages/core` merge + sanitize covered by tests; verified end-to-end
+via the copy-paste transfer code (same snapshot path): a completed misión on
+device A shows complete on device B after import.
+
 ## 2026-07-13 — Completable categories + tiered completion chests
 
 The album showed all 11 activity slots per category to every kid, but a kid only

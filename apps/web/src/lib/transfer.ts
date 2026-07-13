@@ -5,6 +5,7 @@ import {
   decodeProgress,
   encodeProgress,
   mergeProgress,
+  type MissionState,
   type PetCollection,
   type ProgressSnapshot,
   type StickerTier,
@@ -28,6 +29,7 @@ import {
   getPetCollection,
   getStars,
   getStickerCounts,
+  getStoredMission,
   getUnlockedDecks,
   getWeeklyStreak,
   getWeekProgressDoc,
@@ -36,6 +38,7 @@ import {
   saveOwnedAvatars,
   savePetCollection,
   saveStickerCounts,
+  saveStoredMission,
   saveUnlockedDecks,
   saveWeeklyStreak,
   saveWeekProgress,
@@ -63,6 +66,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
   const weekly: Partial<Record<KidId, WeeklyStreak>> = {};
   const weekProgress: Partial<Record<KidId, WeekProgress>> = {};
   const categoryAwards: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>> = {};
+  const missions: Partial<Record<KidId, MissionState>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
     if (streak !== null) {
@@ -101,6 +105,10 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (Object.keys(awards).length > 0) {
       categoryAwards[kid] = awards;
     }
+    const mission = getStoredMission(kid);
+    if (mission !== null) {
+      missions[kid] = mission;
+    }
   }
   return {
     stickers,
@@ -118,6 +126,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
+    ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
 }
 
@@ -182,6 +191,10 @@ export async function applySnapshot(merged: ProgressSnapshot): Promise<void> {
     const kidAwards = merged.categoryAwards?.[kid];
     if (kidAwards !== undefined) {
       saveCategoryAwards(kid, kidAwards);
+    }
+    const kidMission = merged.missions?.[kid];
+    if (kidMission !== undefined) {
+      saveStoredMission(kid, kidMission);
     }
   }
   if (merged.stickerCounts !== undefined) {
