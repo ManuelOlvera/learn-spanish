@@ -41,7 +41,8 @@ import {
   petMaxForm,
 } from "@learn-spanish/core";
 import { WeeklyBurst } from "@/components/WeeklyBurst";
-import { feedbackRacha, feedbackWrong } from "@/lib/feedback";
+import { MissionBurst } from "@/components/MissionBurst";
+import { feedbackFanfare, feedbackRacha, feedbackWrong } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
 
@@ -64,6 +65,8 @@ export function HomeView({ decks, groups }: Props) {
   const [unlockedDecks, setUnlockedDecks] = useState<readonly string[]>([]);
   const [weekly, setWeekly] = useState<WeeklyView | null>(null);
   const [burst, setBurst] = useState<WeeklyView["outcome"] | null>(null);
+  // True while the daily-mission trophy celebration is on screen.
+  const [missionBurst, setMissionBurst] = useState(false);
   const [nope, setNope] = useState(0);
   // Bumped when a cross-device pull applies changes, to re-read home state.
   const [syncNonce, setSyncNonce] = useState(0);
@@ -174,6 +177,12 @@ export function HomeView({ decks, groups }: Props) {
           onDone={() => setBurst(null)}
         />
       )}
+      {missionBurst && (
+        <MissionBurst
+          bonus={MISSION_BONUS}
+          onDone={() => setMissionBurst(false)}
+        />
+      )}
       <header className="relative w-full text-center">
         <h1 className="text-6xl font-extrabold tracking-tight sm:text-7xl">
           ¡Palabras!
@@ -269,9 +278,10 @@ export function HomeView({ decks, groups }: Props) {
                 onClick={() => {
                   const balance = kid ? claimMissionBonus(kid) : null;
                   if (balance !== null) {
-                    feedbackRacha();
+                    feedbackFanfare();
                     setStars(balance);
                     setMission(kid ? getMission(kid) : null);
+                    setMissionBurst(true);
                   }
                 }}
                 aria-label={`Open the mission chest (+${MISSION_BONUS} stars)`}

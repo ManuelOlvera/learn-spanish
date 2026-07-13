@@ -379,7 +379,8 @@ moment and a reason to spend:
 - **La misión del día 🎯** — three activity kinds per day (deterministic
   per date+kid), shown as a home card with slots that check off as
   activities complete; finishing all three reveals a bonus chest worth
-  **+10 ⭐** (`domain/mission.ts`).
+  **+10 ⭐** (`domain/mission.ts`). Claiming the chest fires a full-screen
+  trophy celebration (`MissionBurst` — confetti + fanfare, tap/auto-dismiss).
 - **Gold stickers 🥇** — album slots now tier up with replays: 1× earned,
   3× silver, 5× gold (completion counts in a new store; pre-tier stickers
   count as one). Tier-ups get their own done-screen chip and album badges.
