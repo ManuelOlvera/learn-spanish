@@ -18,6 +18,27 @@ Manual deploy (bypass git, e.g. testing a working-tree state) from the repo root
 npx vercel deploy --prod --yes    # remote build; ~1 min
 ```
 
+## Enable cross-device sync (Supabase, ADR 004)
+
+Sync is off until these are set — the app runs pure-local otherwise. One-time setup:
+
+1. Create a Supabase project (free tier is fine).
+2. Run the migration in the SQL editor: paste
+   `supabase/migrations/0001_progress_sync.sql`. It creates the `progress` table,
+   the two capability RPCs (`get_progress` / `put_progress`), and locks the table
+   behind RLS so only the RPCs (which require the pairing code) can reach a row.
+3. In Vercel → Project → Settings → Environment Variables, set for Production:
+   - `NEXT_PUBLIC_SUPABASE_URL` = the project URL (`https://<ref>.supabase.co`)
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = the project's public anon key
+   Both are browser-public by design — security is the RLS + capability RPCs, not
+   secrecy of the anon key. Redeploy so Next.js inlines them into the client bundle.
+4. Verify: open the app → Progreso entre dispositivos → *Sincronizar entre
+   dispositivos* should appear. Create a code on one device, enter it on another,
+   finish a game on the first, reopen the second → progress is merged in.
+
+To roll sync back out, unset the two env vars and redeploy — the app reverts to
+pure-local with no data loss (every device keeps its own `localStorage`).
+
 ## Rollback
 
 ```bash

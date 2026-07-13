@@ -3,6 +3,7 @@ import type { KidId } from "./kid";
 import type { Streak } from "./daily";
 import type { WordStat, WordStats } from "./word-stats";
 import type { PetCollection, PetState } from "./mascota";
+import type { WeekProgress, WeeklyStreak } from "./weekly";
 
 /**
  * One-time progress transfer between devices — a copy-able code, no backend
@@ -29,6 +30,13 @@ export interface ProgressSnapshot {
   readonly ownedAccessories?: Partial<Record<KidId, readonly string[]>>;
   /** Secret decks a kid has unlocked with stars. */
   readonly unlockedDecks?: Partial<Record<KidId, readonly string[]>>;
+  /** Streak freezes a kid holds (bought/earned) — merge takes the max. */
+  readonly freezes?: Partial<Record<KidId, number>>;
+  /** Weekly streak per kid — merge keeps the higher count (later week on ties). */
+  readonly weekly?: Partial<Record<KidId, WeeklyStreak>>;
+  /** The in-progress week's active days — merge unions within a week, else the
+   *  later week wins. */
+  readonly weekProgress?: Partial<Record<KidId, WeekProgress>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -88,6 +96,25 @@ function isStreak(value: unknown): value is Streak {
   );
 }
 
+function isWeeklyStreak(value: unknown): value is WeeklyStreak {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as WeeklyStreak).week === "string" &&
+    typeof (value as WeeklyStreak).count === "number"
+  );
+}
+
+function isWeekProgress(value: unknown): value is WeekProgress {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as WeekProgress).week === "string" &&
+    Array.isArray((value as WeekProgress).days) &&
+    (value as WeekProgress).days.every((d) => typeof d === "string")
+  );
+}
+
 function sanitizeKidRecord<T>(
   raw: unknown,
   isValid: (value: unknown) => value is T,
@@ -123,6 +150,20 @@ export function decodeProgress(code: string): ProgressSnapshot {
   if (typeof raw !== "object" || raw === null) {
     throw new InvalidTransferCodeError("payload is not a snapshot");
   }
+  return sanitizeSnapshot(raw);
+}
+
+/**
+ * Coerce an untrusted object into a valid `ProgressSnapshot`, dropping anything
+ * malformed. Shared by the transfer-code path and the remote-sync adapter — any
+ * payload that crosses a trust boundary (a pasted code, a Supabase row) must
+ * pass through here before it reaches `mergeProgress`. A non-object yields an
+ * empty snapshot.
+ */
+export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
+  if (typeof raw !== "object" || raw === null) {
+    return { stickers: [], streaks: {}, avatars: {} };
+  }
   const candidate = raw as Record<string, unknown>;
   const stickers = Array.isArray(candidate.stickers)
     ? candidate.stickers.filter(
@@ -155,6 +196,12 @@ export function decodeProgress(code: string): ProgressSnapshot {
     isStringArray,
   );
   const unlockedDecks = sanitizeKidRecord(candidate.unlockedDecks, isStringArray);
+  const freezes = sanitizeKidRecord(
+    candidate.freezes,
+    (v): v is number => typeof v === "number" && v >= 0,
+  );
+  const weekly = sanitizeKidRecord(candidate.weekly, isWeeklyStreak);
+  const weekProgress = sanitizeKidRecord(candidate.weekProgress, isWeekProgress);
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -171,6 +218,9 @@ export function decodeProgress(code: string): ProgressSnapshot {
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
     ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
+    ...(Object.keys(freezes).length > 0 ? { freezes } : {}),
+    ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
+    ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
   };
 }
 
@@ -312,6 +362,51 @@ export function mergeProgress(
     unlockedDecks[kid] = [...new Set([...(unlockedDecks[kid] ?? []), ...list])];
   }
 
+  // Freezes max-merge (a bought/earned freeze is never lost on a merge).
+  const freezes: Partial<Record<KidId, number>> = { ...(current.freezes ?? {}) };
+  for (const [kid, count] of Object.entries(incoming.freezes ?? {}) as [
+    KidId,
+    number,
+  ][]) {
+    freezes[kid] = Math.max(freezes[kid] ?? 0, count);
+  }
+
+  // Weekly streak: higher count wins, later in-progress week breaks ties.
+  const weekly: Partial<Record<KidId, WeeklyStreak>> = { ...(current.weekly ?? {}) };
+  for (const [kid, streak] of Object.entries(incoming.weekly ?? {}) as [
+    KidId,
+    WeeklyStreak,
+  ][]) {
+    const existing = weekly[kid];
+    if (
+      existing === undefined ||
+      streak.count > existing.count ||
+      (streak.count === existing.count && streak.week > existing.week)
+    ) {
+      weekly[kid] = streak;
+    }
+  }
+
+  // Week progress: union active days within the same week; a later week (a
+  // fresh week that reset the day set) supersedes an older one.
+  const weekProgress: Partial<Record<KidId, WeekProgress>> = {
+    ...(current.weekProgress ?? {}),
+  };
+  for (const [kid, incomingWeek] of Object.entries(incoming.weekProgress ?? {}) as [
+    KidId,
+    WeekProgress,
+  ][]) {
+    const existing = weekProgress[kid];
+    if (existing === undefined || incomingWeek.week > existing.week) {
+      weekProgress[kid] = incomingWeek;
+    } else if (incomingWeek.week === existing.week) {
+      weekProgress[kid] = {
+        week: existing.week,
+        days: [...new Set([...existing.days, ...incomingWeek.days])],
+      };
+    }
+  }
+
   // Pet collections: union owned species, max-merge each pet, keep an active.
   const petCollections: Partial<Record<KidId, PetCollection>> = {
     ...(current.petCollections ?? {}),
@@ -348,6 +443,9 @@ export function mergeProgress(
     ...(Object.keys(ownedAvatars).length > 0 ? { ownedAvatars } : {}),
     ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
+    ...(Object.keys(freezes).length > 0 ? { freezes } : {}),
+    ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
+    ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
   };
 }
 

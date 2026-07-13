@@ -14,6 +14,7 @@ import { log } from "@learn-spanish/config";
 import { awardSticker, getStreak } from "@/lib/album";
 import { getSelectedKid } from "@/lib/kid";
 import { addStars, markActivityDone } from "@/lib/economy";
+import { syncPush } from "@/lib/sync";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 import { feedbackFanfare, feedbackSticker } from "@/lib/feedback";
 import { Confetti } from "@/components/Confetti";
@@ -72,7 +73,12 @@ export function DoneScreen({
       .execute(kid)
       .then((s) => setStreakDays(s?.count ?? 0))
       .catch(() => setStreakDays(0));
-  }, [activity]);
+    // Repaso has no reward chest to push from, but the streak/mission may have
+    // advanced — sync those now. The earn path pushes on chest open instead.
+    if (noAward) {
+      void syncPush();
+    }
+  }, [activity, noAward]);
 
   useEffect(() => {
     if (award?.isNew) {
@@ -149,6 +155,9 @@ export function DoneScreen({
             onOpen={() => {
               const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
               addStars(kid, reward.total);
+              // Game complete + rewards banked: push the new state up (no-op
+              // when unpaired). A failed push retries on the next app open.
+              void syncPush();
             }}
           />
           {(reward.perfect > 0 || reward.streak > 0 || reward.firstTime > 0) && (

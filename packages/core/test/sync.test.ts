@@ -1,0 +1,110 @@
+import { describe, expect, it, vi } from "vitest";
+import {
+  generatePairingCode,
+  isPairingCode,
+  normalizePairingCode,
+} from "../src/domain/sync";
+import { PullProgressUseCase } from "../src/application/pull-progress";
+import { PushProgressUseCase } from "../src/application/push-progress";
+import type { RemoteProgressStore } from "../src/domain/sync";
+import type { ProgressSnapshot } from "../src/domain/transfer";
+
+/** A sequential byte source for deterministic code generation in tests. */
+function bytesFrom(values: readonly number[]): () => number {
+  let i = 0;
+  return () => values[i++ % values.length]!;
+}
+
+class FakeRemoteStore implements RemoteProgressStore {
+  saves = 0;
+  constructor(private rows: Record<string, ProgressSnapshot> = {}) {}
+  load(code: string): Promise<ProgressSnapshot | null> {
+    return Promise.resolve(this.rows[code] ?? null);
+  }
+  save(code: string, snapshot: ProgressSnapshot): Promise<void> {
+    this.saves += 1;
+    this.rows[code] = snapshot;
+    return Promise.resolve();
+  }
+}
+
+const empty: ProgressSnapshot = { stickers: [], streaks: {}, avatars: {} };
+
+describe("generatePairingCode", () => {
+  it("produces a normalized, well-formed capability code", () => {
+    const code = generatePairingCode(bytesFrom([0, 1, 2, 3, 4]));
+    expect(isPairingCode(code)).toBe(true);
+    expect(normalizePairingCode(code)).toBe(code);
+  });
+
+  it("maps distinct byte streams to distinct codes", () => {
+    const a = generatePairingCode(bytesFrom([1, 2, 3]));
+    const b = generatePairingCode(bytesFrom([9, 8, 7]));
+    expect(a).not.toBe(b);
+  });
+});
+
+describe("isPairingCode / normalizePairingCode", () => {
+  it("accepts a grouped, lower-cased code and canonicalizes it", () => {
+    const code = generatePairingCode(bytesFrom([5, 10, 15, 20, 25]));
+    const messy = `  ${code.toLowerCase().replace(/-/g, " ")}  `;
+    expect(normalizePairingCode(messy)).toBe(code);
+    expect(isPairingCode(messy)).toBe(true);
+  });
+
+  it("rejects too-short or malformed input", () => {
+    expect(isPairingCode("ABC")).toBe(false);
+    expect(isPairingCode("")).toBe(false);
+    expect(isPairingCode("!!!!-!!!!-!!!!-!!!!")).toBe(false);
+  });
+});
+
+describe("PullProgressUseCase", () => {
+  it("returns local unchanged when no remote row exists yet", async () => {
+    const store = new FakeRemoteStore();
+    const local: ProgressSnapshot = { stickers: ["a:b:c"], streaks: {}, avatars: {} };
+    const result = await new PullProgressUseCase(store).execute("CODE", local);
+    expect(result).toEqual(local);
+  });
+
+  it("merges the remote snapshot into local without writing", async () => {
+    const store = new FakeRemoteStore({
+      CODE: { stickers: ["x:y:z"], streaks: {}, avatars: {}, freezes: { listener: 4 } },
+    });
+    const local: ProgressSnapshot = {
+      stickers: ["a:b:c"],
+      streaks: {},
+      avatars: {},
+      freezes: { listener: 1 },
+    };
+    const result = await new PullProgressUseCase(store).execute("CODE", local);
+    expect(result.stickers).toEqual(["a:b:c", "x:y:z"]);
+    expect(result.freezes).toEqual({ listener: 4 });
+    expect(store.saves).toBe(0); // pull is read-only
+  });
+});
+
+describe("PushProgressUseCase", () => {
+  it("seeds the remote row when it is empty", async () => {
+    const store = new FakeRemoteStore();
+    const local: ProgressSnapshot = { stickers: ["a:b:c"], streaks: {}, avatars: {} };
+    await new PushProgressUseCase(store).execute("CODE", local);
+    expect(await store.load("CODE")).toEqual(local);
+  });
+
+  it("merges local into the remote union and persists it", async () => {
+    const store = new FakeRemoteStore({
+      CODE: { stickers: ["x:y:z"], streaks: {}, avatars: {}, stars: { reader: 10 } },
+    });
+    const local: ProgressSnapshot = {
+      stickers: ["a:b:c"],
+      streaks: {},
+      avatars: {},
+      stars: { reader: 3 },
+    };
+    const merged = await new PushProgressUseCase(store).execute("CODE", local);
+    expect(merged.stickers).toEqual(["x:y:z", "a:b:c"]);
+    expect(merged.stars).toEqual({ reader: 10 }); // max wins, never lost
+    expect(await store.load("CODE")).toEqual(merged);
+  });
+});

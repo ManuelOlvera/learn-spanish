@@ -1,5 +1,40 @@
 # Shipped features
 
+## 2026-07-13 — Cross-device sync (optional, local-first)
+
+Kids can now open the latest progress on any device. Local-first is preserved:
+reads stay instant from `localStorage`; the cloud is a background convergence
+layer (ADR 004). Sync is **feature-flagged by env** — with
+`NEXT_PUBLIC_SUPABASE_*` unset the app is exactly the pure-local app it was.
+
+**For:** parents with more than one device; invisible to the kid. **Pairing** is
+a one-time parent action: create a code on device A (Progreso entre dispositivos
+→ *Sincronizar entre dispositivos*), type it once on device B. The code is a
+~100-bit **capability key** — no accounts, no email. Two Supabase
+`SECURITY DEFINER` RPCs (`get_progress`/`put_progress`) require the code as an
+argument and RLS denies all direct table access, so rows can't be enumerated and
+the public anon key is safe to ship.
+
+**Freshness:** **pull on app open**, **push on game complete** (not per answer),
+both best-effort — a failed sync leaves local state authoritative and retries on
+the next open. **Conflicts** resolve by additive merge (`mergeProgress`: sticker
+union, `max` stars/counts/freezes, longer streak), so no device can erase
+another's rewards. This slice extended the snapshot to carry **freezes** and the
+**weekly streak / week-progress**; the copy-paste transfer code inherits them.
+
+**Where:** `RemoteProgressStore` port + `generatePairingCode` in
+`packages/core/domain/sync.ts`; `Pull`/`PushProgressUseCase` in `application/`;
+`SupabaseProgressStore` (a ~60-line `fetch` adapter, no SDK) + `lib/sync.ts`
+orchestration in `apps/web`; `SyncPanel` in the parent panel; pull wired in
+`HomeView`, push in `DoneScreen`. SQL in `supabase/migrations/0001_progress_sync.sql`.
+
+**Not synced (by design):** theme and selected-kid are per-device pointers, not
+progress. **Deferred:** live realtime, daily misión/reto state, real accounts &
+recovery, multi-parent sharing (see `roadmap.md`).
+
+**Ops:** create a Supabase project, run the migration, set the two
+`NEXT_PUBLIC_SUPABASE_*` vars in Vercel — steps in `docs/runbooks.md`.
+
 ## 2026-07-13 — Weekly streaks & freezes
 
 A longer-horizon habit loop on top of the daily streak, reusing the existing

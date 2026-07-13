@@ -12,6 +12,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
   - [adr/001-browser-speech-synthesis.md](adr/001-browser-speech-synthesis.md) — audio via the Web Speech API, not recorded files
   - [adr/002-vercel-hosting.md](adr/002-vercel-hosting.md) — Vercel hosting, no database, public prod URL
   - [adr/003-ephemeral-voice-recordings.md](adr/003-ephemeral-voice-recordings.md) — say-it-back clips live in memory only, never stored or sent
+  - [adr/004-optional-supabase-sync.md](adr/004-optional-supabase-sync.md) — local-first with optional Supabase sync; pairing code as capability, no accounts
 
 Referenced by skills in `.claude/skills/` but not yet written (create on first need):
 `architecture-diagrams.md` (/diagram).

@@ -140,7 +140,16 @@ export {
   encodeProgress,
   InvalidTransferCodeError,
   mergeProgress,
+  sanitizeSnapshot,
 } from "./domain/transfer";
+export type { ByteSource, RemoteProgressStore } from "./domain/sync";
+export {
+  generatePairingCode,
+  isPairingCode,
+  normalizePairingCode,
+} from "./domain/sync";
+export { PullProgressUseCase } from "./application/pull-progress";
+export { PushProgressUseCase } from "./application/push-progress";
 export { FeedStreakUseCase } from "./application/feed-streak";
 export { GetStreakUseCase } from "./application/get-streak";
 export { AwardStickerUseCase } from "./application/award-sticker";

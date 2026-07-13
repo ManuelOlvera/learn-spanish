@@ -15,6 +15,7 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
+import { syncPull } from "@/lib/sync";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak, getWordStats } from "@/lib/album";
 import {
@@ -64,6 +65,8 @@ export function HomeView({ decks, groups }: Props) {
   const [weekly, setWeekly] = useState<WeeklyView | null>(null);
   const [burst, setBurst] = useState<WeeklyView["outcome"] | null>(null);
   const [nope, setNope] = useState(0);
+  // Bumped when a cross-device pull applies changes, to re-read home state.
+  const [syncNonce, setSyncNonce] = useState(0);
 
   // Secret decks stay out of the daily card, review, and shelves until bought.
   const publicDecks = decks.filter((d) => !d.secret);
@@ -75,6 +78,20 @@ export function HomeView({ decks, groups }: Props) {
     // Computed client-side: a build-time "today" would freeze the card.
     setDaily(dailyCard(publicDecks, new Date()));
   }, [decks]);
+
+  // Cross-device sync (ADR 004): pull the latest on app open, then re-read
+  // home state if anything merged in. No-op when unpaired; never blocks render.
+  useEffect(() => {
+    let cancelled = false;
+    void syncPull().then((applied) => {
+      if (applied && !cancelled) {
+        setSyncNonce((n) => n + 1);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!kid) {
@@ -119,7 +136,7 @@ export function HomeView({ decks, groups }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [kid, decks]);
+  }, [kid, decks, syncNonce]);
 
   function pick(id: KidId) {
     setSelectedKid(id);

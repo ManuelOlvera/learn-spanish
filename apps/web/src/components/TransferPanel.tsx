@@ -4,6 +4,7 @@ import { useState } from "react";
 import { InvalidTransferCodeError } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { exportProgressCode, importProgressCode } from "@/lib/transfer";
+import { SyncPanel } from "@/components/SyncPanel";
 
 interface Props {
   /** Reload album state after a successful import. */
@@ -68,7 +69,7 @@ export function TransferPanel({ onImported }: Props) {
           onClick={() => setOpen(true)}
           className="text-sm font-semibold text-ink/50 underline underline-offset-4"
         >
-          🔄 ¿Cambiáis de dispositivo? Transferir progreso
+          🔄 Progreso entre dispositivos
         </button>
         <a
           href="/informe"
@@ -82,12 +83,14 @@ export function TransferPanel({ onImported }: Props) {
 
   return (
     <footer className="flex flex-col gap-4 pb-6">
+      <SyncPanel onSynced={onImported} />
+
       <div className="sticker relative flex flex-col gap-4 p-5 text-left">
         <span aria-hidden className="sticker-peel" />
-        <h2 className="text-xl font-extrabold">🔄 Transferir progreso</h2>
+        <h2 className="text-xl font-extrabold">🔄 Copia única (sin conexión)</h2>
         <p className="text-sm font-semibold text-ink/60">
-          Copia el código en este dispositivo y pégalo en el otro. Es una
-          copia única, no una sincronización.
+          ¿Sin sincronización? Copia el código en este dispositivo y pégalo en
+          el otro. Es una copia única, no se mantiene al día.
         </p>
 
         <div className="flex flex-col gap-2">

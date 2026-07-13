@@ -226,6 +226,31 @@ export function getWeeklyCount(kid: KidId): number {
   return readDoc<WeeklyStreak>(WEEKLY_KEY)[kid]?.count ?? 0;
 }
 
+// ---- sync accessors (ADR 004): expose freeze/weekly state to the snapshot ----
+
+/** The full weekly-streak record for a kid, or null if never played. */
+export function getWeeklyStreak(kid: KidId): WeeklyStreak | null {
+  return readDoc<WeeklyStreak>(WEEKLY_KEY)[kid] ?? null;
+}
+
+export function saveWeeklyStreak(kid: KidId, streak: WeeklyStreak): void {
+  writeDoc(WEEKLY_KEY, kid, streak);
+}
+
+/** The in-progress week's active days for a kid, or null if none. */
+export function getWeekProgressDoc(kid: KidId): WeekProgress | null {
+  return getWeekProgress(kid);
+}
+
+export function saveWeekProgress(kid: KidId, progress: WeekProgress): void {
+  writeDoc(WEEK_PROGRESS_KEY, kid, progress);
+}
+
+/** Set a kid's freeze count (used when a sync merge resolves freezes). */
+export function setFreezesCount(kid: KidId, count: number): void {
+  setFreezes(kid, count);
+}
+
 // ---- mascota (a collection of adopted pets) ----
 
 export function getPetCollection(kid: KidId): PetCollection {

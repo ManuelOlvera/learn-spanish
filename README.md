@@ -42,9 +42,12 @@ No reading, no accounts, no setup.
 - **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,
   each with their own chosen avatar (16 to pick from); each game menu
   shows that kid's one right difficulty.
+- **Cross-device sync** — optional, local-first (ADR 004). Pair devices once
+  with a capability code; progress pulls on open and pushes on game-complete,
+  additively merged so nothing is lost. Off unless `NEXT_PUBLIC_SUPABASE_*`
+  are set, in which case the app stays pure-local.
 - **Device transfer** — a one-time copy-able code (album footer) moves
-  stickers, streaks, and avatars to another device by merge; no accounts,
-  no backend (ADR 002).
+  progress to another device by merge; the no-connection fallback to sync.
 - **Sticker album** — finishing any activity earns a sticker; `/album`
   tracks 42 per kid, persisted on-device (no accounts).
 - **Carta del día** — a daily featured word on the home screen with a

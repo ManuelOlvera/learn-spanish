@@ -4,6 +4,7 @@ import {
   encodeProgress,
   InvalidTransferCodeError,
   mergeProgress,
+  sanitizeSnapshot,
 } from "../src/domain/transfer";
 import type { ProgressSnapshot } from "../src/domain/transfer";
 
@@ -55,6 +56,25 @@ describe("decodeProgress validation", () => {
   });
 });
 
+describe("sanitizeSnapshot (untrusted remote/paste payloads)", () => {
+  it("returns an empty snapshot for non-objects", () => {
+    expect(sanitizeSnapshot(null)).toEqual({ stickers: [], streaks: {}, avatars: {} });
+    expect(sanitizeSnapshot("nope")).toEqual({ stickers: [], streaks: {}, avatars: {} });
+  });
+
+  it("strips malformed fields from a raw object", () => {
+    const cleaned = sanitizeSnapshot({
+      stickers: ["listener:animals:learn", "bad", 42],
+      streaks: { hacker: { day: "x", count: 1 } },
+      avatars: { listener: "🦖" },
+      freezes: { listener: -5, reader: 3 },
+    });
+    expect(cleaned.stickers).toEqual(["listener:animals:learn"]);
+    expect(cleaned.streaks).toEqual({});
+    expect(cleaned.freezes).toEqual({ reader: 3 });
+  });
+});
+
 describe("mergeProgress", () => {
   it("unions stickers without duplicates", () => {
     const merged = mergeProgress(
@@ -86,5 +106,59 @@ describe("mergeProgress", () => {
       { stickers: [], streaks: {}, avatars: { reader: "🐼" } },
     );
     expect(merged.avatars).toEqual({ listener: "🦖", reader: "🐼" });
+  });
+
+  it("max-merges freezes per kid (never loses a bought freeze)", () => {
+    const merged = mergeProgress(
+      { stickers: [], streaks: {}, avatars: {}, freezes: { listener: 3, reader: 0 } },
+      { stickers: [], streaks: {}, avatars: {}, freezes: { listener: 1, reader: 5 } },
+    );
+    expect(merged.freezes).toEqual({ listener: 3, reader: 5 });
+  });
+
+  it("keeps the weekly streak with the higher count, later week on ties", () => {
+    const higherCount = mergeProgress(
+      { stickers: [], streaks: {}, avatars: {}, weekly: { listener: { week: "2026-07-06", count: 4 } } },
+      { stickers: [], streaks: {}, avatars: {}, weekly: { listener: { week: "2026-07-13", count: 2 } } },
+    );
+    expect(higherCount.weekly?.listener).toEqual({ week: "2026-07-06", count: 4 });
+
+    const tieLaterWeek = mergeProgress(
+      { stickers: [], streaks: {}, avatars: {}, weekly: { reader: { week: "2026-07-06", count: 3 } } },
+      { stickers: [], streaks: {}, avatars: {}, weekly: { reader: { week: "2026-07-13", count: 3 } } },
+    );
+    expect(tieLaterWeek.weekly?.reader).toEqual({ week: "2026-07-13", count: 3 });
+  });
+
+  it("unions week-progress days in the same week, later week otherwise", () => {
+    const sameWeek = mergeProgress(
+      { stickers: [], streaks: {}, avatars: {}, weekProgress: { listener: { week: "2026-07-13", days: ["2026-07-13"] } } },
+      { stickers: [], streaks: {}, avatars: {}, weekProgress: { listener: { week: "2026-07-13", days: ["2026-07-13", "2026-07-14"] } } },
+    );
+    expect(sameWeek.weekProgress?.listener).toEqual({
+      week: "2026-07-13",
+      days: ["2026-07-13", "2026-07-14"],
+    });
+
+    const newerWeek = mergeProgress(
+      { stickers: [], streaks: {}, avatars: {}, weekProgress: { reader: { week: "2026-07-06", days: ["2026-07-08", "2026-07-09"] } } },
+      { stickers: [], streaks: {}, avatars: {}, weekProgress: { reader: { week: "2026-07-13", days: ["2026-07-13"] } } },
+    );
+    expect(newerWeek.weekProgress?.reader).toEqual({
+      week: "2026-07-13",
+      days: ["2026-07-13"],
+    });
+  });
+
+  it("round-trips the new fields through encode/decode", () => {
+    const full: ProgressSnapshot = {
+      stickers: ["listener:animals:learn"],
+      streaks: {},
+      avatars: {},
+      freezes: { listener: 2 },
+      weekly: { listener: { week: "2026-07-13", count: 5 } },
+      weekProgress: { listener: { week: "2026-07-13", days: ["2026-07-13"] } },
+    };
+    expect(decodeProgress(encodeProgress(full))).toEqual(full);
   });
 });

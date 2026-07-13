@@ -110,11 +110,25 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     three rollover animations. See `shipped.md`.)*
     - ☐ **Weekly missions (richer)** — a separate set of bigger week-spanning
       goals, distinct from reusing the daily misión as the active-day signal.
-    - ☐ **Weekly state in the transfer code** — carry weekly streak + escudo
-      counts across devices; today they stay per-device (deferred with the rest
-      of cross-device sync).
+    - ☑ **Weekly streak + escudos across devices** — the snapshot now carries
+      freezes and weekly streak/week-progress; they sync (and ride the transfer
+      code) with everything else. *(Shipped 2026-07-13 with cross-device sync.)*
     - ☐ **More escudo sources** — mission-chest drops, streak milestones. Today
       it's the 3 starters, buying, and the surprise box only.
+
+## Cross-device sync
+
+15. ☑ **Optional Supabase sync** — pair devices with a one-time capability code;
+    local-first, pull-on-open / push-on-game-complete, additive merge (ADR 004).
+    *(Shipped 2026-07-13. See `shipped.md`.)*
+    - ☐ **Live realtime** — cross-device updates while both apps are open
+      (Supabase Realtime). Today a device already open won't update mid-session.
+    - ☐ **Daily misión / reto state in sync** — ephemeral and daily-resetting, so
+      cut from the first slice; add if drift proves annoying.
+    - ☐ **Accounts & recovery** — no accounts today means a lost code + lost
+      devices orphans the cloud row. Revisit only if data value rises.
+    - ☐ **Multi-parent / household sharing** — one shared code is the whole model
+      for now.
 
 ## Build order
 

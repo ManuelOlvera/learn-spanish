@@ -31,3 +31,8 @@ keeps even voice off the wire), and a database would add a runtime network
 dependency plus an offline-PWA break for zero user benefit. The trigger
 remains cross-device progress sync, which first requires deciding to have
 accounts at all.
+
+**Revisited 2026-07-13 — trigger reached (see ADR 004).** Cross-device sync now
+exists as an *optional* local-first layer: Supabase holds a per-pairing-code
+`ProgressSnapshot`, gated by capability RPCs rather than accounts. Vercel stays
+the host; the app is still fully static and fully offline when sync is disabled.
