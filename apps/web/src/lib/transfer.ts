@@ -10,6 +10,7 @@ import {
   type ProgressSnapshot,
   type StickerTier,
   type Streak,
+  type Wallet,
   WALLET_EPOCH,
   type WeeklyStreak,
   type WeekProgress,
@@ -27,6 +28,7 @@ import {
   getOwnedAvatars,
   getPetCollection,
   getStars,
+  getWallet,
   getStickerCounts,
   getStoredMission,
   getUnlockedDecks,
@@ -42,7 +44,7 @@ import {
   saveWeeklyStreak,
   saveWeekProgress,
   setFreezesCount,
-  setStars,
+  setWallet,
 } from "./economy";
 
 /** Build a ProgressSnapshot of everything on this device worth syncing. Shared
@@ -52,6 +54,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
   const streaks: Partial<Record<KidId, Streak>> = {};
   const stats: Partial<Record<KidId, WordStats>> = {};
   const stars: Partial<Record<KidId, number>> = {};
+  const wallets: Partial<Record<KidId, Wallet>> = {};
   const pets: Partial<Record<KidId, PetState>> = {};
   const petCollections: Partial<Record<KidId, PetCollection>> = {};
   const ownedAvatars: Partial<Record<KidId, readonly string[]>> = {};
@@ -71,6 +74,9 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (Object.keys(kidStats).length > 0) {
       stats[kid] = kidStats;
     }
+    // `wallets` is authoritative; `stars` rides along as the balance view so a
+    // peer still on a pre-counter build can read the row (ADR 008).
+    wallets[kid] = getWallet(kid);
     stars[kid] = getStars(kid);
     // `pets` (active pet) stays for compat; `petCollections` is authoritative.
     pets[kid] = getActivePet(kid);
@@ -111,8 +117,9 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     avatars: getAvatars(),
     stats,
     stars,
-    // Stamp the wallet generation so a reset survives merging: older-epoch
-    // snapshots (stale cloud rows, old codes) contribute no stars.
+    wallets,
+    // Stamp the wallet generation so a reset/restore survives merging:
+    // older-epoch snapshots (stale cloud rows, old codes) contribute no wallet.
     walletEpoch: WALLET_EPOCH,
     stickerCounts: getStickerCounts(),
     pets,
@@ -154,9 +161,14 @@ export async function applySnapshot(merged: ProgressSnapshot): Promise<void> {
     if (kidStats !== undefined) {
       await wordStatsStore.save(kid, kidStats);
     }
+    // Counters win where they exist; a pre-counter peer only sends `stars`, so
+    // fall back to seeding a wallet from that bare balance (ADR 008).
+    const kidWallet = merged.wallets?.[kid];
     const kidStars = merged.stars?.[kid];
-    if (kidStars !== undefined) {
-      setStars(kid, kidStars);
+    if (kidWallet !== undefined) {
+      setWallet(kid, kidWallet);
+    } else if (kidStars !== undefined) {
+      setWallet(kid, { earned: kidStars, spent: 0 });
     }
     const kidCollection = merged.petCollections?.[kid];
     if (kidCollection !== undefined) {

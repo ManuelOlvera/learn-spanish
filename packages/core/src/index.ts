@@ -7,10 +7,11 @@ export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
 export { createQuiz, createQuizRound, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
 export { createSiNoGame, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
-export type { StarReward } from "./domain/stars";
+export type { StarReward, Wallet } from "./domain/stars";
 export {
   computeReward,
   earnedStars,
+  EMPTY_WALLET,
   FIRST_TIME_BONUS,
   MEAL_COST,
   MISSION_BONUS,
@@ -18,6 +19,7 @@ export {
   STREAK_DOUBLE_DAYS,
   WALLET_EPOCH,
   WALLET_SEED_BY_AVATAR,
+  walletBalance,
 } from "./domain/stars";
 export type { MissionKind, MissionState } from "./domain/mission";
 export {

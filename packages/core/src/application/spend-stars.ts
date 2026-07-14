@@ -1,5 +1,6 @@
 import type { EconomyStore } from "../domain/economy";
 import type { KidId } from "../domain/kid";
+import { walletBalance } from "../domain/stars";
 
 /**
  * The one spending primitive: check the balance *before* writing, so a
@@ -14,13 +15,14 @@ export function trySpend(
   kid: KidId,
   amount: number,
 ): number | null {
-  const current = store.loadStars(kid);
-  if (current < amount) {
+  const wallet = store.loadWallet(kid);
+  if (walletBalance(wallet) < amount) {
     return null;
   }
-  const next = current - amount;
-  store.saveStars(kid, next);
-  return next;
+  // Only the spent counter moves — monotonic, so the sync merge is spend-safe.
+  const next = { earned: wallet.earned, spent: wallet.spent + amount };
+  store.saveWallet(kid, next);
+  return walletBalance(next);
 }
 
 /** Spend stars from a kid's wallet; null when unaffordable. */

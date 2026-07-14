@@ -11,6 +11,7 @@ import {
   PERFECT_BONUS,
   WALLET_EPOCH,
   WALLET_SEED_BY_AVATAR,
+  walletBalance,
 } from "../src/domain/stars";
 import {
   defaultCollection,
@@ -208,8 +209,8 @@ describe("wallet epoch: a reset must beat max-merge", () => {
   });
 
   it("epoch 2 restore: seeded balances beat the epoch-1 zeros (ADR 007)", () => {
-    // The restore only works if the current epoch outranks the deployed reset.
-    expect(WALLET_EPOCH).toBe(2);
+    // The restore only works if the live epoch outranks the deployed reset.
+    expect(WALLET_EPOCH).toBeGreaterThanOrEqual(2);
     expect(WALLET_SEED_BY_AVATAR["🐸"]).toBe(1000);
     expect(WALLET_SEED_BY_AVATAR["🐯"]).toBe(300);
     const restored = {
@@ -232,6 +233,68 @@ describe("wallet epoch: a reset must beat max-merge", () => {
     expect(decodeProgress(encodeProgress(snap))).toEqual(snap);
     const hostile = { ...base, walletEpoch: Number.POSITIVE_INFINITY };
     expect(decodeProgress(encodeProgress(hostile)).walletEpoch).toBeUndefined();
+  });
+});
+
+describe("counter wallets: spending survives the merge", () => {
+  const base = { stickers: [], streaks: {}, avatars: {} };
+  const epoch = WALLET_EPOCH;
+
+  it("a stale peer can no longer resurrect a spend", () => {
+    // Device spent 40; the cloud row still holds the pre-spend counters.
+    const spent = { ...base, wallets: { listener: { earned: 100, spent: 40 } }, walletEpoch: epoch };
+    const stale = { ...base, wallets: { listener: { earned: 100, spent: 0 } }, walletEpoch: epoch };
+    for (const merged of [mergeProgress(spent, stale), mergeProgress(stale, spent)]) {
+      expect(merged.wallets).toEqual({ listener: { earned: 100, spent: 40 } });
+      // stars (the legacy balance) is derived from the counters
+      expect(merged.stars).toEqual({ listener: 60 });
+    }
+  });
+
+  it("earning elsewhere and spending here both survive one merge", () => {
+    const here = { ...base, wallets: { listener: { earned: 100, spent: 40 } }, walletEpoch: epoch };
+    const there = { ...base, wallets: { listener: { earned: 120, spent: 0 } }, walletEpoch: epoch };
+    expect(mergeProgress(here, there).wallets).toEqual({
+      listener: { earned: 120, spent: 40 },
+    });
+    expect(mergeProgress(here, there).stars).toEqual({ listener: 80 });
+  });
+
+  it("older-epoch wallets are discarded like older-epoch stars", () => {
+    const fresh = { ...base, wallets: { listener: { earned: 10, spent: 0 } }, walletEpoch: epoch };
+    const old = { ...base, wallets: { listener: { earned: 900, spent: 0 } }, walletEpoch: epoch - 1 };
+    expect(mergeProgress(fresh, old).wallets).toEqual({
+      listener: { earned: 10, spent: 0 },
+    });
+  });
+
+  it("round-trips wallets and drops hostile counters", () => {
+    const snap = {
+      ...base,
+      wallets: { listener: { earned: 9, spent: 4 } },
+      walletEpoch: epoch,
+    };
+    expect(decodeProgress(encodeProgress(snap))).toEqual(snap);
+    const hostile = {
+      ...base,
+      wallets: { listener: { earned: Number.POSITIVE_INFINITY, spent: 0 } },
+    };
+    expect(decodeProgress(encodeProgress(hostile)).wallets).toBeUndefined();
+  });
+
+  it("walletBalance never goes negative on corrupt counters", () => {
+    expect(walletBalance({ earned: 10, spent: 4 })).toBe(6);
+    expect(walletBalance({ earned: 4, spent: 10 })).toBe(0);
+  });
+
+  it("a same-epoch peer with only a balance keeps its stars (kid with no counters)", () => {
+    // Not every kid on a snapshot need have counters — merging must not drop
+    // a bare balance just because the other side speaks counters.
+    const counters = { ...base, wallets: { listener: { earned: 50, spent: 10 } }, walletEpoch: epoch };
+    const balanceOnly = { ...base, stars: { reader: 75 }, walletEpoch: epoch };
+    const merged = mergeProgress(counters, balanceOnly);
+    expect(merged.stars).toEqual({ listener: 40, reader: 75 });
+    expect(merged.wallets).toEqual({ listener: { earned: 50, spent: 10 } });
   });
 });
 

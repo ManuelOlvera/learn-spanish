@@ -6,7 +6,7 @@ import {
   type KidId,
   type PetCollection,
   type PetState,
-  WALLET_EPOCH,
+  type Wallet,
   WALLET_SEED_BY_AVATAR,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
@@ -28,7 +28,8 @@ const APPLIED_KEY = "palabras.migrations.v1";
 const PET_KEY = "palabras.pet.v1"; // legacy single pet
 const PETS_KEY = "palabras.pets.v2"; // pet collection
 const OWNED_ACCESSORIES_KEY = "palabras.owned-accessories.v1";
-const STARS_KEY = "palabras.stars.v1"; // must match economy-store.ts
+const STARS_KEY = "palabras.stars.v1"; // legacy balance; must match economy-store.ts
+const WALLET_KEY = "palabras.wallet.v1"; // counter wallet; must match economy-store.ts
 
 function readKidDoc<T>(key: string): Partial<Record<KidId, T>> {
   const raw = window.localStorage.getItem(key);
@@ -119,12 +120,35 @@ function restoreWalletsForEpoch(): void {
   }
 }
 
-/** Ordered: later migrations may read the output of earlier ones. */
+/** Epoch 3 converts the balance key into the counter wallet (ADR 008): the
+ *  whole balance becomes `earned`, with nothing `spent`. Balance-preserving by
+ *  construction (earned - 0 === balance), and it must run *after* the epoch-2
+ *  seeding so a device that never opened the app during epoch 2 is seeded
+ *  first, then converted. The legacy key is left in place per the never-delete
+ *  rule — a device still on an older build keeps reading it. */
+function convertWalletsToCounters(): void {
+  for (const kid of ALL_KIDS) {
+    if (readKidDoc<Wallet>(WALLET_KEY)[kid] !== undefined) {
+      continue; // already converted (idempotent re-run)
+    }
+    const balance = readKidDoc<number>(STARS_KEY)[kid];
+    writeKidDoc<Wallet>(WALLET_KEY, kid, {
+      earned: typeof balance === "number" && balance > 0 ? balance : 0,
+      spent: 0,
+    });
+  }
+}
+
+/** Ordered: later migrations may read the output of earlier ones. Ids are
+ *  literal, never interpolated from WALLET_EPOCH — devices have already
+ *  recorded the earlier ids, and a shifting id would re-run a past migration
+ *  under a new name while the new one never registered. */
 const MIGRATIONS: readonly { id: string; run: () => void }[] = [
   { id: "pet-v1-to-collection", run: migrateLegacyPetToCollection },
   { id: "accessories-to-wardrobe", run: migrateAccessoriesToWardrobe },
   { id: "wallet-epoch-1", run: resetWalletsForEpoch1 },
-  { id: `wallet-epoch-${WALLET_EPOCH}`, run: restoreWalletsForEpoch },
+  { id: "wallet-epoch-2", run: restoreWalletsForEpoch },
+  { id: "wallet-epoch-3", run: convertWalletsToCounters },
 ];
 
 /** Run every not-yet-applied migration. A migration that throws is retried on

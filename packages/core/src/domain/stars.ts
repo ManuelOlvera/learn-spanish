@@ -11,24 +11,43 @@ export function earnedStars(firstTryCorrect: number): number {
 export const MEAL_COST = 5;
 export const MISSION_BONUS = 10;
 
-/** The wallet's reset generation. Bumping it rewrites every kid's balance on
- *  every device: snapshots stamp their epoch, and the merge discards stars
- *  from any older epoch (see mergeProgress) — otherwise the max-merge would
- *  resurrect pre-bump balances from cloud rows and old transfer codes. The
- *  local rewrite rides the storage-migration registry in apps/web.
- *  Epoch 1: the 2026-07-14 economy rebalance (old prices ≈ a weekend's play).
- *  Epoch 2: the 2026-07-15 restore (ADR 007) — epoch 1's zeroing read as
- *  punishment, so wallets are re-seeded per kid via WALLET_SEED_BY_AVATAR. */
-export const WALLET_EPOCH = 2;
+/** The wallet's generation. Bumping it makes the merge discard wallet fields
+ *  from any older epoch (see mergeProgress) — otherwise max-merge would
+ *  resurrect pre-bump values from cloud rows and old transfer codes. Each
+ *  bump pairs with a run-once storage migration in apps/web that decides what
+ *  the new-epoch wallet starts as (zeroed for a reset, seeded for a restore,
+ *  converted for a schema change).
+ *  Epoch 1: 2026-07-14 reset to 0 (economy rebalance).
+ *  Epoch 2: 2026-07-15 restore, seeded per kid (ADR 007).
+ *  Epoch 3: 2026-07-15 balance → earned/spent counters (ADR 008). */
+export const WALLET_EPOCH = 3;
 
 /** Epoch 2's goodwill balances, keyed by the avatar each kid answers to (kid
  *  profiles are semantic — "listener"/"reader" — so the avatar is the only
  *  stable name for a specific child). The migration seeds
- *  max(current, seed) per kid; kids with other avatars keep their balance. */
+ *  max(current, seed) per kid; kids with other avatars keep their balance.
+ *  Still load-bearing under epoch 3: a device that never opened the app during
+ *  epoch 2 must be seeded before its balance is converted to counters. */
 export const WALLET_SEED_BY_AVATAR: Readonly<Record<string, number>> = {
   "🐸": 1000,
   "🐯": 300,
 };
+
+/** The wallet as two monotonic counters; the balance is derived. Counters
+ *  only ever grow, so the sync merge can take a per-counter max and a spend
+ *  on one device can never be resurrected by a stale peer — the flaw of
+ *  max-merging a raw balance. Clamped at zero: corrupt or hostile counters
+ *  must never render a negative wallet. */
+export interface Wallet {
+  readonly earned: number;
+  readonly spent: number;
+}
+
+export const EMPTY_WALLET: Wallet = { earned: 0, spent: 0 };
+
+export function walletBalance(wallet: Wallet): number {
+  return Math.max(0, wallet.earned - wallet.spent);
+}
 
 /** Richer chest: bonuses stack on the base (one star per first-try answer). */
 export const PERFECT_BONUS = 5;

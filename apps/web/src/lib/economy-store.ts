@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  EMPTY_WALLET,
   isCategoryAwards,
   isMissionState,
   isPetCollection,
@@ -11,6 +12,7 @@ import {
   type MissionState,
   type PetCollection,
   type StickerTier,
+  type Wallet,
   type WeekProgress,
   type WeeklyStreak,
 } from "@learn-spanish/core";
@@ -23,7 +25,7 @@ import { runStorageMigrations } from "./storage-migrations";
  * (spend ordering, idempotence, cascades) lives in core's economy use cases.
  */
 
-const STARS_KEY = "palabras.stars.v1";
+const WALLET_KEY = "palabras.wallet.v1"; // earned/spent counters (stars.v1 is the legacy balance)
 const MISSION_KEY = "palabras.mission.v1";
 const PETS_KEY = "palabras.pets.v2";
 const COUNTS_KEY = "palabras.sticker-counts.v1";
@@ -86,12 +88,19 @@ function stringList(value: unknown): readonly string[] {
 }
 
 export class LocalStorageEconomyStore implements EconomyStore {
-  loadStars(kid: KidId): number {
-    const value = readDoc<number>(STARS_KEY)[kid];
-    return typeof value === "number" && value >= 0 ? value : 0;
+  loadWallet(kid: KidId): Wallet {
+    const value = readDoc<Wallet>(WALLET_KEY)[kid];
+    return typeof value === "object" &&
+      value !== null &&
+      typeof value.earned === "number" &&
+      value.earned >= 0 &&
+      typeof value.spent === "number" &&
+      value.spent >= 0
+      ? value
+      : EMPTY_WALLET;
   }
-  saveStars(kid: KidId, stars: number): void {
-    writeDoc(STARS_KEY, kid, stars);
+  saveWallet(kid: KidId, wallet: Wallet): void {
+    writeDoc(WALLET_KEY, kid, wallet);
   }
 
   loadFreezes(kid: KidId): number | null {

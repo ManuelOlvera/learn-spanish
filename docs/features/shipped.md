@@ -1,5 +1,25 @@
 # Shipped features
 
+## 2026-07-15 — Counter wallets: syncing can no longer resurrect a spend (epoch 3)
+
+A real bug, not a polish pass: the sync merge (ADR 004) max-merges progress,
+which is correct for everything monotonic but **wrong for a star balance**,
+because spending lowers it. Buy a 300⭐ pet on the iPad, then open the phone
+(still holding the pre-spend balance) and the higher number won — the kid kept
+the pet *and* got the stars back.
+
+The wallet is now two **monotonic counters**, `{ earned, spent }`, with the
+balance derived as `max(0, earned - spent)` (ADR 008). Earning raises `earned`,
+spending raises `spent`, neither ever falls, so the merge's per-counter max is
+both idempotent and spend-safe. `EconomyStore` speaks `Wallet` only, and
+`trySpend` stays the one spending primitive (balance checked before the write).
+Snapshots carry `wallets` and still emit the legacy `stars` balance as a
+derived view, so a peer on an older build can read the row; wherever counters
+exist they are authoritative. Wallet epoch 3 + the `wallet-epoch-3` migration
+convert each device's balance to `{ earned: balance, spent: 0 }` — balance-
+preserving by construction, and ordered after the epoch-2 seeding so a device
+that skipped epoch 2 is seeded first, then converted.
+
 ## 2026-07-15 — Wallet restore: seeded goodwill balances (wallet epoch 2)
 
 The zero reset landed as punishment — the kids watched their stars vanish —
@@ -133,8 +153,8 @@ converged to both, stars merged, and the throwaway row was deleted after.
 ## 2026-07-14 — La sopa de letras (word search)
 
 The parent's Squaredle idea (`docs/bugs.md` #7), shaped and built: deck words
-hidden in a letter grid, reader-level (🦄 only — finding a written word IS
-reading, so the menu hides it from the pre-reader, like Deletrea).
+hidden in a letter grid. *(Originally reader-level; opened to both kids on
+2026-07-15 — see the entry at the top of this file. Both kids love it.)*
 
 - **Rules in core** (`domain/sopa.ts`, tested): 🟢 6×6/3 words · 🟡 7×7/4 ·
   🔴 8×8/5 (the parejas difficulty pattern); words placed left-to-right,

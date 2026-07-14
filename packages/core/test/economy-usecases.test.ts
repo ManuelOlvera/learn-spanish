@@ -12,7 +12,13 @@ import {
   FREEZE_COST,
   STARTING_FREEZES,
 } from "../src/domain/weekly";
-import { MEAL_COST, MISSION_BONUS } from "../src/domain/stars";
+import {
+  EMPTY_WALLET,
+  MEAL_COST,
+  MISSION_BONUS,
+  walletBalance,
+  type Wallet,
+} from "../src/domain/stars";
 import { SURPRISE_COST } from "../src/domain/surprise";
 import { dayKey } from "../src/domain/daily";
 import { EarnStarsUseCase } from "../src/application/earn-stars";
@@ -36,7 +42,7 @@ import { SaveRetoBestUseCase } from "../src/application/save-reto-best";
 
 /** In-memory EconomyStore: the port contract with none of the storage. */
 class FakeEconomyStore implements EconomyStore {
-  starsByKid: Partial<Record<KidId, number>> = {};
+  walletsByKid: Partial<Record<KidId, Wallet>> = {};
   freezesByKid: Partial<Record<KidId, number>> = {};
   missions: Partial<Record<KidId, MissionState>> = {};
   weeklyByKid: Partial<Record<KidId, WeeklyStreak>> = {};
@@ -49,8 +55,11 @@ class FakeEconomyStore implements EconomyStore {
   awardsByKid: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>> = {};
   retoByKid: Partial<Record<KidId, Readonly<Record<string, number>>>> = {};
 
-  loadStars(kid: KidId) { return this.starsByKid[kid] ?? 0; }
-  saveStars(kid: KidId, stars: number) { this.starsByKid[kid] = stars; }
+  loadWallet(kid: KidId) { return this.walletsByKid[kid] ?? EMPTY_WALLET; }
+  saveWallet(kid: KidId, wallet: Wallet) { this.walletsByKid[kid] = wallet; }
+  // Test conveniences over the counter wallet (the port speaks Wallet only).
+  loadStars(kid: KidId) { return walletBalance(this.loadWallet(kid)); }
+  saveStars(kid: KidId, stars: number) { this.saveWallet(kid, { earned: stars, spent: 0 }); }
   loadFreezes(kid: KidId) { return this.freezesByKid[kid] ?? null; }
   saveFreezes(kid: KidId, count: number) { this.freezesByKid[kid] = count; }
   loadMission(kid: KidId) { return this.missions[kid] ?? null; }
@@ -94,6 +103,16 @@ describe("EarnStarsUseCase / SpendStarsUseCase", () => {
     expect(store.loadStars(KID)).toBe(10); // nothing deducted on a refusal
     expect(spend.execute(KID, 10)).toBe(0);
     expect(store.loadStars(KID)).toBe(0);
+  });
+
+  it("earns and spends move the monotonic counters, never the other one", () => {
+    const store = new FakeEconomyStore();
+    new EarnStarsUseCase(store).execute(KID, 50);
+    new SpendStarsUseCase(store).execute(KID, 20);
+    new EarnStarsUseCase(store).execute(KID, 5);
+    // Counters only ever grow — that is what makes the sync merge spend-safe.
+    expect(store.loadWallet(KID)).toEqual({ earned: 55, spent: 20 });
+    expect(store.loadStars(KID)).toBe(35);
   });
 });
 

@@ -7,6 +7,7 @@ import type { WeekProgress, WeeklyStreak } from "./weekly";
 import { tierRank } from "./category";
 import type { StickerTier } from "./sticker-tiers";
 import type { MissionState } from "./mission";
+import { walletBalance, type Wallet } from "./stars";
 
 /**
  * One-time progress transfer between devices — a copy-able code, no backend
@@ -21,9 +22,16 @@ export interface ProgressSnapshot {
   /** Per-kid word tallies; optional so pre-stats codes still decode. */
   readonly stats?: Partial<Record<KidId, WordStats>>;
   /** Economy fields — all optional for backwards compatibility. */
+  /** Legacy balance view of the wallet, kept so pre-counter clients can still
+   *  read the row/code. Emitted derived from `wallets`; on merge, `wallets`
+   *  is authoritative wherever it exists. */
   readonly stars?: Partial<Record<KidId, number>>;
-  /** The wallet generation `stars` belongs to (see WALLET_EPOCH). Absent means
-   *  epoch 0 — pre-reset snapshots, whose stars lose to any newer epoch. */
+  /** The counter wallet (earned/spent, balance derived — see domain/stars.ts).
+   *  Counters are monotonic, so per-counter max-merge makes spends survive
+   *  syncing; max-merging the raw balance resurrected them. */
+  readonly wallets?: Partial<Record<KidId, Wallet>>;
+  /** The wallet generation the wallet fields belong to (see WALLET_EPOCH).
+   *  Absent means epoch 0; older-epoch wallet fields lose to newer wholesale. */
   readonly walletEpoch?: number;
   readonly stickerCounts?: Readonly<Record<string, number>>;
   /** Legacy single active pet (pre-collection codes); still emitted for
@@ -225,6 +233,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     : [];
   const stats = sanitizeKidRecord(candidate.stats, isWordStats);
   const stars = sanitizeKidRecord(candidate.stars, isSaneCount);
+  const wallets = sanitizeKidRecord(candidate.wallets, isWallet);
   const pets = sanitizeKidRecord(candidate.pets, isPetState);
   const stickerCounts: Record<string, number> = {};
   if (typeof candidate.stickerCounts === "object" && candidate.stickerCounts !== null) {
@@ -261,6 +270,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     // Optional fields omitted when absent so older codes round-trip unchanged.
     ...(Object.keys(stats).length > 0 ? { stats } : {}),
     ...(Object.keys(stars).length > 0 ? { stars } : {}),
+    ...(Object.keys(wallets).length > 0 ? { wallets } : {}),
     ...(isSaneCount(candidate.walletEpoch) && candidate.walletEpoch > 0
       ? { walletEpoch: candidate.walletEpoch }
       : {}),
@@ -276,6 +286,15 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
+}
+
+function isWallet(value: unknown): value is Wallet {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    isSaneCount((value as Wallet).earned) &&
+    isSaneCount((value as Wallet).spent)
+  );
 }
 
 export function isMissionState(value: unknown): value is MissionState {
@@ -411,12 +430,32 @@ export function mergeProgress(
   }
 
   // Economy fields max-merge for idempotence (re-import never inflates) —
-  // except across wallet epochs: a bumped WALLET_EPOCH is a deliberate reset,
-  // so stars from an older epoch are discarded, never merged, or every stale
-  // cloud row and transfer code would resurrect the pre-reset balance.
+  // except across wallet epochs: a bumped WALLET_EPOCH is a deliberate wallet
+  // event (a reset, a schema change), so wallet fields from an older epoch
+  // are discarded, never merged, or every stale cloud row and transfer code
+  // would resurrect the pre-bump values.
   const currentEpoch = current.walletEpoch ?? 0;
   const incomingEpoch = incoming.walletEpoch ?? 0;
   const walletEpoch = Math.max(currentEpoch, incomingEpoch);
+  // Counter wallets: per-counter max. Both counters are monotonic, so this is
+  // idempotent AND spend-safe — a stale peer's lower `spent` can't undo a buy.
+  const wallets: Partial<Record<KidId, Wallet>> = {
+    ...(currentEpoch === walletEpoch ? current.wallets ?? {} : {}),
+  };
+  if (incomingEpoch === walletEpoch) {
+    for (const [kid, wallet] of Object.entries(incoming.wallets ?? {}) as [KidId, Wallet][]) {
+      const existing = wallets[kid];
+      wallets[kid] = existing === undefined
+        ? wallet
+        : {
+            earned: Math.max(existing.earned, wallet.earned),
+            spent: Math.max(existing.spent, wallet.spent),
+          };
+    }
+  }
+  // Legacy balances still merge for kids without counters (old snapshots);
+  // wherever a counter wallet exists it is authoritative and overwrites the
+  // balance view below.
   const stars: Partial<Record<KidId, number>> = {
     ...(currentEpoch === walletEpoch ? current.stars ?? {} : {}),
   };
@@ -424,6 +463,9 @@ export function mergeProgress(
     for (const [kid, value] of Object.entries(incoming.stars ?? {}) as [KidId, number][]) {
       stars[kid] = Math.max(stars[kid] ?? 0, value);
     }
+  }
+  for (const [kid, wallet] of Object.entries(wallets) as [KidId, Wallet][]) {
+    stars[kid] = walletBalance(wallet);
   }
   const stickerCounts: Record<string, number> = { ...(current.stickerCounts ?? {}) };
   for (const [id, count] of Object.entries(incoming.stickerCounts ?? {})) {
@@ -586,6 +628,7 @@ export function mergeProgress(
     avatars: { ...current.avatars, ...incoming.avatars },
     stats,
     stars,
+    ...(Object.keys(wallets).length > 0 ? { wallets } : {}),
     ...(walletEpoch > 0 ? { walletEpoch } : {}),
     stickerCounts,
     pets,

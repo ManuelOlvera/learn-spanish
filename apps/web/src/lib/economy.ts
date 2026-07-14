@@ -12,6 +12,7 @@ import {
   categoryTierFromAlbum,
   defaultCollection,
   freezesOrStarting,
+  walletBalance,
   type ActivityId,
   type KidId,
   type MissionKind,
@@ -21,6 +22,7 @@ import {
   type PetState,
   type StickerTier,
   type SurpriseResult,
+  type Wallet,
   type WeeklyView,
   type WeekProgress,
   type WeeklyStreak,
@@ -33,8 +35,14 @@ const store = container.economyStore;
 
 // ---- stars ----
 
+/** The spendable balance — derived from the counter wallet (ADR 008). */
 export function getStars(kid: KidId): number {
-  return store.loadStars(kid);
+  return walletBalance(store.loadWallet(kid));
+}
+
+/** The raw counters, for the snapshot. `getStars` is the view kids see. */
+export function getWallet(kid: KidId): Wallet {
+  return store.loadWallet(kid);
 }
 
 export function addStars(kid: KidId, amount: number): number {
@@ -46,9 +54,10 @@ export function spendStars(kid: KidId, amount: number): number | null {
   return container.spendStars.execute(kid, amount);
 }
 
-/** Set a kid's balance outright (sync-merge apply path only — never a spend). */
-export function setStars(kid: KidId, amount: number): void {
-  store.saveStars(kid, amount);
+/** Write a merged wallet outright (sync-merge apply path only — never a spend:
+ *  spending goes through the use case so the balance check happens first). */
+export function setWallet(kid: KidId, wallet: Wallet): void {
+  store.saveWallet(kid, wallet);
 }
 
 // ---- daily mission ----

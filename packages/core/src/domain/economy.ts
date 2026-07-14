@@ -1,6 +1,7 @@
 import type { KidId } from "./kid";
 import type { MissionState } from "./mission";
 import type { PetCollection } from "./mascota";
+import type { Wallet } from "./stars";
 import type { StickerTier } from "./sticker-tiers";
 import type { WeekProgress, WeeklyStreak } from "./weekly";
 
@@ -15,8 +16,9 @@ import type { WeekProgress, WeeklyStreak } from "./weekly";
  * `application/` — an adapter implements storage, nothing else.
  */
 export interface EconomyStore {
-  loadStars(kid: KidId): number;
-  saveStars(kid: KidId, stars: number): void;
+  /** The counter wallet (see domain/stars.ts Wallet); balance is derived. */
+  loadWallet(kid: KidId): Wallet;
+  saveWallet(kid: KidId, wallet: Wallet): void;
 
   /** Null when the kid has never had the key — see freezesOrStarting. */
   loadFreezes(kid: KidId): number | null;
