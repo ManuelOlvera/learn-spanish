@@ -1,5 +1,14 @@
 # Shipped features
 
+## 2026-07-14 — Fix: the misión's counting icon pointed at the wrong place
+
+Parent report (live, mid-misión): the counting slot showed 🔢 — the *numbers
+deck tile's* emoji — while the game itself is branded 🧮 everywhere a kid
+sees it (menu, player, done screen). A pre-reader navigates by picture alone,
+so the misión icon sent him to the deck tile, where no amount of flashcards
+fills a counting slot. Icon corrected to 🧮; the KIND_EMOJI map now carries
+the invariant in a comment: mission icons must match the menu's game icons.
+
 ## 2026-07-14 — Fix: sync is now safe while both devices play at once
 
 Parent report: sync misbehaved with both devices open. Root cause was

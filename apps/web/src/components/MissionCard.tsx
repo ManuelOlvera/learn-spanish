@@ -2,7 +2,10 @@
 
 import { MISSION_BONUS, type MissionKind, type MissionView } from "@learn-spanish/core";
 
-/** How each misión kind is drawn — pictures only, the kid can't read. */
+/** How each misión kind is drawn — pictures only, the kid can't read, so
+ *  every icon MUST match the game's icon in the deck menu (a mismatch sends
+ *  the kid to the wrong place: 🔢 here once pointed at the numbers deck tile
+ *  instead of the 🧮 counting game). */
 const KIND_EMOJI: Partial<Record<MissionKind, string>> = {
   learn: "📖",
   quiz: "🔍",
@@ -12,7 +15,7 @@ const KIND_EMOJI: Partial<Record<MissionKind, string>> = {
   scene: "👀",
   frases: "💬",
   duel: "⚔️",
-  counting: "🔢",
+  counting: "🧮",
   spelling: "✏️",
   sopa: "🥣",
 };
