@@ -10,11 +10,12 @@ import { card, deckOf, seededRandom } from "./helpers";
 
 describe("wardrobe", () => {
   it("offers a catalog with ids, emoji, and star costs", () => {
-    expect(ACCESSORIES.length).toBeGreaterThanOrEqual(4);
+    expect(ACCESSORIES.length).toBeGreaterThanOrEqual(24);
     for (const item of ACCESSORIES) {
       expect(item.id).not.toBe("");
       expect(item.emoji).not.toBe("");
-      expect(item.cost).toBeGreaterThan(0);
+      // Balance floor: nothing in the shop is a one-game impulse buy.
+      expect(item.cost).toBeGreaterThanOrEqual(40);
     }
     expect(new Set(ACCESSORIES.map((a) => a.id)).size).toBe(ACCESSORIES.length);
   });

@@ -18,11 +18,16 @@ export interface Theme {
 
 export const THEMES: readonly Theme[] = [
   { id: "crema", nameSpanish: "Crema", cost: 0, paper: "#fbf3e2" },
-  { id: "menta", nameSpanish: "Menta", cost: 20, paper: "#dff5e8" },
-  { id: "chicle", nameSpanish: "Chicle", cost: 20, paper: "#fce1ee" },
-  { id: "cielo", nameSpanish: "Cielo", cost: 20, paper: "#e2edfb" },
-  { id: "sol", nameSpanish: "Sol", cost: 30, paper: "#fdf1cf" },
-  { id: "lavanda", nameSpanish: "Lavanda", cost: 30, paper: "#efe5fb" },
+  { id: "menta", nameSpanish: "Menta", cost: 60, paper: "#dff5e8" },
+  { id: "chicle", nameSpanish: "Chicle", cost: 60, paper: "#fce1ee" },
+  { id: "cielo", nameSpanish: "Cielo", cost: 60, paper: "#e2edfb" },
+  { id: "sol", nameSpanish: "Sol", cost: 90, paper: "#fdf1cf" },
+  { id: "lavanda", nameSpanish: "Lavanda", cost: 90, paper: "#efe5fb" },
+  { id: "durazno", nameSpanish: "Durazno", cost: 130, paper: "#fde5d2" },
+  { id: "aguamarina", nameSpanish: "Aguamarina", cost: 130, paper: "#dcf4ef" },
+  { id: "limon", nameSpanish: "Limón", cost: 170, paper: "#f2f9d6" },
+  { id: "coral", nameSpanish: "Coral", cost: 200, paper: "#fcdcd4" },
+  { id: "nube", nameSpanish: "Nube", cost: 250, paper: "#eaedf6" },
 ];
 
 const OWNED_THEMES_KEY = "palabras.owned-themes.v1";

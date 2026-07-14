@@ -1,5 +1,30 @@
 # Shipped features
 
+## 2026-07-14 — Economy rebalance: bigger catalogs, much higher prices
+
+Parent report: the kids were buying out the whole shop in a weekend — the
+star sinks were priced for a smaller game. A pure balance-and-content bump,
+no new mechanics:
+
+- **Mascots** — 12 → 20 species (🐸 rana, 🐠 pez, 🐙 pulpo, 🦉 búho,
+  🐋 ballena, 🦕 dino, 🦖 rex, 🐦‍🔥 fénix). Adoption repriced steeply:
+  first paid pet 40⭐ → 100⭐, top of the roster 240⭐ → 2500⭐ (el fénix) —
+  adoption is now the economy's long game.
+- **Accessories** — `El armario` grew 18 → 28 (⚽ pelota, 🍦 helado, 🧸
+  osito, 🎸 guitarra, 🌈 arcoíris, 🪁 cometa, 🚀 cohete, 🌙 luna, 🔮 bola
+  mágica, 💎 diamante), each with a default spot. Repriced 18–60⭐ →
+  40–350⭐; the catalog is now listed cheapest-first, and the tests pin a
+  40⭐ floor so nothing is a one-game impulse buy. (🛡️ was deliberately
+  avoided — "escudo" already means streak freezes.)
+- **Themes** — 6 → 11 paper skins (Durazno, Aguamarina, Limón, Coral,
+  Nube), repriced 20–30⭐ → 60–250⭐.
+- **Caja sorpresa** — 15⭐ → 40⭐ (the cheapest accessory), so the lottery
+  never undercuts simply buying what you want; the star consolation grew
+  3–8 → 8–20 to match.
+
+Feeding (5⭐/meal), avatars, and freezes are unchanged. Existing owned items
+are untouched — only future purchases pay the new prices.
+
 ## 2026-07-14 — Error boundaries: deploy skew self-heals, kids never see English
 
 Parent screenshot: Next's default "Application error: a client-side

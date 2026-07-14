@@ -10,25 +10,38 @@ export interface Accessory {
   readonly cost: number;
 }
 
+/** Listed cheapest-first (the shop renders in this order). Costs start at a
+ *  few games' worth of stars and climb into real savings goals — the wardrobe
+ *  is meant to outlast the pet roster, not empty in a weekend. */
 export const ACCESSORIES: readonly Accessory[] = [
-  { id: "flor", emoji: "🌸", cost: 18 },
-  { id: "gorro", emoji: "🎩", cost: 20 },
-  { id: "piruli", emoji: "🍭", cost: 20 },
-  { id: "gorra", emoji: "🧢", cost: 22 },
-  { id: "bufanda", emoji: "🧣", cost: 24 },
-  { id: "globo-fiesta", emoji: "🎈", cost: 25 },
-  { id: "gafas-ver", emoji: "👓", cost: 26 },
-  { id: "gafas", emoji: "🕶️", cost: 30 },
-  { id: "lazo", emoji: "🎀", cost: 35 },
-  { id: "mariposa", emoji: "🦋", cost: 40 },
-  { id: "corona", emoji: "👑", cost: 50 },
-  { id: "varita", emoji: "🪄", cost: 60 },
-  { id: "estrella", emoji: "⭐", cost: 28 },
-  { id: "medalla", emoji: "🏅", cost: 32 },
-  { id: "birrete", emoji: "🎓", cost: 38 },
-  { id: "paraguas", emoji: "☂️", cost: 42 },
-  { id: "reloj", emoji: "⌚", cost: 45 },
-  { id: "trebol", emoji: "🍀", cost: 48 },
+  { id: "flor", emoji: "🌸", cost: 40 },
+  { id: "gorro", emoji: "🎩", cost: 45 },
+  { id: "piruli", emoji: "🍭", cost: 45 },
+  { id: "gorra", emoji: "🧢", cost: 50 },
+  { id: "bufanda", emoji: "🧣", cost: 55 },
+  { id: "globo-fiesta", emoji: "🎈", cost: 60 },
+  { id: "gafas-ver", emoji: "👓", cost: 65 },
+  { id: "estrella", emoji: "⭐", cost: 70 },
+  { id: "gafas", emoji: "🕶️", cost: 75 },
+  { id: "medalla", emoji: "🏅", cost: 80 },
+  { id: "lazo", emoji: "🎀", cost: 85 },
+  { id: "birrete", emoji: "🎓", cost: 90 },
+  { id: "mariposa", emoji: "🦋", cost: 95 },
+  { id: "paraguas", emoji: "☂️", cost: 100 },
+  { id: "reloj", emoji: "⌚", cost: 110 },
+  { id: "trebol", emoji: "🍀", cost: 120 },
+  { id: "corona", emoji: "👑", cost: 135 },
+  { id: "varita", emoji: "🪄", cost: 150 },
+  { id: "pelota", emoji: "⚽", cost: 160 },
+  { id: "helado", emoji: "🍦", cost: 175 },
+  { id: "osito", emoji: "🧸", cost: 190 },
+  { id: "guitarra", emoji: "🎸", cost: 210 },
+  { id: "arcoiris", emoji: "🌈", cost: 230 },
+  { id: "cometa", emoji: "🪁", cost: 250 },
+  { id: "cohete", emoji: "🚀", cost: 270 },
+  { id: "luna", emoji: "🌙", cost: 290 },
+  { id: "bola-magica", emoji: "🔮", cost: 320 },
+  { id: "diamante", emoji: "💎", cost: 350 },
 ];
 
 // ---- ownership: a kid-level set (buy each accessory once) ----

@@ -231,7 +231,7 @@ describe("AdoptSpeciesUseCase", () => {
     const store = new FakeEconomyStore();
     store.saveStars(KID, 10_000);
     const adopt = new AdoptSpeciesUseCase(store);
-    expect(adopt.execute(KID, "fenix")).toBeNull();
+    expect(adopt.execute(KID, "sirena")).toBeNull();
     expect(adopt.execute(KID, STARTER_SPECIES)).toBeNull(); // starter is owned
     store.saveStars(KID, conejo.cost - 1);
     expect(adopt.execute(KID, "conejo")).toBeNull();

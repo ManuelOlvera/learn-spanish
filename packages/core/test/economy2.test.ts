@@ -66,8 +66,15 @@ describe("pet species", () => {
     expect(petEmoji("pollito", 0)).toBe("🥚");
     expect(petEmoji("pollito", 15)).toBe("🐔");
     expect(petEmoji("dragon", 15)).toBe("🐉");
-    // adoptable species cost stars
-    expect(PET_SPECIES.filter((s) => s.cost > 0).length).toBeGreaterThanOrEqual(2);
+    // a deep adoptable roster so the star sink lasts many sessions
+    expect(PET_SPECIES.filter((s) => s.cost > 0).length).toBeGreaterThanOrEqual(19);
+    expect(new Set(PET_SPECIES.map((s) => s.id)).size).toBe(PET_SPECIES.length);
+  });
+
+  it("prices adoption as a long game: no cheap pets, big top-tier goals", () => {
+    const paid = PET_SPECIES.filter((s) => s.cost > 0).map((s) => s.cost);
+    expect(Math.min(...paid)).toBeGreaterThanOrEqual(100);
+    expect(Math.max(...paid)).toBeGreaterThanOrEqual(2000);
   });
 
   it("grows each animal as its own kind — only the chick is a chick", () => {

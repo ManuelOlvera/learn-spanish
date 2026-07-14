@@ -34,19 +34,29 @@ export interface PetSpecies {
   readonly stages: readonly string[];
 }
 
+/** Costs climb steeply on purpose: adoption is the economy's long game, and
+ *  the top of the roster should take many sessions of play to reach. */
 export const PET_SPECIES: readonly PetSpecies[] = [
   { id: "pollito", nameSpanish: "El pollito", nameEnglish: "Chick", cost: 0, stages: ["🥚", "🐣", "🐥", "🐔"] },
-  { id: "conejo", nameSpanish: "El conejo", nameEnglish: "Bunny", cost: 40, stages: ["🐰", "🐇"] },
-  { id: "gato", nameSpanish: "El gato", nameEnglish: "Cat", cost: 70, stages: ["🐱", "🐈"] },
-  { id: "perro", nameSpanish: "El perro", nameEnglish: "Dog", cost: 90, stages: ["🐶", "🐕"] },
-  { id: "tortuga", nameSpanish: "La tortuga", nameEnglish: "Turtle", cost: 100, stages: ["🥚", "🐢"] },
-  { id: "pinguino", nameSpanish: "El pingüino", nameEnglish: "Penguin", cost: 110, stages: ["🥚", "🐧"] },
-  { id: "dragon", nameSpanish: "El dragón", nameEnglish: "Dragon", cost: 120, stages: ["🥚", "🐲", "🐉"] },
-  { id: "mariposa", nameSpanish: "La mariposa", nameEnglish: "Butterfly", cost: 140, stages: ["🥚", "🐛", "🫛", "🦋"] },
-  { id: "unicornio", nameSpanish: "El unicornio", nameEnglish: "Unicorn", cost: 160, stages: ["🥚", "🦄"] },
-  { id: "caballito", nameSpanish: "El caballito", nameEnglish: "Pony", cost: 180, stages: ["🐴", "🐎"] },
-  { id: "mono", nameSpanish: "El mono", nameEnglish: "Monkey", cost: 210, stages: ["🐵", "🐒"] },
-  { id: "abeja", nameSpanish: "La abeja", nameEnglish: "Bee", cost: 240, stages: ["🥚", "🐝"] },
+  { id: "conejo", nameSpanish: "El conejo", nameEnglish: "Bunny", cost: 100, stages: ["🐰", "🐇"] },
+  { id: "gato", nameSpanish: "El gato", nameEnglish: "Cat", cost: 160, stages: ["🐱", "🐈"] },
+  { id: "perro", nameSpanish: "El perro", nameEnglish: "Dog", cost: 220, stages: ["🐶", "🐕"] },
+  { id: "tortuga", nameSpanish: "La tortuga", nameEnglish: "Turtle", cost: 280, stages: ["🥚", "🐢"] },
+  { id: "pinguino", nameSpanish: "El pingüino", nameEnglish: "Penguin", cost: 350, stages: ["🥚", "🐧"] },
+  { id: "dragon", nameSpanish: "El dragón", nameEnglish: "Dragon", cost: 420, stages: ["🥚", "🐲", "🐉"] },
+  { id: "mariposa", nameSpanish: "La mariposa", nameEnglish: "Butterfly", cost: 500, stages: ["🥚", "🐛", "🫛", "🦋"] },
+  { id: "unicornio", nameSpanish: "El unicornio", nameEnglish: "Unicorn", cost: 580, stages: ["🥚", "🦄"] },
+  { id: "caballito", nameSpanish: "El caballito", nameEnglish: "Pony", cost: 660, stages: ["🐴", "🐎"] },
+  { id: "mono", nameSpanish: "El mono", nameEnglish: "Monkey", cost: 750, stages: ["🐵", "🐒"] },
+  { id: "abeja", nameSpanish: "La abeja", nameEnglish: "Bee", cost: 850, stages: ["🥚", "🐝"] },
+  { id: "rana", nameSpanish: "La rana", nameEnglish: "Frog", cost: 950, stages: ["🥚", "🐸"] },
+  { id: "pez", nameSpanish: "El pez", nameEnglish: "Fish", cost: 1050, stages: ["🥚", "🐟", "🐠"] },
+  { id: "pulpo", nameSpanish: "El pulpo", nameEnglish: "Octopus", cost: 1200, stages: ["🥚", "🐙"] },
+  { id: "buho", nameSpanish: "El búho", nameEnglish: "Owl", cost: 1350, stages: ["🥚", "🦉"] },
+  { id: "ballena", nameSpanish: "La ballena", nameEnglish: "Whale", cost: 1500, stages: ["🐳", "🐋"] },
+  { id: "dino", nameSpanish: "El dino", nameEnglish: "Dinosaur", cost: 1700, stages: ["🥚", "🦕"] },
+  { id: "rex", nameSpanish: "El rex", nameEnglish: "T-Rex", cost: 2000, stages: ["🥚", "🦖"] },
+  { id: "fenix", nameSpanish: "El fénix", nameEnglish: "Phoenix", cost: 2500, stages: ["🥚", "🐦‍🔥"] },
 ];
 
 export const STARTER_SPECIES = "pollito";
