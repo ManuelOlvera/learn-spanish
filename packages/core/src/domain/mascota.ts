@@ -57,6 +57,14 @@ export const PET_SPECIES: readonly PetSpecies[] = [
   { id: "dino", nameSpanish: "El dino", nameEnglish: "Dinosaur", cost: 1700, stages: ["🥚", "🦕"] },
   { id: "rex", nameSpanish: "El rex", nameEnglish: "T-Rex", cost: 2000, stages: ["🥚", "🦖"] },
   { id: "fenix", nameSpanish: "El fénix", nameEnglish: "Phoenix", cost: 2500, stages: ["🥚", "🐦‍🔥"] },
+  { id: "raton", nameSpanish: "El ratón", nameEnglish: "Mouse", cost: 2800, stages: ["🐭", "🐁"] },
+  { id: "cerdito", nameSpanish: "El cerdito", nameEnglish: "Piglet", cost: 3100, stages: ["🐷", "🐖"] },
+  { id: "caracol", nameSpanish: "El caracol", nameEnglish: "Snail", cost: 3400, stages: ["🥚", "🐌"] },
+  { id: "cangrejo", nameSpanish: "El cangrejo", nameEnglish: "Crab", cost: 3700, stages: ["🥚", "🦀"] },
+  { id: "flamenco", nameSpanish: "El flamenco", nameEnglish: "Flamingo", cost: 4000, stages: ["🥚", "🦩"] },
+  { id: "tiburon", nameSpanish: "El tiburón", nameEnglish: "Shark", cost: 4400, stages: ["🥚", "🦈"] },
+  { id: "pavo-real", nameSpanish: "El pavo real", nameEnglish: "Peacock", cost: 4800, stages: ["🥚", "🦚"] },
+  { id: "cocodrilo", nameSpanish: "El cocodrilo", nameEnglish: "Crocodile", cost: 5500, stages: ["🥚", "🐊"] },
 ];
 
 export const STARTER_SPECIES = "pollito";

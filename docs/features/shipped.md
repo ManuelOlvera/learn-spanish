@@ -1,5 +1,26 @@
 # Shipped features
 
+## 2026-07-14 — Economy rebalance II: deeper top tier, 100⭐ caja sorpresa
+
+A second balance pass the same day, extending the morning's rebalance
+further up:
+
+- **Mascots** — 20 → 28 species (🐭 ratón, 🐷 cerdito, 🐌 caracol, 🦀
+  cangrejo, 🦩 flamenco, 🦈 tiburón, 🦚 pavo real, 🐊 cocodrilo), 2800⭐
+  up to 5500⭐ — the roster now extends past el fénix instead of ending
+  there.
+- **Accessories** — `El armario` grew 28 → 38 (🍩 dona, 🌻 girasol, 🥁
+  tambor, 🛹 patineta, 🫧 burbujas, 🎻 violín, 🪅 piñata, 🪩 disco, 🏆
+  trofeo, 🪐 planeta), 380–700⭐, each with a default spot.
+- **Themes** — 11 → 16 paper skins (Miel, Salvia, Hielo, Malva, Perla),
+  300–450⭐.
+- **Caja sorpresa** — 40⭐ → **100⭐** (a save-up treat, not pocket
+  change); the star consolation scaled 8–20 → 20–50 to keep the same
+  loss ratio. Tests now pin a 100⭐ floor on the box, ≥27 paid species,
+  and a ≥4000⭐ top tier.
+
+Feeding, avatars, and freezes are still unchanged; owned items untouched.
+
 ## 2026-07-14 — Economy rebalance: bigger catalogs, much higher prices
 
 Parent report: the kids were buying out the whole shop in a weekend — the

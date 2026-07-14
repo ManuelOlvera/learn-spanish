@@ -28,6 +28,11 @@ export const THEMES: readonly Theme[] = [
   { id: "limon", nameSpanish: "Limón", cost: 170, paper: "#f2f9d6" },
   { id: "coral", nameSpanish: "Coral", cost: 200, paper: "#fcdcd4" },
   { id: "nube", nameSpanish: "Nube", cost: 250, paper: "#eaedf6" },
+  { id: "miel", nameSpanish: "Miel", cost: 300, paper: "#fbe8c0" },
+  { id: "salvia", nameSpanish: "Salvia", cost: 300, paper: "#e3ede2" },
+  { id: "hielo", nameSpanish: "Hielo", cost: 350, paper: "#e7f4f9" },
+  { id: "malva", nameSpanish: "Malva", cost: 400, paper: "#f3e0ec" },
+  { id: "perla", nameSpanish: "Perla", cost: 450, paper: "#f4f1ec" },
 ];
 
 const OWNED_THEMES_KEY = "palabras.owned-themes.v1";

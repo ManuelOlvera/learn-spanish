@@ -10,7 +10,7 @@ import { card, deckOf, seededRandom } from "./helpers";
 
 describe("wardrobe", () => {
   it("offers a catalog with ids, emoji, and star costs", () => {
-    expect(ACCESSORIES.length).toBeGreaterThanOrEqual(24);
+    expect(ACCESSORIES.length).toBeGreaterThanOrEqual(34);
     for (const item of ACCESSORIES) {
       expect(item.id).not.toBe("");
       expect(item.emoji).not.toBe("");

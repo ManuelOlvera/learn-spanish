@@ -42,6 +42,16 @@ export const ACCESSORIES: readonly Accessory[] = [
   { id: "luna", emoji: "🌙", cost: 290 },
   { id: "bola-magica", emoji: "🔮", cost: 320 },
   { id: "diamante", emoji: "💎", cost: 350 },
+  { id: "dona", emoji: "🍩", cost: 380 },
+  { id: "girasol", emoji: "🌻", cost: 410 },
+  { id: "tambor", emoji: "🥁", cost: 440 },
+  { id: "patineta", emoji: "🛹", cost: 470 },
+  { id: "burbujas", emoji: "🫧", cost: 500 },
+  { id: "violin", emoji: "🎻", cost: 540 },
+  { id: "pinata", emoji: "🪅", cost: 580 },
+  { id: "disco", emoji: "🪩", cost: 620 },
+  { id: "trofeo", emoji: "🏆", cost: 660 },
+  { id: "planeta", emoji: "🪐", cost: 700 },
 ];
 
 // ---- ownership: a kid-level set (buy each accessory once) ----

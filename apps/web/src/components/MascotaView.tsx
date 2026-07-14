@@ -81,6 +81,16 @@ const ACCESSORY_SPOTS: Record<string, { left: string; top: string }> = {
   luna: { left: "86%", top: "8%" }, // 🌙 moon, high in the corner
   "bola-magica": { left: "82%", top: "76%" }, // 🔮 crystal ball, held low-right
   diamante: { left: "62%", top: "84%" }, // 💎 gem, worn near the collar
+  dona: { left: "16%", top: "62%" }, // 🍩 donut, held low-left
+  girasol: { left: "70%", top: "24%" }, // 🌻 sunflower, by the other ear
+  tambor: { left: "50%", top: "90%" }, // 🥁 drum, at the feet
+  patineta: { left: "76%", top: "90%" }, // 🛹 skateboard, under a foot
+  burbujas: { left: "12%", top: "44%" }, // 🫧 bubbles, drifting left
+  violin: { left: "86%", top: "44%" }, // 🎻 violin, held to the right
+  pinata: { left: "90%", top: "32%" }, // 🪅 piñata, swinging up-right
+  disco: { left: "38%", top: "4%" }, // 🪩 disco ball, hanging overhead
+  trofeo: { left: "30%", top: "74%" }, // 🏆 trophy, held low-left
+  planeta: { left: "4%", top: "8%" }, // 🪐 planet, orbiting the far corner
 };
 
 /** The default spot as plain percent numbers — the starting point a kid then
