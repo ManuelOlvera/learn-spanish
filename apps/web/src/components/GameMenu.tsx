@@ -136,8 +136,9 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
           },
         ]
       : []),
-    // La sopa is reader-level too, and only for decks whose words fit a grid.
-    ...(kid !== "listener" && sopaDifficulties(deck).length > 0
+    // La sopa is for both kids (they both love it) — the only gate is whether
+    // the deck's words fit a grid. It stays sticker-less, so no album slot.
+    ...(sopaDifficulties(deck).length > 0
       ? [
           {
             emoji: "🥣",

@@ -64,10 +64,16 @@ export function createSceneGame(
 
 /** The hunt question, as a native would ask it: ¿Dónde está el gato?,
  *  ¿Dónde están los calcetines?, ¿Dónde está el rojo? (bare words get an
- *  article), and ¿Quién está triste? for feelings. */
+ *  article), and ¿Quién está triste? for feelings. Cards whose `spanish` is
+ *  deliberately bare (letter names — "be", not "la be") carry their own
+ *  `article`, so the question still reads native: ¿Dónde está la be? */
 export function sceneQuestion(card: VocabularyCard): string {
   if (card.usesEstar) {
     return `¿Quién está ${card.spanish}?`;
+  }
+  if (card.article !== undefined) {
+    const verb = card.article === "los" || card.article === "las" ? "están" : "está";
+    return `¿Dónde ${verb} ${card.article} ${card.spanish}?`;
   }
   if (card.spanish.startsWith("los ") || card.spanish.startsWith("las ")) {
     return `¿Dónde están ${card.spanish}?`;

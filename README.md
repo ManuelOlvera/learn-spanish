@@ -27,7 +27,7 @@ No reading, no accounts, no setup.
   "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
   "El reto" (60-second lightning round), "¿Cuántos hay?" (counting, on
   the numbers deck), "Deletrea" (letter-tile spelling, reader-level),
-  and "La sopa de letras" (word search, reader-level, 🟢/🟡/🔴 grid
+  and "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
   sizes, on decks whose words fit a grid).
 - **Game feel** — synthesized sounds, haptics, confetti, and a ⚡ racha
   burst at 3/5/10 correct in a row.

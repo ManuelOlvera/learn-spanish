@@ -1,5 +1,27 @@
 # Shipped features
 
+## 2026-07-15 — Letters are named, not articled ("be", not "la be")
+
+The abecedario spoke each letter with its article — "la a, la be, la ce" — and
+the kids heard the article as part of the name. A letter is called **"be"**.
+
+Card `spanish` is now the bare name, so flashcards, quiz, reto, duelo, parejas
+and conecta all speak and show just the letter. The article hasn't been thrown
+away (letter names *are* feminine, and a game still has to build a sentence):
+cards carry it in a new optional `article` field on `VocabularyCard`, which
+`sceneQuestion` uses to keep asking "¿Dónde está **la** be?" instead of the
+ungrammatical "el be" its bare-word fallback would have produced. Sí-o-no keeps
+its existing per-card override ("¿Es la be?"). Accented vowels still say "con
+tilde" so a listen round dealing *a* and *á* stays answerable by ear.
+
+## 2026-07-15 — La sopa de letras is for both kids
+
+It shipped reader-level on the theory that finding a written word is reading.
+Both kids play it and both love it, so the only gate left is the real one:
+whether the deck's words fit a grid. Nothing else changed — sopa stays
+sticker-less (no album slot), and `SopaPlayer` already recorded answers against
+whichever kid is selected. "Deletrea" remains reader-level.
+
 ## 2026-07-15 — Counter wallets: syncing can no longer resurrect a spend (epoch 3)
 
 A real bug, not a polish pass: the sync merge (ADR 004) max-merges progress,

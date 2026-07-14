@@ -90,15 +90,17 @@ describe("starter pack content", () => {
       (id) => decks.find((d) => d.id === id)!.cards,
     );
     for (const card of letterCards) {
-      // Spoken/shown with the article ("la be"), never "¿Es una be?" —
-      // each card overrides sí-o-no with "¿Es la …?".
-      expect(card.spanish.startsWith("la "), card.id).toBe(true);
-      expect(card.question, card.id).toBe(`¿Es ${card.spanish}?`);
+      // A letter's NAME is bare ("be") — the kids found "la be" confusing.
+      // The article lives in `article` (letters are feminine), so games can
+      // still build a native phrase: "¿Es la be?", never "¿Es una be?".
+      expect(card.spanish.startsWith("la "), card.id).toBe(false);
+      expect(card.article, card.id).toBe("la");
+      expect(card.question, card.id).toBe(`¿Es la ${card.spanish}?`);
     }
     // Accented vowels must SOUND distinct from their plain twins, or a
     // listen-mode quiz dealing both is unanswerable by ear.
     const acute = letterCards.find((c) => c.id === "letra-a-tilde")!;
-    expect(acute.spanish).toBe("la a con tilde");
+    expect(acute.spanish).toBe("a con tilde");
   });
 
   it("keeps decks kid-sized: 10-15 cards each", async () => {

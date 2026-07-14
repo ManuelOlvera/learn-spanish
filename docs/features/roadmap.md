@@ -159,9 +159,9 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     parent decided that's fine — the box is joy, prices are theater. Don't
     re-propose without new evidence (e.g. stars stop feeling scarce).
 
-20. ☑ **La sopa de letras** — reader-level word search over deck words,
-    🟢/🟡/🔴 grid sizes, tap-first-and-last-letter selection. *(Shipped
-    2026-07-14. See `shipped.md`.)*
+20. ☑ **La sopa de letras** — word search over deck words, 🟢/🟡/🔴 grid
+    sizes, tap-first-and-last-letter selection. *(Shipped 2026-07-14,
+    reader-level; opened to both kids 2026-07-15. See `shipped.md`.)*
     - ☐ **Bent-path words (true Squaredle)** — snaking selections instead of
       straight lines; deliberately cut from the first slice.
     - ☐ **Bonus words** — finding a non-target pack word still celebrates.
