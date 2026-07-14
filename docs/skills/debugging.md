@@ -19,6 +19,17 @@ Find the *true* cause and fix it once, at the right layer.
 
 ## Case log (patterns worth remembering)
 
+- **2026-07-14 — "Application error" opening a game in prod**: not the game —
+  deploy skew. A session opened before one of the day's four deploys asked
+  the new deployment for old route chunks; the crash surfaced as Next's
+  DEFAULT error wall because the app had no error boundary. Fix:
+  `app/error.tsx` auto-reloads once (fresh HTML + matching chunks heal any
+  skew), then falls back to a picture-only 🙈/🔄/🏠 screen. Lessons: the
+  default Next error text in a screenshot means "you have no boundary";
+  deploy-skew crashes reproduce poorly on a fresh session — look at *when*
+  deploys happened relative to the report; and ship-day frequency is itself
+  a risk factor for open PWA sessions.
+
 - **2026-07-14 — sync "breaks" when both devices play at once**: the pull
   captured `currentSnapshot()` BEFORE the network fetch, so any progress
   earned during the wait (chest claim, purchase) was rolled back when the

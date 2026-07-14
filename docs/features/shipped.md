@@ -1,5 +1,21 @@
 # Shipped features
 
+## 2026-07-14 — Error boundaries: deploy skew self-heals, kids never see English
+
+Parent screenshot: Next's default "Application error: a client-side
+exception…" wall when opening ¿Cuántos hay?. Root cause class: a stale app
+session (open since before one of the day's four deploys) requesting the new
+deployment's route chunks — and the app had **no error boundary at all**, so
+a pre-reader got an English dead-end with no way out.
+
+Fix: `app/error.tsx` **auto-reloads once** on the first client exception of a
+session (a reload fetches HTML and chunks from one deployment, healing every
+skew variant invisibly); an error that survives the reload is a real bug and
+shows a picture-only recovery screen — 🙈 with big 🔄 retry and 🏠 home
+stickers. `app/global-error.tsx` covers root-layout failures with an
+inline-styled equivalent. Verified by injecting a persistent render throw:
+one automatic reload, then the recovery screen, never the default wall.
+
 ## 2026-07-14 — Fix: the misión's counting icon pointed at the wrong place
 
 Parent report (live, mid-misión): the counting slot showed 🔢 — the *numbers
