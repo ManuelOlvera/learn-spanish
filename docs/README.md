@@ -24,3 +24,4 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
   - [adr/003-ephemeral-voice-recordings.md](adr/003-ephemeral-voice-recordings.md) — say-it-back clips live in memory only, never stored or sent
   - [adr/004-optional-supabase-sync.md](adr/004-optional-supabase-sync.md) — local-first with optional Supabase sync; pairing code as capability, no accounts
   - [adr/005-hand-rolled-service-worker.md](adr/005-hand-rolled-service-worker.md) — offline via a hand-rolled service worker, not next-pwa/Workbox
+  - [adr/006-wallet-epoch-reset.md](adr/006-wallet-epoch-reset.md) — wallet epochs: the one sanctioned way to reset star balances under the additive merge

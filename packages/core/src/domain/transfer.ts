@@ -22,6 +22,9 @@ export interface ProgressSnapshot {
   readonly stats?: Partial<Record<KidId, WordStats>>;
   /** Economy fields — all optional for backwards compatibility. */
   readonly stars?: Partial<Record<KidId, number>>;
+  /** The wallet generation `stars` belongs to (see WALLET_EPOCH). Absent means
+   *  epoch 0 — pre-reset snapshots, whose stars lose to any newer epoch. */
+  readonly walletEpoch?: number;
   readonly stickerCounts?: Readonly<Record<string, number>>;
   /** Legacy single active pet (pre-collection codes); still emitted for
    *  compat. `petCollections` is authoritative when present. */
@@ -258,6 +261,9 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     // Optional fields omitted when absent so older codes round-trip unchanged.
     ...(Object.keys(stats).length > 0 ? { stats } : {}),
     ...(Object.keys(stars).length > 0 ? { stars } : {}),
+    ...(isSaneCount(candidate.walletEpoch) && candidate.walletEpoch > 0
+      ? { walletEpoch: candidate.walletEpoch }
+      : {}),
     ...(Object.keys(stickerCounts).length > 0 ? { stickerCounts } : {}),
     ...(Object.keys(pets).length > 0 ? { pets } : {}),
     ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),
@@ -404,10 +410,20 @@ export function mergeProgress(
     stats[kid] = merged;
   }
 
-  // Economy fields max-merge for idempotence (re-import never inflates).
-  const stars: Partial<Record<KidId, number>> = { ...(current.stars ?? {}) };
-  for (const [kid, value] of Object.entries(incoming.stars ?? {}) as [KidId, number][]) {
-    stars[kid] = Math.max(stars[kid] ?? 0, value);
+  // Economy fields max-merge for idempotence (re-import never inflates) —
+  // except across wallet epochs: a bumped WALLET_EPOCH is a deliberate reset,
+  // so stars from an older epoch are discarded, never merged, or every stale
+  // cloud row and transfer code would resurrect the pre-reset balance.
+  const currentEpoch = current.walletEpoch ?? 0;
+  const incomingEpoch = incoming.walletEpoch ?? 0;
+  const walletEpoch = Math.max(currentEpoch, incomingEpoch);
+  const stars: Partial<Record<KidId, number>> = {
+    ...(currentEpoch === walletEpoch ? current.stars ?? {} : {}),
+  };
+  if (incomingEpoch === walletEpoch) {
+    for (const [kid, value] of Object.entries(incoming.stars ?? {}) as [KidId, number][]) {
+      stars[kid] = Math.max(stars[kid] ?? 0, value);
+    }
   }
   const stickerCounts: Record<string, number> = { ...(current.stickerCounts ?? {}) };
   for (const [id, count] of Object.entries(incoming.stickerCounts ?? {})) {
@@ -570,6 +586,7 @@ export function mergeProgress(
     avatars: { ...current.avatars, ...incoming.avatars },
     stats,
     stars,
+    ...(walletEpoch > 0 ? { walletEpoch } : {}),
     stickerCounts,
     pets,
     ...(Object.keys(petCollections).length > 0 ? { petCollections } : {}),

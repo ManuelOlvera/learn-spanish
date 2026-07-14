@@ -11,6 +11,14 @@ export function earnedStars(firstTryCorrect: number): number {
 export const MEAL_COST = 5;
 export const MISSION_BONUS = 10;
 
+/** The wallet's reset generation. Bumping it zeroes every kid's balance on
+ *  every device: snapshots stamp their epoch, and the merge discards stars
+ *  from any older epoch (see mergeProgress) — otherwise the max-merge would
+ *  resurrect pre-reset balances from cloud rows and old transfer codes. The
+ *  local zeroing rides the storage-migration registry in apps/web.
+ *  Epoch 1: the 2026-07-14 economy rebalance (old prices ≈ a weekend's play). */
+export const WALLET_EPOCH = 1;
+
 /** Richer chest: bonuses stack on the base (one star per first-try answer). */
 export const PERFECT_BONUS = 5;
 export const FIRST_TIME_BONUS = 3;

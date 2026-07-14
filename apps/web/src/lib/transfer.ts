@@ -10,6 +10,7 @@ import {
   type ProgressSnapshot,
   type StickerTier,
   type Streak,
+  WALLET_EPOCH,
   type WeeklyStreak,
   type WeekProgress,
   type WordStats,
@@ -110,6 +111,9 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     avatars: getAvatars(),
     stats,
     stars,
+    // Stamp the wallet generation so a reset survives merging: older-epoch
+    // snapshots (stale cloud rows, old codes) contribute no stars.
+    walletEpoch: WALLET_EPOCH,
     stickerCounts: getStickerCounts(),
     pets,
     petCollections,

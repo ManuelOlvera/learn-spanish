@@ -172,6 +172,43 @@ describe("drawSurprise", () => {
   });
 });
 
+describe("wallet epoch: a reset must beat max-merge", () => {
+  const base = { stickers: [], streaks: {}, avatars: {} };
+
+  it("an older-epoch snapshot contributes no stars (cloud rows, old codes)", () => {
+    const reset = { ...base, stars: { listener: 0 }, walletEpoch: 1 };
+    const stale = { ...base, stars: { listener: 500, reader: 300 } }; // epoch 0
+    const merged = mergeProgress(reset, stale);
+    expect(merged.stars).toEqual({ listener: 0 });
+    expect(merged.walletEpoch).toBe(1);
+    // symmetric: the newer epoch wins regardless of argument order
+    const flipped = mergeProgress(stale, reset);
+    expect(flipped.stars).toEqual({ listener: 0 });
+    expect(flipped.walletEpoch).toBe(1);
+  });
+
+  it("equal epochs keep the idempotent max-merge", () => {
+    const a = { ...base, stars: { listener: 40 }, walletEpoch: 1 };
+    const b = { ...base, stars: { listener: 25, reader: 60 }, walletEpoch: 1 };
+    expect(mergeProgress(a, b).stars).toEqual({ listener: 40, reader: 60 });
+  });
+
+  it("epoch-less snapshots merge exactly as before", () => {
+    const a = { ...base, stars: { listener: 40 } };
+    const b = { ...base, stars: { listener: 70 } };
+    const merged = mergeProgress(a, b);
+    expect(merged.stars).toEqual({ listener: 70 });
+    expect(merged.walletEpoch).toBeUndefined();
+  });
+
+  it("round-trips and sanitizes the epoch", () => {
+    const snap = { ...base, stars: { listener: 5 }, walletEpoch: 1 };
+    expect(decodeProgress(encodeProgress(snap))).toEqual(snap);
+    const hostile = { ...base, walletEpoch: Number.POSITIVE_INFINITY };
+    expect(decodeProgress(encodeProgress(hostile)).walletEpoch).toBeUndefined();
+  });
+});
+
 describe("transfer: owned avatars and pet collections", () => {
   const snap = {
     stickers: [], streaks: {}, avatars: {},

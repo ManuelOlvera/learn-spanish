@@ -1,5 +1,21 @@
 # Shipped features
 
+## 2026-07-14 — Star balances reset to zero (wallet epoch 1)
+
+The rebalance follow-through: balances earned under the old weekend-sized
+prices would have bought out the new catalog on day one, so every kid's
+wallet starts the new economy at **0⭐**.
+
+Mechanism (ADR 006): a naive local zero couldn't stick — sync max-merges
+stars, and the cloud row permanently holds the highest balance ever pushed.
+So core gains a **`WALLET_EPOCH`** (`domain/stars.ts`) stamped onto every
+snapshot as `walletEpoch`; `mergeProgress` discards stars from the
+older-epoch side instead of max-merging. A run-once storage migration
+(`wallet-epoch-1`) zeroes the local wallets; the first push rewrites the
+cloud row to epoch 1. Old transfer codes (no epoch) can no longer resurrect
+a wallet either. Owned pets/accessories/avatars/decks, freezes, streaks,
+and stickers are all untouched — the reset un-buys nothing.
+
 ## 2026-07-14 — Economy rebalance II: deeper top tier, 100⭐ caja sorpresa
 
 A second balance pass the same day, extending the morning's rebalance

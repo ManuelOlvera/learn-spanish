@@ -6,6 +6,7 @@ import {
   type KidId,
   type PetCollection,
   type PetState,
+  WALLET_EPOCH,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 
@@ -25,6 +26,7 @@ const APPLIED_KEY = "palabras.migrations.v1";
 const PET_KEY = "palabras.pet.v1"; // legacy single pet
 const PETS_KEY = "palabras.pets.v2"; // pet collection
 const OWNED_ACCESSORIES_KEY = "palabras.owned-accessories.v1";
+const STARS_KEY = "palabras.stars.v1"; // must match economy-store.ts
 
 function readKidDoc<T>(key: string): Partial<Record<KidId, T>> {
   const raw = window.localStorage.getItem(key);
@@ -84,10 +86,23 @@ function migrateAccessoriesToWardrobe(): void {
   }
 }
 
+/** Deliberate exception to the move-only rule: WALLET_EPOCH 1 is a policy
+ *  reset (the 2026-07 economy rebalance — balances earned under weekend-sized
+ *  prices would buy out the new catalog on day one). Zeroes every kid's
+ *  wallet once per device; the matching merge rule in core keeps stale cloud
+ *  rows and old transfer codes from resurrecting the old balances. Owned
+ *  items, freezes, and streaks are untouched. */
+function resetWalletsForEpoch(): void {
+  for (const kid of ALL_KIDS) {
+    writeKidDoc(STARS_KEY, kid, 0);
+  }
+}
+
 /** Ordered: later migrations may read the output of earlier ones. */
 const MIGRATIONS: readonly { id: string; run: () => void }[] = [
   { id: "pet-v1-to-collection", run: migrateLegacyPetToCollection },
   { id: "accessories-to-wardrobe", run: migrateAccessoriesToWardrobe },
+  { id: `wallet-epoch-${WALLET_EPOCH}`, run: resetWalletsForEpoch },
 ];
 
 /** Run every not-yet-applied migration. A migration that throws is retried on

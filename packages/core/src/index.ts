@@ -16,6 +16,7 @@ export {
   MISSION_BONUS,
   PERFECT_BONUS,
   STREAK_DOUBLE_DAYS,
+  WALLET_EPOCH,
 } from "./domain/stars";
 export type { MissionKind, MissionState } from "./domain/mission";
 export {
