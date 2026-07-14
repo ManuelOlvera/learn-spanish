@@ -1,10 +1,5 @@
-think of a way to provide a duolingo like experience without losing current functionality. some sort of a trail that they need to complete which goes from less difficult to more difficult. it could be a trail per shelf or a single trail for all shelves. what do you think? don't build let's /shape and discuss options
-→ OPEN, not built (deliberately): needs a /shape session. Options drafted
-  2026-07-15 — see the summary in that session, then run /shape to pick one.
-
-
-
 SHIPPED
+- Duolingo-like trail (easy → hard path through the content) → parked as roadmap #22 per 2026-07-15 discussion; the one-trail-vs-per-shelf fork and the free-play tension are recorded there. Shape it if we ever pick it up.
 - ~~For the alphabet, don't say la a, la b, la c... just say the letter otherwise is confusing~~ ✅ fixed 2026-07-15: letter cards now speak the bare name ("be"); the article moved to a new `article` field so scene still asks "¿Dónde está la be?" (see shipped.md)
 - ~~Make sopa de letra available for both kids. Both kids like it~~ ✅ shipped 2026-07-15: the kid gate is gone; the only gate left is whether the deck's words fit a grid (see shipped.md)
 - ~~add ABC category for kids to learn letters~~ ✅ shipped 2026-07-14: Las letras shelf (vocales + full alphabet); letter games on the roadmap

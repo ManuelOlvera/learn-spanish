@@ -169,6 +169,20 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     three long-deferred items at once: quiz sentence prompts ("Toca el animal
     que dice muu", item 2), sí-o-no sentence claims ("El plátano es rojo —
     ¿sí o no?", item 4), and per-level daily cards (item 10).
+22. ☐ **A Duolingo-like trail** — the parent's idea (2026-07-15, from
+    `bugs.md`): a path the kids work through, easy → hard, *without* losing
+    what's there today. Parked, not shaped — pick it up only if free
+    navigation starts feeling directionless. Run `/shape` first; the two
+    questions it must settle:
+    - **One trail, or one per shelf?** A single spine is simpler and always
+      has an obvious "next", but the kids can't follow an interest. Per-shelf
+      trails let them chase animals or letters, but progress fragments and
+      every shelf needs its own difficulty ordering.
+    - **How does it sit next to free play?** A trail is a *prescribed* order,
+      and this app is built on navigating freely by picture — plus the daily
+      misión already answers "what do I do now". A trail risks becoming a
+      second, louder home screen and quietly demoting both. It has to be
+      additive, or it isn't worth building.
 
 ## Build-later shortlist (consolidated 2026-07-14)
 
