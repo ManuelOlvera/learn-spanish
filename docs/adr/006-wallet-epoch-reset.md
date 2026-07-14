@@ -1,7 +1,9 @@
 # ADR 006: Wallet epochs — the one sanctioned way to reset star balances
 
 - **Date:** 2026-07-14
-- **Status:** accepted (carves an exception out of ADR 004's "progress is monotonic")
+- **Status:** accepted (carves an exception out of ADR 004's "progress is monotonic");
+  the epoch-1 *zero* outcome is superseded by ADR 007 (epoch 2 re-seeds wallets) —
+  the mechanism below is unchanged
 
 ## Decision
 

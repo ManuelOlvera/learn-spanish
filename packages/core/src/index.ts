@@ -17,6 +17,7 @@ export {
   PERFECT_BONUS,
   STREAK_DOUBLE_DAYS,
   WALLET_EPOCH,
+  WALLET_SEED_BY_AVATAR,
 } from "./domain/stars";
 export type { MissionKind, MissionState } from "./domain/mission";
 export {

@@ -1,5 +1,21 @@
 # Shipped features
 
+## 2026-07-15 — Wallet restore: seeded goodwill balances (wallet epoch 2)
+
+The zero reset landed as punishment — the kids watched their stars vanish —
+so epoch 2 puts stars back (ADR 007). A plain revert of the reset commit
+could not restore anything: every device had already run the `wallet-epoch-1`
+zeroing migration, and the epoch merge blocks pre-reset balances by design.
+Instead the restore uses ADR 006's own playbook: `WALLET_EPOCH` bumps to 2
+and the run-once `wallet-epoch-2` migration seeds each kid's wallet from
+**`WALLET_SEED_BY_AVATAR`** (core, `domain/stars.ts`) — **1000⭐ for 🐸,
+300⭐ for 🐯** — keyed by the avatar the kid answers to, since kid profiles
+are semantic ("listener"/"reader"). Seeding is `max(current, seed)`, so
+stars earned since the reset survive and re-runs are idempotent; kids with
+other avatars simply carry their balance forward. The epoch-1 zeroing stays
+in the migration list so a device dormant since before the reset still sheds
+its pre-rebalance balance before being seeded.
+
 ## 2026-07-14 — Star balances reset to zero (wallet epoch 1)
 
 The rebalance follow-through: balances earned under the old weekend-sized

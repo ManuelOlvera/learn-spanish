@@ -7,8 +7,10 @@ import {
   type PetCollection,
   type PetState,
   WALLET_EPOCH,
+  WALLET_SEED_BY_AVATAR,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { getAvatar } from "./kid";
 
 /**
  * The one place localStorage schema evolution lives. Each migration runs once
@@ -86,15 +88,34 @@ function migrateAccessoriesToWardrobe(): void {
   }
 }
 
-/** Deliberate exception to the move-only rule: WALLET_EPOCH 1 is a policy
- *  reset (the 2026-07 economy rebalance — balances earned under weekend-sized
- *  prices would buy out the new catalog on day one). Zeroes every kid's
- *  wallet once per device; the matching merge rule in core keeps stale cloud
- *  rows and old transfer codes from resurrecting the old balances. Owned
- *  items, freezes, and streaks are untouched. */
-function resetWalletsForEpoch(): void {
+/** Deliberate exception to the move-only rule: wallet epochs are policy
+ *  events (ADR 006). Epoch 1 zeroed every wallet for the 2026-07 economy
+ *  rebalance — kept in the list so a device dormant since before that
+ *  deploy still sheds its pre-rebalance balance before the restore runs. */
+function resetWalletsForEpoch1(): void {
   for (const kid of ALL_KIDS) {
     writeKidDoc(STARS_KEY, kid, 0);
+  }
+}
+
+/** Epoch 2 restores goodwill balances (ADR 007) — epoch 1's zeroing read as
+ *  punishment. Each kid is seeded by the avatar they answer to
+ *  (WALLET_SEED_BY_AVATAR in core); max(current, seed) so stars earned
+ *  since the reset are never taken away, and re-runs are idempotent. The
+ *  matching merge rule in core keeps stale cloud rows and old transfer
+ *  codes from overriding the seeded balances. */
+function restoreWalletsForEpoch(): void {
+  for (const kid of ALL_KIDS) {
+    const seed = WALLET_SEED_BY_AVATAR[getAvatar(kid)];
+    if (seed === undefined) {
+      continue; // not one of the seeded avatars — balance carries forward
+    }
+    const current = readKidDoc<number>(STARS_KEY)[kid];
+    writeKidDoc(
+      STARS_KEY,
+      kid,
+      Math.max(typeof current === "number" ? current : 0, seed),
+    );
   }
 }
 
@@ -102,7 +123,8 @@ function resetWalletsForEpoch(): void {
 const MIGRATIONS: readonly { id: string; run: () => void }[] = [
   { id: "pet-v1-to-collection", run: migrateLegacyPetToCollection },
   { id: "accessories-to-wardrobe", run: migrateAccessoriesToWardrobe },
-  { id: `wallet-epoch-${WALLET_EPOCH}`, run: resetWalletsForEpoch },
+  { id: "wallet-epoch-1", run: resetWalletsForEpoch1 },
+  { id: `wallet-epoch-${WALLET_EPOCH}`, run: restoreWalletsForEpoch },
 ];
 
 /** Run every not-yet-applied migration. A migration that throws is retried on

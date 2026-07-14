@@ -25,3 +25,4 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
   - [adr/004-optional-supabase-sync.md](adr/004-optional-supabase-sync.md) — local-first with optional Supabase sync; pairing code as capability, no accounts
   - [adr/005-hand-rolled-service-worker.md](adr/005-hand-rolled-service-worker.md) — offline via a hand-rolled service worker, not next-pwa/Workbox
   - [adr/006-wallet-epoch-reset.md](adr/006-wallet-epoch-reset.md) — wallet epochs: the one sanctioned way to reset star balances under the additive merge
+  - [adr/007-wallet-restore-seeded-balances.md](adr/007-wallet-restore-seeded-balances.md) — epoch 2 restores wallets after the zero reset: goodwill balances seeded by avatar

@@ -5,7 +5,13 @@ import {
   isAvatarOwned,
   STARTER_AVATARS,
 } from "../src/domain/avatars";
-import { computeReward, FIRST_TIME_BONUS, PERFECT_BONUS } from "../src/domain/stars";
+import {
+  computeReward,
+  FIRST_TIME_BONUS,
+  PERFECT_BONUS,
+  WALLET_EPOCH,
+  WALLET_SEED_BY_AVATAR,
+} from "../src/domain/stars";
 import {
   defaultCollection,
   petEmoji,
@@ -199,6 +205,26 @@ describe("wallet epoch: a reset must beat max-merge", () => {
     const merged = mergeProgress(a, b);
     expect(merged.stars).toEqual({ listener: 70 });
     expect(merged.walletEpoch).toBeUndefined();
+  });
+
+  it("epoch 2 restore: seeded balances beat the epoch-1 zeros (ADR 007)", () => {
+    // The restore only works if the current epoch outranks the deployed reset.
+    expect(WALLET_EPOCH).toBe(2);
+    expect(WALLET_SEED_BY_AVATAR["🐸"]).toBe(1000);
+    expect(WALLET_SEED_BY_AVATAR["🐯"]).toBe(300);
+    const restored = {
+      ...base,
+      stars: { listener: 1000, reader: 300 },
+      walletEpoch: 2,
+    };
+    const zeroed = { ...base, stars: { listener: 0, reader: 0 }, walletEpoch: 1 };
+    for (const merged of [
+      mergeProgress(restored, zeroed),
+      mergeProgress(zeroed, restored),
+    ]) {
+      expect(merged.stars).toEqual({ listener: 1000, reader: 300 });
+      expect(merged.walletEpoch).toBe(2);
+    }
   });
 
   it("round-trips and sanitizes the epoch", () => {
