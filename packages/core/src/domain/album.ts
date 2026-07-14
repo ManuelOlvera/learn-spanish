@@ -19,7 +19,8 @@ export type ActivityId =
   // Sticker-less activities (stars/mission only — not album slots):
   | "counting-listen"
   | "counting-read"
-  | "spelling";
+  | "spelling"
+  | "sopa";
 
 /** The activities every deck offers (frases are pack-wide, not per-deck). */
 export const ALL_ACTIVITIES: readonly ActivityId[] = [

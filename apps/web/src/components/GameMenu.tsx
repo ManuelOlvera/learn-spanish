@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { KID_GAME_MODES, type Deck, type KidId } from "@learn-spanish/core";
+import {
+  KID_GAME_MODES,
+  sopaDifficulties,
+  type Deck,
+  type KidId,
+} from "@learn-spanish/core";
 import { getAvatar, getSelectedKid, KID_META } from "@/lib/kid";
 
 interface Props {
@@ -128,6 +133,17 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
             spanish: "Deletrea",
             english: "Spell the word",
             modes: [{ glyph: "🔤", href: "spelling", label: "Spell the word" }],
+          },
+        ]
+      : []),
+    // La sopa is reader-level too, and only for decks whose words fit a grid.
+    ...(kid !== "listener" && sopaDifficulties(deck).length > 0
+      ? [
+          {
+            emoji: "🥣",
+            spanish: "La sopa de letras",
+            english: "Word search",
+            modes: [{ glyph: "🔤", href: "sopa", label: "Word search" }],
           },
         ]
       : []),

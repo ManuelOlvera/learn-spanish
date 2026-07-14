@@ -14,6 +14,7 @@ const KIND_EMOJI: Partial<Record<MissionKind, string>> = {
   duel: "⚔️",
   counting: "🔢",
   spelling: "✏️",
+  sopa: "🥣",
 };
 
 interface Props {

@@ -159,6 +159,33 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     parent decided that's fine — the box is joy, prices are theater. Don't
     re-propose without new evidence (e.g. stars stop feeling scarce).
 
+20. ☑ **La sopa de letras** — reader-level word search over deck words,
+    🟢/🟡/🔴 grid sizes, tap-first-and-last-letter selection. *(Shipped
+    2026-07-14. See `shipped.md`.)*
+    - ☐ **Bent-path words (true Squaredle)** — snaking selections instead of
+      straight lines; deliberately cut from the first slice.
+    - ☐ **Bonus words** — finding a non-target pack word still celebrates.
+21. ☐ **Sentence attribute content** — the one content pack that unblocks
+    three long-deferred items at once: quiz sentence prompts ("Toca el animal
+    que dice muu", item 2), sí-o-no sentence claims ("El plátano es rojo —
+    ¿sí o no?", item 4), and per-level daily cards (item 10).
+
+## Build-later shortlist (consolidated 2026-07-14)
+
+The queue, gathered from the sub-items above so nothing hides in history:
+
+- **Content follow-ons:** letter→word association "A de avión" (16) ·
+  los miles y millones (17) · verbs in the games so the verbs shelf drops
+  learnOnly (11) · sentence attribute content (21).
+- **Play & retention polish:** difficulty sizes for quiz/sí-o-no/reto —
+  the proven parejas pattern (12) · hard-mode timer/lose-state (12) ·
+  guided accessory placement (13) · resize/rotate accessories (13) ·
+  richer weekly missions (14) · more escudo sources (14) · sopa bent paths
+  and bonus words (20).
+- **Infra & platform:** CI on GitHub (fable-review features #2 — the one
+  gap between a bad commit and prod) · no-Spanish-voice fallback
+  (fable-review features #3) · listener→reader upgrade path (18).
+
 ## Build order
 
 **First slice: tap-the-right-picture quiz (2), no profiles** — shaped 2026-07-10:

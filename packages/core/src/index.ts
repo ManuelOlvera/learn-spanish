@@ -207,6 +207,16 @@ export {
   TREND_WEEKS_CAP,
 } from "./domain/trend";
 export { SampleTrendUseCase } from "./application/sample-trend";
+export type { SopaDifficulty, SopaGame, SopaWord } from "./domain/sopa";
+export {
+  createSopaGame,
+  findSopaWord,
+  gridWord,
+  lineBetween,
+  SOPA_BOARDS,
+  SOPA_DIFFICULTIES,
+  sopaDifficulties,
+} from "./domain/sopa";
 export type { LetterCase } from "./domain/letters";
 export {
   applyLetterCase,

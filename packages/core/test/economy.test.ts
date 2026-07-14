@@ -51,14 +51,17 @@ describe("dailyMission", () => {
     // asked of the listener, and over enough days it must show up for the
     // reader — otherwise the per-kid pool isn't real.
     let readerSawSpelling = false;
-    for (let d = 1; d <= 28; d++) {
+    let readerSawSopa = false;
+    for (let d = 1; d <= 40; d++) {
       const date = new Date(2026, 6, d, 9, 0);
       expect(dailyMission(date, "listener")).not.toContain("spelling");
-      if (dailyMission(date, "reader").includes("spelling")) {
-        readerSawSpelling = true;
-      }
+      expect(dailyMission(date, "listener")).not.toContain("sopa");
+      const reader = dailyMission(date, "reader");
+      if (reader.includes("spelling")) readerSawSpelling = true;
+      if (reader.includes("sopa")) readerSawSopa = true;
     }
     expect(readerSawSpelling).toBe(true);
+    expect(readerSawSopa).toBe(true);
   });
 
   it("maps activities to mission kinds", () => {

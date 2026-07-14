@@ -15,6 +15,7 @@ export type MissionKind =
   | "duel"
   | "counting"
   | "spelling"
+  | "sopa"
   | "reto";
 
 /** Kinds either kid can complete at their own difficulty. Reto stays out for
@@ -31,12 +32,12 @@ const SHARED_KINDS: readonly MissionKind[] = [
   "counting",
 ];
 
-/** Each kid draws from their own pool: the reader's adds spelling (reading
- *  practice a pre-reader can't do), so the misión leans into what that kid
- *  is actually working on. */
+/** Each kid draws from their own pool: the reader's adds spelling and the
+ *  sopa de letras (reading practice a pre-reader can't do), so the misión
+ *  leans into what that kid is actually working on. */
 const KIND_POOLS: Record<KidId, readonly MissionKind[]> = {
   listener: SHARED_KINDS,
-  reader: [...SHARED_KINDS, "spelling"],
+  reader: [...SHARED_KINDS, "spelling", "sopa"],
 };
 
 export const MISSION_SIZE = 3;

@@ -26,7 +26,9 @@ No reading, no accounts, no setup.
   "Conecta" (connect the columns),
   "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
   "El reto" (60-second lightning round), "¿Cuántos hay?" (counting, on
-  the numbers deck), and "Deletrea" (letter-tile spelling, reader-level).
+  the numbers deck), "Deletrea" (letter-tile spelling, reader-level),
+  and "La sopa de letras" (word search, reader-level, 🟢/🟡/🔴 grid
+  sizes, on decks whose words fit a grid).
 - **Game feel** — synthesized sounds, haptics, confetti, and a ⚡ racha
   burst at 3/5/10 correct in a row.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward

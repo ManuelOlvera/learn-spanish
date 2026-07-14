@@ -25,4 +25,5 @@ export const ACTIVITY_META: Record<
   "counting-listen": { game: "🧮", mode: "👂", english: "Counting by ear" },
   "counting-read": { game: "🧮", mode: "🔤", english: "Counting by word" },
   spelling: { game: "✏️", mode: "🔤", english: "Spelling" },
+  sopa: { game: "🥣", mode: "🔤", english: "Word search" },
 };
