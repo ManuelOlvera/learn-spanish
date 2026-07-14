@@ -19,6 +19,22 @@ Find the *true* cause and fix it once, at the right layer.
 
 ## Case log (patterns worth remembering)
 
+- **2026-07-14 — sync "breaks" when both devices play at once**: the pull
+  captured `currentSnapshot()` BEFORE the network fetch, so any progress
+  earned during the wait (chest claim, purchase) was rolled back when the
+  stale merge applied — plus nothing serialized a device's own pulls/pushes,
+  and pushes discarded the union they computed. Fix: snapshot *suppliers*
+  read after the remote arrives (order pinned by a core test), a per-device
+  serialization queue, and pushes apply their union locally. The live
+  two-context verify then caught a second cause the analysis missed: the
+  award path only pushed on CHEST OPEN, so a finished game a kid walked away
+  from never synced (instrumentation showed zero pushes — the cloud row
+  stayed empty). Lessons: in a read-merge-write loop, every `await` between
+  READ-LOCAL and APPLY is a window for a concurrent local write — read local
+  last, apply in the same microtask chain; and verify sync fixes against the
+  real backend with two contexts — the unit layer can't see a push that
+  never fires.
+
 - **2026-07-14 — accessories missing on the tablet**: reported as "sync
   doesn't sync". The snapshot pipeline (encode → sanitize → merge) was
   *innocent* — a pipeline test proved it and became the regression lock. Root

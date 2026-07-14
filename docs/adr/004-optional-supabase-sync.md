@@ -70,3 +70,12 @@ are one-per-game-complete, that window is acceptable and not worth machinery.
 `put_progress` (jsonb union in SQL — makes pushes commutative but duplicates
 `mergeProgress` in a second language), or (b) an `updated_at` compare-and-swap with
 client retry. Revisit only if a lost-reward report is actually traced to this race.
+
+**2026-07-14 follow-up:** a lost-reward report *was* traced — but to a different,
+device-LOCAL race, now fixed: the pull captured its local snapshot *before* the
+network fetch, so anything earned during the wait (a chest claim) was rolled back
+by the apply. The client now (1) serializes all sync operations per device,
+(2) reads local only after the remote row arrives (the use cases take a snapshot
+supplier), and (3) applies each push's returned union locally — every push doubles
+as a pull, so two devices playing simultaneously converge on each action. The
+cross-device last-write-wins window above still stands and still self-heals.

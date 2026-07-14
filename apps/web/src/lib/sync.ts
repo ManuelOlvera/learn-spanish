@@ -15,13 +15,36 @@ import { applySnapshot, currentSnapshot } from "./transfer";
 
 /**
  * Cross-device sync orchestration (ADR 004). Local-first: reads stay on
- * localStorage; this layer pulls on app open and pushes on game complete, both
- * best-effort. The pairing code is the capability key and lives on-device here.
+ * localStorage; this layer pulls on app open (and tab-visible) and pushes on
+ * game complete and purchases, both best-effort. The pairing code is the
+ * capability key and lives on-device here.
+ *
+ * Two rules keep simultaneous play safe (the bug this fixes: progress rolled
+ * back while both devices were open):
+ *  1. Sync operations on a device are SERIALIZED — a pull applying while a
+ *     push reads is how a claim un-claims itself.
+ *  2. The local snapshot is read only AFTER the remote row arrives (the use
+ *     cases take a supplier), so a chest claimed during the network wait
+ *     can't be overwritten by a merge computed from the pre-claim state.
+ * Pushes also apply the returned union locally, so two devices playing at
+ * once converge on every action, not only on app-open pulls.
  */
 const SYNC_KEY = "palabras.sync.v1";
 
 // Wired in the client container; null keeps the whole app local (pre-ADR-004).
 const remote = remoteProgress;
+
+/** The serialization queue: every remote exchange runs strictly after the
+ *  previous one settles, failures never poison the chain. */
+let chain: Promise<unknown> = Promise.resolve();
+function serialized<T>(op: () => Promise<T>): Promise<T> {
+  const run = chain.then(op, op);
+  chain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
 
 /** True only when a sync backend is configured for this deployment. */
 export function isSyncAvailable(): boolean {
@@ -70,14 +93,16 @@ function cryptoByteSource(): () => number {
  *  with its progress. Returns the code for the parent to enter on device B.
  *  The code is persisted only after the seed push succeeds — a network failure
  *  must not leave the device "paired" to a row that was never created. */
-export async function startHosting(): Promise<string> {
-  if (remote === null) {
-    throw new Error("sync not configured");
-  }
-  const code = getSyncCode() ?? generatePairingCode(cryptoByteSource());
-  await new PushProgressUseCase(remote).execute(code, await currentSnapshot());
-  setSyncCode(code);
-  return code;
+export function startHosting(): Promise<string> {
+  return serialized(async () => {
+    if (remote === null) {
+      throw new Error("sync not configured");
+    }
+    const code = getSyncCode() ?? generatePairingCode(cryptoByteSource());
+    await new PushProgressUseCase(remote).execute(code, currentSnapshot);
+    setSyncCode(code);
+    return code;
+  });
 }
 
 export type JoinResult = "joined" | "malformed" | "not-found";
@@ -89,69 +114,88 @@ export type JoinResult = "joined" | "malformed" | "not-found";
  *  fresh row and fork the family's progress; persisting the code last means a
  *  failed round-trip can't leave the device paired to an unverified code (the
  *  thrown network error reaches the caller either way). */
-export async function joinWithCode(input: string): Promise<JoinResult> {
-  if (remote === null) {
-    throw new Error("sync not configured");
-  }
-  const code = normalizePairingCode(input);
-  if (code === "") {
-    return "malformed";
-  }
-  const cloud = await remote.load(code);
-  if (cloud === null) {
-    return "not-found";
-  }
-  const merged = mergeProgress(await currentSnapshot(), cloud);
-  await applySnapshot(merged);
-  await new PushProgressUseCase(remote).execute(code, merged);
-  setSyncCode(code);
-  return "joined";
+export function joinWithCode(input: string): Promise<JoinResult> {
+  return serialized(async () => {
+    if (remote === null) {
+      throw new Error("sync not configured");
+    }
+    const code = normalizePairingCode(input);
+    if (code === "") {
+      return "malformed";
+    }
+    const cloud = await remote.load(code);
+    if (cloud === null) {
+      return "not-found";
+    }
+    const merged = mergeProgress(await currentSnapshot(), cloud);
+    await applySnapshot(merged);
+    await new PushProgressUseCase(remote).execute(code, currentSnapshot);
+    setSyncCode(code);
+    return "joined";
+  });
 }
 
 /** Delete this pairing's cloud row, then unpair this device. Other devices
  *  keep their local progress (and would re-create the row on their next push
  *  unless they also unpair). Throws on network failure — the caller shows the
  *  error and nothing is unpaired, so the action is all-or-nothing. */
-export async function deleteCloudProgress(): Promise<void> {
-  const code = getSyncCode();
-  if (remote === null || code === null) {
-    return;
-  }
-  await new DeleteProgressUseCase(remote).execute(code);
-  unpair();
+export function deleteCloudProgress(): Promise<void> {
+  return serialized(async () => {
+    const code = getSyncCode();
+    if (remote === null || code === null) {
+      return;
+    }
+    await new DeleteProgressUseCase(remote).execute(code);
+    unpair();
+  });
 }
 
 /** Pull latest on app open and merge it in. No-op when unpaired or sync is off;
  *  best-effort, so a network failure leaves local state untouched. Returns true
  *  when something was applied (the caller can refresh its view). */
-export async function syncPull(): Promise<boolean> {
-  const code = getSyncCode();
-  if (remote === null || code === null) {
-    return false;
-  }
-  try {
-    const merged = await new PullProgressUseCase(remote).execute(
-      code,
-      await currentSnapshot(),
-    );
-    await applySnapshot(merged);
-    return true;
-  } catch (err) {
-    log.warn("sync", "pull failed; staying on local state", { err });
-    return false;
-  }
+export function syncPull(): Promise<boolean> {
+  return serialized(async () => {
+    const code = getSyncCode();
+    if (remote === null || code === null) {
+      return false;
+    }
+    try {
+      const merged = await new PullProgressUseCase(remote).execute(
+        code,
+        currentSnapshot,
+      );
+      await applySnapshot(merged);
+      return true;
+    } catch (err) {
+      log.warn("sync", "pull failed; staying on local state", { err });
+      return false;
+    }
+  });
 }
 
-/** Push this device's progress on game complete. No-op when unpaired or sync is
- *  off; best-effort, so a failed push simply retries on the next app open. */
-export async function syncPush(): Promise<void> {
-  const code = getSyncCode();
-  if (remote === null || code === null) {
-    return;
-  }
-  try {
-    await new PushProgressUseCase(remote).execute(code, await currentSnapshot());
-  } catch (err) {
-    log.warn("sync", "push failed; will retry on next open", { err });
-  }
+/** Push this device's progress on game complete or purchase, and apply the
+ *  returned union locally — every push doubles as a pull, so two devices
+ *  playing at the same time converge on each action. No-op when unpaired or
+ *  sync is off; best-effort, so a failed push simply retries on the next
+ *  exchange. */
+export function syncPush(): Promise<void> {
+  return serialized(async () => {
+    const code = getSyncCode();
+    if (remote === null || code === null) {
+      return;
+    }
+    try {
+      const union = await new PushProgressUseCase(remote).execute(
+        code,
+        currentSnapshot,
+      );
+      // Re-merge against local as it stands NOW: quiz answers recorded while
+      // the save was on the wire don't push on their own, and applying the
+      // pre-save union verbatim would erase them. From here to the apply is
+      // one microtask chain — nothing can interleave.
+      await applySnapshot(mergeProgress(await currentSnapshot(), union));
+    } catch (err) {
+      log.warn("sync", "push failed; will retry on next exchange", { err });
+    }
+  });
 }

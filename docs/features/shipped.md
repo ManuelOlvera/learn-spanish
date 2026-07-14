@@ -1,5 +1,53 @@
 # Shipped features
 
+## 2026-07-14 — Fix: sync is now safe while both devices play at once
+
+Parent report: sync misbehaved with both devices open. Root cause was
+device-LOCAL, not the documented cloud race: `syncPull` captured the local
+snapshot *before* the network fetch, so progress earned during the wait (a
+misión chest claim, a purchase) was rolled back when the stale merge applied
+— a claimed chest could even un-claim and pay twice. Compounding it, nothing
+serialized a device's own sync operations, and pushes computed the cloud
+union but never applied it locally.
+
+The fix, per layer: the pull/push use cases now take a snapshot **supplier**
+and read local only after the remote row arrives (order pinned by a core
+test); all sync operations on a device run through a **serialization queue**;
+and every push **applies its returned union locally** (re-merged against
+fresh local, so quiz answers recorded while the save was on the wire
+survive) — each push doubles as a pull, so two devices playing at the same
+time converge on every action instead of waiting for home-screen visits.
+
+The live two-device verify then exposed a second gap the instrumentation made
+undeniable (zero pushes logged after game completes): the award path only
+pushed **when the chest was opened**, so a kid finishing and leaving without
+tapping it never synced that game at all. Completion now pushes on the done
+screen itself; opening the chest pushes again with the stars. Re-verified
+live: two paired browser contexts playing different decks simultaneously
+against the real backend — the cloud row held both stickers, both devices
+converged to both, stars merged, and the throwaway row was deleted after.
+
+## 2026-07-14 — La sopa de letras (word search)
+
+The parent's Squaredle idea (`docs/bugs.md` #7), shaped and built: deck words
+hidden in a letter grid, reader-level (🦄 only — finding a written word IS
+reading, so the menu hides it from the pre-reader, like Deletrea).
+
+- **Rules in core** (`domain/sopa.ts`, tested): 🟢 6×6/3 words · 🟡 7×7/4 ·
+  🔴 8×8/5 (the parejas difficulty pattern); words placed left-to-right,
+  top-to-bottom, and both downward diagonals — never backwards, this is
+  reading practice. Grid forms drop accents (Ñ stays, its own letter);
+  articles strip; multi-word and >8-letter entries don't qualify, and decks
+  that can't fill a grid don't offer the game (menu + route both gate on
+  `sopaDifficulties`).
+- **Tap-two-ends selection:** tap the first and last letter; either tap order
+  counts, a bent selection re-anchors instead of buzzing (a mis-aim isn't a
+  mistake), a straight-but-wrong one is. Found words light their cells lime,
+  reveal their emoji on the word chip, and are spoken aloud.
+- Sticker-less like Deletrea (an album slot would un-complete every reader's
+  finished categories); star chest + word stats + the reader's misión pool
+  (🥣 kind) all wired.
+
 ## 2026-07-14 — Letter-case switch + El abecedario completo
 
 Parent follow-ups to the letras shelf, same day.

@@ -68,7 +68,7 @@ describe("PullProgressUseCase", () => {
   it("returns local unchanged when no remote row exists yet", async () => {
     const store = new FakeRemoteStore();
     const local: ProgressSnapshot = { stickers: ["a:b:c"], streaks: {}, avatars: {} };
-    const result = await new PullProgressUseCase(store).execute("CODE", local);
+    const result = await new PullProgressUseCase(store).execute("CODE", () => Promise.resolve(local));
     expect(result).toEqual(local);
   });
 
@@ -82,7 +82,7 @@ describe("PullProgressUseCase", () => {
       avatars: {},
       freezes: { listener: 1 },
     };
-    const result = await new PullProgressUseCase(store).execute("CODE", local);
+    const result = await new PullProgressUseCase(store).execute("CODE", () => Promise.resolve(local));
     expect(result.stickers).toEqual(["a:b:c", "x:y:z"]);
     expect(result.freezes).toEqual({ listener: 4 });
     expect(store.saves).toBe(0); // pull is read-only
@@ -104,11 +104,39 @@ describe("DeleteProgressUseCase", () => {
   });
 });
 
+describe("stale-snapshot race (bugs: simultaneous-play sync)", () => {
+  it("reads the local snapshot only AFTER the remote row arrives", async () => {
+    // The remote fetch is the window a concurrent local action (a chest
+    // claim, a purchase) falls into. Taking local before the fetch meant the
+    // later apply rolled that action back; the supplier closes the window.
+    const order: string[] = [];
+    const store = new (class extends FakeRemoteStore {
+      override async load(code: string) {
+        const row = await super.load(code);
+        order.push("remote-loaded");
+        return row;
+      }
+    })({ CODE: empty });
+    const supplier = () => {
+      order.push("local-read");
+      return Promise.resolve(empty);
+    };
+    await new PullProgressUseCase(store).execute("CODE", supplier);
+    await new PushProgressUseCase(store).execute("CODE", supplier);
+    expect(order).toEqual([
+      "remote-loaded",
+      "local-read",
+      "remote-loaded",
+      "local-read",
+    ]);
+  });
+});
+
 describe("PushProgressUseCase", () => {
   it("seeds the remote row when it is empty", async () => {
     const store = new FakeRemoteStore();
     const local: ProgressSnapshot = { stickers: ["a:b:c"], streaks: {}, avatars: {} };
-    await new PushProgressUseCase(store).execute("CODE", local);
+    await new PushProgressUseCase(store).execute("CODE", () => Promise.resolve(local));
     expect(await store.load("CODE")).toEqual(local);
   });
 
@@ -122,7 +150,7 @@ describe("PushProgressUseCase", () => {
       avatars: {},
       stars: { reader: 3 },
     };
-    const merged = await new PushProgressUseCase(store).execute("CODE", local);
+    const merged = await new PushProgressUseCase(store).execute("CODE", () => Promise.resolve(local));
     expect(merged.stickers).toEqual(["x:y:z", "a:b:c"]);
     expect(merged.stars).toEqual({ reader: 10 }); // max wins, never lost
     expect(await store.load("CODE")).toEqual(merged);

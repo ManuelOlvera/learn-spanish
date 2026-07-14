@@ -15,7 +15,9 @@ the same up-to-date progress — stickers, stars, streaks, pets, freezes.
 
 ## After pairing (automatic)
 
-- Opening the app **pulls** the latest; finishing a game **pushes** the new state.
+- Opening the app (or returning to it) **pulls** the latest; finishing a game
+  or buying anything **pushes** the new state — and brings back whatever the
+  other device did meanwhile, so two kids playing at once stay in step.
 - Merges are **additive** — playing offline on two devices never loses anything:
   stickers union, stars/streaks/freezes take the higher value.
 - Works offline; a device syncs on its next open.

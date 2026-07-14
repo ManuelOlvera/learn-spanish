@@ -88,11 +88,10 @@ export function DoneScreen({
       .execute(kid)
       .then((s) => setStreakDays(s?.count ?? 0))
       .catch(() => setStreakDays(0));
-    // Repaso has no reward chest to push from, but the streak/mission may have
-    // advanced — sync those now. The earn path pushes on chest open instead.
-    if (noAward) {
-      void syncPush();
-    }
+    // Push the completion itself — the sticker and misión mark are banked the
+    // moment this screen mounts, and a kid may leave without ever opening the
+    // chest (which pushes again with the stars when it is opened).
+    void syncPush();
   }, [activity, noAward]);
 
   useEffect(() => {
