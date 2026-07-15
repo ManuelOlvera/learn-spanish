@@ -41,6 +41,8 @@ interface Props {
   noAward?: boolean;
   /** First-try correct answers this run — becomes the chest's stars. */
   firstTryCount?: number;
+  /** Wrong taps this run — each docks a star, so guessing can't farm stars. */
+  mistakeCount?: number;
   /** Round count for round-based games — enables the "perfect" bonus. */
   totalRounds?: number;
 }
@@ -56,6 +58,7 @@ export function DoneScreen({
   back,
   noAward = false,
   firstTryCount = 0,
+  mistakeCount = 0,
   totalRounds,
 }: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
@@ -73,6 +76,7 @@ export function DoneScreen({
   const reward: StarReward | null = ready
     ? computeReward({
         firstTryCorrect: firstTryCount,
+        mistakes: mistakeCount,
         totalRounds,
         streakDays: streakDays ?? 0,
         firstTime: award?.isNew ?? false,

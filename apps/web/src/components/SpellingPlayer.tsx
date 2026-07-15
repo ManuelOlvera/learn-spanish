@@ -35,6 +35,7 @@ export function SpellingPlayer({ deck, accent }: Props) {
   const advanceTimer = useRef<number | null>(null);
   const wordMissed = useRef(false);
   const firstTries = useRef(0);
+  const mistakes = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export function SpellingPlayer({ deck, accent }: Props) {
     setCelebrating(false);
     wordMissed.current = false;
     firstTries.current = 0;
+    mistakes.current = 0;
     combo.reset();
   }
 
@@ -70,6 +72,7 @@ export function SpellingPlayer({ deck, accent }: Props) {
     const letter = round.tiles[tileIndex];
     if (letter !== expected) {
       wordMissed.current = true;
+      mistakes.current += 1;
       combo.wrong();
       setWrongTap((prev) => ({ tile: tileIndex, nonce: (prev?.nonce ?? 0) + 1 }));
       return;
@@ -127,6 +130,7 @@ export function SpellingPlayer({ deck, accent }: Props) {
           onReplay={restart}
           noAward
           firstTryCount={firstTries.current}
+          mistakeCount={mistakes.current}
           totalRounds={rounds.length}
           back={{
             href: `/deck/${deck.id}`,

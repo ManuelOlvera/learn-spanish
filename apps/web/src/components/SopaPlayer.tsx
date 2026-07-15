@@ -49,6 +49,7 @@ export function SopaPlayer({ deck, accent }: Props) {
   const [wrongNonce, setWrongNonce] = useState(0);
   const [missedSinceFind, setMissedSinceFind] = useState(false);
   const [firstTries, setFirstTries] = useState(0);
+  const [mistakes, setMistakes] = useState(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -66,6 +67,7 @@ export function SopaPlayer({ deck, accent }: Props) {
     setFoundCells(new Set());
     setMissedSinceFind(false);
     setFirstTries(0);
+    setMistakes(0);
     combo.reset();
   }
 
@@ -76,7 +78,10 @@ export function SopaPlayer({ deck, accent }: Props) {
   }
 
   function tap(index: number) {
-    if (game === null || done || foundCells.has(index)) {
+    // A found cell stays tappable: shared letters belong to more than one
+    // word, so a letter locked by the word already found must still be able
+    // to anchor or close the next one.
+    if (game === null || done) {
       return;
     }
     if (anchor === null || anchor === index) {
@@ -95,6 +100,7 @@ export function SopaPlayer({ deck, accent }: Props) {
       feedbackWrong();
       combo.wrong();
       setMissedSinceFind(true);
+      setMistakes((n) => n + 1);
       setWrongNonce((n) => n + 1);
       return;
     }
@@ -177,6 +183,7 @@ export function SopaPlayer({ deck, accent }: Props) {
           onReplay={restart}
           noAward
           firstTryCount={firstTries}
+          mistakeCount={mistakes}
           totalRounds={game.words.length}
           back={{
             href: `/deck/${deck.id}`,
@@ -221,8 +228,10 @@ export function SopaPlayer({ deck, accent }: Props) {
                 style={{ gridTemplateColumns: `repeat(${game.size}, minmax(0, 1fr))` }}
               >
                 {game.grid.map((letter, index) => {
-                  const isFound = foundCells.has(index);
                   const isAnchor = anchor === index;
+                  // Anchor wins over found: a shared letter re-selected to seed
+                  // the next word must show the selection, not stay lime.
+                  const isFound = foundCells.has(index) && !isAnchor;
                   return (
                     <button
                       type="button"

@@ -1,7 +1,7 @@
-/* ⭐ is the app's earned currency: one per first-try answer (chest at the
- * end of each activity), +MISSION_BONUS for the daily mission, spent
- * feeding la mascota (MEAL_COST per meal). Wallet storage rides the
- * EconomyStore port (domain/economy.ts). */
+/* ⭐ is the app's earned currency: one per first-try answer, less one per
+ * mistake (chest at the end of each activity), +MISSION_BONUS for the daily
+ * mission, spent feeding la mascota (MEAL_COST per meal). Wallet storage
+ * rides the EconomyStore port (domain/economy.ts). */
 
 /** Finishing always pays at least one star — effort counts. */
 export function earnedStars(firstTryCorrect: number): number {
@@ -56,7 +56,7 @@ export const FIRST_TIME_BONUS = 3;
 export const STREAK_DOUBLE_DAYS = 7;
 
 export interface StarReward {
-  /** One per first-try answer, minimum one. */
+  /** One per first-try answer, less one per mistake, minimum one. */
   readonly base: number;
   /** No mistakes across the whole activity. */
   readonly perfect: number;
@@ -69,12 +69,15 @@ export interface StarReward {
 
 export function computeReward(opts: {
   readonly firstTryCorrect: number;
+  /** Wrong taps across the whole activity — each one docks a star from the
+   *  base, so tapping without looking earns the floor, not a full chest. */
+  readonly mistakes?: number;
   /** Given only for round-based games, so "perfect" is meaningful. */
   readonly totalRounds?: number;
   readonly streakDays?: number;
   readonly firstTime?: boolean;
 }): StarReward {
-  const base = Math.max(1, opts.firstTryCorrect);
+  const base = Math.max(1, opts.firstTryCorrect - (opts.mistakes ?? 0));
   const perfect =
     opts.totalRounds !== undefined &&
     opts.totalRounds > 0 &&

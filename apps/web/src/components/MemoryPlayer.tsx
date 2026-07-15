@@ -186,7 +186,8 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
           stickerDeckId={deck.id}
           activity={mode === "pictures" ? "match-pictures" : "match-words"}
           onReplay={restart}
-          firstTryCount={Math.max(0, tiles.length / 2 - misses.current)}
+          firstTryCount={tiles.length / 2}
+          mistakeCount={misses.current}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

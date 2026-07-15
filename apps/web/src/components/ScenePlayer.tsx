@@ -39,6 +39,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
   const advanceTimer = useRef<number | null>(null);
   const roundMissed = useRef(false);
   const firstTries = useRef(0);
+  const mistakes = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
     setWrongTap(null);
     roundMissed.current = false;
     firstTries.current = 0;
+    mistakes.current = 0;
     combo.reset();
   }
 
@@ -93,6 +95,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
       }, FOUND_MS);
     } else {
       roundMissed.current = true;
+      mistakes.current += 1;
       combo.wrong();
       setWrongTap((prev) => ({ id: cardId, nonce: (prev?.nonce ?? 0) + 1 }));
     }
@@ -125,6 +128,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
           activity={mode === "listen" ? "scene-listen" : "scene-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}
+          mistakeCount={mistakes.current}
           totalRounds={rounds.length}
           back={{
             href: `/deck/${deck.id}`,

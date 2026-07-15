@@ -64,6 +64,29 @@ describe("computeReward", () => {
     expect(r.total).toBe(4 + PERFECT_BONUS + 4 + FIRST_TIME_BONUS);
     expect(computeReward({ firstTryCorrect: 4, streakDays: 6 }).streak).toBe(0);
   });
+
+  it("docks a star per mistake so random tapping can't farm the chest", () => {
+    // Six first-try answers, two wrong taps along the way → four stars.
+    expect(computeReward({ firstTryCorrect: 6, mistakes: 2 }).base).toBe(4);
+    // A run of nothing but wrong taps still floors at one — effort counts.
+    expect(computeReward({ firstTryCorrect: 0, mistakes: 5 }).base).toBe(1);
+    expect(computeReward({ firstTryCorrect: 3, mistakes: 9 }).base).toBe(1);
+  });
+
+  it("streak doubles the already-docked base, not the pre-penalty score", () => {
+    const r = computeReward({ firstTryCorrect: 6, mistakes: 2, streakDays: 7 });
+    expect(r.base).toBe(4);
+    expect(r.streak).toBe(4);
+  });
+
+  it("a mistake forfeits the perfect bonus even when every round is eventually right", () => {
+    expect(
+      computeReward({ firstTryCorrect: 7, totalRounds: 8, mistakes: 1 }).perfect,
+    ).toBe(0);
+    expect(
+      computeReward({ firstTryCorrect: 8, totalRounds: 8, mistakes: 0 }).perfect,
+    ).toBe(PERFECT_BONUS);
+  });
 });
 
 describe("pet species", () => {

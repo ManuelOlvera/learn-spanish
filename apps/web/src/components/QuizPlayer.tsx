@@ -41,6 +41,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
   const advanceTimer = useRef<number | null>(null);
   const roundMissed = useRef(false);
   const firstTries = useRef(0);
+  const mistakes = useRef(0);
   const statsRef = useRef<WordStats | undefined>(undefined);
   const combo = useCombo();
 
@@ -91,6 +92,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
     setWrongTap(null);
     roundMissed.current = false;
     firstTries.current = 0;
+    mistakes.current = 0;
     combo.reset();
   }
 
@@ -120,6 +122,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
       }, CELEBRATE_MS);
     } else {
       roundMissed.current = true;
+      mistakes.current += 1;
       combo.wrong();
       setWrongTap((prev) => ({ id: cardId, nonce: (prev?.nonce ?? 0) + 1 }));
     }
@@ -153,6 +156,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
           onReplay={restart}
           noAward={review}
           firstTryCount={firstTries.current}
+          mistakeCount={mistakes.current}
           totalRounds={rounds.length}
           back={
             review

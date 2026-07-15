@@ -145,6 +145,27 @@ describe("findSopaWord", () => {
       }
     }
   });
+
+  it("reuses a shared letter: crossing words each find independently", () => {
+    // SOL across row 0, SAL down column 0 — both anchored on the shared S at
+    // cell 0. Finding one must never lock that cell out of the other (the UI
+    // bug: a found cell became untappable, so the second word was unreachable).
+    const card = (id: string) => ({ id, spanish: `el ${id}`, english: id, emoji: "🔤" });
+    const game: SopaGame = {
+      deckId: "cross",
+      size: 3,
+      grid: ["S", "O", "L", "A", "X", "Y", "L", "Z", "W"],
+      words: [
+        { card: card("sol"), answer: "SOL" },
+        { card: card("sal"), answer: "SAL" },
+      ],
+    };
+    const sol = lineBetween(3, 0, 2)!; // row: S O L
+    const sal = lineBetween(3, 0, 6)!; // column: S A L, shares cell 0
+    expect(findSopaWord(game, sol, [])?.card.id).toBe("sol");
+    // With SOL found, the shared S at cell 0 still completes SAL.
+    expect(findSopaWord(game, sal, ["sol"])?.card.id).toBe("sal");
+  });
 });
 
 describe("sopaDifficulties", () => {

@@ -35,6 +35,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
   const advanceTimer = useRef<number | null>(null);
   const sentenceMissed = useRef(false);
   const firstTries = useRef(0);
+  const mistakes = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
     setCelebrating(false);
     sentenceMissed.current = false;
     firstTries.current = 0;
+    mistakes.current = 0;
     combo.reset();
   }
 
@@ -71,6 +73,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
     if (word !== expected) {
       combo.wrong();
       sentenceMissed.current = true;
+      mistakes.current += 1;
       setWrongTap((prev) => ({ tile: tileIndex, nonce: (prev?.nonce ?? 0) + 1 }));
       return;
     }
@@ -123,6 +126,7 @@ export function FrasesBuildPlayer({ sentences, accent }: Props) {
           activity="frases-read"
           onReplay={restart}
           firstTryCount={firstTries.current}
+          mistakeCount={mistakes.current}
           totalRounds={rounds.length}
           back={{ href: "/", emoji: "🏠", label: "Back to all decks" }}
         />

@@ -43,6 +43,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
   const advanceTimer = useRef<number | null>(null);
   const lastWrong = useRef(false);
   const firstTries = useRef(0);
+  const mistakes = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -69,6 +70,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
     setWrongTap(null);
     lastWrong.current = false;
     firstTries.current = 0;
+    mistakes.current = 0;
     combo.reset();
   }
 
@@ -103,6 +105,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
     } else {
       combo.wrong();
       lastWrong.current = true;
+      mistakes.current += 1;
       setWrongTap((prev) => ({
         side,
         cardId: card.id,
@@ -188,6 +191,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
           activity={mode === "listen" ? "connect-listen" : "connect-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}
+          mistakeCount={mistakes.current}
           back={{
             href: `/deck/${deck.id}`,
             emoji: deck.emoji,

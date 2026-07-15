@@ -38,6 +38,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
   const advanceTimer = useRef<number | null>(null);
   const roundMissed = useRef(false);
   const firstTries = useRef(0);
+  const mistakes = useRef(0);
   const combo = useCombo();
 
   useEffect(() => {
@@ -61,6 +62,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
     setWrongTap(null);
     roundMissed.current = false;
     firstTries.current = 0;
+    mistakes.current = 0;
     combo.reset();
   }
 
@@ -93,6 +95,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
       }, CELEBRATE_MS);
     } else {
       roundMissed.current = true;
+      mistakes.current += 1;
       combo.wrong();
       setWrongTap((prev) => ({ pick: saidYes, nonce: (prev?.nonce ?? 0) + 1 }));
     }
@@ -125,6 +128,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
           activity={mode === "listen" ? "si-no-listen" : "si-no-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}
+          mistakeCount={mistakes.current}
           totalRounds={rounds.length}
           back={{
             href: `/deck/${deck.id}`,

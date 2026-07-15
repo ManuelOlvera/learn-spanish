@@ -42,7 +42,8 @@ No reading, no accounts, no setup.
 - **Las frases** — 84 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
 - **Star economy** — a treasure chest on every finish pays ⭐ per
-  first-try answer, with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
+  first-try answer, less one per wrong tap (so guessing can't farm the
+  chest; floored at 1), with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
   the daily misión (drawn from each kid's own pool — the reader's
   includes ✏️ Deletrea) adds a +10⭐ bonus chest. Stars feed and grow **la
   mascota** (a collection of adoptable pets, 5⭐ a meal), buy 🛍️ wardrobe
