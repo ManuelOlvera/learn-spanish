@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import {
   ACTIVE_WEEK_DAYS,
   FREEZE_COST,
   type WeeklyView,
 } from "@learn-spanish/core";
+import { FreezeConfirm } from "@/components/FreezeConfirm";
 import { useDeniedWobble } from "@/lib/use-denied-wobble";
 
 interface Props {
@@ -18,6 +20,19 @@ interface Props {
  *  dots, and the buy-a-freeze button. */
 export function WeeklyCard({ weekly, stars, onBuyFreeze }: Props) {
   const wobble = useDeniedWobble();
+  const [confirming, setConfirming] = useState(false);
+
+  const canAfford = stars >= FREEZE_COST;
+
+  /** The ❄️ tap: a kid who can't afford it just gets the wobble; everyone
+   *  else meets the confirm gate before a single star is spent. */
+  function askToBuy() {
+    if (!canAfford) {
+      wobble.deny();
+      return;
+    }
+    setConfirming(true);
+  }
 
   return (
     <div
@@ -46,14 +61,10 @@ export function WeeklyCard({ weekly, stars, onBuyFreeze }: Props) {
       <button
         type="button"
         key={`freeze-${wobble.nonce}`}
-        onClick={() => {
-          if (!onBuyFreeze()) {
-            wobble.deny();
-          }
-        }}
+        onClick={askToBuy}
         aria-label={`Buy a freeze for ${FREEZE_COST} stars — you have ${weekly.freezes}`}
         className={`sticker flex items-center gap-1 px-3 py-2 text-lg font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none ${
-          stars < FREEZE_COST ? "wobble" : ""
+          !canAfford ? "wobble" : ""
         }`}
         style={{ "--accent": "#7dd3fc" } as React.CSSProperties}
       >
@@ -68,6 +79,18 @@ export function WeeklyCard({ weekly, stars, onBuyFreeze }: Props) {
           +{FREEZE_COST}⭐
         </span>
       </button>
+
+      {confirming && (
+        <FreezeConfirm
+          onYes={() => {
+            setConfirming(false);
+            if (!onBuyFreeze()) {
+              wobble.deny();
+            }
+          }}
+          onNo={() => setConfirming(false)}
+        />
+      )}
     </div>
   );
 }

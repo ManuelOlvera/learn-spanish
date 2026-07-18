@@ -7,9 +7,11 @@ import {
   BuyAvatarUseCase,
   BuyFreezeUseCase,
   ClaimCategoryRewardUseCase,
+  ClaimDailyGiftUseCase,
   ClaimMissionBonusUseCase,
   EarnStarsUseCase,
   FeedPetUseCase,
+  NamePetUseCase,
   FeedStreakUseCase,
   GetAlbumUseCase,
   GetMissionUseCase,
@@ -77,6 +79,8 @@ export const claimMissionBonus = new ClaimMissionBonusUseCase(economyStore);
 export const rolloverWeekly = new RolloverWeeklyUseCase(economyStore);
 export const buyFreeze = new BuyFreezeUseCase(economyStore);
 export const feedPet = new FeedPetUseCase(economyStore);
+export const namePet = new NamePetUseCase(economyStore);
+export const claimDailyGift = new ClaimDailyGiftUseCase(economyStore, Math.random);
 export const adoptSpecies = new AdoptSpeciesUseCase(economyStore);
 export const setActiveSpecies = new SetActiveSpeciesUseCase(economyStore);
 export const buyAccessory = new BuyAccessoryUseCase(economyStore);

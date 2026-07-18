@@ -73,6 +73,21 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     2026-07-10: same word for both kids, per-kid ☀️ streak; per-level sentences
     wait on sentence content.)*
 
+Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
+
+10a. ☑ **El regalo del día** — a free 🎁 on the home screen once a day (10–25⭐,
+    sometimes a ❄️). A daily reason to open the app that never undercuts the paid
+    caja sorpresa; claim-once-per-day, not synced. *(Shipped 2026-07-18.)*
+10b. ☑ **A named, reactive mascota** — name your pet (free), and it cheers beside
+    the celebration on every done screen. Turns the pet from dress-up into a
+    companion. *(Shipped 2026-07-18.)*
+10c. ☑ **Varied win cheers** — the done screen rotates eight gender-neutral
+    Spanish exclamations instead of a fixed *¡Muy bien!*. *(Shipped 2026-07-18.)*
+    - ☐ **Pet moods** — a happy/sad face driven by feeding & streak state (today
+      only the existing hungry droop). The next step for the companion idea.
+    - ☐ **Sibling head-to-head hooks** — surface "🦖 beat your parejas time" on
+      home; the duelo exists but the async sibling nudge doesn't.
+
 ## Content shelves
 
 11. ☑ **Los verbos — a verbs shelf** — action words for pre-readers, one deck per
@@ -113,8 +128,9 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
     - ☑ **Weekly streak + escudos across devices** — the snapshot now carries
       freezes and weekly streak/week-progress; they sync (and ride the transfer
       code) with everything else. *(Shipped 2026-07-13 with cross-device sync.)*
-    - ☐ **More escudo sources** — mission-chest drops, streak milestones. Today
-      it's the 3 starters, buying, and the surprise box only.
+    - ◐ **More escudo sources** — mission-chest drops, streak milestones. As of
+      2026-07-18 the free **regalo del día** occasionally grants a ❄️ too (see
+      shipped.md), on top of the 3 starters, buying, and the surprise box.
 
 ## Cross-device sync
 

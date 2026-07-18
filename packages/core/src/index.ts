@@ -37,6 +37,8 @@ export {
   defaultCollection,
   feedPet,
   isPetHungry,
+  MAX_PET_NAME,
+  namePet,
   petEmoji,
   petFormEmoji,
   petMaxForm,
@@ -46,6 +48,14 @@ export {
   speciesStages,
   STARTER_SPECIES,
 } from "./domain/mascota";
+export type { Celebration } from "./domain/celebrations";
+export { CELEBRATIONS, pickCelebration } from "./domain/celebrations";
+export type { DailyGift } from "./domain/daily-gift";
+export {
+  canClaimDailyGift,
+  DAILY_GIFT_FREEZE_CHANCE,
+  drawDailyGift,
+} from "./domain/daily-gift";
 export type { Accessory, AccessoryPlacement } from "./domain/wardrobe";
 export {
   ACCESSORIES,
@@ -192,6 +202,8 @@ export { RolloverWeeklyUseCase } from "./application/rollover-weekly";
 export type { WeeklyView } from "./application/rollover-weekly";
 export { BuyFreezeUseCase } from "./application/buy-freeze";
 export { FeedPetUseCase } from "./application/feed-pet";
+export { NamePetUseCase } from "./application/name-pet";
+export { ClaimDailyGiftUseCase } from "./application/claim-daily-gift";
 export { AdoptSpeciesUseCase } from "./application/adopt-species";
 export { SetActiveSpeciesUseCase } from "./application/set-active-species";
 export { BuyAccessoryUseCase } from "./application/buy-accessory";

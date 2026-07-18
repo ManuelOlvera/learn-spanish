@@ -6,7 +6,8 @@ import type { PetCollection } from "../src/domain/mascota";
 import type { StickerTier } from "../src/domain/sticker-tiers";
 import type { WeekProgress, WeeklyStreak } from "../src/domain/weekly";
 import { ACCESSORIES } from "../src/domain/wardrobe";
-import { PET_SPECIES, STARTER_SPECIES } from "../src/domain/mascota";
+import { defaultCollection, namePet, PET_SPECIES, STARTER_SPECIES } from "../src/domain/mascota";
+import { DAILY_GIFT_FREEZE_CHANCE } from "../src/domain/daily-gift";
 import { AVATAR_CATALOG } from "../src/domain/avatars";
 import {
   FREEZE_COST,
@@ -29,6 +30,8 @@ import { ClaimMissionBonusUseCase } from "../src/application/claim-mission-bonus
 import { RolloverWeeklyUseCase } from "../src/application/rollover-weekly";
 import { BuyFreezeUseCase } from "../src/application/buy-freeze";
 import { FeedPetUseCase } from "../src/application/feed-pet";
+import { NamePetUseCase } from "../src/application/name-pet";
+import { ClaimDailyGiftUseCase } from "../src/application/claim-daily-gift";
 import { AdoptSpeciesUseCase } from "../src/application/adopt-species";
 import { SetActiveSpeciesUseCase } from "../src/application/set-active-species";
 import { BuyAccessoryUseCase } from "../src/application/buy-accessory";
@@ -82,6 +85,9 @@ class FakeEconomyStore implements EconomyStore {
   saveCategoryAwards(kid: KidId, awards: Readonly<Record<string, StickerTier>>) { this.awardsByKid[kid] = awards; }
   loadRetoBest(kid: KidId) { return this.retoByKid[kid] ?? {}; }
   saveRetoBest(kid: KidId, best: Readonly<Record<string, number>>) { this.retoByKid[kid] = best; }
+  dailyGiftByKid: Partial<Record<KidId, string>> = {};
+  loadDailyGiftDay(kid: KidId) { return this.dailyGiftByKid[kid] ?? null; }
+  saveDailyGiftDay(kid: KidId, day: string) { this.dailyGiftByKid[kid] = day; }
 }
 
 const KID: KidId = "listener";
@@ -346,6 +352,92 @@ describe("OpenSurpriseUseCase", () => {
     expect(opened!.result.type).toBe("stars");
     expect(opened!.stars).toBeGreaterThan(0);
     expect(store.loadStars(KID)).toBe(opened!.stars);
+  });
+});
+
+describe("namePet (domain)", () => {
+  it("trims, collapses whitespace, and caps the length", () => {
+    const pet = namePet({ meals: 0, lastFed: null }, "  Paco   el   Gato  ");
+    expect(pet.name).toBe("Paco el Gato");
+    const long = namePet({ meals: 0, lastFed: null }, "x".repeat(50));
+    expect(long.name).toHaveLength(24);
+  });
+
+  it("clears the name for an all-whitespace input", () => {
+    const named = namePet({ meals: 0, lastFed: null }, "Luna");
+    const cleared = namePet(named, "   ");
+    expect(cleared.name).toBeUndefined();
+    expect("name" in cleared).toBe(false);
+  });
+
+  it("keeps meals, lastFed, and wardrobe untouched", () => {
+    const before = { meals: 8, lastFed: "2026-07-10", worn: ["gorro"] } as const;
+    const after = namePet(before, "Coco");
+    expect(after).toEqual({ ...before, name: "Coco" });
+  });
+});
+
+describe("NamePetUseCase", () => {
+  it("names the active pet and persists the collection", () => {
+    const store = new FakeEconomyStore();
+    const collection = new NamePetUseCase(store).execute(KID, "Paco");
+    expect(collection.pets[collection.active]?.name).toBe("Paco");
+    expect(store.loadPetCollection(KID)?.pets[STARTER_SPECIES]?.name).toBe("Paco");
+  });
+
+  it("renaming replaces, and only touches the active pet", () => {
+    const store = new FakeEconomyStore();
+    store.savePetCollection(KID, {
+      ...defaultCollection(),
+      owned: [STARTER_SPECIES, "conejo"],
+      pets: {
+        [STARTER_SPECIES]: { meals: 0, lastFed: null },
+        conejo: { meals: 3, lastFed: null, name: "Luna" },
+      },
+    });
+    const name = new NamePetUseCase(store);
+    name.execute(KID, "Paco");
+    const renamed = name.execute(KID, "Pancho");
+    expect(renamed.pets[STARTER_SPECIES]?.name).toBe("Pancho");
+    expect(renamed.pets.conejo?.name).toBe("Luna"); // untouched
+  });
+});
+
+describe("ClaimDailyGiftUseCase", () => {
+  it("pays stars into the wallet and stamps the day", () => {
+    const store = new FakeEconomyStore();
+    const claim = new ClaimDailyGiftUseCase(store, () => 0.9);
+    const gift = claim.execute(KID, NOW);
+    expect(gift?.gift.type).toBe("stars");
+    expect(gift?.stars).toBe(store.loadStars(KID));
+    expect(store.loadDailyGiftDay(KID)).toBe(dayKey(NOW));
+  });
+
+  it("is idempotent within a day — a second claim pays nothing", () => {
+    const store = new FakeEconomyStore();
+    const claim = new ClaimDailyGiftUseCase(store, () => 0.9);
+    claim.execute(KID, NOW);
+    const before = store.loadStars(KID);
+    expect(claim.execute(KID, NOW)).toBeNull();
+    expect(store.loadStars(KID)).toBe(before); // no double-pay
+  });
+
+  it("reopens on the next day", () => {
+    const store = new FakeEconomyStore();
+    const claim = new ClaimDailyGiftUseCase(store, () => 0.9);
+    claim.execute(KID, NOW);
+    const tomorrow = new Date(NOW.getTime() + 24 * 60 * 60 * 1000);
+    expect(claim.execute(KID, tomorrow)).not.toBeNull();
+  });
+
+  it("a freeze draw grants a freeze without touching the star balance", () => {
+    const store = new FakeEconomyStore();
+    store.saveStars(KID, 40);
+    const claim = new ClaimDailyGiftUseCase(store, () => DAILY_GIFT_FREEZE_CHANCE / 2);
+    const gift = claim.execute(KID, NOW);
+    expect(gift?.gift.type).toBe("freeze");
+    expect(gift?.stars).toBe(40);
+    expect(store.loadFreezes(KID)).toBe(STARTING_FREEZES + 1);
   });
 });
 

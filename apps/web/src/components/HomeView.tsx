@@ -20,6 +20,8 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak, getWordStats } from "@/lib/client-container";
 import {
   buyFreeze,
+  canClaimDailyGift,
+  claimDailyGift,
   claimMissionBonus,
   getActivePet,
   getMission,
@@ -38,8 +40,10 @@ import {
   petFormEmoji,
   petMaxForm,
 } from "@learn-spanish/core";
+import type { DailyGift } from "@learn-spanish/core";
 import { WeeklyBurst } from "@/components/WeeklyBurst";
 import { MissionBurst } from "@/components/MissionBurst";
+import { GiftReveal } from "@/components/GiftReveal";
 import { MissionCard } from "@/components/MissionCard";
 import { WeeklyCard } from "@/components/WeeklyCard";
 import { SecretDeckTile } from "@/components/SecretDeckTile";
@@ -68,6 +72,10 @@ export function HomeView({ decks, groups }: Props) {
   const [burst, setBurst] = useState<WeeklyView["outcome"] | null>(null);
   // True while the daily-mission trophy celebration is on screen.
   const [missionBurst, setMissionBurst] = useState(false);
+  // El regalo del día: whether today's free gift is waiting, and the drawn
+  // gift while its reveal is on screen.
+  const [giftReady, setGiftReady] = useState(false);
+  const [giftReveal, setGiftReveal] = useState<DailyGift | null>(null);
   // Bumped when a cross-device pull applies changes, to re-read home state.
   const [syncNonce, setSyncNonce] = useState(0);
 
@@ -144,6 +152,7 @@ export function HomeView({ decks, groups }: Props) {
     );
     setPetHungry(anyPetHungry(collection, dayKey(new Date())));
     setUnlockedDecks(getUnlockedDecks(kid));
+    setGiftReady(canClaimDailyGift(kid));
     const week = rolloverWeekly(kid);
     setWeekly(week);
     if (week.outcome !== "none") {
@@ -170,6 +179,28 @@ export function HomeView({ decks, groups }: Props) {
       setMissionBurst(true);
       void syncPush();
     }
+  }
+
+  /** Open today's free gift: draw, bank the reward, reveal it. A no-op (just
+   *  hides the present) if it was somehow already claimed today. */
+  function openGift() {
+    if (!kid) {
+      return;
+    }
+    setGiftReady(false);
+    const res = claimDailyGift(kid);
+    if (res === null) {
+      return;
+    }
+    feedbackRacha();
+    setStars(res.stars);
+    if (res.gift.type === "freeze") {
+      setWeekly((w) => (w ? { ...w, freezes: w.freezes + 1 } : w));
+    }
+    setGiftReveal(res.gift);
+    // The stars/❄️ are banked into the synced wallet/freeze fields — push so
+    // the other device sees them (the claim day itself stays per-device).
+    void syncPush();
   }
 
   /** Try to buy a ❄️; false lets the WeeklyCard play its denied wobble. */
@@ -241,6 +272,9 @@ export function HomeView({ decks, groups }: Props) {
           onDone={() => setMissionBurst(false)}
         />
       )}
+      {giftReveal !== null && (
+        <GiftReveal gift={giftReveal} onDone={() => setGiftReveal(null)} />
+      )}
       <header className="relative w-full text-center">
         <h1 className="text-6xl font-extrabold tracking-tight sm:text-7xl">
           ¡Palabras!
@@ -264,6 +298,21 @@ export function HomeView({ decks, groups }: Props) {
           📔
         </Link>
       </header>
+
+      {giftReady && (
+        <button
+          type="button"
+          onClick={openGift}
+          aria-label="El regalo del día — open today's free gift"
+          className="sticker chest-tease relative flex items-center gap-3 px-6 py-3 text-xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
+          style={{ "--accent": "var(--color-lime)" } as React.CSSProperties}
+        >
+          <span aria-hidden className="text-4xl">
+            🎁
+          </span>
+          El regalo del día
+        </button>
+      )}
 
       {daily && (
         <button

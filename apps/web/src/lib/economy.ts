@@ -9,11 +9,14 @@
  * business state.
  */
 import {
+  canClaimDailyGift as coreCanClaimDailyGift,
   categoryTierFromAlbum,
+  dayKey,
   defaultCollection,
   freezesOrStarting,
   walletBalance,
   type ActivityId,
+  type DailyGift,
   type KidId,
   type MissionKind,
   type MissionState,
@@ -221,11 +224,30 @@ export function placeAccessoryOnActive(
   return container.placeAccessory.execute(kid, accessoryId, x, y);
 }
 
+/** Name (or rename) the active pet — free. Returns the updated collection. */
+export function nameActivePet(kid: KidId, name: string): PetCollection {
+  return container.namePet.execute(kid, name);
+}
+
 /** La caja sorpresa: spend, draw, apply. null if unaffordable. */
 export function openSurprise(
   kid: KidId,
 ): { result: SurpriseResult; stars: number } | null {
   return container.openSurprise.execute(kid);
+}
+
+// ---- el regalo del día (free daily gift) ----
+
+/** Whether today's free gift is still waiting to be opened. */
+export function canClaimDailyGift(kid: KidId): boolean {
+  return coreCanClaimDailyGift(store.loadDailyGiftDay(kid), dayKey(new Date()));
+}
+
+/** Open today's gift. null when it was already claimed today. */
+export function claimDailyGift(
+  kid: KidId,
+): { gift: DailyGift; stars: number } | null {
+  return container.claimDailyGift.execute(kid, new Date());
 }
 
 // ---- sticker completion counts (tiers) ----

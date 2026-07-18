@@ -45,9 +45,10 @@ No reading, no accounts, no setup.
   first-try answer, less one per wrong tap (so guessing can't farm the
   chest; floored at 1), with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
   the daily misión (drawn from each kid's own pool — the reader's
-  includes ✏️ Deletrea) adds a +10⭐ bonus chest. Stars feed and grow **la
-  mascota** (a collection of adoptable pets, 5⭐ a meal), buy 🛍️ wardrobe
-  accessories and drag them anywhere on the pet (saved per pet),
+  includes ✏️ Deletrea) adds a +10⭐ bonus chest, and every finish rotates a
+  spoken cheer with the pet cheering along. Stars feed and grow **la
+  mascota** (a collection of adoptable pets, 5⭐ a meal; name it too), buy 🛍️
+  wardrobe accessories and drag them anywhere on the pet (saved per pet),
   open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
   themes; album stickers tier up to
   silver/gold with replays; `/informe` gives parents each kid's strong
@@ -70,6 +71,8 @@ No reading, no accounts, no setup.
   completion chest (+15 / +30 / +50⭐).
 - **Carta del día** — a daily featured word on the home screen with a
   per-kid ☀️ streak.
+- **El regalo del día** — a free 🎁 on the home screen once a day (10–25⭐,
+  sometimes a ❄️), claimable once per calendar day.
 - **Weekly streaks** — finishing the daily misión on 3 days makes an
   active 🔥 week; each active week bumps the weekly streak, celebrated by
   a first-open-of-the-week animation (grew / an ❄️ escudo saved it / start

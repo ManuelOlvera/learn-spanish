@@ -258,6 +258,42 @@ describe("mergeProgress", () => {
     expect(merged.petCollections?.listener?.pets["pollito"]?.worn).toEqual(["gorro"]);
   });
 
+  it("preserves a pet's given name and never lets an unnamed side clobber it", () => {
+    const named: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: {
+        listener: {
+          active: "pollito",
+          owned: ["pollito"],
+          pets: { pollito: { meals: 2, lastFed: null, name: "Paco" } },
+        },
+      },
+    };
+    const unnamed: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: {
+        listener: {
+          active: "pollito",
+          owned: ["pollito"],
+          pets: { pollito: { meals: 5, lastFed: null } },
+        },
+      },
+    };
+    // The name survives whichever side carries it, and survives the sanitizer.
+    const incomingNamed = sanitizeSnapshot(decodeProgress(encodeProgress(named)));
+    expect(
+      mergeProgress(unnamed, incomingNamed).petCollections?.listener?.pets["pollito"]
+        ?.name,
+    ).toBe("Paco");
+    expect(
+      mergeProgress(named, unnamed).petCollections?.listener?.pets["pollito"]?.name,
+    ).toBe("Paco");
+  });
+
   it("round-trips the new fields through encode/decode", () => {
     const full: ProgressSnapshot = {
       stickers: ["listener:animals:learn"],

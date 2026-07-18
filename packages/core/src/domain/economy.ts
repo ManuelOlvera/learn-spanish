@@ -60,4 +60,11 @@ export interface EconomyStore {
   /** Deck → best reto score, per kid. */
   loadRetoBest(kid: KidId): Readonly<Record<string, number>>;
   saveRetoBest(kid: KidId, best: Readonly<Record<string, number>>): void;
+
+  /** dayKey of the last claimed daily gift (el regalo del día); null when never
+   *  claimed. Deliberately NOT synced — the gift is a per-device daily nudge,
+   *  like the resetting misión (ADR 004 cut ephemeral daily state from sync),
+   *  so the stars/freeze it pays out ride the wallet/freeze fields that do. */
+  loadDailyGiftDay(kid: KidId): string | null;
+  saveDailyGiftDay(kid: KidId, day: string): void;
 }

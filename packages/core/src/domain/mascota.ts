@@ -18,6 +18,26 @@ export interface PetState {
   /** Which growth form (stage index) to display. Undefined follows the newest
    *  reached form; a kid may pin an earlier one (see petMaxForm/petFormEmoji). */
   readonly form?: number;
+  /** The kid's given name for this pet ("Paco"), shown over the species name.
+   *  Undefined until named; naming is what turns the pet into a companion. */
+  readonly name?: string;
+}
+
+/** Cap on a given name, well under the transfer sanitizer's text ceiling. Long
+ *  enough for any real pet name, short enough to draw big on one line. */
+export const MAX_PET_NAME = 24;
+
+/** Give (or clear) a pet's name. Trims, collapses inner whitespace, and caps
+ *  the length; an all-whitespace name clears the field so a pet is never stuck
+ *  displaying a blank string. */
+export function namePet(pet: PetState, name: string): PetState {
+  const clean = name.replace(/\s+/g, " ").trim().slice(0, MAX_PET_NAME);
+  if (clean === "") {
+    const next: { -readonly [K in keyof PetState]: PetState[K] } = { ...pet };
+    delete next.name;
+    return next;
+  }
+  return { ...pet, name: clean };
 }
 
 /** Adoptable creatures — a renewable star sink: each new pet starts as a

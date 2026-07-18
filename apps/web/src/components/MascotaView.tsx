@@ -7,6 +7,7 @@ import {
   accessoryPlacement,
   dayKey,
   isPetHungry,
+  MAX_PET_NAME,
   MEAL_COST,
   petFormEmoji,
   petMaxForm,
@@ -26,6 +27,7 @@ import {
   getOwnedAccessories,
   getPetCollection,
   getStars,
+  nameActivePet,
   openSurprise,
   placeAccessoryOnActive,
   setActiveSpecies,
@@ -111,6 +113,8 @@ export function MascotaView() {
   const [evolved, setEvolved] = useState(false);
   const wobble = useDeniedWobble();
   const [surprise, setSurprise] = useState<string | null>(null);
+  // The name editor: null when closed, else the in-progress draft.
+  const [nameDraft, setNameDraft] = useState<string | null>(null);
   const [ownedAccessories, setOwnedAccessories] = useState<readonly string[]>([]);
   const [ownedThemes, setOwnedThemes] = useState<readonly string[]>([]);
   const [theme, setTheme] = useState("crema");
@@ -221,6 +225,17 @@ export function MascotaView() {
     }
   }
 
+  /** Save the name draft to the active pet (free), then close the editor. */
+  function saveName() {
+    if (kid === null || nameDraft === null) return;
+    nameActivePet(kid, nameDraft);
+    setNameDraft(null);
+    feedbackSticker();
+    refresh(kid);
+    // A name is progress worth syncing (mergePet never clobbers it).
+    void syncPush();
+  }
+
   return (
     <main
       style={{ "--accent": "#fbbf24" } as React.CSSProperties}
@@ -284,9 +299,56 @@ export function MascotaView() {
           })}
         </div>
 
-        <h1 className="text-3xl font-extrabold sm:text-4xl">
-          {species.nameSpanish}
-        </h1>
+        {nameDraft === null ? (
+          <button
+            type="button"
+            onClick={() => setNameDraft(pet.name ?? "")}
+            aria-label={
+              pet.name
+                ? `${pet.name} — tap to rename`
+                : `${species.nameSpanish} — tap to give a name`
+            }
+            className="flex items-center gap-2 active:opacity-70"
+          >
+            <h1 className="text-3xl font-extrabold sm:text-4xl">
+              {pet.name ?? species.nameSpanish}
+            </h1>
+            <span aria-hidden className="text-2xl">
+              ✏️
+            </span>
+          </button>
+        ) : (
+          <form
+            className="flex items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              saveName();
+            }}
+          >
+            <input
+              autoFocus
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              maxLength={MAX_PET_NAME}
+              placeholder={species.nameSpanish}
+              aria-label="Name your pet"
+              className="w-48 rounded-2xl border-4 border-ink bg-white px-4 py-2 text-center text-2xl font-extrabold outline-none placeholder:text-ink/30"
+            />
+            <button
+              type="submit"
+              aria-label="Save the name"
+              className="sticker flex h-14 w-14 items-center justify-center rounded-2xl text-2xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+              style={{ "--sticker-face": "var(--color-lime)" } as React.CSSProperties}
+            >
+              ✅
+            </button>
+          </form>
+        )}
+        {pet.name && nameDraft === null && (
+          <p aria-hidden className="-mt-2 text-sm font-semibold text-ink/40">
+            {species.nameSpanish}
+          </p>
+        )}
         <p className="text-base font-semibold text-ink/60">
           {hungry
             ? "¡Tengo hambre! 🥺"

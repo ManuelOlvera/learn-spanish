@@ -1,5 +1,58 @@
 # Shipped features
 
+## 2026-07-18 — El regalo del día: a free daily surprise on the home screen
+
+The economy had every *paid* delight (la caja sorpresa, adoption, the shop) but
+no free daily reason to open the app. Now a 🎁 sits on the home screen once per
+calendar day, wiggling for attention; tapping it opens a picture-only reveal
+(the present bursts into its reward, tap-or-auto-dismiss like the misión burst).
+
+The draw is deliberately modest — **10–25⭐, occasionally a ❄️** (`domain/
+daily-gift.ts`), never an accessory, so the free gift never undercuts the paid
+box or the wardrobe. `ClaimDailyGiftUseCase` stamps the claimed dayKey *before*
+paying out, so a double tap or a re-open can't pay twice; a new day reopens it.
+The last-claimed day is a new per-kid localStorage key (`palabras.daily-gift.v1`)
+and is **not synced** — like the resetting misión (ADR 004 cut ephemeral daily
+state), it's a per-device nudge, while the stars/❄️ it grants ride the wallet
+and freeze fields that already sync. New `GiftReveal` component.
+
+## 2026-07-18 — La mascota gets a name, and cheers when you win
+
+Two changes that turn the pet from decoration into a companion:
+
+- **Name your pet.** On `/mascota` the pet's name shows big over its species
+  ("Paco" / *El pollito*), with a ✏️ to open a text field (`MAX_PET_NAME` 24,
+  trimmed and whitespace-collapsed in `namePet`). Naming is free. The name lives
+  on `PetState`, so it rides the pet collection through sync and the transfer
+  code; `mergePet` treats a name as precious — an unnamed device never clobbers a
+  named one (`a.name ?? b.name`), and the sanitizer bounds it like any text.
+- **The pet cheers on the done screen.** Finishing any activity now shows the
+  kid's active pet bouncing beside the celebration, its name under the cheer, and
+  speaks the phrase. (The name button uses an opacity press, not a scale one, so
+  a fat-finger tap on the shrinking target can never miss.)
+
+## 2026-07-18 — Winning says more than "¡Muy bien!"
+
+Every activity ended on the same fixed *¡Muy bien!*, and kids habituate fast.
+The done screen now draws one cheer per finish from a rotating pool of eight
+short, **gender-neutral** Spanish exclamations (¡Bravo!, ¡Olé!, ¡Genial!,
+¡Increíble!… — both kids play, so praise carries no masculine/feminine ending),
+each with its own burst emoji, spoken aloud via the speech adapter. Pure
+presentation over a tested `pickCelebration` in core (`domain/celebrations.ts`);
+one draw per mount, so it never changes mid-screen.
+
+## 2026-07-16 — A confirm gate before buying a ❄️
+
+Tapping the home-screen ❄️ used to spend 30⭐ on the first touch, so a stray tap
+drained a chunk of the wallet with no take-back. Now the tap opens a
+picture-only confirm the way a pre-reader can read it: a dimmed overlay with the
+❄️, its `FREEZE_COST⭐` price, and two big round sticker buttons — green ✅ buys,
+red ❌ backs out. Tapping the backdrop also cancels, and it auto-cancels after a
+beat so a distracted kid is never stuck deciding. A kid who can't afford it never
+reaches the gate — the button still just wobbles (shared `useDeniedWobble()`), so
+no star is committed until the ✅. New `FreezeConfirm` component; the actual
+`buyFreeze` use case is unchanged — this is purely a UI gate in `WeeklyCard`.
+
 ## 2026-07-15 — Letters are named, not articled ("be", not "la be")
 
 The abecedario spoke each letter with its article — "la a, la be, la ce" — and

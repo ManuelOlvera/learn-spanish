@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   activityKind,
   ALL_ACTIVITIES,
   computeReward,
   kidForActivity,
+  petFormEmoji,
+  petMaxForm,
+  pickCelebration,
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
   type ActivityId,
@@ -20,9 +23,12 @@ import { getSelectedKid } from "@/lib/kid";
 import {
   addStars,
   claimCategoryReward,
+  getActivePet,
   getCategoryTier,
+  getPetCollection,
   markActivityDone,
 } from "@/lib/economy";
+import { speakSpanish } from "@/lib/speech";
 import { syncPush } from "@/lib/sync";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 import { feedbackFanfare, feedbackSticker } from "@/lib/feedback";
@@ -63,6 +69,11 @@ export function DoneScreen({
 }: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
   const [streakDays, setStreakDays] = useState<number | null>(null);
+  // The win cheer — one draw per mount, so it varies finish to finish but never
+  // changes mid-screen (see domain/celebrations.ts).
+  const celebration = useMemo(() => pickCelebration(Math.random), []);
+  // The kid's active pet, shown cheering alongside the celebration.
+  const [pet, setPet] = useState<{ emoji: string; name?: string } | null>(null);
   // Set when this finish also completed (or levelled up) the whole category.
   const [categoryPrize, setCategoryPrize] = useState<{
     tier: Exclude<StickerTier, "none">;
@@ -103,6 +114,24 @@ export function DoneScreen({
       feedbackSticker();
     }
   }, [award]);
+
+  // The pet cheers with the kid: load its current face and speak the cheer.
+  // Speech is allowed here — the taps that finished the game count as the user
+  // gesture browsers require — and is non-critical if a browser still blocks it.
+  useEffect(() => {
+    const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
+    const collection = getPetCollection(kid);
+    const active = getActivePet(kid);
+    const maxForm = petMaxForm(collection.active, active.meals);
+    setPet({
+      emoji: petFormEmoji(
+        collection.active,
+        Math.min(active.form ?? Infinity, maxForm),
+      ),
+      name: active.name,
+    });
+    speakSpanish(celebration.phrase);
+  }, [activity, celebration]);
 
   useEffect(() => {
     if (noAward) {
@@ -155,10 +184,27 @@ export function DoneScreen({
         />
       )}
       <Confetti />
-      <div aria-hidden className="pop-in text-8xl">
-        🎉
+      <div className="flex items-center justify-center gap-3">
+        <div aria-hidden className="pop-in text-8xl">
+          {celebration.emoji}
+        </div>
+        {pet !== null && (
+          <div
+            aria-label={
+              pet.name ? `${pet.name} is cheering` : "Your pet is cheering"
+            }
+            className="chest-tease text-7xl"
+          >
+            {pet.emoji}
+          </div>
+        )}
       </div>
-      <h1 className="text-5xl font-extrabold">¡Muy bien!</h1>
+      <h1 className="text-5xl font-extrabold">{celebration.phrase}</h1>
+      {pet?.name && (
+        <p aria-hidden className="-mt-6 text-xl font-extrabold text-ink/50">
+          {pet.name} 🎉
+        </p>
+      )}
 
       {award !== null && (award.isNew || award.tierUp) && (
         <div

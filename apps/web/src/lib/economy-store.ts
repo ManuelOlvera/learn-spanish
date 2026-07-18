@@ -37,6 +37,7 @@ const WEEK_PROGRESS_KEY = "palabras.week-progress.v1";
 const FREEZES_KEY = "palabras.freezes.v1";
 const CATEGORY_AWARDS_KEY = "palabras.category-awards.v1";
 const RETO_KEY = "palabras.reto.v1";
+const DAILY_GIFT_KEY = "palabras.daily-gift.v1"; // dayKey of the last claim; not synced
 
 /** Schema migrations run once, on the first storage access of a session —
  *  after this, every reader can assume the current key layout. */
@@ -218,6 +219,14 @@ export class LocalStorageEconomyStore implements EconomyStore {
   }
   saveRetoBest(kid: KidId, best: Readonly<Record<string, number>>): void {
     writeDoc(RETO_KEY, kid, best);
+  }
+
+  loadDailyGiftDay(kid: KidId): string | null {
+    const value = readDoc<string>(DAILY_GIFT_KEY)[kid];
+    return typeof value === "string" && value !== "" ? value : null;
+  }
+  saveDailyGiftDay(kid: KidId, day: string): void {
+    writeDoc(DAILY_GIFT_KEY, kid, day);
   }
 }
 
