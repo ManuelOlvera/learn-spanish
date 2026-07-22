@@ -654,7 +654,14 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
   }
   const accessories = [...new Set([...(a.accessories ?? []), ...(b.accessories ?? [])])];
   const wornSource = a.worn ?? b.worn;
-  const worn = wornSource?.filter((id) => accessories.includes(id));
+  // Only prune worn against a legacy per-pet `accessories` list. Ownership is
+  // kid-level now, so modern pets carry no `accessories` — filtering against an
+  // empty list would strip every worn item on each merge (accessories vanishing
+  // off the mascot after a sync). Kept as-is when there's nothing to prune by.
+  const worn =
+    accessories.length > 0
+      ? wornSource?.filter((id) => accessories.includes(id))
+      : wornSource;
   // `form` is a per-device display choice, like worn: the receiving device wins.
   const form = a.form ?? b.form;
   // A name is precious — never let an unnamed side clobber a named one; the

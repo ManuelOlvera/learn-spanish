@@ -98,7 +98,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
 
   function tally(cardId: string, firstTry: boolean) {
     recordAnswer
-      .execute(currentKid(), cardId, firstTry)
+      .execute(currentKid(), cardId, firstTry, review)
       .catch((err: unknown) => log.error("word-stats", "failed to record", { err }));
   }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   pickReviewCards,
   recordAnswer,
+  recordReviewAnswer,
   REVIEW_MIN,
   weakScore,
 } from "../src/domain/word-stats";
@@ -16,6 +17,34 @@ describe("recordAnswer", () => {
     const twice = recordAnswer(once, "gato", true);
     expect(empty).toEqual({});
     expect(twice.gato).toEqual({ right: 1, wrong: 1 });
+  });
+});
+
+describe("recordReviewAnswer", () => {
+  it("forgives one prior miss on a correct review answer, so a lightly-missed word clears", () => {
+    // A word flagged by a single miss (weakScore 2) must leave the weak set
+    // after one correct repaso answer — one right can't offset a double-weighted
+    // wrong under recordAnswer, so review heals the wrong instead.
+    const flagged = { gato: { right: 0, wrong: 1 } };
+    const healed = recordReviewAnswer(flagged, "gato", true);
+    expect(healed.gato).toEqual({ right: 1, wrong: 0 });
+    expect(weakScore(healed.gato!)).toBeLessThanOrEqual(0);
+  });
+
+  it("never drives the wrong tally below zero", () => {
+    const healed = recordReviewAnswer({ gato: { right: 2, wrong: 0 } }, "gato", true);
+    expect(healed.gato).toEqual({ right: 3, wrong: 0 });
+  });
+
+  it("still counts a fumbled review answer as a miss", () => {
+    const worse = recordReviewAnswer({ gato: { right: 0, wrong: 1 } }, "gato", false);
+    expect(worse.gato).toEqual({ right: 0, wrong: 2 });
+  });
+
+  it("does not mutate the input stats", () => {
+    const before = { gato: { right: 0, wrong: 1 } };
+    recordReviewAnswer(before, "gato", true);
+    expect(before.gato).toEqual({ right: 0, wrong: 1 });
   });
 });
 

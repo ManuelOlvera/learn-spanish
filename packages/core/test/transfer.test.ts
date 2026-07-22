@@ -258,6 +258,42 @@ describe("mergeProgress", () => {
     expect(merged.petCollections?.listener?.pets["pollito"]?.worn).toEqual(["gorro"]);
   });
 
+  it("keeps the worn outfit when both devices already have the pet", () => {
+    // The empty-tablet path skips mergePet; the real bug is a merge where BOTH
+    // sides hold the pet. Ownership is kid-level now, so pets carry no legacy
+    // per-pet `accessories` — worn must not be filtered away against it.
+    const local: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      ownedAccessories: { listener: ["gorro"] },
+      petCollections: {
+        listener: {
+          active: "pollito",
+          owned: ["pollito"],
+          pets: { pollito: { meals: 4, lastFed: "2026-07-13", worn: ["gorro"] } },
+        },
+      },
+    };
+    const remote: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      ownedAccessories: { listener: ["gorro"] },
+      petCollections: {
+        listener: {
+          active: "pollito",
+          owned: ["pollito"],
+          pets: { pollito: { meals: 4, lastFed: "2026-07-13" } },
+        },
+      },
+    };
+    const merged = mergeProgress(local, remote);
+    expect(merged.petCollections?.listener?.pets["pollito"]?.worn).toEqual([
+      "gorro",
+    ]);
+  });
+
   it("preserves a pet's given name and never lets an unnamed side clobber it", () => {
     const named: ProgressSnapshot = {
       stickers: [],

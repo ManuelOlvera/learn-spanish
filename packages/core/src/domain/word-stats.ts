@@ -30,6 +30,25 @@ export function recordAnswer(
   };
 }
 
+/** Like recordAnswer, but a correct review answer also forgives one prior miss.
+ *  El repaso re-asks each weak word once, and a wrong weighs double (weakScore),
+ *  so a single correct answer could never offset the miss that flagged the word
+ *  — the badge would never clear. Healing a wrong lets one good pass clear a
+ *  lightly-missed word. A fumbled review answer still counts as a miss. */
+export function recordReviewAnswer(
+  stats: WordStats,
+  cardId: string,
+  correct: boolean,
+): WordStats {
+  const current = stats[cardId] ?? { right: 0, wrong: 0 };
+  return {
+    ...stats,
+    [cardId]: correct
+      ? { right: current.right + 1, wrong: Math.max(0, current.wrong - 1) }
+      : { right: current.right, wrong: current.wrong + 1 },
+  };
+}
+
 /** Positive = struggling; wrongs weigh double so one slip doesn't linger. */
 export function weakScore(stat: WordStat): number {
   return stat.wrong * 2 - stat.right;

@@ -1,4 +1,6 @@
 SHIPPED
+- ~~Accessories don't stay on the mascot after you move to another page~~ ✅ fixed 2026-07-22: `mergePet` was pruning `worn` against the legacy per-pet `accessories` list, but ownership is kid-level now so that list is empty — every sync merge stripped the outfit. It only prunes when there's a legacy list to prune by (`domain/transfer.ts`).
+- ~~When you finish El repaso the review badge doesn't go away~~ ✅ fixed 2026-07-22: repaso re-asks each weak word once and a wrong weighs double, so one correct answer could never offset the miss that flagged it. Review mode now heals a prior miss on a correct answer (`recordReviewAnswer`), so a good pass can actually clear the word.
 - Duolingo-like trail (easy → hard path through the content) → parked as roadmap #22 per 2026-07-15 discussion; the one-trail-vs-per-shelf fork and the free-play tension are recorded there. Shape it if we ever pick it up.
 - ~~For the alphabet, don't say la a, la b, la c... just say the letter otherwise is confusing~~ ✅ fixed 2026-07-15: letter cards now speak the bare name ("be"); the article moved to a new `article` field so scene still asks "¿Dónde está la be?" (see shipped.md)
 - ~~Make sopa de letra available for both kids. Both kids like it~~ ✅ shipped 2026-07-15: the kid gate is gone; the only gate left is whether the deck's words fit a grid (see shipped.md)

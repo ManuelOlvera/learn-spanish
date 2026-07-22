@@ -108,6 +108,7 @@ export type { WordStat, WordStats, WordStatsStore } from "./domain/word-stats";
 export {
   pickReviewCards,
   recordAnswer,
+  recordReviewAnswer,
   REVIEW_MIN,
   weakScore,
 } from "./domain/word-stats";
