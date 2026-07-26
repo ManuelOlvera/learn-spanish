@@ -8,6 +8,8 @@ import {
   categoryTier,
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
+  STORIES_ID,
+  STORY_ACTIVITIES,
   stickerId,
   stickerTier,
   type ActivityId,
@@ -85,8 +87,11 @@ export function AlbumView({ decks }: Props) {
   const viewKid: KidId = kid ?? "listener";
   const deckActivities = activitiesForKid(ALL_ACTIVITIES, viewKid);
   const sentenceActivities = activitiesForKid(SENTENCE_ACTIVITIES, viewKid);
+  const storyActivities = activitiesForKid(STORY_ACTIVITIES, viewKid);
   const total =
-    shownDecks.length * deckActivities.length + sentenceActivities.length;
+    shownDecks.length * deckActivities.length +
+    sentenceActivities.length +
+    storyActivities.length;
   const avatar = kid === null ? null : getAvatar(kid);
 
   function slotCount(deckId: string, activity: ActivityId): number {
@@ -225,6 +230,23 @@ export function AlbumView({ decks }: Props) {
           </div>
           <div className="flex flex-wrap gap-3">
             {sentenceActivities.map((activity) => slot(SENTENCES_ID, activity))}
+          </div>
+        </section>
+
+        <section
+          style={{ "--accent": deckAccent(STORIES_ID) } as React.CSSProperties}
+          className="sticker relative flex flex-col gap-3 p-5"
+        >
+          <span aria-hidden className="sticker-peel" />
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="text-4xl">
+              📚
+            </span>
+            <h2 className="text-2xl font-extrabold">Los cuentos</h2>
+            {categoryMedal(STORIES_ID, STORY_ACTIVITIES)}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {storyActivities.map((activity) => slot(STORIES_ID, activity))}
           </div>
         </section>
       </div>

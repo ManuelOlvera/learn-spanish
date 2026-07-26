@@ -3,9 +3,11 @@ import {
   ListDeckGroupsUseCase,
   ListDecksUseCase,
   ListSentencesUseCase,
+  ListStoriesUseCase,
   StaticDeckGroupRepository,
   StaticDeckRepository,
   StaticSentenceRepository,
+  StaticStoryRepository,
 } from "@learn-spanish/core";
 
 /**
@@ -17,8 +19,10 @@ import {
 const deckRepository = new StaticDeckRepository();
 const sentenceRepository = new StaticSentenceRepository();
 const deckGroupRepository = new StaticDeckGroupRepository();
+const storyRepository = new StaticStoryRepository();
 
 export const listDecks = new ListDecksUseCase(deckRepository);
 export const getDeck = new GetDeckUseCase(deckRepository);
 export const listSentences = new ListSentencesUseCase(sentenceRepository);
+export const listStories = new ListStoriesUseCase(storyRepository);
 export const listDeckGroups = new ListDeckGroupsUseCase(deckGroupRepository);

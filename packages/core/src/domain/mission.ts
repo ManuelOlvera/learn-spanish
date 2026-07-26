@@ -12,6 +12,7 @@ export type MissionKind =
   | "connect"
   | "scene"
   | "frases"
+  | "cuento"
   | "duel"
   | "counting"
   | "spelling"
@@ -28,6 +29,7 @@ const SHARED_KINDS: readonly MissionKind[] = [
   "connect",
   "scene",
   "frases",
+  "cuento",
   "duel",
   "counting",
 ];

@@ -1,5 +1,64 @@
 # Shipped features
 
+## 2026-07-26 — Los cuentos: short stories, then questions about them
+
+The content ladder stopped dead after Las frases: words, then three-token
+sentences, then nothing. **Los cuentos** is the next rung — six short stories
+read (or heard) a page at a time, each ending in 3–5 comprehension questions.
+📚 on the home screen, next to 💬.
+
+**The shape (roadmap #23).** A story is ~6 pages; a page is one sentence, one
+breath long, over a **composed emoji scene** (one hero at story size, two or
+three props at fixed spots — the I-spy board is the app's *scattered* picture,
+a story page is its illustration). Tap the picture to hear the sentence; the
+page never auto-speaks. Then the questions: picture-choice, **2 for the
+listener and 4 for the reader**, with the question spoken to both and written
+only for the reader.
+
+**Questions land at the end, never between pages** (cut on approval during
+`/shape`): a quiz mid-narrative breaks the spell. They exist because the chest
+has to have something honest to pay on — a story with no answerable moment
+would have been the cheapest stars in the app, six taps and a payout. The
+chest, the ✨/🔥/🆕 bonuses, and the mistake penalty are the standard ones.
+
+**Distractors come from the story's own cast**, never the wider pack: a wrong
+choice must be something the kid just met, so the question measures whether
+they followed the story rather than whether they can rule out a far-off word.
+Question order is the story's own (a small child recalls a narrative forwards);
+replay variety comes from the distractor draw and choice order instead.
+
+**Deliberately no word-stats tally** (unlike the quizzes). Missing "¿quién sube
+al árbol?" means the kid lost the thread, not that they can't recognise
+"el gato" — feeding that into El repaso would flag words they already know.
+
+**Los verbos finally does something.** That shelf is `learnOnly` — the
+generated noun questions ("¿Es un…?") never fit an action word, so it has no
+game and no album slots. A story is the only surface where those words are
+seen *acting*, and `oso-dormir` casts `dormir` and `cantar` (a content test
+pins that at least one verb card stays in the casts).
+
+**Where:** `packages/core` — `domain/story.ts` (the model, `storyCast`,
+`createStoryQuiz` with injected `RandomSource` and a typed
+`StoryCastCardNotFoundError`), `infrastructure/story-pack.ts` (the six
+stories), `ListStoriesUseCase`. `apps/web` — `StoryShelf`, `StoryPlayer`,
+routes `/cuento` and `/cuento/[storyId]/[mode]` (12 prerendered pages). Two new
+album slots (`cuento-listen` / `cuento-read`) under a pack-wide `STORIES_ID`
+section, like Las frases, and a new `cuento` misión kind in both kids' pools.
+`DoneScreen`'s category resolver now keys off the section's own activity list —
+a pack-wide section measured against `ALL_ACTIVITIES` could never complete.
+
+**Note on deploy day:** adding `cuento` to the misión pool changes the
+deterministic daily draw, so a mission already half-done today may show
+different kinds once. One-day, one-time, and the same thing happened when
+spelling and the sopa joined the reader's pool.
+
+**Deferred (roadmap #23/#24):** illustrated pages — the page model already
+carries an optional `image`, so art needs no domain change, but it would be the
+app's first binary content asset and wants an ADR, a precache decision, and one
+consistent visual voice. Also parked: recorded narration (the economics invert
+for stories — ~36 clips, not 365 words), read-along highlighting, per-deck
+stories, and branching paths.
+
 ## 2026-07-18 — El regalo del día: a free daily surprise on the home screen
 
 The economy had every *paid* delight (la caja sorpresa, adoption, the shop) but

@@ -12,6 +12,8 @@ import {
   pickCelebration,
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
+  STORIES_ID,
+  STORY_ACTIVITIES,
   type ActivityId,
   type AwardResult,
   type StarReward,
@@ -151,8 +153,15 @@ export function DoneScreen({
         // Did this finish complete — or level up — the whole category? The
         // just-earned sticker is now in the album and its count is saved, so
         // recompute the category's tier and open its chest if it advanced.
+        // Pack-wide sections own a short activity list of their own; a deck
+        // owns the full one. Getting this wrong makes a category that can
+        // never complete, so it is keyed off the same ids the album renders.
         const activities =
-          stickerDeckId === SENTENCES_ID ? SENTENCE_ACTIVITIES : ALL_ACTIVITIES;
+          stickerDeckId === SENTENCES_ID
+            ? SENTENCE_ACTIVITIES
+            : stickerDeckId === STORIES_ID
+              ? STORY_ACTIVITIES
+              : ALL_ACTIVITIES;
         const earned = new Set(await getAlbum.execute(kid));
         const tier = getCategoryTier(kid, stickerDeckId, activities, earned);
         if (tier === "none") {

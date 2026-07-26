@@ -199,6 +199,50 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       misión already answers "what do I do now". A trail risks becoming a
       second, louder home screen and quietly demoting both. It has to be
       additive, or it isn't worth building.
+23. ☑ **Los cuentos — short stories** — the rung above Las frases: connected
+    prose, read or heard page by page, then 3–5 comprehension questions.
+    Shaped 2026-07-26. *(Shipped 2026-07-26 — six stories, 📚 on home. See
+    `shipped.md`.)* Deferred out of that slice, in rough order of appeal:
+    - **Mid-story questions** — cut on approval: the questions all land at the
+      end, so the narrative reads unbroken. Revisit only if the kids sail
+      through the end-quiz without having followed the middle.
+    - **Recorded narration** — ADR 001 (speech synthesis) still stands, but the
+      economics *invert* for stories: 6 stories × 6 pages is ~36 clips, a single
+      afternoon's recording, where 365 vocabulary words never could be. If the
+      synthesized voice is what makes a kid stop listening, this is the fix —
+      and it needs its own ADR plus an asset budget.
+    - **Read-along highlighting** — light each word as it is spoken. Wants
+      per-word timings that `speechSynthesis` boundary events only sometimes
+      give; check browser support before shaping.
+    - **Per-deck stories** — a cuento per deck instead of a pack-wide shelf.
+      31 stories is a content project, not a feature.
+    - **Branching stories** — "¿qué hace el gato?" with two paths. Charming,
+      but multiplies the writing and breaks the fixed page-dot progress.
+24. ☐ **Illustrated story pages** — real pictures instead of the composed
+    emoji scenes. The story page model already reserves an optional `image`
+    per page (`domain/story.ts`), so presentation can swap art in with **no
+    domain change** — the work is everything around it, which is why it was
+    cut from the shipping slice rather than sketched into it:
+    - **It is the app's first binary content asset.** Everything today is
+      emoji, CSS, and one self-hosted font; that is why a new deck costs four
+      lines of typing and why the offline PWA is small. Art changes the
+      category of the repo. Needs an ADR.
+    - **Budget it before drawing anything.** ~6 pages × 6 stories ≈ 36 images.
+      At 40 KB webp that is ~1.5 MB — fine to serve, but it must be weighed
+      against the service worker's precache (ADR 005) and decided explicitly:
+      precache them (offline stories, bigger install) or fetch on demand
+      (smaller install, no stories on a plane).
+    - **Style is the hard part, not the pipeline.** Six stories illustrated by
+      different hands read as six different apps. The Sticker Book language
+      (`docs/skills/frontend-design.md`) has to survive contact with real
+      pictures — bold outlines, flat colour, no gradients, one visual voice.
+    - **Authoring slows down.** Today a story is text in a `.ts` file; after
+      art, every new page blocks on a picture. Decide whether emoji scenes
+      stay as the fallback for new stories (recommended) or art becomes
+      mandatory.
+    - **Do it when** the kids have actually sat through the emoji version more
+      than once. That is the evidence that buys the art — and it tells you
+      *which* stories deserve it.
 
 ## Build-later shortlist (consolidated 2026-07-14)
 
@@ -206,7 +250,8 @@ The queue, gathered from the sub-items above so nothing hides in history:
 
 - **Content follow-ons:** letter→word association "A de avión" (16) ·
   los miles y millones (17) · verbs in the games so the verbs shelf drops
-  learnOnly (11) · sentence attribute content (21).
+  learnOnly (11) · sentence attribute content (21) · more cuentos, and
+  illustrated story pages (24).
 - **Play & retention polish:** difficulty sizes for quiz/sí-o-no/reto —
   the proven parejas pattern (12) · hard-mode timer/lose-state (12) ·
   guided accessory placement (13) · resize/rotate accessories (13) ·

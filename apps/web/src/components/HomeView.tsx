@@ -457,6 +457,22 @@ export function HomeView({ decks, groups }: Props) {
           <span className="text-xs font-semibold text-ink/50">Sentences</span>
         </Link>
 
+        <Link
+          href="/cuento"
+          aria-label="Los cuentos — stories"
+          style={{ "--accent": deckAccent("cuento") } as React.CSSProperties}
+          className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+        >
+          <span aria-hidden className="sticker-peel" />
+          <span aria-hidden className="text-5xl sm:text-6xl">
+            📚
+          </span>
+          <span className="text-center text-xl font-extrabold sm:text-2xl">
+            Los cuentos
+          </span>
+          <span className="text-xs font-semibold text-ink/50">Stories</span>
+        </Link>
+
         {secretDecks.map((deck) => (
           <SecretDeckTile
             key={deck.id}

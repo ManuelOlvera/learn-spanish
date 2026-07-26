@@ -16,6 +16,8 @@ export type ActivityId =
   | "scene-read"
   | "frases-listen"
   | "frases-read"
+  | "cuento-listen"
+  | "cuento-read"
   // Sticker-less activities (stars/mission only — not album slots):
   | "counting-listen"
   | "counting-read"
@@ -44,6 +46,15 @@ export const SENTENCE_ACTIVITIES: readonly ActivityId[] = [
 ];
 
 export const SENTENCES_ID = "frases";
+
+/** The pack-wide story activities; their sticker "deck" is STORIES_ID.
+ *  Pack-wide like the sentences, not per-deck — nobody is writing 31 stories. */
+export const STORY_ACTIVITIES: readonly ActivityId[] = [
+  "cuento-listen",
+  "cuento-read",
+];
+
+export const STORIES_ID = "cuento";
 
 export function stickerId(
   kid: KidId,

@@ -134,6 +134,8 @@ export {
   ALL_ACTIVITIES,
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
+  STORIES_ID,
+  STORY_ACTIVITIES,
   stickerId,
   upgradeLegacyStickers,
 } from "./domain/album";
@@ -155,6 +157,26 @@ export type {
 export { createSentenceGame, SENTENCE_ROUNDS, sentenceText } from "./domain/sentence";
 export { ListSentencesUseCase } from "./application/list-sentences";
 export { StaticSentenceRepository } from "./infrastructure/static-sentence-repository";
+export type {
+  Story,
+  StoryPage,
+  StoryQuestion,
+  StoryQuiz,
+  StoryRepository,
+  StoryRound,
+  StoryScene,
+} from "./domain/story";
+export {
+  createStoryQuiz,
+  STORY_MAX_PAGES,
+  STORY_MAX_QUESTIONS,
+  STORY_MIN_PAGES,
+  STORY_MIN_QUESTIONS,
+  STORY_QUESTION_CHOICES,
+  storyCast,
+} from "./domain/story";
+export { ListStoriesUseCase } from "./application/list-stories";
+export { StaticStoryRepository } from "./infrastructure/static-story-repository";
 export type { KidId } from "./domain/kid";
 export { ALL_KIDS, isKidId, KID_GAME_MODES, kidForActivity } from "./domain/kid";
 export type { Streak, StreakStore } from "./domain/daily";
