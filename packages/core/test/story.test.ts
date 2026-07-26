@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createStoryQuiz,
+  STORY_MAX_PAGE_CHARS,
   STORY_MAX_PAGES,
   STORY_MAX_QUESTIONS,
   STORY_MIN_PAGES,
@@ -158,8 +159,8 @@ describe("story pack content", () => {
     return (await decks.listDecks()).flatMap((d) => d.cards);
   }
 
-  it("ships six stories", async () => {
-    await expect(repo.listStories()).resolves.toHaveLength(6);
+  it("ships ten stories", async () => {
+    await expect(repo.listStories()).resolves.toHaveLength(10);
   });
 
   it("never repeats a story id", async () => {
@@ -188,9 +189,10 @@ describe("story pack content", () => {
         expect(page.scene.props.length).toBeLessThanOrEqual(3);
         expect(page.text).not.toBe("");
         expect(page.english).not.toBe("");
-        // One breath per page: speech synthesis reads long clauses flatly,
-        // and a pre-reader loses the thread.
-        expect(page.text.length).toBeLessThanOrEqual(72);
+        // Still one breath per page — speech synthesis reads long clauses
+        // flatly — but roomy enough for the reader-level stories to carry a
+        // sentence with a clause in it.
+        expect(page.text.length).toBeLessThanOrEqual(STORY_MAX_PAGE_CHARS);
       }
     }
   });

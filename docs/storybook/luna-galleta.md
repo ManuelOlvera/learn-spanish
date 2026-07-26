@@ -2,8 +2,8 @@
 
 *The moon is a cookie* — story id `luna-galleta`
 
-> ⬜ **Not yet illustrated.** Until art exists, these pages show their
-> composed emoji scenes — the story works either way.
+> ✅ **Illustrated.** These are the prompts that produced the art currently
+> shipping. Kept so a page can be regenerated in the same style.
 
 Six ready-to-paste prompts. Each block is **complete**: copy everything between
 the fences, paste it into ChatGPT / the Codex app / Gemini, and save the result.
@@ -27,7 +27,7 @@ from the repo root. Full workflow: [`../../apps/web/src/story-art/README.md`](..
 *“Es de noche. El ratón mira la luna.” — It is night. The mouse looks at the moon.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
 THE MOON: a friendly pale-yellow crescent moon with a small closed-eye smile. The exact same moon in every picture.
@@ -42,7 +42,7 @@ The scene: Night scene, deep blue sky with simple flat stars. The little mouse s
 *“El ratón dice: ¡La luna es una galleta!” — The mouse says: the moon is a cookie!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
 THE MOON: a friendly pale-yellow crescent moon with a small closed-eye smile. The exact same moon in every picture.
@@ -57,7 +57,7 @@ The scene: The mouse looks up with wide excited eyes; above it in the night sky 
 *“El ratón sube a la montaña. Sube y sube.” — The mouse climbs the mountain. Up and up.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
 THE MOON: a friendly pale-yellow crescent moon with a small closed-eye smile. The exact same moon in every picture.
@@ -72,7 +72,7 @@ The scene: The tiny mouse climbs a big simple rounded mountain under the night s
 *“Pero la luna está muy lejos. El ratón no llega.” — But the moon is very far away.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
 THE MOON: a friendly pale-yellow crescent moon with a small closed-eye smile. The exact same moon in every picture.
@@ -87,7 +87,7 @@ The scene: The mouse stands on the mountain top on tiptoe, one paw stretched up 
 *“El ratón está cansado. Vuelve a su casa.” — The mouse is tired. He goes back home.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
 THE MOON: a friendly pale-yellow crescent moon with a small closed-eye smile. The exact same moon in every picture.
@@ -102,7 +102,7 @@ The scene: The tired mouse walks back down the hill towards a small round cosy h
 *“¡En casa hay una galleta de verdad! ¡Fin!” — At home there is a real cookie!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
 THE MOON: a friendly pale-yellow crescent moon with a small closed-eye smile. The exact same moon in every picture.

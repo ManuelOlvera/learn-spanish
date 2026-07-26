@@ -27,7 +27,7 @@ from the repo root. Full workflow: [`../../apps/web/src/story-art/README.md`](..
 *“La rana mira una nube muy gris.” — The frog looks at a very gray cloud.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE FROG: a small round bright-green frog, big friendly white eyes with black pupils, a wide simple smile, and a pale yellow-green belly. The exact same frog in every picture.
 THE SNAIL: a small snail with a warm brown spiral shell, a soft beige body, two little eye-stalks, and a gentle face. The exact same snail in every picture.
@@ -42,7 +42,7 @@ The scene: The frog sits in green grass, head tilted up, looking curiously at on
 *“Cae la lluvia. Plic, plac, plic, plac.” — The rain falls.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE FROG: a small round bright-green frog, big friendly white eyes with black pupils, a wide simple smile, and a pale yellow-green belly. The exact same frog in every picture.
 THE SNAIL: a small snail with a warm brown spiral shell, a soft beige body, two little eye-stalks, and a gentle face. The exact same snail in every picture.
@@ -57,7 +57,7 @@ The scene: Rain falls from the grey cloud in simple straight blue dashes across 
 *“El caracol corre a su casa. ¡La rana no!” — The snail runs home. Not the frog!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE FROG: a small round bright-green frog, big friendly white eyes with black pupils, a wide simple smile, and a pale yellow-green belly. The exact same frog in every picture.
 THE SNAIL: a small snail with a warm brown spiral shell, a soft beige body, two little eye-stalks, and a gentle face. The exact same snail in every picture.
@@ -72,7 +72,7 @@ The scene: The snail hurries towards a small simple house with a round door, lit
 *“La rana baila en la lluvia. ¡Qué feliz!” — The frog dances in the rain.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE FROG: a small round bright-green frog, big friendly white eyes with black pupils, a wide simple smile, and a pale yellow-green belly. The exact same frog in every picture.
 THE SNAIL: a small snail with a warm brown spiral shell, a soft beige body, two little eye-stalks, and a gentle face. The exact same snail in every picture.
@@ -87,7 +87,7 @@ The scene: The frog dances in a puddle in the pouring rain — one leg kicked up
 *“Sale el sol. La lluvia se va.” — The sun comes out.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE FROG: a small round bright-green frog, big friendly white eyes with black pupils, a wide simple smile, and a pale yellow-green belly. The exact same frog in every picture.
 THE SNAIL: a small snail with a warm brown spiral shell, a soft beige body, two little eye-stalks, and a gentle face. The exact same snail in every picture.
@@ -102,7 +102,7 @@ The scene: The sun comes out from behind the last grey cloud, warm and yellow. T
 *“¡Mira! Un arcoíris enorme. ¡Fin!” — Look! A huge rainbow.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE FROG: a small round bright-green frog, big friendly white eyes with black pupils, a wide simple smile, and a pale yellow-green belly. The exact same frog in every picture.
 THE SNAIL: a small snail with a warm brown spiral shell, a soft beige body, two little eye-stalks, and a gentle face. The exact same snail in every picture.

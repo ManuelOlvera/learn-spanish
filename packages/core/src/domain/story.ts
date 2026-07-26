@@ -77,6 +77,17 @@ export const STORY_MAX_PAGES = 8;
 export const STORY_MIN_QUESTIONS = 3;
 export const STORY_MAX_QUESTIONS = 5;
 
+/**
+ * The most a single page may say. Still one breath — speech synthesis reads
+ * long clauses flatly and a pre-reader loses the thread — but roomy enough for
+ * a sentence with a clause in it, which is what separates a story an
+ * eight-year-old will sit through from one they find babyish. The shelf is
+ * deliberately not tiered by reading level: a picture book works at both ages
+ * when the pictures carry the plot, so the older kid gets the plot and the
+ * younger one gets it read aloud.
+ */
+export const STORY_MAX_PAGE_CHARS = 110;
+
 /** Picture choices per question — the app's usual listen/read difficulty. */
 export const STORY_QUESTION_CHOICES: Record<QuizMode, number> = {
   listen: 2,

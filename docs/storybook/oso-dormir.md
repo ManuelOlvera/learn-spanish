@@ -2,8 +2,8 @@
 
 *The bear can't sleep* — story id `oso-dormir`
 
-> ⬜ **Not yet illustrated.** Until art exists, these pages show their
-> composed emoji scenes — the story works either way.
+> ✅ **Illustrated.** These are the prompts that produced the art currently
+> shipping. Kept so a page can be regenerated in the same style.
 
 Six ready-to-paste prompts. Each block is **complete**: copy everything between
 the fences, paste it into ChatGPT / the Codex app / Gemini, and save the result.
@@ -27,7 +27,7 @@ from the repo root. Full workflow: [`../../apps/web/src/story-art/README.md`](..
 *“El oso está en su cama. No puede dormir.” — The bear is in his bed. He can't sleep.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE BEAR: a round soft brown bear cub with a lighter tan muzzle, small round ears, and big sleepy white eyes with black pupils. The exact same bear in every picture.
 THE TEDDY: a small worn honey-coloured teddy bear with stubby arms, a stitched smile, and simple black dot eyes. The exact same teddy in every picture.
@@ -43,7 +43,7 @@ The scene: A cosy bedroom at night. The bear lies in a small wooden bed under a 
 *“El oso cuenta estrellas: una, dos, tres...” — The bear counts stars: one, two, three...*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE BEAR: a round soft brown bear cub with a lighter tan muzzle, small round ears, and big sleepy white eyes with black pupils. The exact same bear in every picture.
 THE TEDDY: a small worn honey-coloured teddy bear with stubby arms, a stitched smile, and simple black dot eyes. The exact same teddy in every picture.
@@ -59,7 +59,7 @@ The scene: The bear sits up in bed pointing a paw at simple flat yellow stars vi
 *“El oso bebe leche caliente. Pero nada.” — The bear drinks warm milk. But nothing.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE BEAR: a round soft brown bear cub with a lighter tan muzzle, small round ears, and big sleepy white eyes with black pupils. The exact same bear in every picture.
 THE TEDDY: a small worn honey-coloured teddy bear with stubby arms, a stitched smile, and simple black dot eyes. The exact same teddy in every picture.
@@ -75,7 +75,7 @@ The scene: The bear sits on the edge of the bed holding a small white mug of mil
 *“Entonces abraza su peluche. ¡Qué bien!” — Then he hugs his teddy. That's better!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE BEAR: a round soft brown bear cub with a lighter tan muzzle, small round ears, and big sleepy white eyes with black pupils. The exact same bear in every picture.
 THE TEDDY: a small worn honey-coloured teddy bear with stubby arms, a stitched smile, and simple black dot eyes. The exact same teddy in every picture.
@@ -91,7 +91,7 @@ The scene: The bear hugs a small honey-coloured teddy tightly to its chest in be
 *“Y la luna canta una canción muy suave.” — And the moon sings a very soft song.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE BEAR: a round soft brown bear cub with a lighter tan muzzle, small round ears, and big sleepy white eyes with black pupils. The exact same bear in every picture.
 THE TEDDY: a small worn honey-coloured teddy bear with stubby arms, a stitched smile, and simple black dot eyes. The exact same teddy in every picture.
@@ -107,7 +107,7 @@ The scene: Through the bedroom window, the friendly crescent moon smiles with it
 *“El oso duerme. ¡Chsss! ¡Fin!” — The bear is asleep. Shhh!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE BEAR: a round soft brown bear cub with a lighter tan muzzle, small round ears, and big sleepy white eyes with black pupils. The exact same bear in every picture.
 THE TEDDY: a small worn honey-coloured teddy bear with stubby arms, a stitched smile, and simple black dot eyes. The exact same teddy in every picture.

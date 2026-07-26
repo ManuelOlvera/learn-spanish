@@ -2,8 +2,8 @@
 
 *The elephant who wants to dance* — story id `elefante-baila`
 
-> ⬜ **Not yet illustrated.** Until art exists, these pages show their
-> composed emoji scenes — the story works either way.
+> ✅ **Illustrated.** These are the prompts that produced the art currently
+> shipping. Kept so a page can be regenerated in the same style.
 
 Six ready-to-paste prompts. Each block is **complete**: copy everything between
 the fences, paste it into ChatGPT / the Codex app / Gemini, and save the result.
@@ -27,7 +27,7 @@ from the repo root. Full workflow: [`../../apps/web/src/story-art/README.md`](..
 *“El elefante quiere bailar. ¡Le encanta la música!” — The elephant wants to dance. He loves music!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE ELEPHANT: a big round friendly grey elephant with soft rounded ears, a gently curved trunk, small white tusks, and big kind white eyes with black pupils. The exact same elephant in every picture.
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
@@ -42,7 +42,7 @@ The scene: The elephant stands on a grassy clearing looking joyful, trunk raised
 *“El elefante baila. ¡Pum! ¡Pum! ¡Pum!” — The elephant dances. Boom! Boom! Boom!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE ELEPHANT: a big round friendly grey elephant with soft rounded ears, a gently curved trunk, small white tusks, and big kind white eyes with black pupils. The exact same elephant in every picture.
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
@@ -57,7 +57,7 @@ The scene: The elephant dances heavily, one big foot stamping down, with simple 
 *“Tiembla el suelo y el ratón se cae. ¡Ay!” — The ground shakes and the mouse falls over.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE ELEPHANT: a big round friendly grey elephant with soft rounded ears, a gently curved trunk, small white tusks, and big kind white eyes with black pupils. The exact same elephant in every picture.
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
@@ -72,7 +72,7 @@ The scene: The little mouse tumbles onto its back on the grass, legs in the air,
 *“Ahora el elefante está triste. No baila más.” — Now the elephant is sad. He doesn't dance anymore.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE ELEPHANT: a big round friendly grey elephant with soft rounded ears, a gently curved trunk, small white tusks, and big kind white eyes with black pupils. The exact same elephant in every picture.
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
@@ -87,7 +87,7 @@ The scene: The elephant sits on the grass with its head lowered and ears droopin
 *“Pero el ratón toca el tambor: ¡pum, pum, pum!” — But the mouse plays the drum: boom, boom, boom!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE ELEPHANT: a big round friendly grey elephant with soft rounded ears, a gently curved trunk, small white tusks, and big kind white eyes with black pupils. The exact same elephant in every picture.
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.
@@ -102,7 +102,7 @@ The scene: The little mouse stands on the grass happily beating a small red drum
 *“Y todos bailan con el elefante. ¡Fin!” — And everybody dances with the elephant.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE ELEPHANT: a big round friendly grey elephant with soft rounded ears, a gently curved trunk, small white tusks, and big kind white eyes with black pupils. The exact same elephant in every picture.
 THE MOUSE: a tiny round grey mouse with large pale-pink round ears, a small pink nose, big white eyes with black pupils, and a thin curling tail. The exact same mouse in every picture.

@@ -8,9 +8,9 @@
 Illustrated story pages carry **committed JPEG files under
 `apps/web/src/story-art/`**, imported by a presentation-only map
 (`lib/story-art.ts`) that resolves a page's `image` *key* to an asset. Art is
-resized to 900px and encoded at quality 75 by
+resized to 800px and encoded at quality 68 by
 `apps/web/scripts/optimize-story-art.sh` (`pnpm art`) using macOS's built-in
-`sips`, capped at 150 KB per image. Originals live in a gitignored
+`sips`, capped at 200 KB per image. Originals live in a gitignored
 `art-source/<story-id>/<page>.png`. Story art is **not precached** by the
 service worker: it ships as an ordinary hashed asset and is cached on first
 view like everything else.
@@ -58,19 +58,26 @@ property that matters: a story read once is available on the next flight.
   falls back to its emoji scene. Chosen deliberately: a missing picture must
   never be a broken screen for a child. A core test pins keys to the
   `<storyId>-<pageNumber>` convention, which is what catches the mismatch.
-- A story never opened online has no pictures offline. Acceptable while art is
-  one pilot story; revisit if the whole pack is illustrated and road trips are
+- A story never opened online has no pictures offline. Acceptable while the
+  pack is part-illustrated; revisit if every story gets art and road trips are
   a real use case.
 - Adding art is: generate → `pnpm art` → register in the map → set the page's
   `image`. Emoji scenes remain the default and the fallback, so new stories are
   never blocked on pictures.
-- The 150 KB ceiling sits ~30% above what a page of this art actually costs, so
-  it is a style guard as much as a size one: a file that breaches it usually
-  means the generator returned something photographic and off-style.
-  Regenerate rather than raise the ceiling.
-- **Budget the whole pack, not the page.** One illustrated story is ~600 KB; all
-  six would be ~3.5 MB of cached art. Fine on demand, which is another reason
-  precaching stays rejected — precaching would put that on every install.
+- **Sizing was retuned once, by measurement.** The first pass used 900px/q75
+  with a 150 KB ceiling, tuned on quiet scenes. A stadium crowd — thousands of
+  tiny distinct shapes, the worst case for JPEG — blew straight through it at
+  190–265 KB while being perfectly on-style. 800px covers the 384 CSS-px
+  picture area at 2× with headroom, and q68 is indistinguishable there, so the
+  busiest page now fits in 184 KB and every quiet page got smaller too.
+- The ceiling is therefore **no longer a style guard**. A breach means "look at
+  this image", not "this image is wrong": busy is legitimate, photographic is
+  not.
+- **Budget the whole pack, not the page.** A quiet six-page story is ~300–450 KB
+  and a busy eight-page one ~1.3 MB; seven illustrated stories are 3.6 MB of
+  cached art today, and all ten would be near 6 MB. Fine on demand, which is
+  another reason precaching stays rejected — precaching would put that on every
+  install.
 - JPEG has no alpha. Story art is a full-bleed rectangle in a framed box, so
   this costs nothing today; a page wanting a cut-out subject would need to
   revisit the format.

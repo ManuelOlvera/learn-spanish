@@ -24,11 +24,16 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 src="$here/art-source"
 out="$here/src/story-art"
-# The picture area is ~384px wide at the card's max width; 900 covers 2× screens.
-width=900
-quality=75
-# Per-image ceiling, ~30% above what a page of this art actually costs.
-budget=$((150 * 1024))
+# The picture area is ~384px wide at the card's max width, so 800 covers 2×
+# screens with headroom; 900 was over-provisioned. q68 is indistinguishable
+# from q75 at that size and meaningfully smaller on busy pages.
+width=800
+quality=68
+# Per-image ceiling. A quiet page (a frog in the rain) lands near 80 KB; a
+# stadium crowd — thousands of tiny distinct shapes, the worst case for JPEG —
+# legitimately needs ~185 KB at the same quality. So a breach is NOT proof of
+# an off-style image any more; check the picture before assuming.
+budget=$((200 * 1024))
 
 mkdir -p "$out"
 shopt -s nullglob nocaseglob
@@ -77,10 +82,11 @@ echo "Total committed art: $((total / 1024)) KB"
 
 if [ "$fail" -eq 1 ]; then
   echo
-  echo "Over budget, or badly named. Flat vector art this size should fit"
-  echo "comfortably — an oversized file usually means the generator returned"
-  echo "something photographic or heavily textured. Regenerate it with the"
-  echo "style block in docs/story-art-prompts.md rather than raising the ceiling."
+  echo "Over budget, or badly named. Look at the image before reaching for the"
+  echo "ceiling: a busy crowd scene can legitimately be large, but a page that"
+  echo "is far over usually means the generator returned something photographic"
+  echo "or heavily textured — regenerate that one with its prompt in"
+  echo "docs/storybook/ instead."
   exit 1
 fi
 

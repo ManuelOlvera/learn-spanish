@@ -1,5 +1,230 @@
 # Shipped features
 
+## 2026-07-26 — Every cuento illustrated, and the Mundial art fixed
+
+All ten stories now carry a picture on every page: **68 images, 6.5 MB.**
+
+*Halloween en Japón* completes the set. Ava reads as the older, taller sibling
+in every frame — the standalone "Ava must look older and taller than Noah in
+every single picture" line after the character sheet did that work — and the
+park is generic throughout (pumpkin arch, ferris wheel, rollercoaster, no logos
+or recognisable characters). Its smiling crescent moon matches the one in *La
+luna es una galleta* and *El oso no puede dormir* unprompted, because the cast
+bible description is identical. One page arrived with a drawn white frame and
+rounded corners and was cropped inside the corner radius rather than
+regenerated.
+
+All three Mundial defects are fixed, each from the corrected prompt:
+
+- ***Las campeonas*** — the whole aerial-scale fault is gone. Pages are now
+  pitch level with the players large in frame, after the camera rule was made
+  an explicit paragraph in every football prompt.
+- ***El gol de Iniesta*** page 8 — a pitch-level trophy lift under floodlights,
+  clearly different from the street celebration before it.
+- ***La segunda estrella*** page 7 — the ball is unmistakably inside the net.
+
+The trophy is now **the real World Cup trophy** in all three finals — two gold
+figures spiralling up to hold a globe, on a green base — rather than the
+generic two-handled cup the first attempts produced. It lives in the character
+sheet, so it stays identical across the trilogy.
+
+## 2026-07-26 — Mundial art review: three defects found, prompts fixed
+
+Reviewing all 24 football pages at full size turned up three problems the
+per-page checks had missed, and the biggest one was **our own prompt's fault**.
+
+- ***Las campeonas*, pages 2–8 — a scale fault across the whole story.** Page
+  2's scene line asked for the stadium "seen from high up". That anchored an
+  aerial camera for the rest of the set, so pages 3–6 drew close-up players
+  floating *on top of* a distant stadium — larger than the grandstand, with
+  footballs outside the pitch — and pages 7–8 stayed so far away the players
+  are specks at card size. The generator did what it was told; the brief was
+  wrong.
+- ***El gol de Iniesta*, page 8** — a second street celebration nearly
+  identical to page 7 (already known, now prompted to be the trophy lift on
+  the pitch).
+- ***La segunda estrella*, page 7** — on the climactic "¡GOL!" page the ball
+  ended up in the keeper's gloves outside the goal, reading as a save.
+
+Fixes are in the prompts, not the code: every football block now carries an
+explicit **pitch-level camera rule** (players large in frame, crowd a band
+behind, never an aerial or whole-stadium view), and the affected scene lines
+were rewritten. `mundial-2026` is the reference — pitch-level throughout, right
+kits — and its look is what the other two should match.
+
+The general lesson is recorded in the storybook README: **the first picture in
+a set fixes the camera for every later one**, so an establishing shot early in a
+story is expensive.
+
+The current art still ships; these are improvements, not breakages.
+
+## 2026-07-26 — The Mundial trilogy illustrated
+
+*Las campeonas* and *La segunda estrella* get their eight pages each, finishing
+the football trilogy. **60 images, 5.8 MB across nine illustrated stories.**
+
+The two pages most likely to come back wrong both landed: England's keeper
+diving full-stretch to push away Spain's penalty (a save, not a goal — the
+easy thing to get backwards), and the 2026 ending with **two gold stars** over
+the lifted trophy, which is the whole point of that story's title.
+
+Crowd scenes again pushed hard against the ceiling — 149–168 KB a page against
+the 200 KB budget set when *El gol de Iniesta* landed — confirming that retune
+was the right call rather than a one-off.
+
+Only *Halloween en Japón* is still on emoji scenes.
+
+## 2026-07-26 — The Japan cuento becomes Halloween en Japón
+
+Reworked on request: Legoland is gone, the story now centres on **Universal
+Studios at Halloween**, and the two children are **Noah and Ava, siblings**
+(they were Lucas and Sofía, invented placeholders). Renamed `viaje-japon` → `halloween-japon`
+— free to do, since no art existed for it and nothing persists per story id
+(the album is pack-wide under `cuento`, and word stats are per card).
+
+**The cast is public cards only.** The obvious Halloween vocabulary — 👻
+fantasma, 🦇 murciélago, 💀 calavera — all lives in **El misterio**, the
+star-gated secret deck, and the app deliberately keeps that deck out of the
+album, daily and review pools until a kid unlocks it. Casting it in a story
+would leak the surprise to every kid, so the cast uses 🕷️ araña and 🕸️
+telaraña (both public, both genuinely spooky) plus the travel words. The
+Halloween atmosphere lives in the prose and the pictures, which cost nothing.
+
+A seasonal deck (calabaza, disfraz, caramelo, bruja) would open this up
+further and none of those words exist yet — worth a `/add-content` pass if
+Halloween becomes an annual thing.
+
+**Universal Studios is named in the prose but not drawn.** The art prompts ask
+for a generic cheerful theme park with no logos or recognisable film
+characters, for the same reason the football stories have no real faces.
+Halloween is specified as jolly rather than frightening — the audience starts
+at three.
+
+## 2026-07-26 — El gol de Iniesta illustrated, and the art budget retuned
+
+The first reader-level cuento gets pictures: eight pages of packed stadium,
+the goal, and the streets afterwards. Page 4 is the one that could have gone
+wrong — it needed a nil-nil scoreboard without any text, and came back with two
+round zero shapes and a dash exactly as asked.
+
+**The budget check fired, and this time it was wrong to blame the art.** A
+stadium crowd is thousands of tiny distinct shapes — the worst case for JPEG —
+so these pages cost 190–265 KB at the old 900px/q75 against a 150 KB ceiling,
+while being perfectly on-style. Rather than special-case them, the pipeline was
+retuned: **800px at q68**, because the picture area is only 384 CSS px wide so
+900px was over-provisioned, and q68 is indistinguishable from q75 at that size.
+The busiest page now lands at 184 KB under a 200 KB ceiling, and re-encoding
+the existing library shrank it too (*La rana y la lluvia* went 607 → 427 KB).
+44 images, 3.6 MB total. The script's advice changed with it: an over-budget
+page is no longer proof of an off-style image, so look before regenerating.
+
+**Known flaw, left in deliberately:** page 8 came back as a second street
+celebration nearly identical to page 7, so a child turning the page sees almost
+no change. The trophy is visible and the comprehension question still works, so
+it ships — regenerating one page is cheap and it is noted in the story's prompt
+file.
+
+## 2026-07-26 — All six little-kid cuentos illustrated
+
+*El perro y la pelota*, *La luna es una galleta* and *El oso no puede dormir*
+finish the original six. **36 pages, 3.3 MB**, every page 54–118 KB and inside
+budget.
+
+Two things this batch proved rather than assumed:
+
+- **The reworded prompt fixed the white mat.** All 18 pages came back
+  full-bleed on the first try (checked with the same canvas scan that caught
+  the cat batch), so the "fill the entire frame edge to edge" wording works and
+  the earlier mat really was our own "generous empty margin" phrasing.
+- **The cast bible holds across separately generated batches.** The orange
+  tabby in *El perro* is recognisably the cat from *El gato y el pez*, and the
+  grey mouse in *La luna* is the one who drums for the elephant — generated
+  days apart, from nothing but a repeated character sheet. The singing crescent
+  moon matches between *La luna* and *El oso* too.
+
+The four reader-level cuentos (the Mundial trilogy, Japan) still show emoji
+scenes and rely on the per-page fallback. The football ones look sparsest that
+way — a goal page is a net, a ball and confetti — so they are the ones worth
+illustrating next.
+
+## 2026-07-26 — Four reader-level cuentos: three World Cups and a trip to Japan
+
+The six original stories are pitched at the four-year-old, which left the
+eight-year-old with nothing on that shelf — "kind of babyish", accurately. Four
+new stories fix that: **El gol de Iniesta** (2010), **Las campeonas** (2023),
+**La segunda estrella** (2026) and **El viaje a Japón**.
+
+They are longer and harder on purpose: eight pages instead of six, a new
+`STORY_MAX_PAGE_CHARS` of 110 (was a bare 72 in the test) so a page can carry a
+sentence with a clause in it, and the **simple past** — a tense the decks never
+teach, since the verbs shelf only has infinitive, gerund and imperative. A
+story is the only place in the app a kid meets it.
+
+**Not tiered, deliberately.** No reading-level field, no gating: the shelf is
+picked by picture and an older kid reliably picks the football. Tiering would
+have meant a domain change and two half-empty shelves; a picture book works at
+both ages when the pictures carry the plot.
+
+**Zero new vocabulary.** Every cast word already existed — `futbol`, `pelota`,
+`trofeo`, `camiseta`, `estrella`, `avion`, `tren`, `torre` (🗼), `volcan` (🌋),
+`castillo`, `robot`, `helado` — so no deck, shelf, album or README-count
+invariants moved. That was the deciding factor in what these stories could be
+about.
+
+**The three Mundial stories are true**, so they carry the real details: Iniesta
+in the 116th minute in Johannesburg; Olga Carmona in the 29th in Sydney, and
+England's keeper saving Spain's second-half penalty; Ferran Torres off the
+bench in the 106th at MetLife, beating Messi's Argentina 1–0. The 2026 final
+post-dates the assistant's training data and was looked up rather than guessed
+— getting a family's own memory wrong is worse than not telling it.
+
+**No real people in the pictures.** The prose names the scorers; the art
+prompts ask for generic cartoon footballers in plain red shirts with no faces,
+names or numbers. Generators are unreliable at real likenesses, and a
+recognisable player's face is not ours to ship. Same reasoning makes the Japan
+theme parks "a movie park" and "a park of coloured building bricks" rather than
+named brands.
+
+Prompts for all four are in `docs/storybook/`; they show emoji scenes until art
+exists.
+
+## 2026-07-26 — El gato y el pez, illustrated (and a prompt bug fixed)
+
+Third story with art: 102–111 KB a page, 637 KB for the story, 1.7 MB across
+the three illustrated stories.
+
+This batch arrived with a **164px white mat drawn into every page** — an image
+inside an image. In the card, which already has its own ink frame, that reads
+as a double frame. Measured rather than eyeballed (a headless-browser canvas
+scan found the content box identical across all six: 872×696 at (164,110)),
+then cropped with `sips --cropOffset` and checked again to confirm the art now
+runs edge to edge.
+
+The cause was **our own prompt**: "a generous empty margin around the subject,
+so nothing important touches the edges" was read literally as a mat. All 36
+prompt blocks in `docs/storybook/` now say the illustration must fill the frame
+edge to edge with no border, mat, or rounded corners — and the storybook README
+carries it as a third standing rule alongside "no text" and "keep the style
+paragraph identical", with the crop recipe for if it happens again.
+
+Worth noting the earlier two stories used the same wording and came back
+full-bleed, so this is generator variance, not a reliable trigger. The prompt
+is now explicit either way.
+
+## 2026-07-26 — El elefante que quiere bailar, illustrated
+
+The second story to get art, and the first to prove the pipeline is boring:
+drop six PNGs in `art-source/elefante-baila/`, `pnpm art`, register, point the
+pages at them. 79–94 KB a page, 507 KB for the story.
+
+It also exercised the **cast bible** for the first time — the smiling crescent
+moon on the last page is the same moon the sheet pins for *El oso no puede
+dormir*, so the two stories will share a sky when the bear gets illustrated.
+The sad page reads unmistakably (drooping ears, one teardrop, a worried mouse),
+which matters more here than elsewhere: "triste" is the answer to one of that
+story's comprehension questions, and the picture is what a pre-reader judges it
+by.
+
 ## 2026-07-26 — La rana y la lluvia, illustrated
 
 The pilot from roadmap #24: six generated pictures replace the emoji scenes in

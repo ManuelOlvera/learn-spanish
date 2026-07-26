@@ -2,8 +2,12 @@
 
 *The cat and the fish* — story id `gato-pez`
 
-> ⬜ **Not yet illustrated.** Until art exists, these pages show their
-> composed emoji scenes — the story works either way.
+> ✅ **Illustrated.** These are the prompts that produced the art currently
+> shipping. Kept so a page can be regenerated in the same style.
+>
+> Note: this batch came back with a white mat around every page and was
+> cropped before use. The style paragraph has since been reworded to forbid
+> it — regenerating now should give full-bleed art directly.
 
 Six ready-to-paste prompts. Each block is **complete**: copy everything between
 the fences, paste it into ChatGPT / the Codex app / Gemini, and save the result.
@@ -27,7 +31,7 @@ from the repo root. Full workflow: [`../../apps/web/src/story-art/README.md`](..
 *“El gato tiene hambre. ¡Mira, un pez!” — The cat is hungry. Look, a fish!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
 THE FISH: a plump friendly orange fish with a pale belly, one big white eye with a black pupil, and simple rounded fins. The exact same fish in every picture.
@@ -42,7 +46,7 @@ The scene: The cat sits on the grassy bank of a small blue pond, licking its lip
 *“El gato salta al agua. ¡Plof!” — The cat jumps into the water. Splash!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
 THE FISH: a plump friendly orange fish with a pale belly, one big white eye with a black pupil, and simple rounded fins. The exact same fish in every picture.
@@ -57,7 +61,7 @@ The scene: The cat leaps off the bank towards the pond, legs stretched out, with
 *“¡Ay! El gato no sabe nadar.” — Oh no! The cat can't swim.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
 THE FISH: a plump friendly orange fish with a pale belly, one big white eye with a black pupil, and simple rounded fins. The exact same fish in every picture.
@@ -72,7 +76,7 @@ The scene: The cat is in the pond up to its neck, soaked and wide-eyed with alar
 *“El pez es bueno. El pez lo empuja fuera.” — The fish is kind. The fish pushes him out.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
 THE FISH: a plump friendly orange fish with a pale belly, one big white eye with a black pupil, and simple rounded fins. The exact same fish in every picture.
@@ -87,7 +91,7 @@ The scene: The fish pushes the soggy cat from behind towards the grassy bank, he
 *“Ahora el gato bebe leche al sol.” — Now the cat drinks milk in the sun.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
 THE FISH: a plump friendly orange fish with a pale belly, one big white eye with a black pupil, and simple rounded fins. The exact same fish in every picture.
@@ -102,7 +106,7 @@ The scene: The dry, happy cat sits in the sunshine on the grass, lapping from a 
 *“El gato y el pez son amigos. ¡Fin!” — The cat and the fish are friends.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
 THE FISH: a plump friendly orange fish with a pale belly, one big white eye with a black pupil, and simple rounded fins. The exact same fish in every picture.

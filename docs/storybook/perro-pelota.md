@@ -2,8 +2,8 @@
 
 *The dog and the ball* — story id `perro-pelota`
 
-> ⬜ **Not yet illustrated.** Until art exists, these pages show their
-> composed emoji scenes — the story works either way.
+> ✅ **Illustrated.** These are the prompts that produced the art currently
+> shipping. Kept so a page can be regenerated in the same style.
 
 Six ready-to-paste prompts. Each block is **complete**: copy everything between
 the fences, paste it into ChatGPT / the Codex app / Gemini, and save the result.
@@ -27,7 +27,7 @@ from the repo root. Full workflow: [`../../apps/web/src/story-art/README.md`](..
 *“El perro juega con su pelota roja.” — The dog plays with his red ball.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE DOG: a small round cream-and-brown puppy with floppy ears, a dark brown nose, big white eyes with black pupils, and a happy open smile. The exact same dog in every picture.
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
@@ -42,7 +42,7 @@ The scene: The dog bounces a bright red ball on a green lawn, tail up, delighted
 *“¡Oh, no! La pelota vuela muy alto.” — Oh no! The ball flies very high.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE DOG: a small round cream-and-brown puppy with floppy ears, a dark brown nose, big white eyes with black pupils, and a happy open smile. The exact same dog in every picture.
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
@@ -57,7 +57,7 @@ The scene: The red ball sails high through the air in a simple arc, the dog belo
 *“La pelota está en el árbol. El perro salta y salta.” — The ball is in the tree. The dog jumps and jumps.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE DOG: a small round cream-and-brown puppy with floppy ears, a dark brown nose, big white eyes with black pupils, and a happy open smile. The exact same dog in every picture.
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
@@ -72,7 +72,7 @@ The scene: The red ball is stuck up in the round leafy tree. The dog jumps up at
 *“Llega el gato. El gato sube al árbol.” — The cat arrives. The cat climbs the tree.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE DOG: a small round cream-and-brown puppy with floppy ears, a dark brown nose, big white eyes with black pupils, and a happy open smile. The exact same dog in every picture.
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
@@ -87,7 +87,7 @@ The scene: The cat climbs up the tree trunk towards the stuck red ball while the
 *“El gato tira la pelota. ¡Gracias, gato!” — The cat drops the ball down. Thank you, cat!*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE DOG: a small round cream-and-brown puppy with floppy ears, a dark brown nose, big white eyes with black pupils, and a happy open smile. The exact same dog in every picture.
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.
@@ -102,7 +102,7 @@ The scene: The cat, up in the branches, nudges the red ball so it falls; the bal
 *“Ahora juegan los dos juntos. ¡Fin!” — Now the two of them play together.*
 
 ```text
-Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition with a generous empty margin around the subject, so nothing important touches the edges.
+Children's picture-book illustration for a 4-year-old. Flat vector style: bold dark-brown outlines of even weight, like a thick marker. Flat solid colour fills — no gradients, no texture, no shading, no 3D. Simple rounded shapes, cheerful and calm. Wide 4:3 landscape composition. The illustration must fill the entire frame edge to edge — no white border, no mat, no frame, no rounded corners around the picture. Keep important elements away from the very edges so nothing is clipped.
 
 THE DOG: a small round cream-and-brown puppy with floppy ears, a dark brown nose, big white eyes with black pupils, and a happy open smile. The exact same dog in every picture.
 THE CAT: a small round orange tabby cat with a cream muzzle and chest, big white eyes with black pupils, small triangular ears, and a curled tail. The exact same cat in every picture.

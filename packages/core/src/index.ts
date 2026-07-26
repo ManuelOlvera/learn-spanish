@@ -168,6 +168,7 @@ export type {
 } from "./domain/story";
 export {
   createStoryQuiz,
+  STORY_MAX_PAGE_CHARS,
   STORY_MAX_PAGES,
   STORY_MAX_QUESTIONS,
   STORY_MIN_PAGES,

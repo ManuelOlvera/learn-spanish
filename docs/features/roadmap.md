@@ -201,8 +201,11 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       additive, or it isn't worth building.
 23. ☑ **Los cuentos — short stories** — the rung above Las frases: connected
     prose, read or heard page by page, then 3–5 comprehension questions.
-    Shaped 2026-07-26. *(Shipped 2026-07-26 — six stories, 📚 on home. See
-    `shipped.md`.)* Deferred out of that slice, in rough order of appeal:
+    Shaped 2026-07-26. *(Shipped 2026-07-26 — six stories, 📚 on home; grown
+    the same day to ten, adding four reader-level cuentos — the three World
+    Cups Spain won and a trip to Japan — after the first six read as babyish
+    to the eight-year-old. See `shipped.md`.)* Deferred out of that slice, in
+    rough order of appeal:
     - **Mid-story questions** — cut on approval: the questions all land at the
       end, so the narrative reads unbroken. Revisit only if the kids sail
       through the end-quiz without having followed the middle.
@@ -219,9 +222,13 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     - **Branching stories** — "¿qué hace el gato?" with two paths. Charming,
       but multiplies the writing and breaks the fixed page-dot progress.
 24. ◐ **Illustrated story pages** — real pictures instead of the composed
-    emoji scenes. Shaped and **piloted 2026-07-26**: *La rana y la lluvia* is
-    fully illustrated (six pages, 609 KB, ADR 009); the other five still show
-    emoji scenes and each has ready-to-paste prompts in `docs/storybook/`.
+    emoji scenes. **Done for the original six 2026-07-26** — all 36 pages
+    illustrated, 3.3 MB, ADR 009. The four reader-level cuentos (the Mundial
+    trilogy and Japan) started on emoji scenes and are now illustrated too:
+    **all 10 stories, 68 images, 6.6 MB**. ☑ Done — the emoji-scene fallback
+    stays as the safety net for any new cuento. Remaining polish: *Las
+    campeonas* pages 2–8 want regenerating for a pitch-level camera (see
+    `docs/storybook/mundial-2023.md`).
     Illustrate them one at a time — there is no half-way state to manage, a
     page shows art when it has art. What the pilot settled, kept here for
     whoever does the rest:

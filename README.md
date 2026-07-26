@@ -41,10 +41,14 @@ No reading, no accounts, no setup.
   word and plays it straight back; clips are in-memory only (ADR 003).
 - **Las frases** — 84 starter sentences: hear-them cards (👂) and a
   tap-the-tiles sentence builder (🔤).
-- **Los cuentos** — 6 short stories (📚), read or heard a page at a time over
-  composed emoji scenes, ending in 3–5 comprehension questions (2 picture
-  choices for the pre-reader, 4 for the reader). Built from pack vocabulary,
-  and the only place the flashcards-only verbs shelf is seen in action.
+- **Los cuentos** — 10 short stories (📚), read or heard a page at a time,
+  ending in 3–5 comprehension questions (2 picture choices for the pre-reader,
+  4 for the reader). Six are little-kid stories and four are
+  reader-level — eight pages, longer sentences, the simple past — including
+  the three World Cups Spain won (2010, 2023, 2026) and a Halloween trip
+  to Universal Studios Japan.
+  All ten are illustrated — 68 pages of art, one picture per page. Built from pack vocabulary, and the
+  only place the flashcards-only verbs shelf is seen in action.
 - **Star economy** — a treasure chest on every finish pays ⭐ per
   first-try answer, less one per wrong tap (so guessing can't farm the
   chest; floored at 1), with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
