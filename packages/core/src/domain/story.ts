@@ -33,10 +33,12 @@ export interface StoryPage {
   readonly english: string;
   readonly scene: StoryScene;
   /**
-   * Reserved for the illustrated future (roadmap #24): a page may one day
-   * carry its own picture instead of the emoji scene. Presentation reads this
-   * and falls back to `scene`, so adding art later needs no domain change —
-   * only an asset pipeline and its ADR.
+   * A picture for this page, as a presentation *key* — never a path or a
+   * file. The app maps it to a real asset (`apps/web/src/lib/story-art.ts`,
+   * the same trick `deck-theme.ts` uses for colours), so core stays ignorant
+   * of files and formats. Unregistered keys fall back to `scene`, which is
+   * what lets a story be half-illustrated while art is still being drawn.
+   * By convention the key is `<storyId>-<pageNumber>`; a test pins that.
    */
   readonly image?: string;
 }

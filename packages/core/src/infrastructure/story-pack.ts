@@ -93,31 +93,37 @@ export const STORY_PACK: readonly Story[] = [
         text: "La rana mira una nube muy gris.",
         english: "The frog looks at a very gray cloud.",
         scene: { hero: "🐸", props: ["☁️"] },
+        image: "rana-lluvia-1",
       },
       {
         text: "Cae la lluvia. Plic, plac, plic, plac.",
         english: "The rain falls. Drip, drop, drip, drop.",
         scene: { hero: "🌧️", props: ["🐸"] },
+        image: "rana-lluvia-2",
       },
       {
         text: "El caracol corre a su casa. ¡La rana no!",
         english: "The snail runs home. Not the frog!",
         scene: { hero: "🐌", props: ["🏠", "🌧️"] },
+        image: "rana-lluvia-3",
       },
       {
         text: "La rana baila en la lluvia. ¡Qué feliz!",
         english: "The frog dances in the rain. So happy!",
         scene: { hero: "🐸", props: ["💃", "🌧️"] },
+        image: "rana-lluvia-4",
       },
       {
         text: "Sale el sol. La lluvia se va.",
         english: "The sun comes out. The rain goes away.",
         scene: { hero: "☀️", props: ["🐸"] },
+        image: "rana-lluvia-5",
       },
       {
         text: "¡Mira! Un arcoíris enorme. ¡Fin!",
         english: "Look! A huge rainbow. The end!",
         scene: { hero: "🌈", props: ["🐸", "🐌"] },
+        image: "rana-lluvia-6",
       },
     ],
     questions: [

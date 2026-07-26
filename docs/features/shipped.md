@@ -1,5 +1,71 @@
 # Shipped features
 
+## 2026-07-26 — La rana y la lluvia, illustrated
+
+The pilot from roadmap #24: six generated pictures replace the emoji scenes in
+one story. The frog, the snail and the mushroom house stay identical across all
+six pages, which is the whole trick — the prompts pin a style paragraph and a
+character sheet that never change, and only the scene line moves.
+
+**JPEG, not the PNG the plumbing assumed.** The art *looks* flat but is
+rendered with soft gradients, and `sips` writes 24-bit PNG with no palette
+quantization: 700–900 KB a page, **~5 MB for one story**. The budget check in
+`pnpm art` caught it on the first run. At JPEG q75 the same pages are 62–118 KB
+— 609 KB for the story, an 8× saving — with no ringing visible in a 384px-wide
+card, which is the only size a child ever sees. ADR 009 records the measurement
+rather than the original assumption.
+
+**Art source moved to a folder per story** (`art-source/<story-id>/<n>.png`),
+because that is how a person actually organises six images. The folder name is
+the story id, which is what makes the output filename match the page's `image`
+key.
+
+The remaining five stories keep their emoji scenes and now have ready-to-paste
+prompts in `docs/storybook/` — one file per story, plus a cast bible pinning
+the two characters that recur across stories (the cat is in two, the mouse is
+in two) so the pack reads as one world.
+
+## 2026-07-26 — Story art: the plumbing, ahead of the pictures
+
+Roadmap #24, built **plumbing-first** so nothing blocks on anything: a story
+page shows an illustration when one is registered and falls back to its
+composed emoji scene otherwise. Until images land the app looks exactly as it
+did — which is the point. Adding art is then "commit six files".
+
+**An illustrated page replaces its emoji scene outright** — hero and props are
+ignored for that page. A drawn picture with emoji stickers floating on top
+reads as a bug, not a style. The picture sits in a 4:3 ink-bordered frame
+inside the sticker, with the 🔊 hint over it.
+
+**`StoryPage.image` is a key, not a path.** `packages/core` may not know what a
+file is, so the pack says `image: "rana-lluvia-1"` and `apps/web/src/lib/
+story-art.ts` maps that to an imported asset — the same shape `deck-theme.ts`
+uses for colours. A core test pins keys to the `<storyId>-<pageNumber>`
+convention.
+
+**Format and placement are load-bearing, and are ADR 009.** PNG because `sips`
+(macOS built-in) cannot *write* WebP and the repo has no `cwebp` or
+ImageMagick — a build must never need a tool the machine might lack — and
+because flat vector art wants lossless edges anyway. Imported from `src/`
+rather than served from `public/` so the bundler content-hashes it: under ADR
+005's cache-first rule a hashed asset self-invalidates when redrawn, while a
+stable URL would sit in the service-worker cache until someone bumped `CACHE`.
+Not precached: cache-first already means a story read once works offline.
+
+**Failure modes, chosen deliberately:** a filename typo fails the build (the
+import doesn't resolve); a key mismatch falls back to the emoji scene instead.
+A missing picture must never be a broken screen for a child.
+
+`pnpm art` resizes `art-source/` (gitignored originals) into the committed
+folder at 900px and fails over 120 KB — a budget that doubles as a style guard,
+since flat art lands far under it and a breach usually means the generator
+returned something photographic.
+
+**Verified with a throwaway placeholder** (a screenshot, standing in for art)
+to exercise the illustrated branch and the mixed illustrated/emoji story, then
+removed. The pilot story's six images are still to be generated; prompts and
+the locked style block live in `apps/web/src/story-art/README.md`.
+
 ## 2026-07-26 — Los cuentos: short stories, then questions about them
 
 The content ladder stopped dead after Las frases: words, then three-token

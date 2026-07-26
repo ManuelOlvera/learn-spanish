@@ -6,6 +6,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [features/roadmap.md](features/roadmap.md) — **[living]** planned two-kid interactivity features and build order
 - [bugs.md](bugs.md) — **[living]** the parent's running bug/idea inbox; items get struck through with their resolution as they're fixed, shipped, or parked
 - [features/pairing.md](features/pairing.md) — **[living]** parent-facing how-to for cross-device sync (pairing codes)
+- [storybook/](storybook/) — **[living]** copy-paste image-generation prompts, one file per cuento, plus the cast bible and house style that keep the pictures one book ([index](storybook/README.md))
 - [workflows/adding-a-feature.md](workflows/adding-a-feature.md) — **[living]** the feature pipeline: shape → design → TDD → verify → docs → ship
 - [workflows/fixing-a-bug.md](workflows/fixing-a-bug.md) — **[living]** the bug pipeline: investigate → regression test → fix at the owning layer → ship
 - [skills/frontend-design.md](skills/frontend-design.md) — **[living]** the app's visual language (Sticker Book); read before building any UI
@@ -27,3 +28,4 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
   - [adr/006-wallet-epoch-reset.md](adr/006-wallet-epoch-reset.md) — wallet epochs: the one sanctioned way to reset star balances under the additive merge
   - [adr/007-wallet-restore-seeded-balances.md](adr/007-wallet-restore-seeded-balances.md) — epoch 2 restores wallets after the zero reset: goodwill balances seeded by avatar
   - [adr/008-counter-wallet.md](adr/008-counter-wallet.md) — the wallet is two monotonic counters (earned/spent), so syncing can never resurrect a spend
+  - [adr/009-story-art-assets.md](adr/009-story-art-assets.md) — story illustrations: committed PNGs imported from `src/` (hashed, so the service worker self-invalidates), no precache

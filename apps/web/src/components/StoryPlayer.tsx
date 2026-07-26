@@ -10,7 +10,9 @@ import {
   type StoryQuiz,
   type VocabularyCard,
 } from "@learn-spanish/core";
+import Image from "next/image";
 import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { storyArt } from "@/lib/story-art";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
@@ -72,6 +74,9 @@ export function StoryPlayer({ story, cards, mode, accent }: Props) {
   const round = rounds[questionIndex];
   const done = phase === "questions" && quiz !== null && questionIndex >= rounds.length;
   const page = story.pages[pageIndex];
+  // An illustrated page replaces its emoji scene outright: a drawn picture
+  // with emoji stickers floating on top reads as a mistake, not a style.
+  const art = storyArt(page?.image);
 
   // Read each question aloud as it arrives. Allowed to auto-speak here: the
   // tap that answered the previous question (or turned the last page) is the
@@ -188,27 +193,48 @@ export function StoryPlayer({ story, cards, mode, accent }: Props) {
               }`}
             >
               <span aria-hidden className="sticker-peel" />
-              <span
-                aria-hidden
-                className="relative flex h-52 w-full items-center justify-center sm:h-64"
-              >
-                <span className="text-[6rem] leading-none sm:text-[8rem]">
-                  {page.scene.hero}
+              {art !== null ? (
+                <span
+                  aria-hidden
+                  className="relative block aspect-[4/3] w-full overflow-hidden rounded-2xl border-4 border-ink"
+                >
+                  <Image
+                    src={art}
+                    alt=""
+                    fill
+                    sizes="(max-width: 448px) 100vw, 448px"
+                    // Pre-sized by scripts/optimize-story-art.sh, so the
+                    // optimizer would only add a round trip — and offline
+                    // (ADR 005) a plain hashed file is what we want cached.
+                    unoptimized
+                    priority={pageIndex === 0}
+                    className="object-cover"
+                  />
+                  <span className="absolute bottom-1 right-2 text-3xl">🔊</span>
                 </span>
-                {page.scene.props.map((prop, i) => (
-                  <span
-                    key={`${prop}-${i}`}
-                    className={`absolute text-4xl sm:text-5xl ${
-                      PROP_SPOTS[i] ?? PROP_SPOTS[0]
-                    }`}
-                  >
-                    {prop}
+              ) : (
+                <span
+                  aria-hidden
+                  className="relative flex h-52 w-full items-center justify-center sm:h-64"
+                >
+                  <span className="text-[6rem] leading-none sm:text-[8rem]">
+                    {page.scene.hero}
                   </span>
-                ))}
-                {/* Inside the picture, not the card corner: the longest
-                    sentences wrap to two lines and would run into it there. */}
-                <span className="absolute bottom-0 right-0 text-3xl">🔊</span>
-              </span>
+                  {page.scene.props.map((prop, i) => (
+                    <span
+                      key={`${prop}-${i}`}
+                      className={`absolute text-4xl sm:text-5xl ${
+                        PROP_SPOTS[i] ?? PROP_SPOTS[0]
+                      }`}
+                    >
+                      {prop}
+                    </span>
+                  ))}
+                  {/* Inside the picture, not the card corner: the longest
+                      sentences wrap to two lines and would run into it there. */}
+                  <span className="absolute bottom-0 right-0 text-3xl">🔊</span>
+                </span>
+              )}
               <span className="text-2xl font-extrabold leading-snug sm:text-3xl">
                 {page.text}
               </span>

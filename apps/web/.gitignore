@@ -1,3 +1,6 @@
 .vercel
 .env*
 !.env.example
+
+# Generated story art before optimization — only src/story-art/ is committed.
+art-source/

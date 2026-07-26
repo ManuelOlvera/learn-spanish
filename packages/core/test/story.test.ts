@@ -219,6 +219,20 @@ describe("story pack content", () => {
     }
   });
 
+  it("names any page art by the <storyId>-<pageNumber> convention", async () => {
+    // The key is resolved to a real asset in the app (story-art.ts). Core
+    // can't see files, so what it *can* guarantee is that the key is
+    // well-formed and points at the page it sits on — the mismatch that
+    // would otherwise show up as a silently un-illustrated page.
+    for (const s of await repo.listStories()) {
+      s.pages.forEach((page, i) => {
+        if (page.image !== undefined) {
+          expect(page.image).toBe(`${s.id}-${i + 1}`);
+        }
+      });
+    }
+  });
+
   it("asks about more than one thing per story", async () => {
     // A story whose questions all share an answer teaches "tap the frog",
     // not comprehension.

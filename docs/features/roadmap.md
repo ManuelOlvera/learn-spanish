@@ -218,11 +218,13 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       31 stories is a content project, not a feature.
     - **Branching stories** — "¿qué hace el gato?" with two paths. Charming,
       but multiplies the writing and breaks the fixed page-dot progress.
-24. ☐ **Illustrated story pages** — real pictures instead of the composed
-    emoji scenes. The story page model already reserves an optional `image`
-    per page (`domain/story.ts`), so presentation can swap art in with **no
-    domain change** — the work is everything around it, which is why it was
-    cut from the shipping slice rather than sketched into it:
+24. ◐ **Illustrated story pages** — real pictures instead of the composed
+    emoji scenes. Shaped and **piloted 2026-07-26**: *La rana y la lluvia* is
+    fully illustrated (six pages, 609 KB, ADR 009); the other five still show
+    emoji scenes and each has ready-to-paste prompts in `docs/storybook/`.
+    Illustrate them one at a time — there is no half-way state to manage, a
+    page shows art when it has art. What the pilot settled, kept here for
+    whoever does the rest:
     - **It is the app's first binary content asset.** Everything today is
       emoji, CSS, and one self-hosted font; that is why a new deck costs four
       lines of typing and why the offline PWA is small. Art changes the
