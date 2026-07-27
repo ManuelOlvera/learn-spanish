@@ -58,7 +58,8 @@ No reading, no accounts, no setup.
   mascota** (a collection of adoptable pets, 5⭐ a meal; name it too), buy 🛍️
   wardrobe accessories and drag them anywhere on the pet (saved per pet),
   open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
-  themes; album stickers tier up to
+  themes — every purchase behind a picture-only ✅/❌ confirm so a stray
+  tap can't spend the stars (the 5⭐ meal aside); album stickers tier up to
   silver/gold with replays; `/informe` gives parents each kid's strong
   and tricky words plus a 📈 weekly learned-words trend (sampled
   on-device each time the informe opens).

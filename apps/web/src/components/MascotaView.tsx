@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ACCESSORIES,
@@ -49,6 +49,7 @@ import {
 } from "@/lib/feedback";
 import { useDeniedWobble } from "@/lib/use-denied-wobble";
 import { syncPush } from "@/lib/sync";
+import { BuyConfirm } from "@/components/BuyConfirm";
 import { Confetti } from "@/components/Confetti";
 
 /** Where each accessory's *centre* sits on the pet, as a percent of the emoji
@@ -102,6 +103,55 @@ function defaultSpot(id: string): { x: number; y: number } {
   return { x: parseFloat(spot?.left ?? "50"), y: parseFloat(spot?.top ?? "50") };
 }
 
+/** A star spend waiting on the ✅/❌ gate. Nothing leaves the wallet until the
+ *  kid confirms, so a stray tap can't adopt a pet or buy a theme by accident. */
+type Pending =
+  | { kind: "pet"; id: string }
+  | { kind: "surprise" }
+  | { kind: "accessory"; id: string }
+  | { kind: "theme"; id: string };
+
+/** What the gate shows for a pending buy: the thing itself, big, and its price. */
+function pendingDetails(
+  p: Pending,
+): { preview: ReactNode; cost: number; label: string } | null {
+  switch (p.kind) {
+    case "pet": {
+      const s = PET_SPECIES.find((x) => x.id === p.id);
+      return s
+        ? {
+            preview: s.stages[s.stages.length - 1],
+            cost: s.cost,
+            label: `the ${s.nameEnglish} pet`,
+          }
+        : null;
+    }
+    case "surprise":
+      return { preview: "🎁", cost: SURPRISE_COST, label: "a surprise box" };
+    case "accessory": {
+      const item = ACCESSORIES.find((a) => a.id === p.id);
+      return item
+        ? { preview: item.emoji, cost: item.cost, label: item.emoji }
+        : null;
+    }
+    case "theme": {
+      const t = THEMES.find((x) => x.id === p.id);
+      return t
+        ? {
+            preview: (
+              <span
+                className="h-24 w-24 rounded-full border-4 border-ink"
+                style={{ background: t.paper }}
+              />
+            ),
+            cost: t.cost,
+            label: `the ${t.nameSpanish} theme`,
+          }
+        : null;
+    }
+  }
+}
+
 /** La mascota: a menagerie fed with the stars won in games. Feeding grows
  *  the active pet; stars also adopt new pets, dress them, open surprise
  *  boxes, and buy themes — a renewable star sink. */
@@ -118,6 +168,8 @@ export function MascotaView() {
   const [ownedAccessories, setOwnedAccessories] = useState<readonly string[]>([]);
   const [ownedThemes, setOwnedThemes] = useState<readonly string[]>([]);
   const [theme, setTheme] = useState("crema");
+  // The buy waiting on the ✅/❌ gate; null when nothing is being confirmed.
+  const [pending, setPending] = useState<Pending | null>(null);
   // Live position of the accessory being dragged onto the pet (percent of the
   // pet box); null when nothing is being dragged.
   const [drag, setDrag] = useState<{ id: string; x: number; y: number } | null>(
@@ -236,6 +288,83 @@ export function MascotaView() {
     void syncPush();
   }
 
+  /** A tap on something that costs stars: a kid who can't afford it just gets
+   *  the wobble; everyone else meets the gate before a single star moves. */
+  function ask(next: Pending, cost: number) {
+    if (stars < cost) {
+      wobble.deny();
+      return;
+    }
+    setPending(next);
+  }
+
+  /** The ✅: run the real purchase the gate was holding. Each buy still refuses
+   *  on its own (core re-checks the balance), which falls back to the wobble. */
+  function confirmPending() {
+    const p = pending;
+    setPending(null);
+    if (kid === null || p === null) return;
+
+    if (p.kind === "pet") {
+      if (adoptSpecies(kid, p.id) === null) {
+        wobble.deny();
+        return;
+      }
+      feedbackFanfare();
+      refresh(kid);
+      void syncPush();
+      return;
+    }
+
+    if (p.kind === "surprise") {
+      const res = openSurprise(kid);
+      if (res === null) {
+        wobble.deny();
+        return;
+      }
+      feedbackRacha();
+      refresh(kid);
+      void syncPush();
+      const r = res.result;
+      setSurprise(
+        r.type === "accessory"
+          ? `¡${ACCESSORIES.find((a) => a.id === r.id)?.emoji ?? "🎁"} nuevo!`
+          : r.type === "freeze"
+            ? "❄️ ¡nuevo!"
+            : `+${r.amount} ⭐`,
+      );
+      return;
+    }
+
+    if (p.kind === "accessory") {
+      if (buyAccessoryForActive(kid, p.id) === null) {
+        wobble.deny();
+        return;
+      }
+      feedbackSticker();
+      refresh(kid);
+      void syncPush();
+      return;
+    }
+
+    const t = THEMES.find((x) => x.id === p.id);
+    if (!t) return;
+    const balance = buyTheme(kid, t.id, t.cost);
+    if (balance === null) {
+      wobble.deny();
+      return;
+    }
+    // Themes stay per-device, but the stars they cost sync.
+    void syncPush();
+    setStars(balance);
+    setOwnedThemes([...ownedThemes, t.id]);
+    setSelectedTheme(kid, t.id);
+    setTheme(t.id);
+    feedbackSticker();
+  }
+
+  const pendingBuy = pending ? pendingDetails(pending) : null;
+
   return (
     <main
       style={{ "--accent": "#fbbf24" } as React.CSSProperties}
@@ -261,6 +390,16 @@ export function MascotaView() {
       </header>
 
       {evolved && <Confetti />}
+
+      {pendingBuy && (
+        <BuyConfirm
+          preview={pendingBuy.preview}
+          cost={pendingBuy.cost}
+          label={pendingBuy.label}
+          onYes={confirmPending}
+          onNo={() => setPending(null)}
+        />
+      )}
 
       <section className="flex flex-col items-center gap-4 text-center">
         <div
@@ -448,14 +587,7 @@ export function MascotaView() {
                     refresh(kid);
                     return;
                   }
-                  const res = adoptSpecies(kid, s.id);
-                  if (res === null) {
-                    wobble.deny();
-                    return;
-                  }
-                  feedbackFanfare();
-                  refresh(kid);
-                  void syncPush();
+                  ask({ kind: "pet", id: s.id }, s.cost);
                 }}
                 aria-label={
                   owned
@@ -505,27 +637,12 @@ export function MascotaView() {
       <section className="flex flex-col items-center gap-2">
         <button
           type="button"
-          onClick={() => {
-            if (kid === null) return;
-            const res = openSurprise(kid);
-            if (res === null) {
-              wobble.deny();
-              return;
-            }
-            feedbackRacha();
-            refresh(kid);
-            void syncPush();
-            const r = res.result;
-            setSurprise(
-              r.type === "accessory"
-                ? `¡${ACCESSORIES.find((a) => a.id === r.id)?.emoji ?? "🎁"} nuevo!`
-                : r.type === "freeze"
-                  ? "❄️ ¡nuevo!"
-                  : `+${r.amount} ⭐`,
-            );
-          }}
+          key={`surprise-${wobble.nonce}`}
+          onClick={() => ask({ kind: "surprise" }, SURPRISE_COST)}
           aria-label={`Open a surprise box for ${SURPRISE_COST} stars`}
-          className="sticker chest-tease flex items-center gap-3 px-6 py-3 text-xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
+          className={`sticker chest-tease flex items-center gap-3 px-6 py-3 text-xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none ${
+            stars < SURPRISE_COST ? "wobble" : ""
+          }`}
         >
           🎁 Caja sorpresa ({SURPRISE_COST}⭐)
         </button>
@@ -556,14 +673,7 @@ export function MascotaView() {
                     refresh(kid);
                     return;
                   }
-                  const res = buyAccessoryForActive(kid, item.id);
-                  if (res === null) {
-                    wobble.deny();
-                    return;
-                  }
-                  feedbackSticker();
-                  refresh(kid);
-                  void syncPush();
+                  ask({ kind: "accessory", id: item.id }, item.cost);
                 }}
                 aria-label={
                   !owned
@@ -613,18 +723,7 @@ export function MascotaView() {
                     feedbackSticker();
                     return;
                   }
-                  const balance = buyTheme(kid, t.id, t.cost);
-                  if (balance === null) {
-                    wobble.deny();
-                    return;
-                  }
-                  // Themes stay per-device, but the stars they cost sync.
-                  void syncPush();
-                  setStars(balance);
-                  setOwnedThemes([...ownedThemes, t.id]);
-                  setSelectedTheme(kid, t.id);
-                  setTheme(t.id);
-                  feedbackSticker();
+                  ask({ kind: "theme", id: t.id }, t.cost);
                 }}
                 aria-label={
                   owned ? `Use the ${t.nameSpanish} theme` : `Buy ${t.nameSpanish} for ${t.cost} stars`

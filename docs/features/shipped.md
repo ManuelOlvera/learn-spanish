@@ -1,5 +1,28 @@
 # Shipped features
 
+## 2026-07-27 — The confirm gate now covers every purchase
+
+The ❄️ freeze was the only buy behind a confirm; everything else spent on the
+first touch. A stray tap in La mascota adopted a 5500⭐ pet, and there was no
+take-back. Now **every star spend meets the same gate** — pets, accessories,
+themes, the caja sorpresa, avatars in the picker, and secret decks on the home
+shelf — with the one deliberate exception of the 5⭐ meal, which is the repeated
+core loop and would be tedious to confirm.
+
+`FreezeConfirm` became `BuyConfirm`: same picture-only card (the thing being
+bought shown huge, its price, green ✅ / red ❌), now on a sticker panel so it
+reads as one object over the dense shop grids, with the backdrop dimmed harder.
+Backdrop tap cancels, and it still auto-cancels after ~6s.
+
+The affordability rule is unchanged and applied *before* the gate: a kid who
+can't afford something still just gets the wobble and never sees a dialog they
+couldn't complete. Nothing leaves the wallet until the ✅ — the purchase call
+itself only runs on confirm, and each use case re-checks the balance, so the
+gate adds no new spend path. Purely a UI change; no core logic touched.
+
+Buy sites now gated: `MascotaView` (pet, accessory, theme, surprise),
+`KidPicker` (avatar), `SecretDeckTile` (deck), `WeeklyCard` (freeze).
+
 ## 2026-07-26 — Every cuento illustrated, and the Mundial art fixed
 
 All ten stories now carry a picture on every page: **68 images, 6.5 MB.**

@@ -16,6 +16,7 @@ import {
 import { buyAvatar, getOwnedAvatars, getStars } from "@/lib/economy";
 import { syncPush } from "@/lib/sync";
 import { feedbackSticker, feedbackWrong } from "@/lib/feedback";
+import { BuyConfirm } from "@/components/BuyConfirm";
 
 interface Props {
   onPick: (kid: KidId) => void;
@@ -29,6 +30,8 @@ export function KidPicker({ onPick }: Props) {
   const [stars, setStars] = useState(0);
   const [owned, setOwned] = useState<readonly string[]>([]);
   const [nope, setNope] = useState<{ avatar: string; nonce: number } | null>(null);
+  // The face waiting on the ✅/❌ gate; null when nothing is being confirmed.
+  const [pending, setPending] = useState<string | null>(null);
 
   useEffect(() => {
     setAvatars({ listener: getAvatar("listener"), reader: getAvatar("reader") });
@@ -49,6 +52,34 @@ export function KidPicker({ onPick }: Props) {
 
   if (choosingFor !== null) {
     const kid = choosingFor;
+    // Both pinned here so the handlers below keep the narrowing above.
+    const faces = avatars;
+
+    /** The buzz + wobble a kid gets when a face is out of reach. */
+    function deny(emoji: string) {
+      feedbackWrong();
+      setNope((prev) => ({ avatar: emoji, nonce: (prev?.nonce ?? 0) + 1 }));
+    }
+
+    /** The ✅: actually buy the face the gate was holding, and wear it. */
+    function buyFace(emoji: string) {
+      setPending(null);
+      const balance = buyAvatar(kid, emoji);
+      if (balance === null) {
+        deny(emoji);
+        return;
+      }
+      // Bought — wear it right away, and push so the other device gains the
+      // avatar without waiting for a game.
+      feedbackSticker();
+      void syncPush();
+      setStars(balance);
+      setOwned([...owned, emoji]);
+      setAvatar(kid, emoji);
+      setAvatars({ ...faces, [kid]: emoji });
+      setChoosingFor(null);
+    }
+
     return (
       <main className="mx-auto flex min-h-dvh max-w-2xl flex-col items-center justify-center gap-6 p-6">
         <header className="text-center">
@@ -81,21 +112,13 @@ export function KidPicker({ onPick }: Props) {
                     setChoosingFor(null);
                     return;
                   }
-                  const balance = buyAvatar(kid, emoji);
-                  if (balance === null) {
-                    feedbackWrong();
-                    setNope((prev) => ({ avatar: emoji, nonce: (prev?.nonce ?? 0) + 1 }));
+                  // Out of reach? Just the wobble. Otherwise the ✅/❌ gate
+                  // stands between a stray tap and the stars.
+                  if (stars < cost) {
+                    deny(emoji);
                     return;
                   }
-                  // Bought — wear it right away, and push so the other
-                  // device gains the avatar without waiting for a game.
-                  feedbackSticker();
-                  void syncPush();
-                  setStars(balance);
-                  setOwned([...owned, emoji]);
-                  setAvatar(kid, emoji);
-                  setAvatars({ ...avatars, [kid]: emoji });
-                  setChoosingFor(null);
+                  setPending(emoji);
                 }}
                 aria-label={
                   isOwned ? `Choose ${emoji}` : `Buy ${emoji} for ${cost} stars`
@@ -135,6 +158,16 @@ export function KidPicker({ onPick }: Props) {
         >
           ✓ Listo
         </button>
+
+        {pending !== null && (
+          <BuyConfirm
+            preview={pending}
+            cost={avatarCost(pending)}
+            label={`the ${pending} face`}
+            onYes={() => buyFace(pending)}
+            onNo={() => setPending(null)}
+          />
+        )}
       </main>
     );
   }

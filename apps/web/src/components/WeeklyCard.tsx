@@ -6,7 +6,7 @@ import {
   FREEZE_COST,
   type WeeklyView,
 } from "@learn-spanish/core";
-import { FreezeConfirm } from "@/components/FreezeConfirm";
+import { BuyConfirm } from "@/components/BuyConfirm";
 import { useDeniedWobble } from "@/lib/use-denied-wobble";
 
 interface Props {
@@ -81,7 +81,10 @@ export function WeeklyCard({ weekly, stars, onBuyFreeze }: Props) {
       </button>
 
       {confirming && (
-        <FreezeConfirm
+        <BuyConfirm
+          preview="❄️"
+          cost={FREEZE_COST}
+          label="the freeze"
           onYes={() => {
             setConfirming(false);
             if (!onBuyFreeze()) {
