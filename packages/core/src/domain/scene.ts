@@ -66,8 +66,13 @@ export function createSceneGame(
  *  ¿Dónde están los calcetines?, ¿Dónde está el rojo? (bare words get an
  *  article), and ¿Quién está triste? for feelings. Cards whose `spanish` is
  *  deliberately bare (letter names — "be", not "la be") carry their own
- *  `article`, so the question still reads native: ¿Dónde está la be? */
+ *  `article`, so the question still reads native: ¿Dónde está la be?
+ *  Words that take no article at all (month names) override the whole
+ *  question with `sceneQuestion`. */
 export function sceneQuestion(card: VocabularyCard): string {
+  if (card.sceneQuestion !== undefined) {
+    return card.sceneQuestion;
+  }
   if (card.usesEstar) {
     return `¿Quién está ${card.spanish}?`;
   }

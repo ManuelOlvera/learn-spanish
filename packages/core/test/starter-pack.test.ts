@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { StaticDeckRepository } from "../src/infrastructure/static-deck-repository";
+import { siNoQuestion } from "../src/domain/si-no";
+import { sceneQuestion } from "../src/domain/scene";
 
 const repo = new StaticDeckRepository();
 
@@ -38,21 +40,26 @@ describe("starter pack content", () => {
       "vocales",
       "letras-b-m",
       "letras-n-z",
+      "dias-semana",
+      "meses",
+      "la-hora",
+      "dia-noche",
+      "estaciones",
       "mystery",
     ]);
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("31 decks /
-    // 365 words … 32 decks / 377 words total"). This test turns silent README
+    // The root README's Features section states these totals ("36 decks /
+    // 420 words … 37 decks / 432 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(32);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(377);
-    expect(publicDecks).toHaveLength(31);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(365);
+    expect(decks).toHaveLength(37);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(432);
+    expect(publicDecks).toHaveLength(36);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(420);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {
@@ -101,6 +108,70 @@ describe("starter pack content", () => {
     // listen-mode quiz dealing both is unanswerable by ear.
     const acute = letterCards.find((c) => c.id === "letra-a-tilde")!;
     expect(acute.spanish).toBe("a con tilde");
+  });
+
+  it("ships the calendar in order: seven days, twelve months, twelve hours", async () => {
+    const dias = await repo.getDeck("dias-semana");
+    // Calendar order, not shuffled — the deck is how a kid learns the week.
+    expect(dias?.cards.slice(0, 7).map((c) => c.spanish)).toEqual([
+      "lunes",
+      "martes",
+      "miércoles",
+      "jueves",
+      "viernes",
+      "sábado",
+      "domingo",
+    ]);
+    // The face is the abbreviation a Spanish calendar prints, so a day is
+    // findable on a real one; the spoken name stays bare.
+    expect(dias?.cards.slice(0, 7).map((c) => c.emoji)).toEqual([
+      "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom",
+    ]);
+    const meses = await repo.getDeck("meses");
+    expect(meses?.cards.map((c) => c.spanish)).toEqual([
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre",
+    ]);
+    const hora = await repo.getDeck("la-hora");
+    expect(hora?.cards).toHaveLength(12);
+    expect(hora?.cards[0]?.spanish).toBe("la una");
+  });
+
+  it("phrases calendar questions natively (no article on a month, no 'un lunes')", async () => {
+    const decks = await repo.listDecks();
+    const dayCards = decks
+      .find((d) => d.id === "dias-semana")!
+      .cards.slice(0, 7);
+    for (const card of dayCards) {
+      // "el lunes" means "on Monday" — the NAME of the day is bare. The
+      // article lives in `article` so the scene hunt still reads native.
+      expect(card.spanish.startsWith("el "), card.id).toBe(false);
+      expect(card.article, card.id).toBe("el");
+      expect(siNoQuestion(card)).toBe(`¿Es ${card.spanish}?`);
+      expect(sceneQuestion(card)).toBe(`¿Dónde está el ${card.spanish}?`);
+    }
+    for (const card of decks.find((d) => d.id === "meses")!.cards) {
+      // A month takes no article at all: never "el enero", in any game.
+      expect(card.article, card.id).toBeUndefined();
+      expect(siNoQuestion(card)).toBe(`¿Es ${card.spanish}?`);
+      expect(sceneQuestion(card)).toBe(`¿Dónde está ${card.spanish}?`);
+    }
+    // Telling the time: one o'clock is singular, every other hour plural.
+    const hours = decks.find((d) => d.id === "la-hora")!.cards;
+    expect(siNoQuestion(hours[0]!)).toBe("¿Es la una?");
+    for (const card of hours.slice(1)) {
+      expect(siNoQuestion(card), card.id).toBe(`¿Son ${card.spanish}?`);
+    }
   });
 
   it("keeps decks kid-sized: 10-15 cards each", async () => {

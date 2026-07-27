@@ -638,6 +638,116 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "letra-z", spanish: "zeta", article: "la", english: "letter z", emoji: "Zz", question: "¿Es la zeta?" },
     ],
   },
+  /* El calendario — days, months, seasons, the clock, and the rhythm of a
+   * day. Calendar words have no pictures of their own, so each deck picks the
+   * most honest face it can: the days wear the three-letter abbreviations a
+   * real Spanish calendar prints (the letters/centenas precedent — text IS
+   * the art), the months wear the thing that happens in them, and the hours
+   * wear clock faces. Day and month names are spoken bare — "lunes", never
+   * "el lunes", which means "on Monday" — so days carry `article` for the
+   * scene hunt and months, which take no article at all, override it. */
+  {
+    id: "dias-semana",
+    nameSpanish: "Los días de la semana",
+    nameEnglish: "Days of the week",
+    emoji: "📆",
+    cards: [
+      { id: "lunes", spanish: "lunes", article: "el", english: "Monday", emoji: "Lun" },
+      { id: "martes", spanish: "martes", article: "el", english: "Tuesday", emoji: "Mar" },
+      { id: "miercoles", spanish: "miércoles", article: "el", english: "Wednesday", emoji: "Mié" },
+      { id: "jueves", spanish: "jueves", article: "el", english: "Thursday", emoji: "Jue" },
+      { id: "viernes", spanish: "viernes", article: "el", english: "Friday", emoji: "Vie" },
+      { id: "sabado", spanish: "sábado", article: "el", english: "Saturday", emoji: "Sáb" },
+      { id: "domingo", spanish: "domingo", article: "el", english: "Sunday", emoji: "Dom" },
+      { id: "semana", spanish: "la semana", english: "the week", emoji: "7️⃣" },
+      { id: "fin-de-semana", spanish: "el fin de semana", english: "the weekend", emoji: "🎉" },
+      { id: "calendario", spanish: "el calendario", english: "the calendar", emoji: "📅" },
+    ],
+  },
+  {
+    id: "meses",
+    nameSpanish: "Los meses del año",
+    nameEnglish: "Months of the year",
+    emoji: "🗓️",
+    cards: [
+      { id: "enero", spanish: "enero", english: "January", emoji: "❄️", sceneQuestion: "¿Dónde está enero?" },
+      { id: "febrero", spanish: "febrero", english: "February", emoji: "💗", sceneQuestion: "¿Dónde está febrero?" },
+      { id: "marzo", spanish: "marzo", english: "March", emoji: "🌱", sceneQuestion: "¿Dónde está marzo?" },
+      { id: "abril", spanish: "abril", english: "April", emoji: "🌧️", sceneQuestion: "¿Dónde está abril?" },
+      { id: "mayo", spanish: "mayo", english: "May", emoji: "🌷", sceneQuestion: "¿Dónde está mayo?" },
+      { id: "junio", spanish: "junio", english: "June", emoji: "☀️", sceneQuestion: "¿Dónde está junio?" },
+      { id: "julio", spanish: "julio", english: "July", emoji: "🏖️", sceneQuestion: "¿Dónde está julio?" },
+      { id: "agosto", spanish: "agosto", english: "August", emoji: "🌻", sceneQuestion: "¿Dónde está agosto?" },
+      { id: "septiembre", spanish: "septiembre", english: "September", emoji: "🎒", sceneQuestion: "¿Dónde está septiembre?" },
+      { id: "octubre", spanish: "octubre", english: "October", emoji: "🎃", sceneQuestion: "¿Dónde está octubre?" },
+      { id: "noviembre", spanish: "noviembre", english: "November", emoji: "🍂", sceneQuestion: "¿Dónde está noviembre?" },
+      { id: "diciembre", spanish: "diciembre", english: "December", emoji: "🎄", sceneQuestion: "¿Dónde está diciembre?" },
+    ],
+  },
+  {
+    id: "la-hora",
+    nameSpanish: "La hora",
+    nameEnglish: "Telling the time",
+    emoji: "🕐",
+    // O'clock only — the hour a clock face can actually show. The spoken
+    // form is the whole lesson: "la una" is singular, every other hour is
+    // plural ("son las dos"), which is why each card fixes its own claim.
+    cards: [
+      { id: "hora-una", spanish: "la una", english: "one o'clock", emoji: "🕐", question: "¿Es la una?" },
+      { id: "hora-dos", spanish: "las dos", english: "two o'clock", emoji: "🕑", question: "¿Son las dos?" },
+      { id: "hora-tres", spanish: "las tres", english: "three o'clock", emoji: "🕒", question: "¿Son las tres?" },
+      { id: "hora-cuatro", spanish: "las cuatro", english: "four o'clock", emoji: "🕓", question: "¿Son las cuatro?" },
+      { id: "hora-cinco", spanish: "las cinco", english: "five o'clock", emoji: "🕔", question: "¿Son las cinco?" },
+      { id: "hora-seis", spanish: "las seis", english: "six o'clock", emoji: "🕕", question: "¿Son las seis?" },
+      { id: "hora-siete", spanish: "las siete", english: "seven o'clock", emoji: "🕖", question: "¿Son las siete?" },
+      { id: "hora-ocho", spanish: "las ocho", english: "eight o'clock", emoji: "🕗", question: "¿Son las ocho?" },
+      { id: "hora-nueve", spanish: "las nueve", english: "nine o'clock", emoji: "🕘", question: "¿Son las nueve?" },
+      { id: "hora-diez", spanish: "las diez", english: "ten o'clock", emoji: "🕙", question: "¿Son las diez?" },
+      { id: "hora-once", spanish: "las once", english: "eleven o'clock", emoji: "🕚", question: "¿Son las once?" },
+      { id: "hora-doce", spanish: "las doce", english: "twelve o'clock", emoji: "🕛", question: "¿Son las doce?" },
+    ],
+  },
+  {
+    id: "dia-noche",
+    nameSpanish: "El día y la noche",
+    nameEnglish: "Day & night",
+    emoji: "🌗",
+    // The shape of a day, meals included — the anchors a 3-year-old already
+    // lives by. Times of day are unique entities, so their claims are
+    // "¿Es de día?", never "¿Es un día?".
+    cards: [
+      { id: "dia", spanish: "el día", english: "the day", emoji: "☀️", question: "¿Es de día?" },
+      { id: "noche", spanish: "la noche", english: "the night", emoji: "🌙", question: "¿Es de noche?" },
+      { id: "manana", spanish: "la mañana", english: "the morning", emoji: "🌅", question: "¿Es la mañana?" },
+      { id: "tarde", spanish: "la tarde", english: "the afternoon", emoji: "🌇", question: "¿Es la tarde?" },
+      { id: "mediodia", spanish: "el mediodía", english: "midday", emoji: "🕛", question: "¿Es el mediodía?" },
+      { id: "medianoche", spanish: "la medianoche", english: "midnight", emoji: "🌃", question: "¿Es la medianoche?" },
+      { id: "desayuno", spanish: "el desayuno", english: "breakfast", emoji: "🥞", question: "¿Es el desayuno?" },
+      { id: "comida", spanish: "la comida", english: "lunch", emoji: "🍽️", question: "¿Es la comida?" },
+      { id: "cena", spanish: "la cena", english: "dinner", emoji: "🍲", question: "¿Es la cena?" },
+      { id: "siesta", spanish: "la siesta", english: "the nap", emoji: "😴", question: "¿Es la siesta?" },
+      { id: "estrellas-noche", spanish: "las estrellas", english: "the stars", emoji: "⭐" },
+    ],
+  },
+  {
+    id: "estaciones",
+    nameSpanish: "Las estaciones",
+    nameEnglish: "Seasons & special days",
+    emoji: "🍂",
+    cards: [
+      { id: "primavera", spanish: "la primavera", english: "spring", emoji: "🌷", question: "¿Es la primavera?" },
+      { id: "verano", spanish: "el verano", english: "summer", emoji: "🏖️", question: "¿Es el verano?" },
+      { id: "otono", spanish: "el otoño", english: "autumn", emoji: "🍂", question: "¿Es el otoño?" },
+      { id: "invierno", spanish: "el invierno", english: "winter", emoji: "⛄", question: "¿Es el invierno?" },
+      // "ano" is a different word entirely — the id keeps the ñ's sound.
+      { id: "anio", spanish: "el año", english: "the year", emoji: "🎆" },
+      { id: "mes", spanish: "el mes", english: "the month", emoji: "🗓️" },
+      { id: "cumpleanos", spanish: "el cumpleaños", english: "the birthday", emoji: "🎂" },
+      { id: "fiesta", spanish: "la fiesta", english: "the party", emoji: "🥳" },
+      { id: "vacaciones", spanish: "las vacaciones", english: "the holidays", emoji: "🧳", question: "¿Son las vacaciones?" },
+      { id: "navidad", spanish: "la Navidad", english: "Christmas", emoji: "🎄", question: "¿Es la Navidad?" },
+    ],
+  },
   {
     id: "mystery",
     nameSpanish: "El misterio",

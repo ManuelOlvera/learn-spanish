@@ -57,4 +57,11 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     emoji: "🏃",
     deckIds: ["verbs-infinitive", "verbs-gerund", "verbs-imperative"],
   },
+  {
+    id: "calendario",
+    nameSpanish: "El calendario",
+    nameEnglish: "Calendar & time",
+    emoji: "📅",
+    deckIds: ["dias-semana", "meses", "la-hora", "dia-noche", "estaciones"],
+  },
 ];

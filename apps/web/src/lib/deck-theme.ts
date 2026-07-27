@@ -48,6 +48,11 @@ const accents: Record<string, string> = {
   vocales: "#fbbf24",
   "letras-b-m": "#84cc16",
   "letras-n-z": "#06b6d4",
+  "dias-semana": "#7dd3fc",
+  meses: "#e11d48",
+  "la-hora": "#eab308",
+  "dia-noche": "#4f46e5",
+  estaciones: "#65a30d",
   // home-screen shelves (deck groups)
   animales: "#f59e0b",
   "numeros-colores": "#38bdf8",
@@ -56,6 +61,7 @@ const accents: Record<string, string> = {
   jugar: "#e879f9",
   verbos: "#f97316",
   letras: "#f43f5e",
+  calendario: "#0284c7",
 };
 
 export function deckAccent(deckId: string): string {

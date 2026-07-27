@@ -14,6 +14,12 @@ export interface VocabularyCard {
    *  estar reads natively: mass nouns ("¿Es agua?"), unique entities
    *  ("¿Es el sol?"), activities ("¿Es tenis?"), idioms ("¿Hace calor?"). */
   readonly question?: string;
+  /** Full override for the scene hunt ("¿Dónde está …?") where the built
+   *  phrase is wrong rather than merely stiff: month names take no article
+   *  in Spanish, so the bare-word fallback would ask "¿Dónde está el enero?".
+   *  Only set this where neither `spanish` nor `article` can produce a
+   *  native question. */
+  readonly sceneQuestion?: string;
   /** The article to use when a game needs a noun phrase but `spanish` is bare.
    *  Letter names are spoken bare ("be") yet are feminine in a sentence, so
    *  scene can still ask "¿Dónde está la be?" — never "el be", never a bare

@@ -1,5 +1,38 @@
 # Shipped features
 
+## 2026-07-28 — El calendario: the eighth shelf
+
+Calendar and time vocabulary, five decks / 55 words on a new home shelf
+**El calendario 📅** — home now seats eight shelves (four even rows of two;
+the cap test moved 7 → 8).
+
+- **Los días de la semana 📆** (10) — lunes → domingo, plus la semana, el fin
+  de semana, el calendario.
+- **Los meses del año 🗓️** (12) — enero → diciembre.
+- **La hora 🕐** (12) — o'clock only, la una → las doce, on clock faces.
+- **El día y la noche 🌗** (11) — el día, la noche, mañana/tarde, mediodía,
+  medianoche, the three meals, la siesta, las estrellas.
+- **Las estaciones 🍂** (10) — the four seasons plus el año, el mes, el
+  cumpleaños, la fiesta, las vacaciones, la Navidad.
+
+**Pictures for words that have none.** Days wear the three-letter
+abbreviation a Spanish calendar prints (Lun · Mar · Mié…) — the letters and
+centenas precedent, where text *is* the art, and it means a day is findable on
+a real wall calendar. Months wear the thing that happens in them (octubre 🎃,
+diciembre 🎄), hours wear clock faces.
+
+**Grammar the content had to carry.** A day and a month name are spoken bare:
+"el lunes" means *on Monday*, and "el enero" is not Spanish at all. So day
+cards keep their article in `article` (the scene hunt still asks "¿Dónde está
+el lunes?"), and month cards — which take no article in any position — needed
+a new `sceneQuestion` override on `VocabularyCard`, mirroring the existing
+sí-o-no `question` override. Hours fix their own claim, because one o'clock is
+singular and every other hour is plural: "¿Es la una?" but "¿Son las dos?".
+
+**Where:** `starter-pack.ts`, `deck-groups.ts`, accents in `deck-theme.ts`;
+`domain/card.ts` + `domain/scene.ts` for the override. Pack is now 36 decks /
+420 words public, 37 / 432 with El misterio.
+
 ## 2026-07-27 — The confirm gate now covers every purchase
 
 The ❄️ freeze was the only buy behind a confirm; everything else spent on the

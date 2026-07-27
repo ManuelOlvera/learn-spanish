@@ -74,4 +74,28 @@ describe("sceneQuestion", () => {
       sceneQuestion({ ...card(0), spanish: "triste", usesEstar: true }),
     ).toBe("¿Quién está triste?");
   });
+
+  it("uses a card's own question for words that take no article (months)", () => {
+    // Without the override the bare-word rule would ask "¿Dónde está el
+    // enero?" — a month name never takes one.
+    expect(
+      sceneQuestion({
+        ...card(0),
+        spanish: "enero",
+        sceneQuestion: "¿Dónde está enero?",
+      }),
+    ).toBe("¿Dónde está enero?");
+  });
+
+  it("prefers the override over the article and estar rules", () => {
+    expect(
+      sceneQuestion({
+        ...card(0),
+        spanish: "triste",
+        usesEstar: true,
+        article: "la",
+        sceneQuestion: "¿Dónde está la cosa?",
+      }),
+    ).toBe("¿Dónde está la cosa?");
+  });
 });
