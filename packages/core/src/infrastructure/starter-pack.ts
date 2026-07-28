@@ -159,6 +159,53 @@ export const STARTER_PACK: readonly Deck[] = [
     ],
   },
   {
+    // Hair and skin: the adjectives stay bare so sí-o-no asks "¿Es rubio?",
+    // and each one overrides the scene hunt to "¿Quién es …?" — the bare-word
+    // fallback ("¿Dónde está el calvo?") turns a description into a nickname.
+    id: "pelo",
+    nameSpanish: "El pelo y la piel",
+    nameEnglish: "Hair & skin",
+    emoji: "💇",
+    cards: [
+      { id: "rubio", spanish: "rubio", english: "blond", emoji: "👱", sceneQuestion: "¿Quién es rubio?" },
+      { id: "moreno", spanish: "moreno", english: "dark-haired", emoji: "👨", sceneQuestion: "¿Quién es moreno?" },
+      { id: "pelirrojo", spanish: "pelirrojo", english: "red-haired", emoji: "🧑‍🦰", sceneQuestion: "¿Quién es pelirrojo?" },
+      { id: "canoso", spanish: "canoso", english: "grey-haired", emoji: "🧑‍🦳", sceneQuestion: "¿Quién es canoso?" },
+      { id: "calvo", spanish: "calvo", english: "bald", emoji: "🧑‍🦲", sceneQuestion: "¿Quién es calvo?" },
+      { id: "rizado", spanish: "rizado", english: "curly-haired", emoji: "🧑‍🦱", sceneQuestion: "¿Quién es rizado?" },
+      { id: "barba", spanish: "la barba", english: "the beard", emoji: "🧔" },
+      { id: "bigote", spanish: "el bigote", english: "the mustache", emoji: "🥸" },
+      // Skin tone rides on a hand, not a face — one word, every kid included.
+      // A noun phrase, so the claim needs the definite article: the built
+      // "¿Es una piel clara?" is not something a Spanish speaker says.
+      { id: "piel-clara", spanish: "la piel clara", english: "light skin", emoji: "✋🏻", question: "¿Es la piel clara?" },
+      { id: "piel-morena", spanish: "la piel morena", english: "brown skin", emoji: "✋🏽", question: "¿Es la piel morena?" },
+      { id: "piel-oscura", spanish: "la piel oscura", english: "dark skin", emoji: "✋🏿", question: "¿Es la piel oscura?" },
+    ],
+  },
+  {
+    // Size and build. An adjective has no picture of its own, so each card
+    // borrows the creature that IS the word — tall like a giraffe, small like
+    // a mouse — the same one-picture-many-words reuse as ⚽ (la pelota /
+    // el fútbol / jugar). Every picture is distinct so a quiz round is answerable.
+    id: "tamanos",
+    nameSpanish: "Alto o bajo",
+    nameEnglish: "Tall or short",
+    emoji: "📏",
+    cards: [
+      { id: "alto", spanish: "alto", english: "tall", emoji: "🦒", sceneQuestion: "¿Quién es alto?" },
+      { id: "bajo", spanish: "bajo", english: "short", emoji: "🐧", sceneQuestion: "¿Quién es bajo?" },
+      { id: "grande", spanish: "grande", english: "big", emoji: "🐘", sceneQuestion: "¿Quién es grande?" },
+      { id: "pequeno", spanish: "pequeño", english: "small", emoji: "🐭", sceneQuestion: "¿Quién es pequeño?" },
+      { id: "gordo", spanish: "gordo", english: "fat", emoji: "🐷", sceneQuestion: "¿Quién es gordo?" },
+      { id: "delgado", spanish: "delgado", english: "thin", emoji: "🦴", sceneQuestion: "¿Quién es delgado?" },
+      { id: "fuerte", spanish: "fuerte", english: "strong", emoji: "💪", sceneQuestion: "¿Quién es fuerte?" },
+      { id: "joven", spanish: "joven", english: "young", emoji: "👶", sceneQuestion: "¿Quién es joven?" },
+      { id: "mayor", spanish: "mayor", english: "old", emoji: "👴", sceneQuestion: "¿Quién es mayor?" },
+      { id: "guapo", spanish: "guapo", english: "good-looking", emoji: "🤩", sceneQuestion: "¿Quién es guapo?" },
+    ],
+  },
+  {
     id: "clothes",
     nameSpanish: "La ropa",
     nameEnglish: "Clothes",

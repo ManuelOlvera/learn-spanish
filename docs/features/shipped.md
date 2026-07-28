@@ -1,5 +1,43 @@
 # Shipped features
 
+## 2026-07-28 — ¿Cómo soy?: describing a person
+
+Two decks / 21 words for hair, skin, size and build, on a new ninth home shelf
+**¿Cómo soy? 🧑** — the shelf a kid uses to describe themselves.
+
+- **El pelo y la piel 💇** (11) — rubio, moreno, pelirrojo, canoso, calvo,
+  rizado, la barba, el bigote, and three skin tones (la piel clara · morena ·
+  oscura).
+- **Alto o bajo 📏** (10) — alto, bajo, grande, pequeño, gordo, delgado,
+  fuerte, joven, mayor, guapo.
+
+**The shelf had to be made, not filled.** Mi casa y yo was already at the
+5-deck cap, so its "…y yo" half moved out: that shelf is now **Mi casa 🏠**
+(food, house, clothes, fruit) and **El cuerpo 🖐️** joins the new one.
+**Las emociones 😀** moved off Jugar y aprender too — a feeling is something a
+kid *is*, not something a kid plays — so ¿Cómo soy? reads body · hair · size ·
+mood. Home seats nine shelves (the cap test moved 8 → 9); the ninth tile ends
+a row alone, accepted over cramming hair onto a shelf about the house.
+
+**Pictures for words that have none.** An adjective has no picture of its own,
+so each size card borrows the creature that *is* the word — alto 🦒, pequeño
+🐭, gordo 🐷 — the same one-picture-many-words reuse the pack already does with
+⚽ (la pelota / el fútbol / jugar). Skin tone rides on a hand (✋🏻 ✋🏽 ✋🏿), not
+a face: one word per tone, every kid included.
+
+**Grammar the content had to carry.** These are *ser* adjectives, so the
+sí-o-no claim reads bare ("¿Es rubio?" — "¿Está rubio?" would mean dyed). But
+the scene hunt's bare-word fallback turns a description into a nickname
+("¿Dónde está el gordo?"), so every adjective card overrides `sceneQuestion` to
+"¿Quién es …?", matching what `usesEstar` already does for las emociones. Skin
+cards are noun phrases and take a `question` override, because the built "¿Es
+una piel clara?" is not something a Spanish speaker says. **Spain Spanish:**
+*delgado*, not *flaco*.
+
+**Where:** `starter-pack.ts`, `deck-groups.ts`, accents in `deck-theme.ts`. No
+domain change — the existing `question` / `sceneQuestion` overrides carried it.
+Pack is now 38 decks / 441 words public, 39 / 453 with El misterio.
+
 ## 2026-07-28 — El calendario: the eighth shelf
 
 Calendar and time vocabulary, five decks / 55 words on a new home shelf

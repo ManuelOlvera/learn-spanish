@@ -23,6 +23,8 @@ const accents: Record<string, string> = {
   "mundial-2026": "#dc2626",
   "halloween-japon": "#f97316",
   body: "#fb923c",
+  pelo: "#b45309",
+  tamanos: "#2563eb",
   clothes: "#facc15",
   house: "#34d399",
   vehicles: "#60a5fa",
@@ -56,7 +58,8 @@ const accents: Record<string, string> = {
   // home-screen shelves (deck groups)
   animales: "#f59e0b",
   "numeros-colores": "#38bdf8",
-  "casa-yo": "#fb7185",
+  casa: "#fb7185",
+  "como-soy": "#a855f7",
   mundo: "#4ade80",
   jugar: "#e879f9",
   verbos: "#f97316",

@@ -17,6 +17,8 @@ describe("starter pack content", () => {
       "centenas",
       "food",
       "body",
+      "pelo",
+      "tamanos",
       "clothes",
       "house",
       "vehicles",
@@ -50,16 +52,16 @@ describe("starter pack content", () => {
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("36 decks /
-    // 420 words … 37 decks / 432 words total"). This test turns silent README
+    // The root README's Features section states these totals ("38 decks /
+    // 441 words … 39 decks / 453 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(37);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(432);
-    expect(publicDecks).toHaveLength(36);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(420);
+    expect(decks).toHaveLength(39);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(453);
+    expect(publicDecks).toHaveLength(38);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(441);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {
@@ -171,6 +173,38 @@ describe("starter pack content", () => {
     expect(siNoQuestion(hours[0]!)).toBe("¿Es la una?");
     for (const card of hours.slice(1)) {
       expect(siNoQuestion(card), card.id).toBe(`¿Son ${card.spanish}?`);
+    }
+  });
+
+  it("phrases the description shelf natively (a person is 'quién', not 'dónde')", async () => {
+    const decks = await repo.listDecks();
+    const pelo = decks.find((d) => d.id === "pelo")!;
+    const tamanos = decks.find((d) => d.id === "tamanos")!;
+
+    // How-you-look adjectives take ser, so the sí-o-no claim reads bare
+    // ("¿Es rubio?") — never "¿Está rubio?", which would mean dyed hair.
+    for (const card of [...pelo.cards, ...tamanos.cards]) {
+      expect(card.usesEstar, card.id).toBeUndefined();
+    }
+
+    // …but the scene hunt's bare-word fallback ("¿Dónde está el gordo?")
+    // turns a description into a nickname. Every adjective card overrides it
+    // to the question you'd actually ask about a person.
+    const adjectives = [
+      ...pelo.cards.filter((c) => !c.spanish.startsWith("la ") && !c.spanish.startsWith("el ")),
+      ...tamanos.cards,
+    ];
+    for (const card of adjectives) {
+      expect(siNoQuestion(card), card.id).toBe(`¿Es ${card.spanish}?`);
+      expect(sceneQuestion(card), card.id).toBe(`¿Quién es ${card.spanish}?`);
+    }
+
+    // Skin tone is a noun phrase, and "¿Es una piel clara?" is not Spanish.
+    const skin = pelo.cards.filter((c) => c.id.startsWith("piel-"));
+    expect(skin).toHaveLength(3);
+    for (const card of skin) {
+      expect(siNoQuestion(card), card.id).toBe(`¿Es ${card.spanish}?`);
+      expect(sceneQuestion(card), card.id).toBe(`¿Dónde está ${card.spanish}?`);
     }
   });
 

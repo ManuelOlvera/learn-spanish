@@ -21,11 +21,22 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     deckIds: ["numbers", "numbers-11-20", "numbers-tens", "centenas", "colors"],
   },
   {
-    id: "casa-yo",
-    nameSpanish: "Mi casa y yo",
-    nameEnglish: "My home & me",
+    // "…y yo" moved out to ¿Cómo soy? when this shelf hit its 5-deck cap.
+    id: "casa",
+    nameSpanish: "Mi casa",
+    nameEnglish: "My home",
     emoji: "🏠",
-    deckIds: ["body", "food", "house", "clothes", "fruit"],
+    deckIds: ["food", "house", "clothes", "fruit"],
+  },
+  {
+    // Describing a person: the parts, the hair and skin, the size, the mood.
+    // Las emociones sits here rather than on Jugar y aprender — a feeling is
+    // something a kid IS, not something a kid plays.
+    id: "como-soy",
+    nameSpanish: "¿Cómo soy?",
+    nameEnglish: "All about me",
+    emoji: "🧑",
+    deckIds: ["body", "pelo", "tamanos", "feelings"],
   },
   {
     id: "mundo",
@@ -39,7 +50,7 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "Jugar y aprender",
     nameEnglish: "Play & learn",
     emoji: "🎨",
-    deckIds: ["toys", "sports", "school", "feelings", "music"],
+    deckIds: ["toys", "sports", "school", "music"],
   },
   {
     id: "letras",
