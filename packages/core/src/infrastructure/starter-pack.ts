@@ -206,6 +206,32 @@ export const STARTER_PACK: readonly Deck[] = [
     ],
   },
   {
+    // The day a kid actually lives, in infinitives — and the pack's first
+    // verb deck that PLAYS. The verbs shelf is learnOnly because the built
+    // claim ("¿Es un desayunar?") is nonsense; here every card overrides both
+    // questions to the progressive ("¿Está desayunando?", "¿Quién se está
+    // peinando?"), which is how you'd talk about a picture of someone
+    // mid-action. Reflexives keep their pronoun in every phrasing — dropping
+    // the "se" is the mistake this deck exists to prevent.
+    id: "rutina",
+    nameSpanish: "Mi día",
+    nameEnglish: "My day",
+    emoji: "🪥",
+    cards: [
+      { id: "despertarse", spanish: "despertarse", english: "to wake up", emoji: "⏰", question: "¿Se está despertando?", sceneQuestion: "¿Quién se está despertando?" },
+      { id: "vestirse", spanish: "vestirse", english: "to get dressed", emoji: "👔", question: "¿Se está vistiendo?", sceneQuestion: "¿Quién se está vistiendo?" },
+      { id: "desayunar", spanish: "desayunar", english: "to have breakfast", emoji: "🥞", question: "¿Está desayunando?", sceneQuestion: "¿Quién está desayunando?" },
+      { id: "lavarse-dientes", spanish: "lavarse los dientes", english: "to brush your teeth", emoji: "🪥", question: "¿Se está lavando los dientes?", sceneQuestion: "¿Quién se está lavando los dientes?" },
+      { id: "lavarse-manos", spanish: "lavarse las manos", english: "to wash your hands", emoji: "🧼", question: "¿Se está lavando las manos?", sceneQuestion: "¿Quién se está lavando las manos?" },
+      { id: "peinarse", spanish: "peinarse", english: "to comb your hair", emoji: "🪞", question: "¿Se está peinando?", sceneQuestion: "¿Quién se está peinando?" },
+      { id: "merendar", spanish: "merendar", english: "to have a snack", emoji: "🍪", question: "¿Está merendando?", sceneQuestion: "¿Quién está merendando?" },
+      { id: "ver-tele", spanish: "ver la tele", english: "to watch TV", emoji: "📺", question: "¿Está viendo la tele?", sceneQuestion: "¿Quién está viendo la tele?" },
+      { id: "banarse", spanish: "bañarse", english: "to have a bath", emoji: "🛁", question: "¿Se está bañando?", sceneQuestion: "¿Quién se está bañando?" },
+      { id: "cenar", spanish: "cenar", english: "to have dinner", emoji: "🍲", question: "¿Está cenando?", sceneQuestion: "¿Quién está cenando?" },
+      { id: "acostarse", spanish: "acostarse", english: "to go to bed", emoji: "🛌", question: "¿Se está acostando?", sceneQuestion: "¿Quién se está acostando?" },
+    ],
+  },
+  {
     id: "clothes",
     nameSpanish: "La ropa",
     nameEnglish: "Clothes",

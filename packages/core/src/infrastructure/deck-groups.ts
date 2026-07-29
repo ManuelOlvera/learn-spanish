@@ -29,14 +29,14 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     deckIds: ["food", "house", "clothes", "fruit"],
   },
   {
-    // Describing a person: the parts, the hair and skin, the size, the mood.
-    // Las emociones sits here rather than on Jugar y aprender — a feeling is
-    // something a kid IS, not something a kid plays.
+    // Describing a person: the parts, the hair and skin, the size, the mood,
+    // and the day. Las emociones sits here rather than on Jugar y aprender —
+    // a feeling is something a kid IS, not something a kid plays. Full at 5.
     id: "como-soy",
     nameSpanish: "¿Cómo soy?",
     nameEnglish: "All about me",
     emoji: "🧑",
-    deckIds: ["body", "pelo", "tamanos", "feelings"],
+    deckIds: ["body", "pelo", "tamanos", "feelings", "rutina"],
   },
   {
     id: "mundo",

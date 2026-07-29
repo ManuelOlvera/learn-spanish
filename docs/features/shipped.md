@@ -1,5 +1,37 @@
 # Shipped features
 
+## 2026-07-29 — Mi día: the routine, and the first verb deck that plays
+
+**Mi día 🪥** (11) on the ¿Cómo soy? shelf — the day a kid actually lives, in
+infinitives: despertarse, vestirse, desayunar, lavarse los dientes, lavarse las
+manos, peinarse, merendar, ver la tele, bañarse, cenar, acostarse. The shelf is
+now full at 5 decks (body · hair · size · mood · day).
+
+**It plays the games.** Los verbos is `learnOnly` because the built sí-o-no
+claim — "¿Es un desayunar?" — is nonsense, and that costs the shelf every game.
+This deck keeps the games instead, by overriding both built questions to the
+progressive: `question: "¿Está desayunando?"`, `sceneQuestion: "¿Quién se está
+peinando?"` — how you'd actually talk about a picture of someone mid-action.
+That is roadmap 11's open sub-item proven on real content, though the verbs
+shelf itself still can't drop the flag: its three decks teach one verb in three
+forms, and the gerund/imperative decks would need their own phrasing pass.
+
+**Reflexives keep their pronoun.** Seven of the eleven are reflexive, and the
+"se" survives into every phrasing the games build — dropping it is the mistake
+the deck exists to prevent, so a test asserts it card by card.
+
+**No new words for things that existed.** *comer* (plus *comiendo* / *¡come!*)
+was already on the verbs shelf, and *el desayuno · la comida · la cena* are
+nouns in El día y la noche — this deck adds the actions only, and reuses those
+pictures (🥞 desayunar, 🍲 cenar, 🛁 bañarse) the way the pack already reuses
+⚽ for la pelota / el fútbol / jugar. Deletrea and la sopa skip the multi-word
+and over-8-letter cards on their own (`spellingWord` / `gridWord` return null),
+so five cards carry those two games.
+
+**Where:** `starter-pack.ts`, `deck-groups.ts`, accent in `deck-theme.ts`. No
+domain change. Pack is now 39 decks / 452 words public, 40 / 464 with El
+misterio.
+
 ## 2026-07-28 — ¿Cómo soy?: describing a person
 
 Two decks / 21 words for hair, skin, size and build, on a new ninth home shelf

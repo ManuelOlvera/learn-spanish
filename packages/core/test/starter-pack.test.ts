@@ -19,6 +19,7 @@ describe("starter pack content", () => {
       "body",
       "pelo",
       "tamanos",
+      "rutina",
       "clothes",
       "house",
       "vehicles",
@@ -52,16 +53,16 @@ describe("starter pack content", () => {
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("38 decks /
-    // 441 words … 39 decks / 453 words total"). This test turns silent README
+    // The root README's Features section states these totals ("39 decks /
+    // 452 words … 40 decks / 464 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(39);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(453);
-    expect(publicDecks).toHaveLength(38);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(441);
+    expect(decks).toHaveLength(40);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(464);
+    expect(publicDecks).toHaveLength(39);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(452);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {
@@ -205,6 +206,32 @@ describe("starter pack content", () => {
     for (const card of skin) {
       expect(siNoQuestion(card), card.id).toBe(`¿Es ${card.spanish}?`);
       expect(sceneQuestion(card), card.id).toBe(`¿Dónde está ${card.spanish}?`);
+    }
+  });
+
+  it("plays Mi día as actions, not things — the first game-enabled verb deck", async () => {
+    const rutina = (await repo.listDecks()).find((d) => d.id === "rutina")!;
+
+    // The verbs shelf is learnOnly because "¿Es un desayunar?" is nonsense.
+    // This deck answers the same games by overriding both built questions,
+    // so it must NOT inherit that flag — losing the games is the whole cost
+    // the overrides exist to avoid.
+    expect(rutina.learnOnly).toBeUndefined();
+
+    for (const card of rutina.cards) {
+      // A picture of someone mid-action: the claim is progressive, and a
+      // reflexive verb keeps its pronoun ("¿Se está peinando?").
+      expect(siNoQuestion(card), card.id).toMatch(/^¿(Se está|Está) \S+(ndo)\b/);
+      expect(sceneQuestion(card), card.id).toMatch(/^¿Quién /);
+    }
+
+    // Reflexives are the point of the deck: the infinitive ends in -se, and
+    // both questions must carry the pronoun, never drop it.
+    const reflexive = rutina.cards.filter((c) => /(^|\s)\S+se($|\s)/.test(c.spanish));
+    expect(reflexive.length).toBeGreaterThanOrEqual(6);
+    for (const card of reflexive) {
+      expect(siNoQuestion(card), card.id).toMatch(/^¿Se está /);
+      expect(sceneQuestion(card), card.id).toMatch(/^¿Quién se está /);
     }
   });
 

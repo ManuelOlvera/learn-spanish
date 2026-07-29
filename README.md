@@ -6,10 +6,10 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 38 decks / 441 words on nine themed home-screen
+- **Flashcards** — 39 decks / 452 words on nine themed home-screen
   shelves (animals · numbers & colors · my home · all about me · the world ·
   play & learn · letters · verbs · calendar), plus a star-unlocked bonus deck
-  **El misterio 🔮** (39 decks / 453 words total), tap-to-hear audio via
+  **El misterio 🔮** (40 decks / 464 words total), tap-to-hear audio via
   browser speech synthesis — **Spain Spanish** (es-ES voice; coche,
   ordenador, hierba). **Los verbos 🏃** is a flashcards-only shelf:
   15 action words in three forms (infinitivo · gerundio · imperativo).
@@ -24,9 +24,11 @@ No reading, no accounts, no setup.
   day (mañana · mediodía · siesta · noche), and the seasons.
   **¿Cómo soy? 🧑** is the describe-yourself shelf: the body, hair and skin
   (rubio, moreno, canoso, calvo, la piel clara · morena · oscura), size and
-  build (alto, bajo, gordo, delgado), and las emociones. Adjectives borrow the
-  creature that *is* the word (alto 🦒, pequeño 🐭) and skin tone rides on a
-  hand, not a face.
+  build (alto, bajo, gordo, delgado), las emociones, and **Mi día 🪥** — the
+  daily routine in reflexive verbs (despertarse, lavarse los dientes,
+  peinarse, acostarse), the first verb deck that plays the games rather than
+  sitting flashcards-only. Adjectives borrow the creature that *is* the word
+  (alto 🦒, pequeño 🐭) and skin tone rides on a hand, not a face.
 - **Games** — per deck (except the flashcards-only verbs shelf), each
   with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),

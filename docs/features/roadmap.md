@@ -97,9 +97,13 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     - ☐ **Futuro / condicional decks** — sibling decks on the same shelf (comeré,
       comería). Deferred: conjugations can't be navigated by a single picture and
       read as advanced for ages 3–5; revisit if the app grows an older-kid mode.
-    - ☐ **Verbs in the games** — verb-native question phrasing (e.g. "¿Está
+    - ◐ **Verbs in the games** — verb-native question phrasing (e.g. "¿Está
       comiendo?") so the verbs shelf can drop `learnOnly` and join the quiz-style
-      games. The real lift the learn-only cut deferred.
+      games. The real lift the learn-only cut deferred. *(Half done 2026-07-29:
+      **Mi día** ships the phrasing as per-card `question` / `sceneQuestion`
+      overrides and plays every game. What's left is this shelf — its three
+      decks teach one verb in three forms, so the gerund and imperative decks
+      need their own claim shapes before the flag can come off.)*
 
 ## Difficulty & play
 

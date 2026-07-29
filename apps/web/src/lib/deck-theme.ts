@@ -25,6 +25,7 @@ const accents: Record<string, string> = {
   body: "#fb923c",
   pelo: "#b45309",
   tamanos: "#2563eb",
+  rutina: "#10b981",
   clothes: "#facc15",
   house: "#34d399",
   vehicles: "#60a5fa",
