@@ -1,5 +1,26 @@
 # Shipped features
 
+## 2026-07-30 — Fix: the misión's blank tile
+
+Parent report: a kid got a blank slot in one of the day's three activities, two
+days running. `MissionCard`'s `KIND_EMOJI` was `Partial<Record<MissionKind,
+string>>`, so when `cuento` joined both kids' pools (2026-07-19, Los cuentos) it
+drew with no icon and no compile error — an empty dashed square a pre-reader
+can't act on, on roughly 30% of days. 2026-07-29 (listener) and 2026-07-30
+(reader) both drew it, exactly as reported.
+
+Fixed at the type level, not by adding one emoji: `MissionKind` is now derived
+from an exported `MISSION_KINDS` array in `domain/mission.ts`, and the icon map
+is a **total** `Record` — a kind without an icon is a build failure. Added the
+two that were missing: `cuento` 📚 (matching `activity-theme.ts`; 📖 already
+means flashcards) and `reto` ⏱️ (never drawn, but now required). A core test
+pins the set of kinds the daily draw can produce against `MISSION_KINDS`, so a
+kind that becomes drawable can't slip past unnoticed.
+
+Sibling of the 2026-07-14 counting-icon fix below: same map, same audience cost.
+That one added the "icons must match the menu" comment; a comment can't fail a
+build, and `Partial` is what let this through.
+
 ## 2026-07-29 — Mi día: the routine, and the first verb deck that plays
 
 **Mi día 🪥** (11) on the ¿Cómo soy? shelf — the day a kid actually lives, in

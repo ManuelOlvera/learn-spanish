@@ -2,22 +2,29 @@ import { dayKey } from "./daily";
 import type { KidId } from "./kid";
 import type { ActivityId } from "./album";
 
+/** Every misión kind there is. The type is DERIVED from this list so the two
+ *  can never drift, and so presentation maps keyed by `MissionKind` (the home
+ *  screen's icon map) fail to compile until a newly added kind is drawn —
+ *  `cuento` was once drawable with no icon and rendered a blank tile. */
+export const MISSION_KINDS = [
+  "learn",
+  "quiz",
+  "si-no",
+  "match",
+  "connect",
+  "scene",
+  "frases",
+  "cuento",
+  "duel",
+  "counting",
+  "spelling",
+  "sopa",
+  "reto",
+] as const;
+
 /** La misión del día: three activity kinds to complete, new every day,
  *  different per kid, +MISSION_BONUS stars from the bonus chest. */
-export type MissionKind =
-  | "learn"
-  | "quiz"
-  | "si-no"
-  | "match"
-  | "connect"
-  | "scene"
-  | "frases"
-  | "cuento"
-  | "duel"
-  | "counting"
-  | "spelling"
-  | "sopa"
-  | "reto";
+export type MissionKind = (typeof MISSION_KINDS)[number];
 
 /** Kinds either kid can complete at their own difficulty. Reto stays out for
  *  both: it's timed, and the misión must be pressure-free. */

@@ -19,6 +19,18 @@ Find the *true* cause and fix it once, at the right layer.
 
 ## Case log (patterns worth remembering)
 
+- **2026-07-30 — blank tile in La misión, two days running**: one of the day's
+  three tiles rendered empty. `MissionCard`'s `KIND_EMOJI` was typed
+  `Partial<Record<MissionKind, string>>`, so `cuento` (added to the shared draw
+  pool later) never got an icon and no compiler error said so — a ~30% chance
+  any given day blanked a slot, and 07-29/07-30 both drew it. Fix: derive
+  `MissionKind` from an exported `MISSION_KINDS` array and make the icon map a
+  TOTAL `Record`, so an undrawable kind is a build failure; core test pins the
+  drawn set to that list. Lessons: `Partial` on a presentation lookup keyed by a
+  domain union silently disables the only check that keeps them in sync — use a
+  total `Record` and let `tsc` be the regression test; and for
+  "intermittent/some days" reports, run the deterministic day function over a
+  date range and find the days the reporter actually saw.
 - **2026-07-14 — "Application error" opening a game in prod**: not the game —
   deploy skew. A session opened before one of the day's four deploys asked
   the new deployment for old route chunks; the crash surfaced as Next's

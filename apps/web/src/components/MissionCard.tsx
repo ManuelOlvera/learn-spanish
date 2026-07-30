@@ -5,8 +5,12 @@ import { MISSION_BONUS, type MissionKind, type MissionView } from "@learn-spanis
 /** How each misión kind is drawn — pictures only, the kid can't read, so
  *  every icon MUST match the game's icon in the deck menu (a mismatch sends
  *  the kid to the wrong place: 🔢 here once pointed at the numbers deck tile
- *  instead of the 🧮 counting game). */
-const KIND_EMOJI: Partial<Record<MissionKind, string>> = {
+ *  instead of the 🧮 counting game).
+ *
+ *  Total, never `Partial` — a missing kind renders an EMPTY tile the kid can't
+ *  act on (`cuento` shipped missing and blanked a slot on ~30% of days). Every
+ *  `MissionKind` needs an entry here, whether or not it's drawn today. */
+const KIND_EMOJI: Record<MissionKind, string> = {
   learn: "📖",
   quiz: "🔍",
   "si-no": "✅",
@@ -14,10 +18,13 @@ const KIND_EMOJI: Partial<Record<MissionKind, string>> = {
   connect: "🔗",
   scene: "👀",
   frases: "💬",
+  // 📚, not 📖 — the open book already means flashcards ("learn").
+  cuento: "📚",
   duel: "⚔️",
   counting: "🧮",
   spelling: "✏️",
   sopa: "🥣",
+  reto: "⏱️",
 };
 
 interface Props {

@@ -4,7 +4,9 @@ import {
   activityKind,
   dailyMission,
   markMissionDone,
+  MISSION_KINDS,
   missionComplete,
+  type MissionKind,
   type MissionState,
 } from "../src/domain/mission";
 import { stickerTier, TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
@@ -62,6 +64,31 @@ describe("dailyMission", () => {
     }
     expect(readerSawSpelling).toBe(true);
     expect(readerSawSopa).toBe(true);
+  });
+
+  it("only ever draws kinds from the canonical list", () => {
+    // Regression: `cuento` was drawable but had no icon in the home screen's
+    // map, so one of the three tiles rendered blank (2026-07-29 listener,
+    // 2026-07-30 reader — two days running). Anything this returns has to be
+    // drawable by the UI, so the drawn set is pinned here; the map itself is a
+    // total Record<MissionKind, string> and won't compile if a kind is missed.
+    const drawn = new Set<MissionKind>();
+    for (let d = 0; d < 400; d++) {
+      const date = new Date(2026, 0, 1 + d, 9, 0);
+      for (const kind of [...dailyMission(date, "listener"), ...dailyMission(date, "reader")]) {
+        drawn.add(kind);
+      }
+    }
+    for (const kind of drawn) {
+      expect(MISSION_KINDS).toContain(kind);
+    }
+    // Every kind in the pools must actually come up — a kind that can be drawn
+    // but never is would hide a missing icon from this test.
+    expect([...drawn].sort()).toEqual(
+      MISSION_KINDS.filter((kind) => kind !== "reto")
+        .slice()
+        .sort(),
+    );
   });
 
   it("maps activities to mission kinds", () => {
