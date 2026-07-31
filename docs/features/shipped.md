@@ -1,5 +1,48 @@
 # Shipped features
 
+## 2026-08-01 — Fix: the chest nobody opened
+
+Kids' report: they sometimes forget to open the chest and never get the stars,
+"especially in el reto". Real bug, not a misremembering. `StarChest` credited
+the balance from its click handler alone, so any exit taken with the chest still
+shut silently dropped the round's entire haul.
+
+El reto was the loud case for four stacking reasons: 🔁 sits directly under the
+chest and `start()` re-enters play immediately, unmounting the un-tapped chest;
+a 60-second récord chase is the one mode kids replay back to back; the record is
+banked automatically (`saveRetoBest` + confetti fire before any tap), so the
+screen already looks like it paid out; and at one star per correct answer the
+reto haul is the biggest on offer.
+
+Two changes, both presentation-layer:
+
+- **The safety net.** `StarChest` now banks on unmount as well as on tap,
+  guarded by a ref so `onOpen` fires exactly once per chest. Covers every exit
+  — replay, the header 🏠, browser back. The tap stays the celebration; it is
+  no longer the paywall. (In dev, StrictMode's remount fires the cleanup once at
+  mount, banking early but rendering identically; prod is unaffected.)
+- **The visual cue.** The closed chest marks itself `data-chest="closed"`, and
+  a `:has()` rule in `globals.css` fades the exit cluster to 40% and flattens
+  its shadow, so the wiggling chest is the only thing on screen that still looks
+  pressable. Nothing is disabled — a kid who leaves anyway keeps the stars. The
+  exits opt in via `data-chest-exit` rather than being inferred from the DOM,
+  because the duel's score cards are `.sticker` siblings that must not dim.
+
+**Where:** `StarChest.tsx`, the gate rules in `globals.css`, and the
+`data-chest-exit` tag on the three done screens (`RetoPlayer`, `DuelPlayer`,
+`DoneScreen`). No core changes.
+
+**Verified** end-to-end (prod build + headless Chromium): exits paint
+`opacity 0.40 / saturate(0.35) / no shadow` while closed and return to full
+color on open; replaying a reto round without opening credited all 383 stars;
+opening then leaving credited exactly once; the duel paid both kids (6 / 3)
+on the way out with its score cards undimmed; the header 🏠 exit is covered by
+the net.
+
+**Known gap (not fixed here):** reto and duel still don't `syncPush()` when
+their chest opens — only `DoneScreen` does — so those stars reach a paired
+device on the next sync trigger rather than immediately.
+
 ## 2026-07-30 — Fix: the misión's blank tile
 
 Parent report: a kid got a blank slot in one of the day's three activities, two

@@ -61,7 +61,9 @@ No reading, no accounts, no setup.
   only place the flashcards-only verbs shelf is seen in action.
 - **Star economy** — a treasure chest on every finish pays ⭐ per
   first-try answer, less one per wrong tap (so guessing can't farm the
-  chest; floored at 1), with ✨ perfect / 🔥 streak / 🆕 first-time bonuses;
+  chest; floored at 1), with ✨ perfect / 🔥 streak / 🆕 first-time bonuses.
+  Opening it is the celebration, not the toll gate: the ways off the screen
+  dim while it is shut, and an un-opened chest still banks on the way out;
   the daily misión (drawn from each kid's own pool — the reader's
   includes ✏️ Deletrea) adds a +10⭐ bonus chest, and every finish rotates a
   spoken cheer with the pet cheering along. Stars feed and grow **la

@@ -165,6 +165,32 @@ body {
   animation: chest-shake 1.4s ease-in-out infinite;
 }
 
+/* The reward gate. While a chest is still shut, the ways off the screen read as
+   unfinished — faded, drained of color, lying flat with no shadow to press into
+   — so the wiggling chest is the only thing that still looks tappable. Pure
+   theater: nothing is disabled, and a kid who leaves anyway keeps the stars
+   (StarChest banks them on unmount). Marked on the exit cluster rather than
+   inferred from the DOM, because sibling stickers on these screens (the duel's
+   score cards) are not exits and must not dim. */
+[data-chest-exit] {
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease;
+}
+
+[data-chest-exit] .sticker {
+  transition: box-shadow 0.35s ease;
+}
+
+body:has([data-chest="closed"]) [data-chest-exit] {
+  opacity: 0.4;
+  filter: saturate(0.35);
+}
+
+body:has([data-chest="closed"]) [data-chest-exit] .sticker {
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wobble,
   .pop-in,
@@ -176,5 +202,11 @@ body {
   }
   .confetti-piece {
     display: none;
+  }
+  /* The exits still dim — that is the signal, not the motion. Only the fade
+     between the two states goes away. */
+  [data-chest-exit],
+  [data-chest-exit] .sticker {
+    transition: none;
   }
 }

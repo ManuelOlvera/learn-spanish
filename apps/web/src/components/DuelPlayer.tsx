@@ -310,7 +310,7 @@ export function DuelPlayer({ deck, accent }: Props) {
               addStars("reader", Math.max(1, stars.reader));
             }}
           />
-          <div className="flex gap-6">
+          <div data-chest-exit className="flex gap-6">
             <button
               type="button"
               onClick={restart}

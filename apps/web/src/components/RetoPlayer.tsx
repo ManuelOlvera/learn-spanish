@@ -176,7 +176,7 @@ export function RetoPlayer({ deck, accent }: Props) {
               }
             }}
           />
-          <div className="flex gap-6">
+          <div data-chest-exit className="flex gap-6">
             <button
               type="button"
               onClick={start}
