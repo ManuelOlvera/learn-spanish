@@ -39,9 +39,11 @@ opening then leaving credited exactly once; the duel paid both kids (6 / 3)
 on the way out with its score cards undimmed; the header 🏠 exit is covered by
 the net.
 
-**Known gap (not fixed here):** reto and duel still don't `syncPush()` when
-their chest opens — only `DoneScreen` does — so those stars reach a paired
-device on the next sync trigger rather than immediately.
+**Also fixed:** reto and duel didn't `syncPush()` when their chest opened —
+only `DoneScreen` did — so those stars sat on the device until some other
+activity happened to push, the same shape as the 2026-07-14 accessories-not-
+syncing report. Both now push on open (a no-op when unpaired), which the
+unmount net covers too.
 
 ## 2026-07-30 — Fix: the misión's blank tile
 

@@ -13,6 +13,7 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getAvatar } from "@/lib/kid";
 import { addStars, markActivityDone } from "@/lib/economy";
 import { feedbackFanfare } from "@/lib/feedback";
+import { syncPush } from "@/lib/sync";
 import { useCombo } from "@/lib/use-combo";
 import { RachaBurst } from "@/components/RachaBurst";
 import { Confetti } from "@/components/Confetti";
@@ -308,6 +309,10 @@ export function DuelPlayer({ deck, accent }: Props) {
             onOpen={() => {
               addStars("listener", Math.max(1, stars.listener));
               addStars("reader", Math.max(1, stars.reader));
+              // Both kids' hauls go up together, the way DoneScreen does —
+              // otherwise a duel's stars sit on this device until some other
+              // activity happens to push. No-op when unpaired.
+              void syncPush();
             }}
           />
           <div data-chest-exit className="flex gap-6">

@@ -14,6 +14,7 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getSelectedKid, getAvatar } from "@/lib/kid";
 import { addStars, getRetoBest, saveRetoBest } from "@/lib/economy";
 import { feedbackFanfare } from "@/lib/feedback";
+import { syncPush } from "@/lib/sync";
 import { useCombo } from "@/lib/use-combo";
 import { RachaBurst } from "@/components/RachaBurst";
 import { Confetti } from "@/components/Confetti";
@@ -173,6 +174,10 @@ export function RetoPlayer({ deck, accent }: Props) {
             onOpen={() => {
               if (kid !== null) {
                 addStars(kid, Math.max(1, score));
+                // Bank the haul to the cloud now, the way DoneScreen does —
+                // otherwise a reto run's stars sit on this device until some
+                // other activity happens to push. No-op when unpaired.
+                void syncPush();
               }
             }}
           />
