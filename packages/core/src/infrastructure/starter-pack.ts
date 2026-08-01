@@ -276,18 +276,21 @@ export const STARTER_PACK: readonly Deck[] = [
     // the same person, one ending apart, is the grammar the deck teaches
     // alongside the words. Faces are picked to stay apart at a glance —
     // two women differing only by hair color make a coin-flip quiz round.
+    // El papá wears the beard: 👨 next to el hermano's 👦 is a man-or-boy
+    // squint, and papá is the word a kid needs to get right every time, so
+    // the plain face goes to el tío instead.
     id: "familia",
     nameSpanish: "La familia",
     nameEnglish: "The family",
     emoji: "👨‍👩‍👧‍👦",
     cards: [
       { id: "mama", spanish: "la mamá", english: "the mum", emoji: "👩" },
-      { id: "papa", spanish: "el papá", english: "the dad", emoji: "👨" },
+      { id: "papa", spanish: "el papá", english: "the dad", emoji: "🧔" },
       { id: "hermano", spanish: "el hermano", english: "the brother", emoji: "👦" },
       { id: "hermana", spanish: "la hermana", english: "the sister", emoji: "👧" },
       { id: "abuelo", spanish: "el abuelo", english: "the grandpa", emoji: "👴" },
       { id: "abuela", spanish: "la abuela", english: "the grandma", emoji: "👵" },
-      { id: "tio", spanish: "el tío", english: "the uncle", emoji: "🧔" },
+      { id: "tio", spanish: "el tío", english: "the uncle", emoji: "👨" },
       { id: "tia", spanish: "la tía", english: "the aunt", emoji: "👩‍🦰" },
       { id: "primo", spanish: "el primo", english: "the cousin", emoji: "🧑‍🦱" },
       // "bebe" is taken by the imperative ¡bebe! on the verbs shelf.

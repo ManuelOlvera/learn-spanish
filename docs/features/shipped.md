@@ -25,9 +25,12 @@ already read native: "¿Es una abuela?", "¿Dónde está la abuela?". The deck t
 asserts the overrides stay absent rather than letting one creep in.
 
 **Faces that don't collide.** Quiz choices are picture-only, so two adult women
-differing only by hair color make a coin-flip round: la tía is 👩‍🦰 and el tío
-🧔, and el primo is 🧑‍🦱 rather than a second 👦. `bebe` was already taken by the
-imperative ¡bebe! on the verbs shelf, hence the card id `bebe-familia`.
+differing only by hair color make a coin-flip round: la tía is 👩‍🦰 to la mamá's
+👩, and el primo is 🧑‍🦱 rather than a second 👦. El papá takes the beard (🧔)
+and el tío the plain 👨 — a man-or-boy squint between 👨 and el hermano's 👦 was
+the deck's weakest pair, and it belongs on the word a kid needs least, not on
+papá. `bebe` was already taken by the imperative ¡bebe! on the verbs shelf,
+hence the card id `bebe-familia`.
 
 **Where:** `starter-pack.ts`, `deck-groups.ts`, accent in `deck-theme.ts`. No
 domain change — album slots derive from activities, so the deck gets its
