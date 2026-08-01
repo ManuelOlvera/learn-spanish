@@ -272,6 +272,31 @@ export const STARTER_PACK: readonly Deck[] = [
     ],
   },
   {
+    // Gender pairs sit adjacent (hermano/hermana, abuelo/abuela, tío/tía):
+    // the same person, one ending apart, is the grammar the deck teaches
+    // alongside the words. Faces are picked to stay apart at a glance —
+    // two women differing only by hair color make a coin-flip quiz round.
+    id: "familia",
+    nameSpanish: "La familia",
+    nameEnglish: "The family",
+    emoji: "👨‍👩‍👧‍👦",
+    cards: [
+      { id: "mama", spanish: "la mamá", english: "the mum", emoji: "👩" },
+      { id: "papa", spanish: "el papá", english: "the dad", emoji: "👨" },
+      { id: "hermano", spanish: "el hermano", english: "the brother", emoji: "👦" },
+      { id: "hermana", spanish: "la hermana", english: "the sister", emoji: "👧" },
+      { id: "abuelo", spanish: "el abuelo", english: "the grandpa", emoji: "👴" },
+      { id: "abuela", spanish: "la abuela", english: "the grandma", emoji: "👵" },
+      { id: "tio", spanish: "el tío", english: "the uncle", emoji: "🧔" },
+      { id: "tia", spanish: "la tía", english: "the aunt", emoji: "👩‍🦰" },
+      { id: "primo", spanish: "el primo", english: "the cousin", emoji: "🧑‍🦱" },
+      // "bebe" is taken by the imperative ¡bebe! on the verbs shelf.
+      { id: "bebe-familia", spanish: "el bebé", english: "the baby", emoji: "👶" },
+      { id: "mascota", spanish: "la mascota", english: "the pet", emoji: "🐕" },
+      { id: "familia", spanish: "la familia", english: "the family", emoji: "👨‍👩‍👧‍👦" },
+    ],
+  },
+  {
     id: "vehicles",
     nameSpanish: "Los vehículos",
     nameEnglish: "Vehicles",

@@ -6,10 +6,10 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 39 decks / 452 words on nine themed home-screen
+- **Flashcards** — 40 decks / 464 words on nine themed home-screen
   shelves (animals · numbers & colors · my home · all about me · the world ·
   play & learn · letters · verbs · calendar), plus a star-unlocked bonus deck
-  **El misterio 🔮** (40 decks / 464 words total), tap-to-hear audio via
+  **El misterio 🔮** (41 decks / 476 words total), tap-to-hear audio via
   browser speech synthesis — **Spain Spanish** (es-ES voice; coche,
   ordenador, hierba). **Los verbos 🏃** is a flashcards-only shelf:
   15 action words in three forms (infinitivo · gerundio · imperativo).
@@ -27,7 +27,9 @@ No reading, no accounts, no setup.
   build (alto, bajo, gordo, delgado), las emociones, and **Mi día 🪥** — the
   daily routine in reflexive verbs (despertarse, lavarse los dientes,
   peinarse, acostarse), the first verb deck that plays the games rather than
-  sitting flashcards-only. Adjectives borrow the creature that *is* the word
+  sitting flashcards-only. **Mi casa 🏠** opens with **La familia 👨‍👩‍👧‍👦** —
+  the household in gender pairs (hermano · hermana, abuelo · abuela, tío ·
+  tía), plus mamá, papá, el primo, el bebé and la mascota. Adjectives borrow the creature that *is* the word
   (alto 🦒, pequeño 🐭) and skin tone rides on a hand, not a face.
 - **Games** — per deck (except the flashcards-only verbs shelf), each
   with 👂 listen / 🔤 read difficulties:

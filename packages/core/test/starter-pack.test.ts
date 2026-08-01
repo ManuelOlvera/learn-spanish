@@ -22,6 +22,7 @@ describe("starter pack content", () => {
       "rutina",
       "clothes",
       "house",
+      "familia",
       "vehicles",
       "weather",
       "school",
@@ -53,16 +54,16 @@ describe("starter pack content", () => {
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("39 decks /
-    // 452 words … 40 decks / 464 words total"). This test turns silent README
+    // The root README's Features section states these totals ("40 decks /
+    // 464 words … 41 decks / 476 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(40);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(464);
-    expect(publicDecks).toHaveLength(39);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(452);
+    expect(decks).toHaveLength(41);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(476);
+    expect(publicDecks).toHaveLength(40);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(464);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {
@@ -206,6 +207,40 @@ describe("starter pack content", () => {
     for (const card of skin) {
       expect(siNoQuestion(card), card.id).toBe(`¿Es ${card.spanish}?`);
       expect(sceneQuestion(card), card.id).toBe(`¿Dónde está ${card.spanish}?`);
+    }
+  });
+
+  it("teaches La familia in gender pairs, and asks for a person by dónde", async () => {
+    const familia = (await repo.listDecks()).find((d) => d.id === "familia")!;
+
+    // The point of the deck beyond the words: -o/-a is the same person in a
+    // different gender. Each pair sits adjacent so a kid meets them together.
+    const pairs: readonly (readonly [string, string])[] = [
+      ["hermano", "hermana"],
+      ["abuelo", "abuela"],
+      ["tio", "tia"],
+    ];
+    const ids = familia.cards.map((c) => c.id);
+    for (const [masculine, feminine] of pairs) {
+      expect(ids.indexOf(feminine), feminine).toBe(ids.indexOf(masculine) + 1);
+      const el = familia.cards[ids.indexOf(masculine)]!;
+      const la = familia.cards[ids.indexOf(feminine)]!;
+      expect(el.spanish.startsWith("el "), el.id).toBe(true);
+      expect(la.spanish.startsWith("la "), la.id).toBe(true);
+      // Same stem, opposite ending — that's what makes it a pair.
+      expect(la.spanish.slice(3, -1)).toBe(el.spanish.slice(3, -1));
+    }
+
+    for (const card of familia.cards) {
+      // A relative is a countable person, so the built questions already read
+      // native ("¿Es una abuela?", "¿Dónde está la abuela?"). Unlike the
+      // ¿Cómo soy? adjectives, no card here needs an override — a family
+      // member is somewhere in the scene, not a description of somebody.
+      expect(card.question, card.id).toBeUndefined();
+      expect(card.sceneQuestion, card.id).toBeUndefined();
+      expect(card.usesEstar, card.id).toBeUndefined();
+      expect(siNoQuestion(card), card.id).toMatch(/^¿Es un[a]? \S/);
+      expect(sceneQuestion(card), card.id).toMatch(/^¿Dónde está (el|la) \S/);
     }
   });
 

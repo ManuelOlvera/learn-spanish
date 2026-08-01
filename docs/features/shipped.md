@@ -1,5 +1,39 @@
 # Shipped features
 
+## 2026-08-01 — La familia: the people of the house
+
+One deck / 12 words — **La familia 👨‍👩‍👧‍👦**: la mamá, el papá, el hermano, la
+hermana, el abuelo, la abuela, el tío, la tía, el primo, el bebé, la mascota,
+la familia.
+
+**On Mi casa, not ¿Cómo soy?** ¿Cómo soy? is about one person — the body, the
+hair, the size, the mood — while the family is the people *around* that person,
+and they live in the house. Mi casa had exactly one seat free (it was cut to
+four decks in July when "…y yo" moved out), so La familia takes it and the
+shelf is full again at 5. Home stays at nine shelves; the 9-shelf cap did not
+have to move.
+
+**Gender pairs are the lesson.** hermano/hermana, abuelo/abuela and tío/tía sit
+adjacent so a kid meets each pair together and hears the -o/-a swap; a test
+asserts the adjacency and that both halves share a stem, so a later edit can't
+quietly split them.
+
+**No question overrides.** Unlike the ¿Cómo soy? adjectives — where the built
+scene question turned a description into a nickname ("¿Dónde está el gordo?") —
+a relative is a countable person who is *somewhere*, so both built questions
+already read native: "¿Es una abuela?", "¿Dónde está la abuela?". The deck test
+asserts the overrides stay absent rather than letting one creep in.
+
+**Faces that don't collide.** Quiz choices are picture-only, so two adult women
+differing only by hair color make a coin-flip round: la tía is 👩‍🦰 and el tío
+🧔, and el primo is 🧑‍🦱 rather than a second 👦. `bebe` was already taken by the
+imperative ¡bebe! on the verbs shelf, hence the card id `bebe-familia`.
+
+**Where:** `starter-pack.ts`, `deck-groups.ts`, accent in `deck-theme.ts`. No
+domain change — album slots derive from activities, so the deck gets its
+stickers and completion chest for free. Pack is now 40 decks / 464 words
+public, 41 / 476 with El misterio.
+
 ## 2026-08-01 — Fix: the chest nobody opened
 
 Kids' report: they sometimes forget to open the chest and never get the stars,

@@ -22,11 +22,14 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
   },
   {
     // "…y yo" moved out to ¿Cómo soy? when this shelf hit its 5-deck cap.
+    // La familia took the seat that freed up (2026-08-01): the people of the
+    // house belong with the house, and ¿Cómo soy? — the other candidate — is
+    // about one person, not the ones around them. Full again at 5.
     id: "casa",
     nameSpanish: "Mi casa",
     nameEnglish: "My home",
     emoji: "🏠",
-    deckIds: ["food", "house", "clothes", "fruit"],
+    deckIds: ["familia", "food", "house", "clothes", "fruit"],
   },
   {
     // Describing a person: the parts, the hair and skin, the size, the mood,
