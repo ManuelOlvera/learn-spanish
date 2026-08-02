@@ -9,10 +9,22 @@ If ¡Palabras! grows a spoken conversation partner (roadmap 25), it will call a
 hosted LLM **from a Next.js route handler**, never from the browser, and it will
 do so under four non-negotiable terms:
 
-1. **The kid's audio never leaves the device.** Transcription happens in the
-   browser (`SpeechRecognition`); only the resulting *text* is sent to our
-   route. The reply is spoken by the existing `speechSynthesis` adapter
-   (ADR 001) — no TTS API, no audio upload, no audio download.
+1. **The kid's audio never reaches our server — but it does reach Apple or
+   Google.** Transcription happens in the browser (`SpeechRecognition`); only
+   the resulting *text* is sent to our route. We never receive, store, or
+   forward audio, and none of it goes to Anthropic. The reply is spoken by the
+   existing `speechSynthesis` adapter (ADR 001) — no TTS API, no audio upload,
+   no audio download.
+
+   **What we do not control, stated plainly because it is the part that
+   matters:** browser speech recognition is not on-device. Chrome ships the
+   audio to Google's servers and Safari to Apple's, under their terms, before
+   our code sees anything — and a web page cannot force on-device recognition
+   (that flag exists only for native apps). **Never describe this feature to a
+   parent as "the audio never leaves the device."** It doesn't. The honest
+   sentence is "we never receive or keep it; Apple or Google process it to
+   turn it into text." If that trade is unacceptable, the answer is not a
+   better STT provider — it is the no-microphone fallback below.
 2. **Nothing is persisted, either side.** No transcripts, no conversation
    history, no logs of what a child said — in localStorage, in Supabase, or in
    our server logs. Only the star reward survives the screen.
@@ -39,13 +51,14 @@ There is no server-side secret anywhere in the repo and no route handler at all.
 A conversation partner breaks that pattern in three directions at once, and
 each one has a cheap wrong answer:
 
-- **Privacy.** The obvious build — record the kid, upload the audio, get a
-  transcript — contradicts ADR 003 head-on. The users are 3–8 years old and
-  the recordings are of their voices. Browser-side recognition gets the feature
-  without the upload, at the cost of a browser dependency. Worth naming
-  honestly: Chrome's `SpeechRecognition` transcribes server-side at Google, so
-  "audio never leaves the device" holds for *our* stack, not for the browser's.
-  That is a real limit of the decision, not a footnote to it.
+- **Privacy.** The obvious build — record the kid, upload the audio to an STT
+  API, get a transcript — contradicts ADR 003 head-on. The users are 3–8 years
+  old and the recordings are of their voices. Browser-side recognition avoids
+  *that* upload, but it does not make the feature audio-free: it substitutes
+  Apple's or Google's transcription for ours. So this decision is a genuine
+  step down in privacy from what the app does today, and that is the trade
+  being accepted, not a caveat on it. See Decision 1 and the say-it-back
+  comparison in Consequences.
 - **Money.** Prod is a public URL with no accounts (ADR 002/004). An
   unauthenticated route holding an API key is a bill anyone can run up. Client
   turn caps are decoration. The app has no login to hide behind — but it does
@@ -103,6 +116,17 @@ have.
   plane. Accepted: the other ~15 games do not care.
 - Cost is bounded by the capability code, then by rate limiting and a small
   `max_tokens` — never by trust in an unauthenticated public URL.
-- If speech recognition proves unusable for a five-year-old's pronunciation,
-  the fallback is *not* uploading audio to a better STT model — it is cutting
-  the feature back to tap-to-choose replies, which needs no model at runtime.
+- **This is the app's first feature where a child's voice is processed by a
+  third party, and it is a step down from say-it-back.** ADR 003's clips use
+  `MediaRecorder`, live in a JavaScript variable, and are discarded — that
+  audio genuinely never leaves the device, not even to Apple or Google. Habla
+  conmigo cannot make that promise. Do not let the two be described with the
+  same words, and do not let this ADR be cited as precedent for weakening
+  ADR 003.
+- If speech recognition proves unusable for a five-year-old's pronunciation —
+  **or if vendor transcription of a child's voice is judged unacceptable at
+  all** — the fallback is *not* uploading audio to a better STT model. It is
+  cutting the feature back to tap-to-choose replies: the mascota speaks, the
+  kid taps one of 2–3 picture answers. No microphone permission is ever
+  requested, no audio exists anywhere, and it still teaches turn-taking. That
+  version needs no model at runtime, no API key, and no capability code.

@@ -267,7 +267,9 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     built. The terms it must be built under are already recorded in
     [ADR 010](../adr/010-runtime-llm-conversation.md) so a future session
     starts from them instead of re-deriving them: browser-side transcription
-    (the kid's audio never reaches our server), nothing persisted, **a
+    — the kid's audio never reaches our server, though **the browser does send
+    it to Apple or Google**, which is a real step down from say-it-back and is
+    the trade being accepted — nothing persisted, **a
     capability code on the route** — the ADR 004 pairing pattern, so a public
     URL with no accounts still can't be drained by a stranger — with rate
     limiting behind it, and one tile that vanishes when offline. Putting the
