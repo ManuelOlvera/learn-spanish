@@ -22,7 +22,9 @@ export type ActivityId =
   | "counting-listen"
   | "counting-read"
   | "spelling"
-  | "sopa";
+  | "sopa"
+  | "globo"
+  | "adivina";
 
 /** The activities every deck offers (frases are pack-wide, not per-deck). */
 export const ALL_ACTIVITIES: readonly ActivityId[] = [

@@ -19,6 +19,8 @@ export const MISSION_KINDS = [
   "counting",
   "spelling",
   "sopa",
+  "globo",
+  "adivina",
   "reto",
 ] as const;
 
@@ -41,12 +43,13 @@ const SHARED_KINDS: readonly MissionKind[] = [
   "counting",
 ];
 
-/** Each kid draws from their own pool: the reader's adds spelling and the
- *  sopa de letras (reading practice a pre-reader can't do), so the misión
- *  leans into what that kid is actually working on. */
+/** Each kid draws from their own pool: the reader's adds the four letter
+ *  games — spelling, the sopa, el globo and adivina (reading practice a
+ *  pre-reader can't do) — so the misión leans into what that kid is
+ *  actually working on. */
 const KIND_POOLS: Record<KidId, readonly MissionKind[]> = {
   listener: SHARED_KINDS,
-  reader: [...SHARED_KINDS, "spelling", "sopa"],
+  reader: [...SHARED_KINDS, "spelling", "sopa", "globo", "adivina"],
 };
 
 export const MISSION_SIZE = 3;

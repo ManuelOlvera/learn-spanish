@@ -1,5 +1,70 @@
 # Shipped features
 
+## 2026-08-02 — Two letter games: El globo and Adivina la palabra
+
+Roadmap 26, shaped and shipped the same day as two separate slices. Both are
+reader-level, both are sticker-less (stars only), and both join the reader's
+daily-misión pool.
+
+### 🎈 El globo — the ahorcado, without the gallows
+
+Per deck. The word is blanks; the kid taps letters from the 27-letter Spanish
+alphabet and every wrong guess lets one breath out of a balloon. Six wrong and
+it pops — and the pop **reveals the word in grey**, so a loss still teaches it.
+
+- **The picture is not free.** Showing the card's emoji hands an eight-year-old
+  the answer, so it starts hidden behind a 💡 *Una pista* button that **costs a
+  life**. What the tip reveals is set by difficulty: 🟢 gives the picture, 🟡
+  and 🔴 give the English meaning — a real clue that still leaves the Spanish
+  word to find.
+- **Difficulty scales the word, not the lives:** 🟢 3–5 letters · 🟡 4–7 ·
+  🔴 6–10, six lives throughout, so the balloon always has six breaths. A deck
+  offers only the levels its own words can fill for a 4-round run
+  (`globoDifficulties`, the `sopaDifficulties` pattern).
+- **The balloon is inline SVG**, sized and coloured from the lives left (green
+  → amber → red, then a burst). **No image assets** — ADR 009 stays about story
+  art, and the offline install doesn't grow.
+- **The name was a decision, not a detail.** A hanged man has no place in a
+  sticker book for a five-year-old. The mechanic keeps the name *el ahorcado*
+  only in the roadmap.
+
+### 🔡 Adivina la palabra — wordle over a whole shelf
+
+**Per category, not per deck** — the finding that shaped it. The kid taps
+guesses from a word list instead of typing them (an eight-year-old cannot
+invent Spanish probe words), and that only works if the list is big enough to
+deduce from. Measured before building: **only 10 of 41 decks have 5+
+same-length words, 3 have 6+**. At shelf scope every category has 10–13. So the
+entry tile lives on the shelf screen beside the decks, the slot El abecedario
+already uses.
+
+- Six guesses, 🟩 hit / 🟨 present / ⬜ miss. Difficulty is the word length:
+  🟢 4 · 🟡 5 · 🔴 6, offering only lengths the shelf can fill with ≥6 words.
+- **Las letras is the one shelf without it** — letter names are too short and
+  too few of any one length. Its route 404s and the tile is absent; a test
+  asserts both halves of that.
+- **Duplicate-letter scoring is the whole game's correctness.** Guessing MAMA
+  against a one-A target must light the positional A and *miss* the other one;
+  the two-pass scorer and six unit tests pin it, and the headless run showed it
+  behaving in the real UI.
+- **Its tile is 🔡, not 🟩.** The verify screenshots caught it: as a shelf
+  sticker a green square renders flat and reads like a broken image next to 🍎
+  and 👕 — fatal on a screen navigated by picture. The wordle green stays on
+  the board tiles, where it means something.
+
+**Shared plumbing:** `domain/spanish.ts` is new — one `deaccent` / `bareWord`
+for all three letter games. La sopa had a private copy; el globo's first draft
+used `normalize("NFD")` and quietly turned *araña* into ARANA, which a test
+caught. Ñ is its own letter and stays; accented vowels fold (Á plays as A) so
+the keyboard is 27 keys.
+
+**Where:** core `domain/globo.ts`, `domain/adivina.ts`, `domain/spanish.ts`,
+`album.ts` (two sticker-less activities), `mission.ts` (reader pool);
+`apps/web` `deck/[deckId]/globo`, `group/[groupId]/adivina`, `GloboPlayer`,
+`AdivinaPlayer`, `Balloon`, `AdivinaShelfTile`, `GameMenu`, `MissionCard`,
+`activity-theme`. 402 core tests green; verified headless — both games driven
+end to end, win and loss, and the pre-reader sees neither.
+
 ## 2026-08-01 — La familia: the people of the house
 
 One deck / 12 words — **La familia 👨‍👩‍👧‍👦**: la mamá, el papá, el hermano, la

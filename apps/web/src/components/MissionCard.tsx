@@ -24,6 +24,8 @@ const KIND_EMOJI: Record<MissionKind, string> = {
   counting: "🧮",
   spelling: "✏️",
   sopa: "🥣",
+  globo: "🎈",
+  adivina: "🔡",
   reto: "⏱️",
 };
 

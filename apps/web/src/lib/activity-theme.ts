@@ -29,4 +29,6 @@ export const ACTIVITY_META: Record<
   "counting-read": { game: "🧮", mode: "🔤", english: "Counting by word" },
   spelling: { game: "✏️", mode: "🔤", english: "Spelling" },
   sopa: { game: "🥣", mode: "🔤", english: "Word search" },
+  globo: { game: "🎈", mode: "🔤", english: "Balloon word guess" },
+  adivina: { game: "🔡", mode: "🔤", english: "Guess the word" },
 };

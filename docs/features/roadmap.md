@@ -257,6 +257,133 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       than once. That is the evidence that buys the art — and it tells you
       *which* stories deserve it.
 
+## Talking & letter games (shaped 2026-08-02)
+
+25. ⏸️ **Habla conmigo — a real conversation partner (AI)** — the app's first
+    runtime LLM. The kid holds a microphone button, says something in Spanish,
+    and the **mascota** answers aloud in simple Spanish, on the topic of the
+    deck she entered from. Shaped 2026-08-02: voice in, voice out, real model
+    behind a server route. **Parked the same day** — shaped and costed, not
+    built. The terms it must be built under are already recorded in
+    [ADR 010](../adr/010-runtime-llm-conversation.md) so a future session
+    starts from them instead of re-deriving them: browser-side transcription
+    (the kid's audio never reaches our server), nothing persisted, server-side
+    rate limiting before deploy, and one tile that vanishes when offline.
+
+    **Why it's different from everything shipped:** every game so far *asks*
+    and the kid *answers*. This is the first one where the kid produces
+    open-ended Spanish and gets a real reply. It is also the first feature the
+    **pre-reader can do better than the reader** — no letters involved.
+
+    - **Problem & user:** both kids, listener first. Say-it-back (5) is a
+      parrot loop; nothing in the app talks back. The 8-year-old can form
+      sentences and has nobody to form them with.
+    - **The one behavior:** tap 🎙️, say something, hear the mascota reply in
+      one or two short Spanish sentences that use the current deck's words.
+    - **In scope:** deck-scoped entry (🗣️ on the deck choice screen) ·
+      the named mascota as the voice, so the companion (10b) earns its keep ·
+      browser speech recognition for the transcript · a server route holding
+      the API key · reply style scaled by kid level (listener: 3–6 words,
+      concrete nouns from the deck; reader: two short sentences, one question
+      back) · a hard turn cap (~6) then the normal done screen + stars ·
+      graceful absence — no mic, no recognition, or no network and the tile
+      simply isn't there, with nothing else in the app degraded.
+    - **Out of scope (deferred):** free-roam chat with no deck and no turn cap ·
+      any correction or grading of the kid's Spanish · text entry for the
+      reader · conversation history, transcripts, or sync · offline
+      conversations · a parent-facing log of what was said · voice cloning or
+      a non-synth voice for the reply (ADR 001 still governs output).
+    - **Affected layers:** `domain/` — turn model, turn cap, level→style rules,
+      and a conversation port (pure, testable, no SDK). `application/` — a use
+      case that builds the deck-bounded context and awards stars at the end.
+      `apps/web` — the repo's **first route handler**, a speech-recognition
+      adapter beside `speech.ts`, the screen, and one new server-only env var.
+      `packages/core` stays SDK-free, as always.
+    - **How we'll know:** core tests — the cap ends the conversation; the
+      context carries only that deck's words; listener and reader styles
+      differ; an empty or failed transcript does not burn a turn. Observable —
+      🐴 Los animales → 🗣️ → "hola" → the pet replies aloud about animals →
+      six turns → done screen with stars. Mic denied: the tile is gone and the
+      deck plays normally.
+
+    Three things that must be settled before any code (they are the feature,
+    not details):
+    - **ADR 003 says voice recordings are never uploaded.** Browser
+      `SpeechRecognition` keeps that true in the way that matters — only the
+      *transcript* crosses the wire, never the kid's audio, and nothing is
+      stored either side. But Chrome's implementation does send audio to
+      Google's servers to transcribe it, so the ADR needs an explicit scope
+      note either way. Do not treat this as a footnote.
+    - **A public route with an API key is a spend risk.** Prod is a public URL
+      with no accounts (ADR 002/004). Turn caps in the client are decoration;
+      the route needs server-side rate limiting and a small `max_tokens`, or
+      the first scraper pays for itself with our key. This is the one item
+      that cannot be deferred out of the slice.
+    - **It breaks the offline promise for one tile.** Everything today works on
+      a plane (ADR 005). This will not. The cut above (tile absent when
+      offline) is what keeps that promise honest everywhere else.
+
+    Needs its own ADR (runtime LLM dependency) before building — the first
+    time core play depends on a paid third-party API.
+
+26. ☑ **Juegos de letras — el globo, then adivina la palabra** — two letter
+    games over the pack words, **shipped as separate slices**, each **contained
+    within its category**. Shaped 2026-08-02, both shipped the same day. Both
+    reader-level like la sopa (20) and Deletrea, over the same word pool
+    discipline — single word, article stripped, deaccented, uppercased.
+
+    **26a. ☑ El globo (el ahorcado)** — the word is blanks; the kid taps
+    letters from the Spanish alphabet and each wrong guess lets air out of a
+    balloon. Six wrong and it pops. **Per deck.**
+    - **The picture is not free.** The card's emoji is *hidden* by default —
+      showing it would hand an 8-year-old the answer. It is behind a 💡 tip
+      button, and taking the tip costs a life. What the tip reveals is set by
+      difficulty: 🟢 shows the picture, 🟡 and 🔴 show the English meaning
+      instead — a real clue that still leaves the Spanish word to find.
+    - **Difficulty scales the word, not the lives:** 🟢 3–5 letters · 🟡 4–7 ·
+      🔴 6–10. Six lives at every level, so the balloon always has six breaths.
+      A deck only offers the levels its own words can fill (4 rounds), exactly
+      like `sopaDifficulties`.
+    - **Accents are dropped** (á plays as A, matching la sopa) so the keyboard
+      stays 27 keys and thumb-sized.
+    - **Stars, no album sticker** — same reason as Deletrea and la sopa: a
+      reader-only game in an album slot would un-complete every listener.
+    - **Out of scope (deferred):** a timer · listener mode · a daily word ·
+      streak or duel integration · more than one tip per round.
+    - **The name was a real decision.** A hanged man does not belong in a
+      3–5-year-old's sticker book, so the mechanic keeps the name *el
+      ahorcado* only in the roadmap; the game is **🎈 El globo**. The balloon
+      is drawn in **inline SVG**, sized and coloured from the lives left —
+      **no image assets**, so ADR 009 stays about story art alone.
+
+    **26b. ☑ Adivina la palabra (wordle)** — guess the hidden word in six
+    tries, 🟩/🟨/⬜ per letter. **Per category, not per deck.**
+    - **Why category and not deck:** an 8-year-old cannot invent Spanish probe
+      words, so guesses are *tapped from a word list* rather than typed —
+      deduction over a known set. That only works if the set is big enough,
+      and it is not at deck scope: **only 10 of 41 decks have 5+ same-length
+      words, and 3 have 6+**. At category scope (Mi casa = familia + food +
+      house + clothes + fruit, 60 words) every pool is 10–13 words. Measured
+      2026-08-02 before building — this is the finding that moved the entry
+      point to the shelf screen.
+    - **Difficulty is the word length:** 🟢 4 letters · 🟡 5 · 🔴 6, offering
+      only the lengths that category can fill with ≥6 words. Six guesses.
+    - **Stars, no sticker**, like every other letter game.
+    - **Its tile is 🔡, not 🟩.** The wordle green stays on the board tiles
+      where it means something; as a *shelf sticker* a green square renders as
+      a flat blank and reads like a broken image next to 🍎 and 👕 — fatal on a
+      screen navigated by picture. Caught in the verify screenshots.
+    - **Out of scope (deferred):** a daily shared word and the sibling race
+      (that belongs with the head-to-head hook under 10c) · free keyboard
+      entry · hard mode · a shareable result grid · Las letras, the one shelf
+      whose words are too short to host it.
+
+    **Watch the crowding.** This makes four reader-only letter games (✏️
+    Deletrea, 🥣 la sopa, 🎈 el globo, 🔡 adivina). La sopa opened to both
+    kids a day after shipping (2026-07-15) once the pre-reader wanted in;
+    expect the same pull here, and expect the deck choice screen to need
+    grouping before a fifth tile lands.
+
 ## Build-later shortlist (consolidated 2026-07-14)
 
 The queue, gathered from the sub-items above so nothing hides in history:
@@ -272,7 +399,9 @@ The queue, gathered from the sub-items above so nothing hides in history:
   and bonus words (20).
 - **Infra & platform:** CI on GitHub (fable-review features #2 — the one
   gap between a bad commit and prod) · no-Spanish-voice fallback
-  (fable-review features #3) · listener→reader upgrade path (18).
+  (fable-review features #3) · listener→reader upgrade path (18) ·
+  the first route handler + server-side rate limiting, which arrives with
+  Habla conmigo (25) — parked, terms already set in ADR 010.
 
 ## Build order
 

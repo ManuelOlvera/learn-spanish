@@ -3,6 +3,7 @@ import type { VocabularyCard } from "./card";
 import { QuizDeckTooSmallError } from "./errors";
 import { shuffled } from "./random";
 import type { RandomSource } from "./random";
+import { bareWord, SPANISH_ALPHABET } from "./spanish";
 
 /**
  * La sopa de letras: deck words hidden in a letter grid — reader-level only
@@ -46,31 +47,18 @@ export interface SopaGame {
 const MIN_LETTERS = 3;
 const MAX_LETTERS = 8; // the largest grid side
 
-/** Spanish word searches drop accents (á files under A) but Ñ is its own
- *  letter and stays. Fill letters draw from the same alphabet. */
-const FILL_ALPHABET = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
-
-function deaccent(word: string): string {
-  return word
-    .replace(/á/g, "a")
-    .replace(/é/g, "e")
-    .replace(/í/g, "i")
-    .replace(/ó/g, "o")
-    .replace(/ú/g, "u")
-    .replace(/ü/g, "u");
-}
+/** Fill letters draw from the same alphabet the hidden words use — see
+ *  `domain/spanish.ts` for why Ñ is in it and Á is not. */
+const FILL_ALPHABET = SPANISH_ALPHABET;
 
 /** The grid form of a card, or null when it can't live in a word search
  *  (multi-word after the article strips, or too short/long). */
 export function gridWord(card: VocabularyCard): string | null {
-  const bare = card.spanish.replace(/^(el|la|los|las) /, "");
-  if (bare.includes(" ") || bare.includes("¡")) {
+  const word = bareWord(card.spanish);
+  if (word === null) {
     return null;
   }
-  if (bare.length < MIN_LETTERS || bare.length > MAX_LETTERS) {
-    return null;
-  }
-  return deaccent(bare).toUpperCase();
+  return word.length >= MIN_LETTERS && word.length <= MAX_LETTERS ? word : null;
 }
 
 function candidates(deck: Deck, maxLength: number): readonly SopaWord[] {

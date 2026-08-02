@@ -257,6 +257,45 @@ export {
   SOPA_DIFFICULTIES,
   sopaDifficulties,
 } from "./domain/sopa";
+export { bareWord, deaccent, SPANISH_ALPHABET } from "./domain/spanish";
+export type {
+  GloboDifficulty,
+  GloboGame,
+  GloboRound,
+  GloboTip,
+} from "./domain/globo";
+export {
+  createGloboGame,
+  GLOBO_ALPHABET,
+  GLOBO_DIFFICULTIES,
+  GLOBO_LEVELS,
+  GLOBO_LIVES,
+  GLOBO_ROUNDS,
+  globoDifficulties,
+  globoWord,
+  isSolved,
+  lettersOf,
+  livesLeft,
+  revealed,
+  wrongGuesses,
+} from "./domain/globo";
+export type {
+  AdivinaDifficulty,
+  AdivinaGame,
+  AdivinaWord,
+  LetterMark,
+} from "./domain/adivina";
+export {
+  ADIVINA_DIFFICULTIES,
+  ADIVINA_GUESSES,
+  ADIVINA_LEVELS,
+  ADIVINA_MIN_POOL,
+  adivinaDifficulties,
+  adivinaPool,
+  createAdivinaGame,
+  isWon,
+  scoreGuess,
+} from "./domain/adivina";
 export type { LetterCase } from "./domain/letters";
 export {
   applyLetterCase,

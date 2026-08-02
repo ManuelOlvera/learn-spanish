@@ -39,8 +39,12 @@ No reading, no accounts, no setup.
   "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
   "El reto" (60-second lightning round), "¿Cuántos hay?" (counting, on
   the numbers deck), "Deletrea" (letter-tile spelling, reader-level),
-  and "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
-  sizes, on decks whose words fit a grid).
+  "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
+  sizes, on decks whose words fit a grid), "El globo" (guess the word
+  letter by letter before the balloon pops — reader-level, 🟢/🟡/🔴 word
+  lengths, the 💡 tip costs a life), and "Adivina la palabra" (wordle over
+  a whole shelf, guesses tapped from the category's own words —
+  reader-level, 🟢/🟡/🔴 word lengths, entered from the shelf screen).
 - **Game feel** — synthesized sounds, haptics, confetti, and a ⚡ racha
   burst at 3/5/10 correct in a row.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward

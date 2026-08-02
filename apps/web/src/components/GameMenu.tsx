@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  globoDifficulties,
   KID_GAME_MODES,
   sopaDifficulties,
   type Deck,
@@ -145,6 +146,18 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
             spanish: "La sopa de letras",
             english: "Word search",
             modes: [{ glyph: "🔤", href: "sopa", label: "Word search" }],
+          },
+        ]
+      : []),
+    // El globo is reader-level like Deletrea (guessing letters of a written
+    // word is orthography), and only where the deck can fill a length band.
+    ...(kid !== "listener" && globoDifficulties(deck).length > 0
+      ? [
+          {
+            emoji: "🎈",
+            spanish: "El globo",
+            english: "Guess before it pops",
+            modes: [{ glyph: "🔤", href: "globo", label: "Guess the letters" }],
           },
         ]
       : []),

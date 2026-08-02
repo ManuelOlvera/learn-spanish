@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { adivinaDifficulties } from "@learn-spanish/core";
 import { listDeckGroups, listDecks } from "@/lib/container";
 import { deckAccent } from "@/lib/deck-theme";
+import { AdivinaShelfTile } from "@/components/AdivinaShelfTile";
 import { LetterCasePicker } from "@/components/LetterCasePicker";
 
 export async function generateStaticParams() {
@@ -27,6 +29,10 @@ export default async function GroupPage({
     const deck = allDecks.find((d) => d.id === id);
     return deck ? [deck] : [];
   });
+  // Adivina is played over the whole shelf, so its tile lives here rather
+  // than in a deck's game menu. Las letras can't fill a guess list.
+  const hasAdivina =
+    adivinaDifficulties(decks.flatMap((deck) => deck.cards)).length > 0;
 
   return (
     <main
@@ -83,6 +89,7 @@ export default async function GroupPage({
               </span>
             </Link>
           ))}
+          {hasAdivina && <AdivinaShelfTile groupId={group.id} />}
           {group.id === "letras" && (
             <Link
               href="/abecedario"
