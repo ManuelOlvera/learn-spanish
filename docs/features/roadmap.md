@@ -267,8 +267,12 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     built. The terms it must be built under are already recorded in
     [ADR 010](../adr/010-runtime-llm-conversation.md) so a future session
     starts from them instead of re-deriving them: browser-side transcription
-    (the kid's audio never reaches our server), nothing persisted, server-side
-    rate limiting before deploy, and one tile that vanishes when offline.
+    (the kid's audio never reaches our server), nothing persisted, **a
+    capability code on the route** — the ADR 004 pairing pattern, so a public
+    URL with no accounts still can't be drained by a stranger — with rate
+    limiting behind it, and one tile that vanishes when offline. Putting the
+    API key on the device instead was considered and rejected 2026-08-02; the
+    ADR records why.
 
     **Why it's different from everything shipped:** every game so far *asks*
     and the kid *answers*. This is the first one where the kid produces
