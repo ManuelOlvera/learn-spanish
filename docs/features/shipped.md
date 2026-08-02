@@ -38,7 +38,10 @@ same-length words, 3 have 6+**. At shelf scope every category has 10–13. So th
 entry tile lives on the shelf screen beside the decks, the slot El abecedario
 already uses.
 
-- Six guesses, 🟩 hit / 🟨 present / ⬜ miss. Difficulty is the word length:
+- Six guesses, 🟩 hit / 🟨 present / ⬜ miss. A miss is **filled grey, not
+  pale** — an unplayed tile is white too, and a kid has to tell "I tried this
+  and it's dead" from "I haven't got here yet" at a glance.
+- Difficulty is the word length:
   🟢 4 · 🟡 5 · 🔴 6, offering only lengths the shelf can fill with ≥6 words.
 - **Las letras is the one shelf without it** — letter names are too short and
   too few of any one length. Its route 404s and the tile is absent; a test

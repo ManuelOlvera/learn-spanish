@@ -40,10 +40,13 @@ const DIFFICULTY_META: Record<
   hard: { emoji: "🔴", english: "Hard" },
 };
 
+/** Wordle's three states. A miss is FILLED, not merely pale: an unplayed tile
+ *  is also white, and a kid must be able to tell "I tried this and it's dead"
+ *  from "I haven't got here yet" at a glance. */
 const MARK_STYLE: Record<LetterMark, string> = {
   hit: "border-ink bg-[var(--color-lime)]",
   present: "border-ink bg-[#ffd166]",
-  miss: "border-ink/30 bg-white text-ink/40",
+  miss: "border-ink/40 bg-ink/20 text-ink/45",
 };
 
 /** Adivina la palabra: the wordle mechanic over a whole category. Guesses are
