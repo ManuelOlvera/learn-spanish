@@ -29,3 +29,4 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
   - [adr/007-wallet-restore-seeded-balances.md](adr/007-wallet-restore-seeded-balances.md) — epoch 2 restores wallets after the zero reset: goodwill balances seeded by avatar
   - [adr/008-counter-wallet.md](adr/008-counter-wallet.md) — the wallet is two monotonic counters (earned/spent), so syncing can never resurrect a spend
   - [adr/009-story-art-assets.md](adr/009-story-art-assets.md) — story illustrations: committed PNGs imported from `src/` (hashed, so the service worker self-invalidates), no precache
+  - [adr/010-runtime-llm-conversation.md](adr/010-runtime-llm-conversation.md) — **proposed, feature parked**: the terms a spoken AI conversation partner must be built under (browser-side transcription, nothing persisted, server-side rate limiting, one tile that vanishes offline)
