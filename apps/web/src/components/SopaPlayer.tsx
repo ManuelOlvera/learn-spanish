@@ -18,7 +18,7 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
-import { feedbackMatch, feedbackWrong } from "@/lib/feedback";
+import { feedbackMatch } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
 
@@ -97,7 +97,8 @@ export function SopaPlayer({ deck, accent }: Props) {
     const word = findSopaWord(game, line, foundIds);
     setAnchor(null);
     if (word === null) {
-      feedbackWrong();
+      // combo.wrong() plays the buzzer itself; calling it here as well made
+      // the sopa's miss twice as loud as every other game's.
       combo.wrong();
       setMissedSinceFind(true);
       setMistakes((n) => n + 1);

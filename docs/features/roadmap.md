@@ -376,14 +376,35 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     - **Difficulty is the word length:** 🟢 4 letters · 🟡 5 · 🔴 6, offering
       only the lengths that category can fill with ≥6 words. Six guesses.
     - **Stars, no sticker**, like every other letter game.
+    - **The shelf name is on screen the whole round** (🏠 Mi casa). It was
+      `sr-only` at first ship — the answer was themed and the theme was
+      invisible, which is the hardest kind of bug to see in a screenshot
+      because nothing looks wrong. Found by the parent, not by the tests.
+    - **Four tips, each costing one of the six guesses:** 💬 meaning ·
+      🖼️ picture · 🔤 first letter · ✨ one more letter. Bought letters show
+      in place; a spent guess is drawn as a 💡 row eaten off the board.
     - **Its tile is 🔡, not 🟩.** The wordle green stays on the board tiles
       where it means something; as a *shelf sticker* a green square renders as
       a flat blank and reads like a broken image next to 🍎 and 👕 — fatal on a
       screen navigated by picture. Caught in the verify screenshots.
     - **Out of scope (deferred):** a daily shared word and the sibling race
-      (that belongs with the head-to-head hook under 10c) · free keyboard
-      entry · hard mode · a shareable result grid · Las letras, the one shelf
-      whose words are too short to host it.
+      (that belongs with the head-to-head hook under 10c) · hard mode ·
+      a shareable result grid · Las letras, the one shelf whose words are too
+      short to host it.
+    - ⏸️ **A Spanish dictionary** — shaped 2026-08-02, then dropped on the
+      same reasoning that produced the theme header: with the answer scoped to
+      a shelf, a wider guess vocabulary is a politeness fix (it stops MADRE
+      and PADRE being refused), not a gameplay unlock. Costed before deciding:
+      a curated ~1,000-word child list is ~13 KB and cheap, but wants a
+      profanity pass and permanent upkeep; a *full* Spanish list is 150–300 KB
+      (1.5–3× the whole app's shared JS), needs a licensed source, an offline
+      generation step and its own ADR. Revisit only if the kids actually hit
+      refusals often enough to complain — and then add those specific words to
+      the pack, don't ship a dictionary.
+    - ☐ **Pack-wide answers** — considered and rejected 2026-08-02: 63/83/78
+      candidates would make it true wordle, but the parent's call is that it's
+      too hard for these kids without a theme, and they're right. The theme is
+      the scaffold, not a decoration.
 
     **Watch the crowding.** This makes four reader-only letter games (✏️
     Deletrea, 🥣 la sopa, 🎈 el globo, 🔡 adivina). La sopa opened to both

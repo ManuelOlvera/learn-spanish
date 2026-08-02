@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   ADIVINA_GUESSES,
   ADIVINA_LEVELS,
+  ADIVINA_TIPS,
+  guessesLeft,
+  revealTipIndex,
   ADIVINA_MIN_POOL,
   adivinaDictionary,
   adivinaDifficulties,
@@ -205,6 +208,37 @@ describe("createAdivinaGame", () => {
         seededRandom(1),
       ),
     ).toThrow();
+  });
+});
+
+describe("tips", () => {
+  it("spends a guess, so four tips leave two tries", () => {
+    expect(guessesLeft(0, 0)).toBe(ADIVINA_GUESSES);
+    expect(guessesLeft(0, 4)).toBe(ADIVINA_GUESSES - 4);
+    expect(guessesLeft(2, 1)).toBe(ADIVINA_GUESSES - 3);
+  });
+
+  it("never reports a negative budget", () => {
+    expect(guessesLeft(5, 4)).toBe(0);
+  });
+
+  it("uncovers a position that isn't showing yet", () => {
+    for (let seed = 1; seed <= 15; seed++) {
+      const index = revealTipIndex("PERRO", [0, 4], seededRandom(seed));
+      expect([1, 2, 3]).toContain(index);
+    }
+  });
+
+  it("returns null once the whole word is showing", () => {
+    expect(revealTipIndex("GATO", [0, 1, 2, 3], seededRandom(1))).toBeNull();
+  });
+
+  it("can uncover the last remaining position", () => {
+    expect(revealTipIndex("GATO", [0, 1, 3], seededRandom(4))).toBe(2);
+  });
+
+  it("offers the four kinds, weakest first", () => {
+    expect(ADIVINA_TIPS).toEqual(["meaning", "picture", "first", "letter"]);
   });
 });
 

@@ -20,7 +20,12 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
-import { feedbackMatch, feedbackWrong } from "@/lib/feedback";
+import {
+  feedbackAirOut,
+  feedbackInflate,
+  feedbackMatch,
+  feedbackPop,
+} from "@/lib/feedback";
 import { Balloon } from "@/components/Balloon";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
@@ -57,8 +62,11 @@ export function GloboPlayer({ deck, accent }: Props) {
   const [results, setResults] = useState<readonly ("won" | "lost")[]>([]);
   const [cleanCount, setCleanCount] = useState(0);
   const [mistakes, setMistakes] = useState(0);
+  /** Bumped per run so replaying the same level still re-inflates. */
+  const [runId, setRunId] = useState(0);
   const advanceTimer = useRef<number | null>(null);
-  const combo = useCombo();
+  // The balloon does the talking: air escaping, then the pop.
+  const combo = useCombo({ wrongSound: false });
 
   useEffect(() => {
     warmUpVoices();
@@ -75,8 +83,18 @@ export function GloboPlayer({ deck, accent }: Props) {
   const done = game !== null && index >= rounds.length;
   const lives = round ? livesLeft(round.word, guessed, tipTaken) : GLOBO_LIVES;
 
+  // A fresh balloon fills at the start of every round — null on the picker
+  // and the done screen, so neither makes a sound.
+  const roundKey = round ? `${runId}-${index}` : null;
+  useEffect(() => {
+    if (roundKey !== null) {
+      feedbackInflate();
+    }
+  }, [roundKey]);
+
   function start(level: GloboDifficulty) {
     setDifficulty(level);
+    setRunId((n) => n + 1);
     setGame(createGloboGame(deck, level));
     setIndex(0);
     setGuessed([]);
@@ -119,12 +137,14 @@ export function GloboPlayer({ deck, accent }: Props) {
     setGuessed(next);
 
     if (!round.word.includes(letter)) {
-      feedbackWrong();
       combo.wrong();
       setMistakes((n) => n + 1);
       if (livesLeft(round.word, next, tipTaken) === 0) {
+        feedbackPop();
         speakSpanish(round.card.spanish);
         finishRound("lost", round.card);
+      } else {
+        feedbackAirOut();
       }
       return;
     }
@@ -149,8 +169,11 @@ export function GloboPlayer({ deck, accent }: Props) {
     // The tip costs the last breath only if it was the last one available;
     // spending it into a pop still reveals the word, like a wrong letter.
     if (livesLeft(round.word, guessed, true) === 0) {
+      feedbackPop();
       speakSpanish(round.card.spanish);
       finishRound("lost", round.card);
+    } else {
+      feedbackAirOut();
     }
   }
 

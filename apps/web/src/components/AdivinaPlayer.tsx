@@ -5,7 +5,11 @@ import Link from "next/link";
 import {
   ADIVINA_GUESSES,
   ADIVINA_LEVELS,
+  ADIVINA_TIPS,
   adivinaDifficulties,
+  guessesLeft,
+  revealTipIndex,
+  type AdivinaTip,
   createAdivinaGame,
   isRealWord,
   isWon,
@@ -49,6 +53,14 @@ const DIFFICULTY_META: Record<
 /** Wordle's three states. A miss is FILLED, not merely pale: an unplayed tile
  *  is also white, and a kid must be able to tell "I tried this and it's dead"
  *  from "I haven't got here yet" at a glance. */
+/** The tip tray, weakest first. Each costs one of the six guesses. */
+const TIP_META: Record<AdivinaTip, { glyph: string; spanish: string; english: string }> = {
+  meaning: { glyph: "💬", spanish: "En inglés", english: "the English meaning" },
+  picture: { glyph: "🖼️", spanish: "La foto", english: "the picture" },
+  first: { glyph: "🔤", spanish: "1ª letra", english: "the first letter" },
+  letter: { glyph: "✨", spanish: "Una letra", english: "one more letter" },
+};
+
 const MARK_STYLE: Record<LetterMark, string> = {
   hit: "border-ink bg-[var(--color-lime)]",
   present: "border-ink bg-[#ffd166]",
@@ -75,6 +87,10 @@ export function AdivinaPlayer({
   const [typed, setTyped] = useState("");
   /** Bumped to replay the "I don't know that word" shake. */
   const [rejected, setRejected] = useState(0);
+  /** Tips bought this round, in order — each one costs a guess. */
+  const [tips, setTips] = useState<readonly AdivinaTip[]>([]);
+  /** Positions of the answer uncovered by the 🔤 and ✨ tips. */
+  const [shown, setShown] = useState<readonly number[]>([]);
   const [finished, setFinished] = useState(false);
 
   const combo = useCombo();
@@ -89,7 +105,9 @@ export function AdivinaPlayer({
     marks: game ? scoreGuess(guess, game.target.word) : [],
   }));
   const won = rows.some((row) => isWon(row.marks));
-  const over = won || guesses.length >= ADIVINA_GUESSES;
+  // Tips are paid for out of the same six, so buying four leaves two tries.
+  const left = guessesLeft(guesses.length, tips.length);
+  const over = won || left === 0;
 
   const length = difficulty === null ? 0 : ADIVINA_LEVELS[difficulty];
   const keys = game === null ? new Map() : keyboardMarks(guesses, game.target.word);
@@ -100,8 +118,29 @@ export function AdivinaPlayer({
     setGuesses([]);
     setTyped("");
     setRejected(0);
+    setTips([]);
+    setShown([]);
     setFinished(false);
     combo.reset();
+  }
+
+  /** Buy a hint. Costs one of the six guesses, and each kind only once. */
+  function takeTip(tip: AdivinaTip) {
+    if (game === null || over || tips.includes(tip)) {
+      return;
+    }
+    if (tip === "first" && !shown.includes(0)) {
+      setShown([...shown, 0]);
+    }
+    if (tip === "letter") {
+      const index = revealTipIndex(game.target.word, shown);
+      if (index === null) {
+        return;
+      }
+      setShown([...shown, index]);
+    }
+    feedbackWrong();
+    setTips([...tips, tip]);
   }
 
   function restart() {
@@ -162,7 +201,8 @@ export function AdivinaPlayer({
       return;
     }
 
-    feedbackWrong();
+    // combo.wrong() already plays the buzzer — calling it here too just
+    // doubled the volume of a sound meant to be soft.
     combo.wrong();
     if (next.length >= ADIVINA_GUESSES) {
       // Out of guesses: say the answer, so a loss still teaches the word.
@@ -228,7 +268,9 @@ export function AdivinaPlayer({
           activity="adivina"
           onReplay={restart}
           noAward
-          firstTryCount={won ? ADIVINA_GUESSES - guesses.length + 1 : 0}
+          /* Stars for what's left in the budget — so spending guesses AND
+             buying tips both cost the same thing. */
+          firstTryCount={won ? left + 1 : 0}
           mistakeCount={won ? 0 : 1}
           totalRounds={ADIVINA_GUESSES}
           back={{
@@ -240,9 +282,70 @@ export function AdivinaPlayer({
       ) : (
         <>
           <section className="flex flex-1 flex-col items-center justify-center gap-5 py-4">
-            <h1 className="sr-only">
-              Adivina la palabra — {groupNameSpanish}
+            {/* The theme, visible the whole time. Knowing the answer is a
+                *casa* word is the scaffolding that makes this guessable at
+                all — it lived in an sr-only heading and might as well not
+                have existed. */}
+            <h1 className="pop-in flex items-center gap-2 text-center">
+              <span aria-hidden className="text-4xl">
+                {groupEmoji}
+              </span>
+              <span className="flex flex-col leading-tight">
+                <span className="text-2xl font-extrabold sm:text-3xl">
+                  {groupNameSpanish}
+                </span>
+                <span className="text-sm font-semibold text-ink/50">
+                  {groupNameEnglish}
+                </span>
+              </span>
             </h1>
+
+            {/* What the bought tips revealed. */}
+            {(tips.includes("picture") || tips.includes("meaning")) && (
+              <div className="pop-in flex items-center gap-4">
+                {tips.includes("picture") && (
+                  <span
+                    aria-label={`Picture tip: ${game.target.card.english}`}
+                    className="text-6xl"
+                  >
+                    {game.target.card.emoji}
+                  </span>
+                )}
+                {tips.includes("meaning") && (
+                  <span
+                    aria-label={`Meaning tip: ${game.target.card.english}`}
+                    className="text-2xl font-extrabold"
+                  >
+                    💬 {game.target.card.english}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Letters bought with 🔤 / ✨, shown in place so they read as
+                part of the answer rather than as another guess. */}
+            {shown.length > 0 && (
+              <div
+                className="flex items-center gap-2"
+                aria-label="Letters revealed by tips"
+              >
+                {[...game.target.word].map((letter, i) => (
+                  <span
+                    key={i}
+                    aria-label={
+                      shown.includes(i) ? `Letter ${i + 1} is ${letter}` : undefined
+                    }
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg border-4 text-lg font-extrabold ${
+                      shown.includes(i)
+                        ? "pop-in border-ink bg-[var(--color-lime)]"
+                        : "border-dashed border-ink/25 bg-white"
+                    }`}
+                  >
+                    {shown.includes(i) ? letter : ""}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {/* The board: played rows, then the row being typed, then empty
                 rows. The typing row shakes when a word is refused. */}
@@ -250,6 +353,23 @@ export function AdivinaPlayer({
               {Array.from({ length: ADIVINA_GUESSES }, (_, row) => {
                 const played = rows[row];
                 const typing = !over && row === guesses.length;
+                // Tips eat rows from the bottom, so the cost is visible on
+                // the board rather than hidden in a counter.
+                const spent = row >= ADIVINA_GUESSES - tips.length;
+                if (spent) {
+                  return (
+                    <div
+                      key={`spent-${row}`}
+                      aria-label="A guess spent on a tip"
+                      className="flex h-6 items-center justify-center gap-2 opacity-40"
+                    >
+                      <span aria-hidden className="text-2xl">
+                        💡
+                      </span>
+                      <span aria-hidden className="h-1 w-24 rounded-full bg-ink/30" />
+                    </div>
+                  );
+                }
                 return (
                   <div
                     key={typing ? `typing-${rejected}` : row}
@@ -336,6 +456,36 @@ export function AdivinaPlayer({
                 className="flex w-full max-w-lg flex-col items-center gap-2"
                 aria-label="Keyboard"
               >
+                {/* The tip tray. Every one costs a guess, so it's a trade the
+                    kid makes — the same deal el globo strikes with air. */}
+                <div className="flex flex-wrap items-center justify-center gap-2 pb-1">
+                  {ADIVINA_TIPS.map((tip) => {
+                    const bought = tips.includes(tip);
+                    const exhausted =
+                      tip === "letter" &&
+                      revealTipIndex(game.target.word, shown) === null;
+                    return (
+                      <button
+                        type="button"
+                        key={tip}
+                        onClick={() => takeTip(tip)}
+                        disabled={bought || exhausted || left <= 1}
+                        aria-label={`Tip: show ${TIP_META[tip].english} — costs one guess${
+                          bought ? " (already used)" : ""
+                        }`}
+                        className={`sticker flex items-center gap-1.5 px-3 py-2 text-base font-extrabold ${
+                          bought || exhausted || left <= 1
+                            ? "opacity-30"
+                            : "active:translate-x-1 active:translate-y-1 active:shadow-none"
+                        }`}
+                      >
+                        <span aria-hidden>{TIP_META[tip].glyph}</span>
+                        {TIP_META[tip].spanish}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="flex flex-wrap items-center justify-center gap-1.5">
                   {[...SPANISH_ALPHABET].map((letter) => {
                     const mark = keys.get(letter) as LetterMark | undefined;
@@ -409,8 +559,11 @@ export function AdivinaPlayer({
           </section>
 
           <footer className="flex items-center justify-center pb-2">
-            <span className="text-sm font-bold text-ink/40">
-              {guesses.length}/{ADIVINA_GUESSES}
+            <span
+              className="text-sm font-bold text-ink/40"
+              aria-label={`${left} of ${ADIVINA_GUESSES} tries left`}
+            >
+              {left}/{ADIVINA_GUESSES}
             </span>
           </footer>
         </>

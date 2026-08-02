@@ -1,5 +1,42 @@
 # Shipped features
 
+## 2026-08-02 — Adivina gets its context and its tips; el globo gets a voice
+
+Three follow-ons the same day, all from the parent playing the games through.
+
+**The theme is on screen now.** Adivina drew the answer from the shelf the kid
+entered but never *said so* — `groupNameSpanish` sat in an `sr-only` heading,
+invisible. The one piece of scaffolding that makes a 5-letter Spanish word
+guessable was, in practice, absent. It's now a 🏠 *Mi casa* header above the
+board, in the shelf's accent, visible the whole round. This was the real fix
+for "it would be difficult for my kids to guess without context" — a curated
+dictionary had been shaped for the same complaint and would not have touched it.
+
+**Four tips, each costing one of the six guesses** (`domain/adivina.ts`,
+tested): 💬 the English meaning · 🖼️ the picture · 🔤 the first letter ·
+✨ one more letter. Bought letters show in place in a small skeleton row above
+the board, so they read as part of the answer rather than as another guess. The
+cost is drawn, not just counted: **a tip eats a row off the bottom of the
+board**, marked 💡. Tips lock at one guess remaining — buying a hint you can
+never use isn't a trade. Stars now pay out on what's *left* in the budget, so
+guesses and tips cost the same thing.
+
+**El globo sounds like a balloon.** Three synthesized sounds, no audio assets —
+`noiseBurst()` joins `tone()` in `feedback.ts`, because air and bursts are
+noise, not tones (ADR 001's reasoning applied to game feel):
+- 🎈 **inflate** — air rising in pitch as each round's balloon fills
+- 💨 **air out** — one breath escaping on a wrong letter or a bought tip
+- 💥 **pop** — a hard burst plus a low thump under it
+
+**A doubled buzzer, found by counting audio nodes.** Verifying the sounds by
+spying on `createOscillator`/`createBufferSource` showed *five* oscillators
+where the pop creates one. Cause: `combo.wrong()` already plays
+`feedbackWrong()`, and both la sopa and adivina were calling it a second time
+themselves — playing the identical tone twice, at double the volume of a sound
+whose own comment reads "soft and low, never punishing". Both fixed. `useCombo`
+now takes `{ wrongSound: false }` so el globo can own its miss sound outright
+instead of hissing under the generic buzzer.
+
 ## 2026-08-02 — Two letter games: El globo and Adivina la palabra
 
 Roadmap 26, shaped and shipped the same day as two separate slices. Both are

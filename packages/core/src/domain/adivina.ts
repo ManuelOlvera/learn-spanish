@@ -35,6 +35,43 @@ export const ADIVINA_LEVELS: Record<AdivinaDifficulty, number> = {
 
 export const ADIVINA_GUESSES = 6;
 
+/**
+ * The four hints, each buyable once and each costing one of the six guesses —
+ * the same trade el globo teaches with the balloon. Ordered weakest first, so
+ * the tray reads as a ladder rather than four equivalent buttons.
+ */
+export const ADIVINA_TIPS = ["meaning", "picture", "first", "letter"] as const;
+
+export type AdivinaTip = (typeof ADIVINA_TIPS)[number];
+
+/** Guesses still available: tips are paid for out of the same budget. */
+export function guessesLeft(
+  guessCount: number,
+  tipCount: number,
+  budget: number = ADIVINA_GUESSES,
+): number {
+  return Math.max(0, budget - guessCount - tipCount);
+}
+
+/**
+ * Which position the ✨ "una letra" tip should uncover: a letter not already
+ * uncovered by an earlier tip. Deterministic given the random source, and
+ * null once every position is showing — the UI must then stop offering it.
+ */
+export function revealTipIndex(
+  word: string,
+  alreadyShown: readonly number[],
+  random: RandomSource = Math.random,
+): number | null {
+  const hidden = [...word]
+    .map((_, index) => index)
+    .filter((index) => !alreadyShown.includes(index));
+  if (hidden.length === 0) {
+    return null;
+  }
+  return shuffled(hidden, random)[0]!;
+}
+
 /** Below this the guess list is so small the answer is luck, not deduction. */
 export const ADIVINA_MIN_POOL = 6;
 

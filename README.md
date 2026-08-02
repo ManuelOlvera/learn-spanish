@@ -44,10 +44,13 @@ No reading, no accounts, no setup.
   letter by letter before the balloon pops — reader-level, 🟢/🟡/🔴 word
   lengths, the 💡 tip costs a life), and "Adivina la palabra" (wordle over
   a whole shelf — type the word on a Spanish keyboard, 🟩/🟨/⬜ per letter;
-  a word the app doesn't know can't be submitted and costs no guess.
+  a word the app doesn't know can't be submitted and costs no guess. The
+  shelf's theme stays on screen, and four tips — meaning, picture, first
+  letter, one more letter — each cost one of the six guesses.
   Reader-level, 🟢/🟡/🔴 word lengths, entered from the shelf screen).
-- **Game feel** — synthesized sounds, haptics, confetti, and a ⚡ racha
-  burst at 3/5/10 correct in a row.
+- **Game feel** — synthesized sounds (tones *and* filtered noise, so El globo
+  can inflate, hiss and pop without a single audio file), haptics, confetti,
+  and a ⚡ racha burst at 3/5/10 correct in a row.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward
   missed words; a 🔁 "El repaso" chip appears on home when ≥3 words
   struggle. Special avatars unlock by sticker count and streaks.

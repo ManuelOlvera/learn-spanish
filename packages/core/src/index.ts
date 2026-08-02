@@ -282,6 +282,7 @@ export {
 export type {
   AdivinaDifficulty,
   AdivinaGame,
+  AdivinaTip,
   AdivinaWord,
   LetterMark,
 } from "./domain/adivina";
@@ -290,6 +291,9 @@ export {
   ADIVINA_GUESSES,
   ADIVINA_LEVELS,
   ADIVINA_MIN_POOL,
+  ADIVINA_TIPS,
+  guessesLeft,
+  revealTipIndex,
   adivinaDictionary,
   adivinaDifficulties,
   adivinaPool,
