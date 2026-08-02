@@ -27,6 +27,9 @@ export default async function AdivinaPage({
   const cards = group.deckIds.flatMap(
     (id) => allDecks.find((d) => d.id === id)?.cards ?? [],
   );
+  // The answer comes from this shelf; a typed guess may be any pack word of
+  // the right length, so the kid isn't refused words they've been taught.
+  const packCards = allDecks.flatMap((deck) => deck.cards);
   // Las letras has no length with enough words — the shelf hides the tile too.
   if (adivinaDifficulties(cards).length === 0) {
     notFound();
@@ -39,6 +42,7 @@ export default async function AdivinaPage({
       groupNameEnglish={group.nameEnglish}
       groupEmoji={group.emoji}
       cards={cards}
+      packCards={packCards}
       accent={deckAccent(group.id)}
     />
   );

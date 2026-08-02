@@ -30,13 +30,23 @@ it pops — and the pop **reveals the word in grey**, so a loss still teaches it
 
 ### 🔡 Adivina la palabra — wordle over a whole shelf
 
-**Per category, not per deck** — the finding that shaped it. The kid taps
-guesses from a word list instead of typing them (an eight-year-old cannot
-invent Spanish probe words), and that only works if the list is big enough to
-deduce from. Measured before building: **only 10 of 41 decks have 5+
-same-length words, 3 have 6+**. At shelf scope every category has 10–13. So the
-entry tile lives on the shelf screen beside the decks, the slot El abecedario
-already uses.
+The kid **types** the word on an on-screen Spanish keyboard (27 keys with Ñ, ⌫
+and ✓), and the keys tint with the best thing learned about each letter, same
+as the board. A first cut had guesses *tapped* from a word list — cut on review
+for not being wordle.
+
+**A made-up word can't be submitted at all.** "A real word" here means any word
+in the pack of that length — 63/83/78 at 4/5/6 letters — not just the shelf's:
+narrower and almost every honest attempt gets refused, wider needs a Spanish
+dictionary asset the app has no other reason to carry. So a kid playing Mi casa
+can type PERRO. A refusal costs a shake and an honest *no conozco esa palabra*,
+and **never spends one of the six guesses**.
+
+**The answer is per category, not per deck** — that's what keeps a Mi casa game
+about casa words, and a deck can't host it: **only 10 of 41 decks have 5+
+same-length words, 3 have 6+**, so the target would repeat. A shelf has 10–13.
+Measured before building; it's why the entry tile lives on the shelf screen,
+the slot El abecedario already uses.
 
 - Six guesses, 🟩 hit / 🟨 present / ⬜ miss. A miss is **filled grey, not
   pale** — an unplayed tile is white too, and a kid has to tell "I tried this
@@ -49,7 +59,9 @@ already uses.
 - **Duplicate-letter scoring is the whole game's correctness.** Guessing MAMA
   against a one-A target must light the positional A and *miss* the other one;
   the two-pass scorer and six unit tests pin it, and the headless run showed it
-  behaving in the real UI.
+  behaving in the real UI. The keyboard follows the same rule from the other
+  side: a key already known to be placed exactly is never demoted to amber by a
+  later guess that puts it somewhere wrong.
 - **Its tile is 🔡, not 🟩.** The verify screenshots caught it: as a shelf
   sticker a green square renders flat and reads like a broken image next to 🍎
   and 👕 — fatal on a screen navigated by picture. The wordle green stays on

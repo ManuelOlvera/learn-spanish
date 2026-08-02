@@ -7,8 +7,11 @@ import {
   ADIVINA_LEVELS,
   adivinaDifficulties,
   createAdivinaGame,
+  isRealWord,
   isWon,
+  keyboardMarks,
   scoreGuess,
+  SPANISH_ALPHABET,
   type AdivinaDifficulty,
   type AdivinaGame,
   type LetterMark,
@@ -27,7 +30,10 @@ interface Props {
   groupNameSpanish: string;
   groupNameEnglish: string;
   groupEmoji: string;
+  /** The shelf's cards — where the answer comes from. */
   cards: readonly VocabularyCard[];
+  /** Every card in the pack — what a typed guess is allowed to be. */
+  packCards: readonly VocabularyCard[];
   accent: string;
 }
 
@@ -49,21 +55,26 @@ const MARK_STYLE: Record<LetterMark, string> = {
   miss: "border-ink/40 bg-ink/20 text-ink/45",
 };
 
-/** Adivina la palabra: the wordle mechanic over a whole category. Guesses are
- *  tapped from the category's own words — a kid can't invent Spanish probe
- *  words, so the game is deduction over a known set. */
+/** Adivina la palabra: wordle. The kid types the word on a Spanish keyboard;
+ *  a word the app doesn't know can't be submitted, so a spelling attempt is
+ *  never silently wasted as one of the six guesses. */
 export function AdivinaPlayer({
   groupId,
   groupNameSpanish,
   groupNameEnglish,
   groupEmoji,
   cards,
+  packCards,
   accent,
 }: Props) {
   const [difficulty, setDifficulty] = useState<AdivinaDifficulty | null>(null);
   // The target is random — drawn client-side only (hydration).
   const [game, setGame] = useState<AdivinaGame | null>(null);
   const [guesses, setGuesses] = useState<readonly string[]>([]);
+  /** The word being typed, not yet submitted. */
+  const [typed, setTyped] = useState("");
+  /** Bumped to replay the "I don't know that word" shake. */
+  const [rejected, setRejected] = useState(0);
   const [finished, setFinished] = useState(false);
 
   const combo = useCombo();
@@ -80,10 +91,15 @@ export function AdivinaPlayer({
   const won = rows.some((row) => isWon(row.marks));
   const over = won || guesses.length >= ADIVINA_GUESSES;
 
+  const length = difficulty === null ? 0 : ADIVINA_LEVELS[difficulty];
+  const keys = game === null ? new Map() : keyboardMarks(guesses, game.target.word);
+
   function start(level: AdivinaDifficulty) {
     setDifficulty(level);
-    setGame(createAdivinaGame(groupId, cards, level));
+    setGame(createAdivinaGame(groupId, cards, packCards, level));
     setGuesses([]);
+    setTyped("");
+    setRejected(0);
     setFinished(false);
     combo.reset();
   }
@@ -94,8 +110,39 @@ export function AdivinaPlayer({
     }
   }
 
+  function type(letter: string) {
+    if (over || typed.length >= length) {
+      return;
+    }
+    // Any edit clears the refusal — it belongs to the word that was refused,
+    // not to the screen.
+    setRejected(0);
+    setTyped(typed + letter);
+  }
+
+  function backspace() {
+    setRejected(0);
+    setTyped(typed.slice(0, -1));
+  }
+
+  /** Submit the typed word — refusing anything the app doesn't know, which
+   *  costs the kid nothing but a shake. Only real words spend a guess. */
+  function submit() {
+    if (game === null || over || typed.length !== length) {
+      return;
+    }
+    if (!isRealWord(typed, game.dictionary) || guesses.includes(typed)) {
+      feedbackWrong();
+      setRejected((n) => n + 1);
+      return;
+    }
+    setTyped("");
+    setRejected(0);
+    guess(typed);
+  }
+
   function guess(word: string) {
-    if (game === null || over || guesses.includes(word)) {
+    if (game === null) {
       return;
     }
     const next = [...guesses, word];
@@ -197,46 +244,64 @@ export function AdivinaPlayer({
               Adivina la palabra — {groupNameSpanish}
             </h1>
 
-            {/* The board: one row per guess made, then empty rows. */}
+            {/* The board: played rows, then the row being typed, then empty
+                rows. The typing row shakes when a word is refused. */}
             <div className="flex flex-col gap-2" aria-label="Your guesses">
               {Array.from({ length: ADIVINA_GUESSES }, (_, row) => {
                 const played = rows[row];
+                const typing = !over && row === guesses.length;
                 return (
-                  <div key={row} className="flex gap-2">
-                    {Array.from(
-                      { length: ADIVINA_LEVELS[difficulty] },
-                      (_, col) => {
-                        const letter = played?.guess[col];
-                        const mark = played?.marks[col];
-                        return (
-                          <span
-                            key={col}
-                            aria-label={
-                              played
-                                ? `${letter}: ${
-                                    mark === "hit"
-                                      ? "right letter, right place"
-                                      : mark === "present"
-                                        ? "right letter, wrong place"
-                                        : "not in the word"
-                                  }`
-                                : undefined
-                            }
-                            className={`flex h-12 w-12 items-center justify-center rounded-xl border-4 text-2xl font-extrabold sm:h-14 sm:w-14 sm:text-3xl ${
-                              played
-                                ? `pop-in ${MARK_STYLE[mark ?? "miss"]}`
+                  <div
+                    key={typing ? `typing-${rejected}` : row}
+                    className={`flex gap-2 ${typing && rejected > 0 ? "wobble" : ""}`}
+                  >
+                    {Array.from({ length }, (_, col) => {
+                      const letter = typing
+                        ? (typed[col] ?? "")
+                        : (played?.guess[col] ?? "");
+                      const mark = played?.marks[col];
+                      return (
+                        <span
+                          key={col}
+                          aria-label={
+                            played
+                              ? `${letter}: ${
+                                  mark === "hit"
+                                    ? "right letter, right place"
+                                    : mark === "present"
+                                      ? "right letter, wrong place"
+                                      : "not in the word"
+                                }`
+                              : undefined
+                          }
+                          className={`flex h-12 w-12 items-center justify-center rounded-xl border-4 text-2xl font-extrabold sm:h-14 sm:w-14 sm:text-3xl ${
+                            played
+                              ? `pop-in ${MARK_STYLE[mark ?? "miss"]}`
+                              : typing && letter
+                                ? "pop-in border-ink bg-white"
                                 : "border-dashed border-ink/25 bg-white"
-                            }`}
-                          >
-                            {letter ?? ""}
-                          </span>
-                        );
-                      },
-                    )}
+                          }`}
+                        >
+                          {letter}
+                        </span>
+                      );
+                    })}
                   </div>
                 );
               })}
             </div>
+
+            {/* Says what the shake means, since the word IS spelled fine —
+                the app just hasn't taught it. */}
+            {!over && rejected > 0 && (
+              <p
+                key={rejected}
+                role="status"
+                className="pop-in text-lg font-extrabold text-ink/50"
+              >
+                No conozco esa palabra
+              </p>
+            )}
 
             {over ? (
               <div className="pop-in flex flex-col items-center gap-3">
@@ -264,30 +329,81 @@ export function AdivinaPlayer({
                 </button>
               </div>
             ) : (
-              /* The guess list: the category's own words, tapped not typed. */
+              /* The keyboard. Its own on-screen keys, not the device's: this
+                 runs on a tablet in a PWA, the taps must be thumb-sized, and
+                 the keys carry what's been learned about each letter. */
               <div
-                className="flex w-full max-w-lg flex-wrap items-center justify-center gap-2"
-                aria-label="Words you can guess"
+                className="flex w-full max-w-lg flex-col items-center gap-2"
+                aria-label="Keyboard"
               >
-                {game.pool.map((entry) => {
-                  const used = guesses.includes(entry.word);
-                  return (
-                    <button
-                      type="button"
-                      key={entry.word}
-                      onClick={() => guess(entry.word)}
-                      disabled={used}
-                      aria-label={`Guess ${entry.word}${used ? " (already tried)" : ""}`}
-                      className={`sticker px-3 py-2 text-lg font-extrabold sm:text-xl ${
-                        used
-                          ? "opacity-25"
-                          : "active:translate-x-1 active:translate-y-1 active:shadow-none"
-                      }`}
-                    >
-                      {entry.word}
-                    </button>
-                  );
-                })}
+                <div className="flex flex-wrap items-center justify-center gap-1.5">
+                  {[...SPANISH_ALPHABET].map((letter) => {
+                    const mark = keys.get(letter) as LetterMark | undefined;
+                    return (
+                      <button
+                        type="button"
+                        key={letter}
+                        onClick={() => type(letter)}
+                        aria-label={`Type ${letter}${
+                          mark === "hit"
+                            ? " (in the word, right place found)"
+                            : mark === "present"
+                              ? " (in the word)"
+                              : mark === "miss"
+                                ? " (not in the word)"
+                                : ""
+                        }`}
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl border-4 text-xl font-extrabold active:translate-x-0.5 active:translate-y-0.5 sm:h-12 sm:w-12 ${
+                          mark
+                            ? MARK_STYLE[mark]
+                            : "border-ink bg-white shadow-[3px_3px_0_var(--color-ink)]"
+                        }`}
+                      >
+                        {letter}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={backspace}
+                    disabled={typed.length === 0}
+                    aria-label="Delete the last letter"
+                    className={`sticker flex h-16 w-20 items-center justify-center text-3xl ${
+                      typed.length === 0
+                        ? "opacity-30"
+                        : "active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    }`}
+                  >
+                    ⌫
+                  </button>
+                  <button
+                    type="button"
+                    onClick={submit}
+                    disabled={typed.length !== length}
+                    aria-label={
+                      typed.length === length
+                        ? `Submit ${typed}`
+                        : `Type ${length} letters to submit`
+                    }
+                    className={`sticker flex h-16 w-28 items-center justify-center text-3xl ${
+                      typed.length !== length
+                        ? "opacity-30"
+                        : "active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    }`}
+                    style={
+                      typed.length === length
+                        ? ({
+                            "--sticker-face": "var(--color-lime)",
+                          } as React.CSSProperties)
+                        : undefined
+                    }
+                  >
+                    ✓
+                  </button>
+                </div>
               </div>
             )}
           </section>

@@ -3,9 +3,12 @@ import {
   ADIVINA_GUESSES,
   ADIVINA_LEVELS,
   ADIVINA_MIN_POOL,
+  adivinaDictionary,
   adivinaDifficulties,
   adivinaPool,
   createAdivinaGame,
+  isRealWord,
+  keyboardMarks,
   scoreGuess,
 } from "../src/domain/adivina";
 import type { AdivinaDifficulty } from "../src/domain/adivina";
@@ -144,34 +147,85 @@ describe("adivinaDifficulties", () => {
 });
 
 describe("createAdivinaGame", () => {
-  it("draws a target from the category's own words", () => {
-    const game = createAdivinaGame(
-      "casa",
-      cards(FIVES),
-      "medium",
-      seededRandom(5),
-    );
-    expect(game.pool.map((p) => p.word)).toContain(game.target.word);
-    expect(game.target.word).toHaveLength(ADIVINA_LEVELS.medium);
+  /** Words from other shelves — legal to type, never the answer here. */
+  const ELSEWHERE = ["perro", "coche", "nieve", "libro"];
+
+  it("draws the target from the category, never from the wider pack", () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const game = createAdivinaGame(
+        "casa",
+        cards(FIVES),
+        cards([...FIVES, ...ELSEWHERE]),
+        "medium",
+        seededRandom(seed),
+      );
+      expect(FIVES.map((w) => w.toUpperCase())).toContain(game.target.word);
+      expect(game.target.word).toHaveLength(ADIVINA_LEVELS.medium);
+    }
   });
 
-  it("offers every pool word as a tappable guess", () => {
+  it("accepts any pack word of the right length as a guess", () => {
     const game = createAdivinaGame(
       "casa",
       cards(FIVES),
+      cards([...FIVES, ...ELSEWHERE]),
       "medium",
       seededRandom(5),
     );
-    expect(game.pool).toHaveLength(FIVES.length);
-    for (const entry of game.pool) {
-      expect(entry.word).toHaveLength(ADIVINA_LEVELS.medium);
+    // A word from another shelf is typable...
+    expect(isRealWord("PERRO", game.dictionary)).toBe(true);
+    // ...the target always is...
+    expect(isRealWord(game.target.word, game.dictionary)).toBe(true);
+    // ...and a made-up word never is.
+    expect(isRealWord("ZZZZZ", game.dictionary)).toBe(false);
+    expect(isRealWord("QWERT", game.dictionary)).toBe(false);
+  });
+
+  it("keeps the dictionary to the target's length", () => {
+    const game = createAdivinaGame(
+      "casa",
+      cards(FIVES),
+      cards([...FIVES, ...ELSEWHERE, "sol", "elefante"]),
+      "medium",
+      seededRandom(2),
+    );
+    for (const word of game.dictionary) {
+      expect(word).toHaveLength(ADIVINA_LEVELS.medium);
     }
+    expect(isRealWord("SOL", game.dictionary)).toBe(false);
   });
 
   it("throws rather than dealing an unplayable round", () => {
     expect(() =>
-      createAdivinaGame("casa", cards(["sol"]), "medium", seededRandom(1)),
+      createAdivinaGame(
+        "casa",
+        cards(["sol"]),
+        cards(FIVES),
+        "medium",
+        seededRandom(1),
+      ),
     ).toThrow();
+  });
+});
+
+describe("keyboardMarks", () => {
+  it("tints a key by the best news about that letter", () => {
+    // PERRO: R appears twice. Guess GORRA then PERRO.
+    const marks = keyboardMarks(["FRESA"], "PERRO");
+    expect(marks.get("R")).toBe("present");
+    expect(marks.get("E")).toBe("present");
+    expect(marks.get("F")).toBe("miss");
+  });
+
+  it("never demotes a letter already placed exactly", () => {
+    // First guess places O exactly; a later guess puts O in the wrong slot.
+    const marks = keyboardMarks(["PERRO", "OSTRA"], "PERRO");
+    expect(marks.get("O")).toBe("hit");
+    expect(marks.get("P")).toBe("hit");
+  });
+
+  it("is empty before the first guess", () => {
+    expect(keyboardMarks([], "PERRO").size).toBe(0);
   });
 });
 
@@ -193,9 +247,10 @@ describe("the real pack", () => {
     }
   });
 
-  it("can always be won inside the guess budget from its own pool", async () => {
+  it("always lets the kid type the answer itself", async () => {
     const decks = await new StaticDeckRepository().listDecks();
     const groups = await new StaticDeckGroupRepository().listGroups();
+    const packCards = decks.flatMap((d) => d.cards);
     for (const group of groups) {
       const groupCards = group.deckIds.flatMap(
         (id) => decks.find((d) => d.id === id)?.cards ?? [],
@@ -204,15 +259,25 @@ describe("the real pack", () => {
         const game = createAdivinaGame(
           group.id,
           groupCards,
+          packCards,
           level as AdivinaDifficulty,
           seededRandom(13),
         );
-        // Guessing the pool in order always finds the target; the budget only
-        // has to be reachable, not generous.
-        const at = game.pool.findIndex((p) => p.word === game.target.word);
-        expect(at).toBeGreaterThanOrEqual(0);
-        expect(ADIVINA_GUESSES).toBeGreaterThanOrEqual(1);
+        // An unwinnable round — a target the dictionary rejects — would be the
+        // worst possible bug here.
+        expect(isRealWord(game.target.word, game.dictionary)).toBe(true);
+        expect(game.dictionary.length).toBeGreaterThanOrEqual(ADIVINA_GUESSES);
       }
+    }
+  });
+
+  it("gives every playable length a real typing vocabulary", async () => {
+    const decks = await new StaticDeckRepository().listDecks();
+    const packCards = decks.flatMap((d) => d.cards);
+    for (const length of [4, 5, 6]) {
+      const dictionary = adivinaDictionary(packCards, length);
+      expect(dictionary.length).toBeGreaterThan(50);
+      expect(new Set(dictionary).size).toBe(dictionary.length);
     }
   });
 });

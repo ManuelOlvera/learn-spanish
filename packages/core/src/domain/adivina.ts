@@ -5,14 +5,18 @@ import type { RandomSource } from "./random";
 import { bareWord } from "./spanish";
 
 /**
- * Adivina la palabra — the wordle mechanic, played over a whole **category**
- * rather than one deck.
+ * Adivina la palabra — wordle. The kid **types** a guess and the board marks
+ * every letter; a word the app doesn't know can't be submitted at all.
  *
- * Why the category: the kid taps guesses from a word list instead of typing
- * them, because an eight-year-old with basic Spanish cannot invent probe
- * words — and that only works if the list is big enough to deduce from. At
- * deck scope it isn't: only 10 of 41 decks have five same-length words. A
- * shelf ("Mi casa" = familia + food + house + clothes + fruit) has 10–13.
+ * Two different word sets, deliberately:
+ *
+ * - The **target** comes from the category the kid entered (Mi casa gives a
+ *   casa word), which is what keeps the game inside its shelf.
+ * - A **guess** may be any word in the whole pack of the right length (63/83/78
+ *   at 4/5/6 letters). Narrower than that and almost every real attempt would
+ *   be refused; wider needs a Spanish dictionary asset, which the app has no
+ *   other reason to carry. So "a real word" here means "a word these kids have
+ *   been taught" — and a refusal is honest about that: *no conozco esa palabra*.
  */
 export type AdivinaDifficulty = "easy" | "medium" | "hard";
 
@@ -46,8 +50,9 @@ export interface AdivinaGame {
   readonly groupId: string;
   readonly difficulty: AdivinaDifficulty;
   readonly target: AdivinaWord;
-  /** Every word that can be tapped as a guess — the target is one of them. */
-  readonly pool: readonly AdivinaWord[];
+  /** Every word the kid is allowed to submit — pack-wide, target's length.
+   *  Includes the target. */
+  readonly dictionary: readonly string[];
 }
 
 /**
@@ -82,13 +87,30 @@ export function adivinaDifficulties(
   );
 }
 
+/**
+ * Every word a guess may be: the whole pack's words of that length, so the
+ * kid can type any word they've been taught, not just this shelf's.
+ */
+export function adivinaDictionary(
+  packCards: readonly VocabularyCard[],
+  length: number,
+): readonly string[] {
+  return adivinaPool(packCards, length).map((entry) => entry.word);
+}
+
+/**
+ * @param categoryCards the shelf the kid entered — where the answer comes from
+ * @param packCards every card in the pack — what a guess may be
+ */
 export function createAdivinaGame(
   groupId: string,
-  cards: readonly VocabularyCard[],
+  categoryCards: readonly VocabularyCard[],
+  packCards: readonly VocabularyCard[],
   difficulty: AdivinaDifficulty,
   random: RandomSource = Math.random,
 ): AdivinaGame {
-  const pool = adivinaPool(cards, ADIVINA_LEVELS[difficulty]);
+  const length = ADIVINA_LEVELS[difficulty];
+  const pool = adivinaPool(categoryCards, length);
   if (pool.length < ADIVINA_MIN_POOL) {
     throw new QuizDeckTooSmallError(groupId, pool.length, ADIVINA_MIN_POOL);
   }
@@ -96,8 +118,16 @@ export function createAdivinaGame(
     groupId,
     difficulty,
     target: shuffled(pool, random)[0]!,
-    pool,
+    dictionary: adivinaDictionary(packCards, length),
   };
+}
+
+/** Whether a typed guess may be submitted at all. */
+export function isRealWord(
+  guess: string,
+  dictionary: readonly string[],
+): boolean {
+  return dictionary.includes(guess);
 }
 
 /**
@@ -141,4 +171,29 @@ export function scoreGuess(guess: string, target: string): readonly LetterMark[]
 
 export function isWon(marks: readonly LetterMark[]): boolean {
   return marks.every((mark) => mark === "hit");
+}
+
+const MARK_RANK: Record<LetterMark, number> = { miss: 0, present: 1, hit: 2 };
+
+/**
+ * The best thing learned about each letter so far — what tints the keyboard.
+ * Best, not latest: once a letter has been placed exactly, a later guess that
+ * puts it somewhere wrong must not demote the key back to amber.
+ */
+export function keyboardMarks(
+  guesses: readonly string[],
+  target: string,
+): ReadonlyMap<string, LetterMark> {
+  const best = new Map<string, LetterMark>();
+  for (const guess of guesses) {
+    const marks = scoreGuess(guess, target);
+    [...guess].forEach((letter, i) => {
+      const mark = marks[i]!;
+      const current = best.get(letter);
+      if (current === undefined || MARK_RANK[mark] > MARK_RANK[current]) {
+        best.set(letter, mark);
+      }
+    });
+  }
+  return best;
 }

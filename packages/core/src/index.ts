@@ -290,10 +290,13 @@ export {
   ADIVINA_GUESSES,
   ADIVINA_LEVELS,
   ADIVINA_MIN_POOL,
+  adivinaDictionary,
   adivinaDifficulties,
   adivinaPool,
   createAdivinaGame,
+  isRealWord,
   isWon,
+  keyboardMarks,
   scoreGuess,
 } from "./domain/adivina";
 export type { LetterCase } from "./domain/letters";

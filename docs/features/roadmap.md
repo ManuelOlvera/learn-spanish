@@ -358,14 +358,21 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
 
     **26b. ☑ Adivina la palabra (wordle)** — guess the hidden word in six
     tries, 🟩/🟨/⬜ per letter. **Per category, not per deck.**
-    - **Why category and not deck:** an 8-year-old cannot invent Spanish probe
-      words, so guesses are *tapped from a word list* rather than typed —
-      deduction over a known set. That only works if the set is big enough,
-      and it is not at deck scope: **only 10 of 41 decks have 5+ same-length
-      words, and 3 have 6+**. At category scope (Mi casa = familia + food +
-      house + clothes + fruit, 60 words) every pool is 10–13 words. Measured
-      2026-08-02 before building — this is the finding that moved the entry
-      point to the shelf screen.
+    - **The kid types the word.** On-screen Spanish keyboard (27 keys, Ñ
+      included), ⌫ and ✓, keys tinted by the best thing learned about each
+      letter — real wordle. A first cut had guesses *tapped* from a word list;
+      that was rejected on review as not-wordle, and rightly.
+    - **A made-up word can't be submitted.** "A real word" means **any word in
+      the pack** of that length (63/83/78 at 4/5/6 letters), not just this
+      shelf's — narrower and almost every honest attempt gets refused; wider
+      needs a Spanish dictionary asset the app has no other reason to carry.
+      A refusal costs nothing but a shake and says so honestly: *no conozco esa
+      palabra*. It never spends one of the six guesses.
+    - **Why the answer is category-scoped:** it is what keeps a Mi casa game
+      about casa words. A deck can't host it — **only 10 of 41 decks have 5+
+      same-length words, 3 have 6+**, so the target would repeat; a shelf has
+      10–13. Measured 2026-08-02 before building, and it is why the entry tile
+      lives on the shelf screen.
     - **Difficulty is the word length:** 🟢 4 letters · 🟡 5 · 🔴 6, offering
       only the lengths that category can fill with ≥6 words. Six guesses.
     - **Stars, no sticker**, like every other letter game.
