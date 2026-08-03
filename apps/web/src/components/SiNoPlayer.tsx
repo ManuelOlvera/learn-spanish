@@ -79,7 +79,12 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
         kidForActivity(mode === "listen" ? "si-no-listen" : "si-no-read") ??
         "listener";
       recordAnswer
-        .execute(kid, round.card.id, !roundMissed.current)
+        .execute({
+          kid,
+          cardId: round.card.id,
+          correct: !roundMissed.current,
+          activity: mode === "listen" ? "si-no-listen" : "si-no-read",
+        })
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );

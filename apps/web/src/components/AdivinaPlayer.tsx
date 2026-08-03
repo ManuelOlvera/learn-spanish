@@ -194,7 +194,12 @@ export function AdivinaPlayer({
       combo.correct();
       speakSpanish(game.target.card.spanish);
       recordAnswer
-        .execute(kid, game.target.card.id, next.length <= 3)
+        .execute({
+          kid,
+          cardId: game.target.card.id,
+          correct: next.length <= 3,
+          activity: "adivina",
+        })
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );
@@ -208,7 +213,12 @@ export function AdivinaPlayer({
       // Out of guesses: say the answer, so a loss still teaches the word.
       speakSpanish(game.target.card.spanish);
       recordAnswer
-        .execute(kid, game.target.card.id, false)
+        .execute({
+          kid,
+          cardId: game.target.card.id,
+          correct: false,
+          activity: "adivina",
+        })
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );

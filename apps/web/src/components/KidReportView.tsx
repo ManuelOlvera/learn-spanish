@@ -2,9 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Deck, DeckMastery, KidId, KidReport } from "@learn-spanish/core";
+import {
+  accuracyByGame,
+  dayKey,
+  LOG_RETENTION_DAYS,
+  practiceDays,
+  practiceSummary,
+  type AnswerLog,
+  type Deck,
+  type DeckMastery,
+  type KidId,
+  type KidReport,
+} from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { getKidReport } from "@/lib/client-container";
+import { getKidReport, getPracticeLog } from "@/lib/client-container";
 import { getAvatar, KID_META } from "@/lib/kid";
 import { getUnlockedDecks } from "@/lib/economy";
 import { deckAccent } from "@/lib/deck-theme";
@@ -29,6 +40,14 @@ const SHAKY = "#f59e0b";
  *  for a colour that can't be relied on, and it reads as pencil shading. */
 const HATCH =
   "repeating-linear-gradient(45deg, var(--color-ink) 0 2px, transparent 2px 5px)";
+
+/** Whole weeks, so the calendar's columns are weeks and its rows are weekdays.
+ *  Twelve of them ≈ the log's retention window. */
+const CALENDAR_DAYS = 84;
+
+/** One day. Sized explicitly on the cell rather than left to the grid tracks:
+ *  a collapsed row turns the whole calendar into dashes. */
+const CELL = "1.15rem";
 
 /** Spanish agrees in number; "1 flojas" reads as a bug to the parent who is
  *  the entire audience for this screen. */
@@ -87,9 +106,11 @@ export function KidReportView({ decks, kid }: Props) {
   // Avatars live in browser storage, so they are read after mount — reading
   // during render throws on the prerender and swaps the emoji on hydration.
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [practice, setPractice] = useState<AnswerLog>([]);
 
   useEffect(() => {
     setAvatar(getAvatar(kid));
+    setPractice(getPracticeLog(kid));
     // Secret decks only exist for a kid who unlocked one; the report must not
     // reveal the others by listing them as "sin abrir".
     const unlocked = getUnlockedDecks(kid);
@@ -215,6 +236,8 @@ export function KidReportView({ decks, kid }: Props) {
           </section>
 
           <GamesPlayed report={report} />
+          <AccuracyByGame log={practice} />
+          <PracticeCalendar log={practice} />
           <Struggling report={report} byId={byId} />
         </>
       )}
@@ -269,6 +292,166 @@ function GamesPlayed({ report }: { report: KidReport }) {
           {never.map((g) => ACTIVITY_META[g.activity].english).join(" · ")}
         </p>
       )}
+    </section>
+  );
+}
+
+/**
+ * Practice calendar: one cell per day for the retained window, shaded by how
+ * many answers that day. Sequential, so one hue in four steps light→dark —
+ * every step validated against the cream paper (the paler limes the ramp
+ * "should" start with score 1.06:1 and vanish). A day with no play is an
+ * outlined empty cell, never a pale fill: "a little" and "none" must not look
+ * like neighbours on the same scale.
+ */
+const PRACTICE_RAMP = ["#65a30d", "#4d7c0f", "#3f6212", "#1a2e05"] as const;
+
+/** Fixed cut points, not quantiles: a quiet week must look quiet, and
+ *  quantiles would repaint the same day differently as history changes. */
+function rampStep(answers: number): string | null {
+  if (answers <= 0) return null;
+  if (answers <= 5) return PRACTICE_RAMP[0];
+  if (answers <= 15) return PRACTICE_RAMP[1];
+  if (answers <= 30) return PRACTICE_RAMP[2];
+  return PRACTICE_RAMP[3];
+}
+
+function PracticeCalendar({ log }: { log: AnswerLog }) {
+  const days = practiceDays(log);
+  const summary = practiceSummary(log);
+  const today = new Date();
+  // Whole weeks ending today, oldest first, so columns line up as weeks.
+  const cells = Array.from({ length: CALENDAR_DAYS }, (_, i) => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - (CALENDAR_DAYS - 1 - i));
+    const key = dayKey(date);
+    return { key, day: days.get(key) ?? null };
+  });
+
+  return (
+    <section className="sticker relative flex flex-col gap-3 p-5">
+      <span aria-hidden className="sticker-peel" />
+      <h2 className="text-2xl font-extrabold">📅 Cuándo practica</h2>
+      {summary.answers === 0 ? (
+        <p className="text-sm font-semibold text-ink/60">
+          Todavía no hay respuestas en los últimos {LOG_RETENTION_DAYS} días.
+        </p>
+      ) : (
+        <>
+          <p className="text-sm font-semibold text-ink/60">
+            {plural(summary.activeDays, "día", "días")} de práctica ·{" "}
+            {plural(summary.minutes, "minuto", "minutos")} en total · la sesión
+            más larga, {plural(summary.longestSittingMinutes, "minuto", "minutos")}
+          </p>
+          {/* Column-first grid: 7 rows (one weekday each), weeks across. Cells
+              are a fixed small square — stretched to the card width they read
+              as a form to fill in rather than as a density plot. */}
+          <ul
+            className="grid grid-flow-col grid-rows-7 gap-1"
+            style={{ gridAutoColumns: CELL, gridAutoRows: CELL }}
+          >
+            {cells.map(({ key, day }) => (
+              <li
+                key={key}
+                title={
+                  day === null
+                    ? `${key}: sin jugar`
+                    : `${key}: ${day.answers} respuestas · ${day.minutes} min`
+                }
+                aria-label={
+                  day === null
+                    ? `${key}: sin jugar`
+                    : `${key}: ${day.answers} respuestas`
+                }
+                className="rounded-[4px] border-2 border-ink/40"
+                style={{
+                  width: CELL,
+                  height: CELL,
+                  background: rampStep(day?.answers ?? 0) ?? "transparent",
+                }}
+              />
+            ))}
+          </ul>
+          {/* A bare grid has no axis; these two words are the whole axis. */}
+          <p
+            className="flex justify-between text-xs font-semibold text-ink/50"
+            style={{ maxWidth: `${(CALENDAR_DAYS / 7) * 1.4}rem` }}
+          >
+            <span>hace 12 semanas</span>
+            <span>hoy</span>
+          </p>
+          <p className="flex items-center gap-2 text-xs font-semibold text-ink/60">
+            menos
+            <span
+              aria-hidden
+              className="h-3 w-4 rounded-[4px] border-2 border-ink/40"
+            />
+            {PRACTICE_RAMP.map((step) => (
+              <span
+                key={step}
+                aria-hidden
+                className="h-3 w-4 rounded-[4px] border-2 border-ink/40"
+                style={{ background: step }}
+              />
+            ))}
+            más · últimos {LOG_RETENTION_DAYS} días, solo en este dispositivo
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
+
+/** Accuracy per game — the same green/hatched-amber language as the shelf
+ *  meters, so the two colours mean one thing on the whole screen. */
+function AccuracyByGame({ log }: { log: AnswerLog }) {
+  const games = accuracyByGame(log);
+  if (games.length === 0) {
+    return null;
+  }
+  return (
+    <section className="sticker relative flex flex-col gap-3 p-5">
+      <span aria-hidden className="sticker-peel" />
+      <h2 className="text-2xl font-extrabold">🎯 Cómo le va en cada juego</h2>
+      <ul className="flex flex-col gap-3">
+        {games.map(({ activity, answers, right, accuracy }) => (
+          <li key={activity} className="flex flex-col gap-1">
+            <span className="flex items-baseline gap-2 text-sm">
+              <span aria-hidden className="text-lg">
+                {ACTIVITY_META[activity].game}
+                {ACTIVITY_META[activity].mode}
+              </span>
+              <span className="font-semibold text-ink/70">
+                {ACTIVITY_META[activity].english}
+              </span>
+              <span className="ml-auto font-extrabold">
+                {Math.round(accuracy * 100)}%
+              </span>
+              <span className="text-xs font-semibold text-ink/50">
+                {right}/{answers}
+              </span>
+            </span>
+            <span
+              aria-hidden
+              className="flex h-3 w-full overflow-hidden rounded-full border-2 border-ink bg-[color-mix(in_srgb,var(--color-ink)_10%,white)]"
+            >
+              <span style={{ width: `${accuracy * 100}%`, background: MASTERED }} />
+              {accuracy < 1 && (
+                <span
+                  className="border-l-2 border-paper"
+                  style={{ width: `${(1 - accuracy) * 100}%`, background: SHAKY }}
+                >
+                  <span className="block h-full w-full" style={{ background: HATCH }} />
+                </span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs font-semibold text-ink/60">
+        Solo los juegos que hacen preguntas — las tarjetas, las parejas y los
+        cuentos no se puntúan. Últimos {LOG_RETENTION_DAYS} días.
+      </p>
     </section>
   );
 }

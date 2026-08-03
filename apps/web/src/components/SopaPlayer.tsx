@@ -116,7 +116,12 @@ export function SopaPlayer({ deck, accent }: Props) {
     setMissedSinceFind(false);
     const kid = getSelectedKid() ?? kidForActivity("sopa") ?? "reader";
     recordAnswer
-      .execute(kid, word.card.id, !missedSinceFind)
+      .execute({
+        kid,
+        cardId: word.card.id,
+        correct: !missedSinceFind,
+        activity: "sopa",
+      })
       .catch((err: unknown) =>
         log.error("word-stats", "failed to record", { err }),
       );

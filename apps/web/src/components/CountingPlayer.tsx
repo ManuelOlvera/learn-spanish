@@ -80,7 +80,12 @@ export function CountingPlayer({ itemPool, numberCards, mode, accent }: Props) {
         kidForActivity(mode === "listen" ? "counting-listen" : "counting-read") ??
         "listener";
       recordAnswer
-        .execute(kid, answer.id, !roundMissed.current)
+        .execute({
+          kid,
+          cardId: answer.id,
+          correct: !roundMissed.current,
+          activity: mode === "listen" ? "counting-listen" : "counting-read",
+        })
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );

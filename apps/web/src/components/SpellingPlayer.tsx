@@ -87,7 +87,12 @@ export function SpellingPlayer({ deck, accent }: Props) {
       }
       const kid = getSelectedKid() ?? "reader";
       recordAnswer
-        .execute(kid, round.card.id, !wordMissed.current)
+        .execute({
+          kid,
+          cardId: round.card.id,
+          correct: !wordMissed.current,
+          activity: "spelling",
+        })
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );

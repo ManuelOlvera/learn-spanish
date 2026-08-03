@@ -42,10 +42,43 @@ dates or storage), `domain/trend.ts` (the bar + backfill),
 in the web app. No new tracking, no storage migration, no Supabase change —
 the report is a view over data that was already there and already syncs.
 
-**Still to come (approved, not built):** tagging each recorded answer with its
-game and a timestamp, which unlocks accuracy-per-game and a practice calendar.
-That one needs a capped event log, a migration, and merge rules ADR 004 doesn't
-cover — so it gets its own ADR before any code.
+**Step 2 followed the same day** — see the next entry.
+
+## 2026-08-03 — Accuracy per game, and a practice calendar
+
+**The gap this closes:** eleven games all called
+`recordAnswer(kid, cardId, correct)` and recorded neither *which game* nor
+*when*. So "is Adivina teaching or just entertaining?" and "do they still play
+on weekdays?" could not be answered from the app's own data. Answers now carry
+both, and the kid report grew two sections:
+
+- **🎯 Cómo le va en cada juego** — hits/answers and a percentage per game,
+  most-answered first, drawn in the same green / hatched-amber language as the
+  shelf meters so the two colours mean one thing across the screen. Games that
+  ask no questions (las tarjetas, las parejas, los cuentos, las frases) are
+  **absent rather than 0%** — "never asked" and "always wrong" must not render
+  the same.
+- **📅 Cuándo practica** — a 12-week density calendar with active days, total
+  minutes and the longest sitting. Sittings are split on a 20-minute gap, so a
+  morning and a bedtime session don't read as one six-hour marathon.
+
+**The boundaries are the decision** ([ADR 013](../adr/013-answer-log.md)): the
+log **never leaves the device** and **forgets after 90 days**, pruned on write
+*and* on read. Syncing it was rejected on cost (the snapshot is one JSON blob
+re-uploaded on every game completion — an unbounded log breaks the mechanism
+that carries it) and on blast radius (an append-log needs merge rules ADR 004
+doesn't have, and the thing being merged would be a per-answer record of a
+five-year-old). Both new views therefore say "solo en este dispositivo".
+
+**Where:** `domain/answer-log.ts` (retention, accuracy, sittings — pure),
+`application/record-answer.ts` (now named arguments: four parameters, two of
+them booleans, was one transposition from recording the opposite of what
+happened), `lib/answer-log-store.ts`, and two sections in `KidReportView.tsx`.
+The calendar ramp is four lime steps, all validated against the cream paper —
+the paler limes a ramp "should" start with score 1.06:1 there and disappear.
+
+**Deferred:** comparing the two kids side by side · CSV/print/export ·
+per-word history · anything predictive · third-party analytics (permanently).
 
 ## 2026-08-03 — Pairing by QR: one scan brings a device into the family
 

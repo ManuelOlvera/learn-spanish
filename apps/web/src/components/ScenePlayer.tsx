@@ -80,7 +80,12 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
         kidForActivity(mode === "listen" ? "scene-listen" : "scene-read") ??
         "listener";
       recordAnswer
-        .execute(kid, target.id, !roundMissed.current)
+        .execute({
+          kid,
+          cardId: target.id,
+          correct: !roundMissed.current,
+          activity: mode === "listen" ? "scene-listen" : "scene-read",
+        })
         .catch((err: unknown) =>
           log.error("word-stats", "failed to record", { err }),
         );

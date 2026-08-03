@@ -436,19 +436,14 @@ The queue, gathered from the sub-items above so nothing hides in history:
   (fable-review features #3) · listener→reader upgrade path (18) ·
   the first route handler + server-side rate limiting, which arrives with
   Habla conmigo (25) — parked, terms already set in ADR 010.
-- **Answer attribution + timestamps** — approved 2026-08-03 as step 2 of the
-  per-kid report, **not yet built**. Tag each recorded answer with the game it
-  came from and when it happened, unlocking accuracy-per-game ("quiz 82%, globo
-  41%") and a practice calendar (when they play, how often, how long a sitting
-  runs). Neither is answerable today: all 11 players call the same
-  `recordAnswer(kid, cardId, correct)`. Needs a capped event log, a storage
-  migration, and merge rules ADR 004's additive/max merge doesn't cover (an
-  append-only log dedupes by event id) — **and its own ADR first**, because it
-  creates the most detailed record this app has ever kept of a child.
-  Report views deferred with it: comparing the two kids side by side · CSV /
-  print / export · per-word history charts · anything predictive · server-side
-  or aggregate analytics · third-party analytics SDKs (permanently rejected —
-  see the shipped write-up).
+- ✅ **Answer attribution + timestamps** — shipped 2026-08-03 (ADR 013), on
+  device only and capped at 90 days. Report views cut from it and still open:
+  comparing the two kids side by side · CSV / print / export · per-word history
+  charts · anything predictive · server-side or aggregate analytics ·
+  third-party analytics SDKs (permanently rejected — see the shipped
+  write-up). Making the log itself cross-device reopens ADR 013 **and** ADR 004
+  together; start from the per-device rollup sketched in ADR 013's Context,
+  never by dropping raw events into the snapshot.
 - **Sharing follow-ons** (cut from the pairing QR, shipped 2026-08-03 — see
   ADR 011): in-app camera scanning (the other device's native camera does the
   job today; an in-app scanner buys a permission prompt, a scanner dependency

@@ -117,7 +117,12 @@ export function GloboPlayer({ deck, accent }: Props) {
     setResults((prev) => [...prev, result]);
     const kid = getSelectedKid() ?? "reader";
     recordAnswer
-      .execute(kid, card.id, result === "won")
+      .execute({
+        kid,
+        cardId: card.id,
+        correct: result === "won",
+        activity: "globo",
+      })
       .catch((err: unknown) =>
         log.error("word-stats", "failed to record", { err }),
       );

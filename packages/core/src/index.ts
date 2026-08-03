@@ -216,6 +216,24 @@ export {
   strugglingByDeck,
   totalPlays,
 } from "./domain/report";
+export type {
+  AnswerEvent,
+  AnswerLog,
+  AnswerLogStore,
+  GameAccuracy,
+  PracticeDay,
+  PracticeSummary,
+} from "./domain/answer-log";
+export {
+  accuracyByGame,
+  appendAnswer,
+  LOG_RETENTION_DAYS,
+  practiceDays,
+  practiceSummary,
+  pruneLog,
+  SESSION_GAP_MINUTES,
+} from "./domain/answer-log";
+export type { RecordAnswerInput } from "./application/record-answer";
 export type { KidReport } from "./application/get-kid-report";
 export { GetKidReportUseCase } from "./application/get-kid-report";
 export { PullProgressUseCase } from "./application/pull-progress";

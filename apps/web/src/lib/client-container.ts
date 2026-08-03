@@ -38,6 +38,8 @@ import {
   LocalStorageStickerCountsStore,
 } from "./economy-store";
 import { LocalStorageTrendStore } from "./trend-store";
+import { LocalStorageAnswerLogStore } from "./answer-log-store";
+import { pruneLog, type AnswerLog, type KidId } from "@learn-spanish/core";
 import { SupabaseProgressStore } from "./supabase-progress-store";
 
 /**
@@ -56,6 +58,7 @@ export const wordStatsStore = new LocalStorageWordStatsStore();
 export const economyStore = new LocalStorageEconomyStore();
 const stickerCountsStore = new LocalStorageStickerCountsStore(economyStore);
 const trendStore = new LocalStorageTrendStore();
+const answerLogStore = new LocalStorageAnswerLogStore();
 
 /** Null when sync is not configured for this deployment (ADR 004). */
 export const remoteProgress = SupabaseProgressStore.fromEnv();
@@ -67,7 +70,13 @@ export const getAlbum = new GetAlbumUseCase(albumStore);
 export const feedStreak = new FeedStreakUseCase(streakStore);
 export const getStreak = new GetStreakUseCase(streakStore);
 export const getWordStats = new GetWordStatsUseCase(wordStatsStore);
-export const recordAnswer = new RecordAnswerUseCase(wordStatsStore);
+export const recordAnswer = new RecordAnswerUseCase(wordStatsStore, answerLogStore);
+/** The retained window, not whatever is on disk. Writes prune, but a device
+ *  that has not played in months still holds stale events until its next
+ *  answer — and the report must never show a day outside the window it
+ *  promises the parent. */
+export const getPracticeLog = (kid: KidId): AnswerLog =>
+  pruneLog(answerLogStore.load(kid), new Date());
 export const sampleTrend = new SampleTrendUseCase(trendStore, wordStatsStore);
 export const getKidReport = new GetKidReportUseCase(
   wordStatsStore,

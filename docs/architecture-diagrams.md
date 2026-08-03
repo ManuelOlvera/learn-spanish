@@ -142,6 +142,7 @@ between keys happen only in `storage-migrations.ts`.
 | `palabras.category-awards.v1` | `lib/economy-store.ts` | claimed chest tiers per deck | yes |
 | `palabras.reto.v1` | `lib/economy-store.ts` | best reto scores | no (per-device) |
 | `palabras.trend.v2` | `lib/trend-store.ts` | weekly learned-words samples | no (derived from synced stats) |
+| `palabras.answer-log.v1` | `lib/answer-log-store.ts` | last 90 days of answers, each with its game and timestamp | **never** (ADR 013 — a per-answer record of a child stays on its device) |
 | `palabras.trend.v1` | superseded by v2 | samples taken under the old "learned" bar (ADR 012) — left behind, never migrated | no |
 | `palabras.sync.v1` | `lib/sync.ts` | the pairing code (capability key) | no (device pairing) |
 | `palabras.theme.v1` / `palabras.owned-themes.v1` | `lib/theme.ts` | paper theme selection/ownership | no (per-device look) |

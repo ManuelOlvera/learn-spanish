@@ -87,9 +87,10 @@ No reading, no accounts, no setup.
   words, a 📈 weekly learned-words trend sampled on every game complete);
   tapping a kid opens their own report: a mastery meter per shelf with the
   never-opened ones counted, plays per game with the untouched ones named,
-  and every struggling word grouped by deck. A word counts as learned at two
-  correct answers, not one (ADR 012). All of it is derived from data already
-  on the device — no tracking, no third-party analytics.
+  accuracy per game, a 12-week practice calendar, and every struggling word
+  grouped by deck. A word counts as learned at two correct answers, not one
+  (ADR 012). Answers carry their game and a timestamp in a 90-day on-device
+  log that never syncs (ADR 013). No third-party analytics, ever.
 - **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,
   each with their own chosen avatar (16 to pick from); each game menu
   shows that kid's one right difficulty.
