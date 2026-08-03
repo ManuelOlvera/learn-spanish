@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { InvalidTransferCodeError } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { exportProgressCode, importProgressCode } from "@/lib/transfer";
@@ -71,12 +72,12 @@ export function TransferPanel({ onImported }: Props) {
         >
           🔄 Progreso entre dispositivos
         </button>
-        <a
+        <Link
           href="/informe"
           className="text-sm font-semibold text-ink/50 underline underline-offset-4"
         >
           📊 Informe para padres
-        </a>
+        </Link>
       </footer>
     );
   }

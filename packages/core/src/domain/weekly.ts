@@ -17,7 +17,7 @@ export function weekKey(date: Date): string {
 }
 
 /** The Monday one week after `week` (a weekKey). */
-function nextWeek(week: string): string {
+export function nextWeek(week: string): string {
   const d = new Date(`${week}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + 7);
   return d.toISOString().slice(0, 10);

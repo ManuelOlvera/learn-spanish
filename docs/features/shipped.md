@@ -1,5 +1,52 @@
 # Shipped features
 
+## 2026-08-03 — A per-kid report: what they're learning, using, and stuck on
+
+**For:** the parent. `/informe` gave five counters, a 12-week bar chart and the
+top five words in each direction, for both kids on one page — a glance, not an
+answer. Meanwhile the app was already recording a play count for every
+deck × game × kid and right/wrong for every word, and none of it was on screen.
+
+**What shipped:** tapping a kid on `/informe` opens `/informe/[kid]` —
+
+- **Sus estantes** — every shelf they've opened, as an álbum-style slot with a
+  mastery meter (`9/12 dominadas · 1 floja`), most-mastered first. The shelves
+  they have *never opened* are a counted chip list (`📭 Sin abrir (38)`), not 38
+  identical grey cards — the first build drew them as cards and they buried the
+  two shelves with real data. Caught in the verify screenshots.
+- **Qué juega** — plays per game across all decks, most-played first, with a
+  `Sin estrenar:` line naming the games nobody has touched.
+- **Para practicar** — every struggling word grouped by deck, worst deck first;
+  the old screen capped this at five.
+
+**The numbers were made honest first** ([ADR 012](../adr/012-learned-bar-and-trend-restart.md)):
+a word now counts as learned at **two** correct answers, not one — a quiz round
+shows three pictures, so the old bar counted a 33% guess as knowledge. Every
+displayed count dropped accordingly. The weekly trend also restarted on a new
+key (`palabras.trend.v2`) because old samples store a *count* computed under
+the old rule and cannot be recomputed; drawing them together would show a cliff
+no child experienced. Trend samples are now taken on **game completion**, not
+only when a parent opens the report, and skipped weeks are backfilled flat —
+"+6 esta semana" used to mean "since whenever you last looked".
+
+**Colours were computed, not chosen.** The mastery meter's two states were
+first drawn dark-green vs orange; the palette validator put that pair at
+**ΔE 0.4 under protanopia** — indistinguishable. The shipped pair separates at
+ΔE 17, and since amber's contrast on cream is below 3:1 it never carries
+meaning alone: every meter is directly labelled and the shaky segment is
+hatched.
+
+**Where:** `domain/report.ts` (mastery, play and struggle rollups — pure, no
+dates or storage), `domain/trend.ts` (the bar + backfill),
+`application/get-kid-report.ts`; `KidReportView.tsx` and `app/informe/[kid]/`
+in the web app. No new tracking, no storage migration, no Supabase change —
+the report is a view over data that was already there and already syncs.
+
+**Still to come (approved, not built):** tagging each recorded answer with its
+game and a timestamp, which unlocks accuracy-per-game and a practice calendar.
+That one needs a capped event log, a migration, and merge rules ADR 004 doesn't
+cover — so it gets its own ADR before any code.
+
 ## 2026-08-03 — Pairing by QR: one scan brings a device into the family
 
 **For:** the parent setting up a second tablet or a relative's phone — until

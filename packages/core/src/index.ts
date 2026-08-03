@@ -209,6 +209,15 @@ export {
   parseSyncLink,
 } from "./domain/sync";
 export { encodeQr } from "./domain/qr";
+export type { DeckMastery, GamePlays, StruggleGroup } from "./domain/report";
+export {
+  deckMastery,
+  gamesPlayed,
+  strugglingByDeck,
+  totalPlays,
+} from "./domain/report";
+export type { KidReport } from "./application/get-kid-report";
+export { GetKidReportUseCase } from "./application/get-kid-report";
 export { PullProgressUseCase } from "./application/pull-progress";
 export { PushProgressUseCase } from "./application/push-progress";
 export { DeleteProgressUseCase } from "./application/delete-progress";

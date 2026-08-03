@@ -173,14 +173,20 @@ export function InformeView({ decks }: Props) {
             className="sticker relative flex flex-col gap-4 p-5"
           >
             <span aria-hidden className="sticker-peel" />
-            <div className="flex items-center gap-3">
+            <Link
+              href={`/informe/${report.kid}`}
+              className="flex items-center gap-3"
+            >
               <span aria-hidden className="text-4xl">
                 {report.avatar}
               </span>
               <h2 className="text-2xl font-extrabold">
                 {KID_META[report.kid].glyph} {KID_META[report.kid].english}
               </h2>
-            </div>
+              <span className="ml-auto text-sm font-semibold text-ink/50 underline underline-offset-4">
+                Ver todo →
+              </span>
+            </Link>
             <div className="flex flex-wrap gap-3 text-lg font-extrabold">
               <span className="rounded-full border-2 border-ink bg-white px-3">
                 ⭐ {report.stars}

@@ -20,7 +20,12 @@ import {
   type StickerTier,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { awardSticker, getAlbum, getStreak } from "@/lib/client-container";
+import {
+  awardSticker,
+  getAlbum,
+  getStreak,
+  sampleTrend,
+} from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import {
   addStars,
@@ -105,6 +110,11 @@ export function DoneScreen({
       .execute(kid)
       .then((s) => setStreakDays(s?.count ?? 0))
       .catch(() => setStreakDays(0));
+    // Take this week's trend sample here rather than only when a parent opens
+    // the informe: sampling on the report meant weeks nobody looked simply had
+    // no bar, and the gap between two distant samples was then labelled "esta
+    // semana". Idempotent within a week, so finishing ten games costs one write.
+    void sampleTrend.execute(kid, new Date());
     // Push the completion itself — the sticker and misión mark are banked the
     // moment this screen mounts, and a kid may leave without ever opening the
     // chest (which pushes again with the stars when it is opened).

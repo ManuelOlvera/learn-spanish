@@ -82,9 +82,14 @@ No reading, no accounts, no setup.
   open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
   themes — every purchase behind a picture-only ✅/❌ confirm so a stray
   tap can't spend the stars (the 5⭐ meal aside); album stickers tier up to
-  silver/gold with replays; `/informe` gives parents each kid's strong
-  and tricky words plus a 📈 weekly learned-words trend (sampled
-  on-device each time the informe opens).
+  silver/gold with replays.
+- **Parent report** — `/informe` summarises both kids (strong and tricky
+  words, a 📈 weekly learned-words trend sampled on every game complete);
+  tapping a kid opens their own report: a mastery meter per shelf with the
+  never-opened ones counted, plays per game with the untouched ones named,
+  and every struggling word grouped by deck. A word counts as learned at two
+  correct answers, not one (ADR 012). All of it is derived from data already
+  on the device — no tracking, no third-party analytics.
 - **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,
   each with their own chosen avatar (16 to pick from); each game menu
   shows that kid's one right difficulty.

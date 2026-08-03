@@ -14,6 +14,7 @@ import {
   NamePetUseCase,
   FeedStreakUseCase,
   GetAlbumUseCase,
+  GetKidReportUseCase,
   GetMissionUseCase,
   GetStreakUseCase,
   GetWordStatsUseCase,
@@ -68,6 +69,10 @@ export const getStreak = new GetStreakUseCase(streakStore);
 export const getWordStats = new GetWordStatsUseCase(wordStatsStore);
 export const recordAnswer = new RecordAnswerUseCase(wordStatsStore);
 export const sampleTrend = new SampleTrendUseCase(trendStore, wordStatsStore);
+export const getKidReport = new GetKidReportUseCase(
+  wordStatsStore,
+  stickerCountsStore,
+);
 
 // ---- economy use cases ----
 
