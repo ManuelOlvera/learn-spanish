@@ -1,7 +1,12 @@
 export type { VocabularyCard } from "./domain/card";
 export type { Deck } from "./domain/deck";
 export type { DeckRepository } from "./domain/deck-repository";
-export { DeckNotFoundError, QuizDeckTooSmallError } from "./domain/errors";
+export {
+  DeckNotFoundError,
+  QrEmptyPayloadError,
+  QrPayloadTooLongError,
+  QuizDeckTooSmallError,
+} from "./domain/errors";
 export type { RandomSource } from "./domain/random";
 export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
 export { createQuiz, createQuizRound, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
@@ -197,10 +202,13 @@ export {
 } from "./domain/transfer";
 export type { ByteSource, RemoteProgressStore } from "./domain/sync";
 export {
+  buildSyncLink,
   generatePairingCode,
   isPairingCode,
   normalizePairingCode,
+  parseSyncLink,
 } from "./domain/sync";
+export { encodeQr } from "./domain/qr";
 export { PullProgressUseCase } from "./application/pull-progress";
 export { PushProgressUseCase } from "./application/push-progress";
 export { DeleteProgressUseCase } from "./application/delete-progress";

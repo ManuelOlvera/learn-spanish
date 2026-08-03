@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
+import { SyncLinkHandler } from "@/components/SyncLinkHandler";
 import { ThemeApplier } from "@/components/ThemeApplier";
 
 // Self-hosted (variable, latin subset) so builds never need the network.
@@ -31,6 +32,9 @@ export default function RootLayout({
       <body className="min-h-dvh">
         <ThemeApplier />
         <ServiceWorkerRegistrar />
+        {/* A scanned pairing link can land on any route, so the prompt lives
+            here rather than on one page. Renders nothing without one. */}
+        <SyncLinkHandler />
         {children}
       </body>
     </html>

@@ -8,10 +8,18 @@ the same up-to-date progress — stickers, stars, streaks, pets, freezes.
 1. On the device that **already has the progress** (e.g. the tablet):
    - Tap **🔄 Progreso entre dispositivos** (bottom of the album).
    - **☁️ Sincronizar entre dispositivos** → **Crear código de sincronización**.
-   - A code appears, like `V3DB3-5RMVJ-B4A9A-TCGRT`.
-2. On the **other** device (phone, second tablet):
-   - Same menu → paste/type the code in **"¿Tienes un código?"** → **Conectar**.
-3. Repeat step 2 on any additional device using the **same** code.
+   - A **QR code** appears, with the code under it (`V3DB3-5RMVJ-B4A9A-TCGRT`).
+2. On the **other** device (phone, second tablet), either:
+   - **Scan it** with that device's own camera app — no app needed first. The
+     link opens ¡Palabras!, asks **"¿Conectar este dispositivo?"**, and one tap
+     pairs it. (Install it from there like any other page: *Añadir a inicio*.)
+   - **Or type it**: same menu → paste/type the code in **"¿Tienes un código?"**
+     → **Conectar**.
+3. Repeat step 2 on any additional device using the **same** QR or code.
+
+The QR carries the app *and* the code, so one scan does both jobs — but that
+also makes it the house key in picture form. See the warning below; don't post
+a photo of it.
 
 ## After pairing (automatic)
 
@@ -26,9 +34,12 @@ the same up-to-date progress — stickers, stars, streaks, pets, freezes.
 
 - One code = one shared family progress. Keep using the **same** code for new
   devices.
-- **The code is the key.** Anyone who has it can see and change the family's
-  progress — treat it like a house key: fine on a note at home, don't post or
-  message it publicly.
+- **The code is the key — and so is the QR.** Anyone who has either can see and
+  change the family's progress. Treat both like a house key: fine on a note at
+  home, don't post or message them, and don't leave the QR on screen in a photo
+  or a shared screen.
+- Scanning always **asks first**, so a stray scan can't quietly rewire a
+  device, and the code is wiped from the address bar before you answer.
 - **Theme** and **which kid is selected** stay per-device on purpose (not synced).
 - **No account = no recovery.** The code is the only key. If you lose every
   paired device *and* the code, that cloud progress can't be recovered — jot the

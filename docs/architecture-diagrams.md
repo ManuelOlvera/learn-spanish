@@ -1,7 +1,7 @@
 # Architecture diagrams
 
-The system on one page: how the monorepo layers fit, how a sync exchange
-flows, and where every byte of on-device state lives. Kept current with the
+The system on one page: how the monorepo layers fit, how a device pairs and how
+a sync exchange flows, and where every byte of on-device state lives. Kept current with the
 code (see `/diagram`); a wrong diagram is worse than none.
 
 ## The monorepo
@@ -45,6 +45,36 @@ graph TD
   ADAPT --> LS
   REMOTE --> SB
   web --> CONFIG
+```
+
+## Pairing a device by QR (ADR 011)
+
+How a second device gets the capability key before any of the exchanges below
+can happen. The code rides in the URL **fragment**, so it never reaches the
+server; device B strips it from its own address bar before the parent answers,
+and pairs only on an explicit yes.
+
+```mermaid
+sequenceDiagram
+  participant A as Device A (paired)
+  participant P as Parent + camera
+  participant B as Device B (fresh)
+  participant SY as sync.ts (on B)
+  participant DB as Supabase progress row
+
+  A->>A: buildSyncLink(origin, code) → https://…/#sync=CODE
+  A->>A: encodeQr(link) → SVG
+  P->>A: scans the QR with B's own camera app
+  P->>B: opens https://…/#sync=CODE
+  B->>B: parseSyncLink(location.hash) → CODE
+  B->>B: history.replaceState → key out of the URL
+  B-->>P: "¿Conectar este dispositivo?"
+  P->>B: Sí, conectar
+  B->>SY: joinWithCode(CODE)
+  SY->>DB: load(code) — must already exist
+  DB-->>SY: snapshot json
+  SY->>SY: merge + apply, then push the union back
+  SY-->>B: joined → reload into merged progress
 ```
 
 ## A sync exchange (ADR 004)

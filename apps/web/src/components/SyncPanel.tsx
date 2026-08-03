@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { buildSyncLink } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { QrCode } from "@/components/QrCode";
 import {
   deleteCloudProgress,
   getSyncCode,
@@ -25,6 +27,11 @@ interface Props {
 export function SyncPanel({ onSynced }: Props) {
   const [paired, setPaired] = useState(() => isPaired());
   const [code, setCode] = useState<string | null>(() => getSyncCode());
+  // This deployment's own address — never hard-coded, so the QR works the same
+  // on prod, a preview URL, or a laptop on the home wifi.
+  const [origin] = useState(() =>
+    typeof window === "undefined" ? "" : window.location.origin,
+  );
   const [joinText, setJoinText] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -35,6 +42,10 @@ export function SyncPanel({ onSynced }: Props) {
   if (!isSyncAvailable()) {
     return null;
   }
+
+  // "" whenever there is nothing scannable yet (unpaired, or no origin during
+  // SSR) — the typeable code stands alone in that case.
+  const link = code === null ? "" : buildSyncLink(origin, code);
 
   async function host() {
     setBusy(true);
@@ -121,8 +132,21 @@ export function SyncPanel({ onSynced }: Props) {
         <>
           <p className="text-sm font-semibold text-ink/60">
             Sincronizado. El progreso se actualiza al abrir la app y al terminar
-            un juego. Usa este mismo código para añadir otro dispositivo.
+            un juego. Para añadir otro dispositivo, apúntale con su cámara a
+            este código — abre la app y se conecta solo.
           </p>
+          {code !== null && link !== "" && (
+            <div className="flex flex-col items-center gap-2">
+              <QrCode
+                value={link}
+                label="QR code that opens Palabras and pairs this family's progress"
+              />
+              <p className="text-center text-xs font-semibold text-ink/50">
+                Escanéalo con la cámara del otro dispositivo. Guárdalo en
+                privado: quien lo escanee entra al progreso de la familia.
+              </p>
+            </div>
+          )}
           {code !== null && (
             <textarea
               readOnly
@@ -155,8 +179,8 @@ export function SyncPanel({ onSynced }: Props) {
         <>
           <p className="text-sm font-semibold text-ink/60">
             Conecta este dispositivo para que el progreso esté al día en todos.
-            Crea un código aquí y escríbelo en el otro dispositivo — o pega el
-            código que ya creaste en otro.
+            Crea un código aquí y escanéalo (o escríbelo) desde el otro
+            dispositivo — o pega el código que ya creaste en otro.
           </p>
 
           <button

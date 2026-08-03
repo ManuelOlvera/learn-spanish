@@ -17,6 +17,26 @@ export class StoryCastCardNotFoundError extends Error {
   }
 }
 
+/** More bytes than the largest QR version this encoder builds. A caller hit
+ *  this by handing over something that was never meant to be a QR code — the
+ *  answer is a shorter payload, not a bigger symbol. */
+export class QrPayloadTooLongError extends Error {
+  constructor(
+    public readonly byteLength: number,
+    public readonly maxBytes: number,
+  ) {
+    super(`QR payload is ${byteLength} bytes; the maximum is ${maxBytes}`);
+    this.name = "QrPayloadTooLongError";
+  }
+}
+
+export class QrEmptyPayloadError extends Error {
+  constructor() {
+    super("QR payload is empty");
+    this.name = "QrEmptyPayloadError";
+  }
+}
+
 export class QuizDeckTooSmallError extends Error {
   constructor(
     public readonly deckId: string,

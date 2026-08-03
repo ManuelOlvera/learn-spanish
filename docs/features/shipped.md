@@ -1,5 +1,47 @@
 # Shipped features
 
+## 2026-08-03 — Pairing by QR: one scan brings a device into the family
+
+**For:** the parent setting up a second tablet or a relative's phone — until
+now that meant typing a URL by hand *and* then typing
+`V3DB3-5RMVJ-B4A9A-TCGRT` correctly on a tablet keyboard, with someone standing
+there waiting.
+
+**What shipped:** the sync panel (album footer → 🔄 Progreso entre
+dispositivos) now draws a QR next to the pairing code. The other device scans
+it with its own camera app, ¡Palabras! opens, and a **¿Conectar este
+dispositivo?** card asks before anything happens; one tap pairs it and reloads
+into the merged progress. The QR encodes `https://<origin>/#sync=<CODE>`, so a
+single scan delivers the app *and* the key — which is why "share the app" and
+"share the code" turned out to be one feature. The typeable code stays on
+screen: scanning is an accelerator, never the only path.
+
+**Three decisions, recorded in [ADR 011](../adr/011-pairing-qr.md):** the
+encoder is **hand-rolled** in `packages/core/src/domain/qr.ts` (byte mode, EC
+level M, versions 1–10) because `apps/web` carries no third-party runtime
+dependencies and ADR 010 already names that surface as a real risk on these
+tablets; the code rides in the URL **fragment**, never the query, so the
+capability key stays out of Vercel's request logs (`parseSyncLink` ignores
+`?sync=` on purpose); and the receiving device **confirms first**, with the
+fragment stripped from the address bar before the parent even answers.
+
+**Where:** `domain/qr.ts` + `buildSyncLink`/`parseSyncLink` in `domain/sync.ts`
+(`packages/core`); `QrCode.tsx` (one SVG path, hard-coded black-on-white so a
+dark theme can't render an unscannable symbol) and `SyncLinkHandler.tsx`
+(mounted in the root layout, since a scanned link can land on any route) in
+`apps/web`. No new use case and no Supabase change — pairing itself already
+worked (ADR 004).
+
+**How it's proven:** the encoder is not taken on faith. `test/qr.test.ts`
+decodes every matrix with a real scanner (jsQR, **dev-only**) at each capacity
+step from 1 to 213 bytes, plus UTF-8; `/verify` re-decodes the SVG the browser
+actually renders and then drives the whole flow across two browser contexts —
+host, scan, decline (stays unpaired), scan again, accept, paired.
+
+**Deferred (not dropped):** in-app camera scanning · a QR for the GitHub repo ·
+a QR for the one-time *Copia única* code · download/print/share-sheet · deep
+links to a deck or game · any kid-facing share tile.
+
 ## 2026-08-02 — Adivina gets its context and its tips; el globo gets a voice
 
 Three follow-ons the same day, all from the parent playing the games through.

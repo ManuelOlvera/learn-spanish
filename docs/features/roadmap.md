@@ -436,6 +436,14 @@ The queue, gathered from the sub-items above so nothing hides in history:
   (fable-review features #3) · listener→reader upgrade path (18) ·
   the first route handler + server-side rate limiting, which arrives with
   Habla conmigo (25) — parked, terms already set in ADR 010.
+- **Sharing follow-ons** (cut from the pairing QR, shipped 2026-08-03 — see
+  ADR 011): in-app camera scanning (the other device's native camera does the
+  job today; an in-app scanner buys a permission prompt, a scanner dependency
+  and an iOS Safari failure mode) · a QR for the GitHub repo — different
+  audience, different screen, nothing shared with this one · a QR for the
+  one-time *Copia única* code · download / print / share-sheet for the QR
+  image · deep links into a specific deck or game · a kid-facing share tile
+  (it would have to survive a 3-year-old and must not expose the key).
 
 ## Build order
 

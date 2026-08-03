@@ -89,9 +89,10 @@ No reading, no accounts, no setup.
   each with their own chosen avatar (16 to pick from); each game menu
   shows that kid's one right difficulty.
 - **Cross-device sync** — optional, local-first (ADR 004). Pair devices once
-  with a capability code; progress pulls on open (and again whenever the
-  app returns to view) and pushes on game-complete, additively merged so
-  nothing is lost. Off unless `NEXT_PUBLIC_SUPABASE_*`
+  by scanning a QR (or typing the capability code) — one scan opens the app
+  and pairs it, after a confirm on the new device (ADR 011); progress pulls on
+  open (and again whenever the app returns to view) and pushes on
+  game-complete, additively merged so nothing is lost. Off unless `NEXT_PUBLIC_SUPABASE_*`
   are set, in which case the app stays pure-local.
 - **Device transfer** — a one-time copy-able code (album footer) moves
   progress to another device by merge; the no-connection fallback to sync.

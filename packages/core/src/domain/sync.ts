@@ -56,3 +56,54 @@ export function normalizePairingCode(input: string): string {
 export function isPairingCode(input: string): boolean {
   return normalizePairingCode(input) !== "";
 }
+
+/** The fragment key carrying a pairing code in a shareable link. */
+const LINK_PARAM = "sync";
+
+/**
+ * A link that both installs the app and hands over the pairing code, so a
+ * second device joins by scanning instead of retyping 20 symbols.
+ *
+ * The code rides in the URL **fragment**, never the query: a fragment is not
+ * sent to the server, so this capability key stays out of hosting request
+ * logs. Returns "" when the code is malformed or the origin is empty — the
+ * caller shows the typeable code alone rather than a link that pairs nothing.
+ */
+export function buildSyncLink(origin: string, code: string): string {
+  const canonical = normalizePairingCode(code);
+  const base = origin.replace(/\/+$/, "");
+  if (canonical === "" || base === "") {
+    return "";
+  }
+  return `${base}/#${LINK_PARAM}=${canonical}`;
+}
+
+/**
+ * The pairing code carried by a scanned link, or "" when there isn't a valid
+ * one. Accepts a full URL or a bare `location.hash`. A code in the *query*
+ * string is ignored on purpose: honoring it would quietly bless the one link
+ * shape that leaks the key to a server log.
+ */
+export function parseSyncLink(url: string): string {
+  const hash = url.slice(url.indexOf("#") + 1);
+  if (!url.includes("#") || hash === "") {
+    return "";
+  }
+  for (const part of hash.split("&")) {
+    const eq = part.indexOf("=");
+    if (eq === -1 || part.slice(0, eq) !== LINK_PARAM) {
+      continue;
+    }
+    return normalizePairingCode(safeDecode(part.slice(eq + 1)));
+  }
+  return "";
+}
+
+/** A hand-mangled link can carry a stray `%`, which throws in decodeURI. */
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value.replace(/\+/g, " "));
+  } catch {
+    return value;
+  }
+}

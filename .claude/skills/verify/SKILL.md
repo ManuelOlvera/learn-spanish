@@ -40,6 +40,14 @@ Also worth checking when the change is anywhere near them:
 - **Sync panel gating:** with `NEXT_PUBLIC_SUPABASE_*` set, the album footer's
   Progreso panel must show *Sincronizar entre dispositivos*; without them it must
   not — a regression here silently disables (or falsely advertises) pairing.
+- **Pairing QR (ADR 011):** the encoder is ours, so "a QR is on screen" proves
+  nothing. Read the SVG's `path` `d` back into a matrix (each dark module is
+  `M{col+4} {row+4}h1v1h-1z`, quiet zone 4), decode it with `jsqr` in Node, and
+  assert it equals `<origin>/#sync=<code>`. Then drive the other half in a
+  second browser context: open that link, expect *¿Conectar este dispositivo?*,
+  check the fragment is already gone, decline (must stay unpaired), scan again,
+  accept. This talks to the real Supabase project — **delete the cloud row you
+  created** (*Borrar el progreso en la nube*, twice) before you finish.
 - **Album screenshot:** the tier medals (🥉/🥈/🥇) and per-kid slot filtering are
   the pixels most likely to regress; screenshot `/album` and look.
 - **Offline (ADR 005):** load `/` once online (the SW registers on prod builds

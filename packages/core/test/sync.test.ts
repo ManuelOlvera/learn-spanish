@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildSyncLink,
   generatePairingCode,
   isPairingCode,
   normalizePairingCode,
+  parseSyncLink,
 } from "../src/domain/sync";
 import { DeleteProgressUseCase } from "../src/application/delete-progress";
 import { PullProgressUseCase } from "../src/application/pull-progress";
@@ -61,6 +63,64 @@ describe("isPairingCode / normalizePairingCode", () => {
     expect(isPairingCode("ABC")).toBe(false);
     expect(isPairingCode("")).toBe(false);
     expect(isPairingCode("!!!!-!!!!-!!!!-!!!!")).toBe(false);
+  });
+});
+
+describe("buildSyncLink / parseSyncLink", () => {
+  const code = generatePairingCode(bytesFrom([3, 14, 15, 9, 26]));
+
+  it("round-trips a code through a link", () => {
+    expect(parseSyncLink(buildSyncLink("https://palabras.app", code))).toBe(code);
+  });
+
+  it("puts the code in the FRAGMENT, never the query", () => {
+    // The code is a capability key. A fragment is never sent to the server,
+    // so it stays out of hosting request logs — the reason for this shape.
+    const link = buildSyncLink("https://palabras.app", code);
+    expect(link).toBe(`https://palabras.app/#sync=${code}`);
+    expect(link).not.toContain("?");
+  });
+
+  it("normalizes a messy origin to exactly one slash", () => {
+    expect(buildSyncLink("https://palabras.app/", code)).toBe(
+      `https://palabras.app/#sync=${code}`,
+    );
+    expect(buildSyncLink("https://palabras.app///", code)).toBe(
+      `https://palabras.app/#sync=${code}`,
+    );
+  });
+
+  it("refuses to build a link around a malformed code", () => {
+    expect(buildSyncLink("https://palabras.app", "NOPE")).toBe("");
+    expect(buildSyncLink("", code)).toBe("");
+  });
+
+  it("accepts a bare fragment, so a caller can pass location.hash", () => {
+    expect(parseSyncLink(`#sync=${code}`)).toBe(code);
+  });
+
+  it("canonicalizes a lower-cased or space-separated code from the link", () => {
+    expect(parseSyncLink(`#sync=${code.toLowerCase()}`)).toBe(code);
+    expect(parseSyncLink(`#sync=${encodeURIComponent(code.replace(/-/g, " "))}`)).toBe(
+      code,
+    );
+  });
+
+  it("ignores a code in the query string", () => {
+    // Deliberate: only the fragment form is honored, so a link that would
+    // have leaked the key to a server log is not silently made to work.
+    expect(parseSyncLink(`https://palabras.app/?sync=${code}`)).toBe("");
+  });
+
+  it("returns empty for links with no code, or a malformed one", () => {
+    expect(parseSyncLink("https://palabras.app/")).toBe("");
+    expect(parseSyncLink("#sync=ABC")).toBe("");
+    expect(parseSyncLink("#other=1")).toBe("");
+    expect(parseSyncLink("")).toBe("");
+  });
+
+  it("finds the code alongside other fragment params", () => {
+    expect(parseSyncLink(`#a=1&sync=${code}&b=2`)).toBe(code);
   });
 });
 
