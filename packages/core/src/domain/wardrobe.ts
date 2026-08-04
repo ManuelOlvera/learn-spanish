@@ -70,45 +70,22 @@ export function buyAccessory(
 
 // ---- wearing: a per-pet outfit ----
 
-/**
- * The accessories currently on this pet.
- *
- * `worn` undefined means "the kid has never dressed THIS pet", and an undressed
- * pet wears everything the kid owns — so adopting a mascota or switching to one
- * shows the wardrobe rather than a bare animal. An empty `worn` is a real
- * choice ("take it all off") and stays empty. `owned` is the kid-level set;
- * a legacy per-pet `accessories` list still wins for pets saved before
- * ownership moved kid-level.
- *
- * The `owned` argument is required on purpose: this used to fall back to the
- * pet's own `accessories`, which WAS the owned set until ownership moved
- * kid-level — after that the fallback silently resolved to nothing and every
- * undressed pet went bare (docs/bugs.md).
- */
-export function wornAccessories(
-  pet: PetState,
-  owned: readonly string[],
-): readonly string[] {
-  return pet.worn ?? pet.accessories ?? owned;
+/** The accessories currently on this pet. An undefined `worn` list falls back
+ *  to the pet's legacy per-pet `accessories` (so pets saved before ownership
+ *  moved kid-level keep showing what they wore), else nothing. */
+export function wornAccessories(pet: PetState): readonly string[] {
+  return pet.worn ?? pet.accessories ?? [];
 }
 
 /** Put an accessory on the pet (idempotent). Caller ensures the kid owns it. */
-export function wear(
-  pet: PetState,
-  id: string,
-  owned: readonly string[],
-): PetState {
-  const worn = wornAccessories(pet, owned);
+export function wear(pet: PetState, id: string): PetState {
+  const worn = wornAccessories(pet);
   return worn.includes(id) ? pet : { ...pet, worn: [...worn, id] };
 }
 
 /** Put on / take off an accessory on this pet. Caller ensures the kid owns it. */
-export function toggleWorn(
-  pet: PetState,
-  id: string,
-  owned: readonly string[],
-): PetState {
-  const worn = wornAccessories(pet, owned);
+export function toggleWorn(pet: PetState, id: string): PetState {
+  const worn = wornAccessories(pet);
   return {
     ...pet,
     worn: worn.includes(id)

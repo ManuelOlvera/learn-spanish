@@ -19,18 +19,20 @@ Find the *true* cause and fix it once, at the right layer.
 
 ## Case log (patterns worth remembering)
 
-- **2026-08-04 — "accessories disappear when you move to another mascota"**: a
-  two-year-old fallback that rotted. `wornAccessories` returned
-  `pet.worn ?? pet.accessories ?? []`, correct while ownership was per-pet —
-  the middle term WAS the owned set, so an undressed pet wore everything. When
-  ownership moved kid-level the term stayed valid TypeScript but always
-  resolved empty, so the "not yet chosen" branch silently became "wear
-  nothing". The `PetState.worn` doc comment still described the intended
-  behaviour and was the strongest evidence the code was wrong. Fix: pass the
-  kid-level `owned` set in as a REQUIRED argument so tsc finds every call site.
-  Lessons: when a field's *ownership layer* moves, audit every `??` chain that
-  read it — the type still checks and no test fails; and when a doc comment and
-  the code disagree, treat the comment as a bug report, not as stale prose.
+- **2026-08-04 — "accessories disappear when you move to another mascota"**: the
+  one that was NOT a bug, and a lesson in whose answer that is. `wornAccessories`
+  returns `pet.worn ?? pet.accessories ?? []`; the middle term was the owned set
+  back when ownership was per-pet, so it once meant "an undressed pet wears
+  everything", and `PetState.worn` still SAID so. Code, comment, and one test
+  ("owns the crown too, but bare") disagreed three ways, so I took the comment
+  as intent and made undressed pets wear the whole wardrobe — wrong: dressing is
+  per-pet by design, and the owner said so immediately. Reverted same day; the
+  comment is now fixed and `docs/bugs.md` records the decision so it is not
+  "fixed" again. Lessons: a stale comment is evidence of *drift*, not authority
+  on intent — when code, comment, and test disagree about a PRODUCT rule, that
+  is a question for the owner, not a puzzle to solve from the repo; and "I can
+  see how to make the symptom go away" is not the same as "this is a defect" —
+  confirm the desired behaviour before changing a default that users see.
 - **2026-08-04 — "feeding animals quickly, the sad face reappears"**: reported as
   a race in the feeding code; feeding was innocent. A browser repro with sync
   UNPAIRED fed 10× with no sad face, which killed the whole local branch in one

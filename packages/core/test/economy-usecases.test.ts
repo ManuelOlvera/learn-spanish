@@ -5,7 +5,7 @@ import type { MissionState } from "../src/domain/mission";
 import type { PetCollection } from "../src/domain/mascota";
 import type { StickerTier } from "../src/domain/sticker-tiers";
 import type { WeekProgress, WeeklyStreak } from "../src/domain/weekly";
-import { ACCESSORIES, wornAccessories } from "../src/domain/wardrobe";
+import { ACCESSORIES } from "../src/domain/wardrobe";
 import { defaultCollection, namePet, PET_SPECIES, STARTER_SPECIES } from "../src/domain/mascota";
 import { DAILY_GIFT_FREEZE_CHANCE } from "../src/domain/daily-gift";
 import { AVATAR_CATALOG } from "../src/domain/avatars";
@@ -287,9 +287,7 @@ describe("BuyAccessoryUseCase", () => {
     expect(bought!.owned).toEqual(["gorro"]);
     expect(bought!.stars).toBe(0);
     const pet = store.loadPetCollection(KID)!.pets[STARTER_SPECIES]!;
-    // An undressed pet wears the whole wardrobe, so a first purchase needs no
-    // explicit `worn` entry — what matters is that it shows on the mascota.
-    expect(wornAccessories(pet, store.loadOwnedAccessories(KID))).toContain("gorro");
+    expect(pet.worn).toContain("gorro");
   });
 
   it("refuses unknown ids, owned items, and empty wallets", () => {
@@ -310,10 +308,8 @@ describe("ToggleAccessoryUseCase / PlaceAccessoryUseCase", () => {
     const toggle = new ToggleAccessoryUseCase(store);
     expect(toggle.execute(KID, "gorro")).toBeNull(); // not owned
     store.saveOwnedAccessories(KID, ["gorro"]);
-    // The pet has never been dressed, so it already wears the owned gorro:
-    // the first toggle takes it OFF, the second puts it back on.
-    expect(toggle.execute(KID, "gorro")!.worn).toEqual([]);
     expect(toggle.execute(KID, "gorro")!.worn).toEqual(["gorro"]);
+    expect(toggle.execute(KID, "gorro")!.worn).toEqual([]);
   });
 
   it("placing stores clamped percent coordinates on the active pet", () => {

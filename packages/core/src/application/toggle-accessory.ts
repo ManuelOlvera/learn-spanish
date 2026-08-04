@@ -10,13 +10,12 @@ export class ToggleAccessoryUseCase {
   constructor(private readonly store: EconomyStore) {}
 
   execute(kid: KidId, accessoryId: string): PetState | null {
-    const owned = this.store.loadOwnedAccessories(kid);
-    if (!ownsAccessory(owned, accessoryId)) {
+    if (!ownsAccessory(this.store.loadOwnedAccessories(kid), accessoryId)) {
       return null;
     }
     const c = this.store.loadPetCollection(kid) ?? defaultCollection();
     const pet = c.pets[c.active] ?? { meals: 0, lastFed: null };
-    const next = toggleWorn(pet, accessoryId, owned);
+    const next = toggleWorn(pet, accessoryId);
     this.store.savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: next } });
     return next;
   }

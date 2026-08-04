@@ -6,8 +6,10 @@ export interface PetState {
   readonly lastFed: string | null;
   /** Wardrobe accessory ids the pet owns (see domain/wardrobe.ts). */
   readonly accessories?: readonly string[];
-  /** Owned accessory ids currently on the pet. Undefined means "not yet
-   *  chosen" — treated as every owned item (see wornAccessories). */
+  /** Accessory ids the kid put on THIS pet. Undefined (a pet never dressed)
+   *  means nothing is on it: owning a crown does not put it on every mascota —
+   *  each one is dressed deliberately, so switching pets shows that pet's own
+   *  outfit and not the whole wardrobe (see wornAccessories). */
   readonly worn?: readonly string[];
   /** Where the kid dragged each accessory, as a percent of the pet box
    *  (0–100 on each axis). An accessory with no entry sits at the app's
