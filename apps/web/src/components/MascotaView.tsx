@@ -411,7 +411,7 @@ export function MascotaView() {
           aria-label={`Your pet: ${species.nameSpanish}, ${pet.meals} meals`}
         >
           {petFormEmoji(activeId, chosenForm)}
-          {wornAccessories(pet).map((id) => {
+          {wornAccessories(pet, ownedAccessories).map((id) => {
             const item = ACCESSORIES.find((a) => a.id === id);
             if (!item) return null;
             // Live drag wins; otherwise the kid's saved spot, else the default.
@@ -659,7 +659,7 @@ export function MascotaView() {
         <div className="grid grid-cols-3 gap-3">
           {ACCESSORIES.map((item) => {
             const owned = ownedAccessories.includes(item.id);
-            const worn = wornAccessories(pet).includes(item.id);
+            const worn = wornAccessories(pet, ownedAccessories).includes(item.id);
             return (
               <button
                 type="button"

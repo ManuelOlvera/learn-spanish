@@ -32,7 +32,11 @@ export class BuyAccessoryUseCase {
     const next = buyAccessory(owned, accessoryId);
     this.store.saveOwnedAccessories(kid, next);
     const c = this.store.loadPetCollection(kid) ?? defaultCollection();
-    const pet = wear(c.pets[c.active] ?? { meals: 0, lastFed: null }, accessoryId);
+    const pet = wear(
+      c.pets[c.active] ?? { meals: 0, lastFed: null },
+      accessoryId,
+      next,
+    );
     this.store.savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: pet } });
     return { owned: next, stars };
   }

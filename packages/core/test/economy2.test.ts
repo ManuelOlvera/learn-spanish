@@ -369,8 +369,10 @@ describe("transfer: owned avatars and pet collections", () => {
     // conejo kept from current, gato added from incoming
     expect(merged.petCollections!.listener!.pets.conejo!.accessories).toEqual(["corona"]);
     expect(merged.petCollections!.listener!.pets.gato!.meals).toBe(1);
-    // active follows the incoming import
-    expect(merged.petCollections!.listener!.active).toBe("gato");
+    // ...but which pet is ON SCREEN is per-device: an import brings the pets,
+    // it never switches the one this device is showing (see transfer.test.ts,
+    // "keeps the receiving device's active pet").
+    expect(merged.petCollections!.listener!.active).toBe("conejo");
   });
 
   it("still decodes old codes without the new fields", () => {

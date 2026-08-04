@@ -24,9 +24,17 @@ export class OpenSurpriseUseCase {
     }
     const result = drawSurprise(this.random, owned);
     if (result.type === "accessory") {
-      this.store.saveOwnedAccessories(kid, buyAccessory(owned, result.id));
+      const nextOwned = buyAccessory(owned, result.id);
+      this.store.saveOwnedAccessories(kid, nextOwned);
       const c = this.store.loadPetCollection(kid) ?? defaultCollection();
-      const pet = wear(c.pets[c.active] ?? { meals: 0, lastFed: null }, result.id);
+      // The set the pet is measured against must already include the prize, so
+      // an undressed pet keeps wearing "everything owned" rather than having
+      // that implicit outfit pinned to the pre-prize list.
+      const pet = wear(
+        c.pets[c.active] ?? { meals: 0, lastFed: null },
+        result.id,
+        nextOwned,
+      );
       this.store.savePetCollection(kid, {
         ...c,
         pets: { ...c.pets, [c.active]: pet },

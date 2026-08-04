@@ -294,6 +294,109 @@ describe("mergeProgress", () => {
     ]);
   });
 
+  it("keeps the receiving device's active pet — a merge never switches it", () => {
+    // The reported symptom: "feeding animals quickly, the sad face reappears".
+    // `active` is a per-device display choice (like `worn` and `form`), but it
+    // was incoming-wins, so every pull adopted the OTHER device's active pet.
+    // Feed the pollito here, and a pull from a tablet still parked on a long
+    // unfed conejo swapped the screen back to the hungry one.
+    const phone: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: {
+        listener: {
+          active: "pollito",
+          owned: ["pollito", "conejo"],
+          pets: {
+            pollito: { meals: 7, lastFed: "2026-08-04" },
+            conejo: { meals: 2, lastFed: "2026-07-20" },
+          },
+        },
+      },
+    };
+    const tablet: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: {
+        listener: {
+          active: "conejo",
+          owned: ["pollito", "conejo"],
+          pets: {
+            pollito: { meals: 4, lastFed: "2026-07-20" },
+            conejo: { meals: 2, lastFed: "2026-07-20" },
+          },
+        },
+      },
+    };
+    // Whichever side receives keeps the pet it is showing...
+    expect(mergeProgress(phone, tablet).petCollections?.listener?.active).toBe(
+      "pollito",
+    );
+    expect(mergeProgress(tablet, phone).petCollections?.listener?.active).toBe(
+      "conejo",
+    );
+    // ...and the meals still converge both ways (only the display is per-device).
+    expect(
+      mergeProgress(tablet, phone).petCollections?.listener?.pets["pollito"]?.meals,
+    ).toBe(7);
+    // A device that has never seen this kid still adopts the incoming active,
+    // so a freshly paired tablet opens on a real pet rather than nothing.
+    const fresh: ProgressSnapshot = { stickers: [], streaks: {}, avatars: {} };
+    expect(mergeProgress(fresh, phone).petCollections?.listener?.active).toBe(
+      "pollito",
+    );
+  });
+
+  it("keeps where the kid dragged each accessory, from both sides", () => {
+    // `placements` was missing from mergePet's return, so every sync silently
+    // reset each dragged accessory to its default spot.
+    const col = (placements: Record<string, { x: number; y: number }>) => ({
+      active: "pollito",
+      owned: ["pollito"],
+      pets: {
+        pollito: {
+          meals: 3,
+          lastFed: "2026-08-04",
+          worn: ["gorro", "corona"],
+          placements,
+        },
+      },
+    });
+    const local: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: { listener: col({ gorro: { x: 20, y: 30 } }) },
+    };
+    const remote: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: { listener: col({ corona: { x: 70, y: 5 } }) },
+    };
+    const merged = mergeProgress(local, remote);
+    // Both spots survive, and they survive the encode/sanitize round trip too.
+    expect(merged.petCollections?.listener?.pets["pollito"]?.placements).toEqual({
+      gorro: { x: 20, y: 30 },
+      corona: { x: 70, y: 5 },
+    });
+    const roundTripped = sanitizeSnapshot(decodeProgress(encodeProgress(merged)));
+    expect(
+      roundTripped.petCollections?.listener?.pets["pollito"]?.placements,
+    ).toEqual({ gorro: { x: 20, y: 30 }, corona: { x: 70, y: 5 } });
+
+    // The receiving device wins a conflict on the same accessory (like worn).
+    const clash = mergeProgress(local, {
+      ...remote,
+      petCollections: { listener: col({ gorro: { x: 99, y: 99 } }) },
+    });
+    expect(
+      clash.petCollections?.listener?.pets["pollito"]?.placements?.["gorro"],
+    ).toEqual({ x: 20, y: 30 });
+  });
+
   it("preserves a pet's given name and never lets an unnamed side clobber it", () => {
     const named: ProgressSnapshot = {
       stickers: [],

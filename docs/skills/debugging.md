@@ -19,6 +19,32 @@ Find the *true* cause and fix it once, at the right layer.
 
 ## Case log (patterns worth remembering)
 
+- **2026-08-04 — "accessories disappear when you move to another mascota"**: a
+  two-year-old fallback that rotted. `wornAccessories` returned
+  `pet.worn ?? pet.accessories ?? []`, correct while ownership was per-pet —
+  the middle term WAS the owned set, so an undressed pet wore everything. When
+  ownership moved kid-level the term stayed valid TypeScript but always
+  resolved empty, so the "not yet chosen" branch silently became "wear
+  nothing". The `PetState.worn` doc comment still described the intended
+  behaviour and was the strongest evidence the code was wrong. Fix: pass the
+  kid-level `owned` set in as a REQUIRED argument so tsc finds every call site.
+  Lessons: when a field's *ownership layer* moves, audit every `??` chain that
+  read it — the type still checks and no test fails; and when a doc comment and
+  the code disagree, treat the comment as a bug report, not as stale prose.
+- **2026-08-04 — "feeding animals quickly, the sad face reappears"**: reported as
+  a race in the feeding code; feeding was innocent. A browser repro with sync
+  UNPAIRED fed 10× with no sad face, which killed the whole local branch in one
+  step, and a unit test proved `mergePet` can never move `lastFed` backwards —
+  so the only way hunger returns is the ACTIVE pet changing. `mergeProgress`
+  resolved `active` incoming-wins while `worn`/`form` in the same function are
+  receiving-device-wins; every pull adopted the other device's pet. Rapid
+  feeding just widened the window (one `syncPush` per meal). Lessons: reproduce
+  with the suspect subsystem switched OFF first — "sync disabled ⇒ clean" is
+  worth more than any amount of reading; when a merge function resolves three
+  sibling fields of the same *kind*, an inconsistent one is the bug; and every
+  existing test used `active: "pollito"` on BOTH sides, so no test could ever
+  see it — check whether the fixtures can even express the failure.
+
 - **2026-07-30 — blank tile in La misión, two days running**: one of the day's
   three tiles rendered empty. `MissionCard`'s `KIND_EMOJI` was typed
   `Partial<Record<MissionKind, string>>`, so `cuento` (added to the shared draw

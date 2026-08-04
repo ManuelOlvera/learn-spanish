@@ -617,7 +617,12 @@ export function mergeProgress(
       petsBySpecies[species] = mergePet(petsBySpecies[species], pet);
     }
     petCollections[kid] = {
-      active: incomingCol.active || existing.active,
+      // Which pet is on screen is a per-device choice, like `worn` and `form`
+      // below: the RECEIVING device wins, and the incoming value only fills a
+      // gap. Incoming-wins made every pull adopt the other device's active pet
+      // — feed the one on screen, then a pull would swap in a pet that had not
+      // been fed in days and the hungry face came back (docs/bugs.md).
+      active: existing.active || incomingCol.active,
       owned,
       pets: petsBySpecies,
     };
@@ -662,6 +667,14 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
     accessories.length > 0
       ? wornSource?.filter((id) => accessories.includes(id))
       : wornSource;
+  // Where the kid dragged each accessory. Merged per accessory so neither
+  // device loses a spot it saved; the receiving device wins a conflict, like
+  // worn/form. Dropping this key entirely (the old behaviour) reset every
+  // dragged accessory to its default spot on each sync (docs/bugs.md).
+  const placements =
+    a.placements === undefined && b.placements === undefined
+      ? undefined
+      : { ...(b.placements ?? {}), ...(a.placements ?? {}) };
   // `form` is a per-device display choice, like worn: the receiving device wins.
   const form = a.form ?? b.form;
   // A name is precious — never let an unnamed side clobber a named one; the
@@ -679,6 +692,7 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
             : b.lastFed,
     ...(accessories.length > 0 ? { accessories } : {}),
     ...(worn !== undefined ? { worn } : {}),
+    ...(placements !== undefined ? { placements } : {}),
     ...(form !== undefined ? { form } : {}),
     ...(name !== undefined ? { name } : {}),
   };
