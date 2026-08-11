@@ -1,5 +1,54 @@
 # Shipped features
 
+## 2026-08-11 — ⚡ La hora doble: a won window where chests pay double
+
+**For:** both kids. Stars paid at a flat rate, so no moment was ever the *good*
+moment to play. The 🎁 regalo del día already got them to open the app; nothing
+made them stay for a second game.
+
+**What shipped:** a kid wins a boost, and for the next few minutes every
+treasure chest pays a multiple of its stars.
+
+- **Two sources, both existing draws.** The free 🎁 *regalo del día* rolls a
+  ⚡x2 (15% of the time); la 📦 *caja sorpresa* rolls a boost in its consolation
+  branch (30%), and about a third of those are the ⚡x3 — the only prize the free
+  gift can never give, which is part of what the 100⭐ buys.
+- **Wall-clock windows:** x2 runs 15 minutes, x3 runs 10. Winning while one is
+  running never makes things worse: a better tier takes over without cutting the
+  window short, the same-or-weaker tier adds its minutes instead of downgrading.
+- **The whole chest multiplies** — base, ✨ perfecto, 🔥 racha and 🆕 first-time
+  alike, so the breakdown chips still add up to the total paid.
+- **Picture-only, both ends.** Home shows a ⚡x2 / ⚡x3 sticker with a bar that
+  drains as the window closes (a pre-reader can't read a countdown, but can see
+  a bar shrink) and vanishes on its own when it ends. The done screen wears a
+  matching yellow ⚡ ribbon above the chest, so the fat chest explains itself.
+- **The multiplier locks when the chest is computed**, not when it is tapped:
+  the number a kid is shown is the number they are paid, even if the window
+  closes while they admire it. Verified by driving exactly that case.
+
+**Where:** rules in `packages/core` — `domain/boost.ts` (tier, window, the
+stacking rule, `boostedReward`, the `isBoost` storage guard),
+`application/grant-boost.ts` (shared by both draws) and `GetBoostUseCase`;
+`domain/daily-gift.ts` and `domain/surprise.ts` each gained a `boost` result.
+`apps/web` holds the `palabras.boost.v1` adapter, `BoostBadge.tsx`, and the
+ribbon in `DoneScreen.tsx`. `OpenSurpriseUseCase.execute` now takes the clock
+(a timed prize means core can't pretend the draw is timeless).
+
+**Why it doesn't sync:** an expiring timestamp is the one shape ADR 004's
+additive merge cannot carry — see **ADR 014**. The stars it produces sync
+normally on the wallet counters.
+
+**Deferred (not dropped):** multiplying anything but the chest (the misión
+bonus, the gift's own stars and surprise stars stay flat) · a parent-triggered
+boost and a scheduled daily happy hour · buying a boost in the shop · boosts
+crossing devices · countdown digits or an expiry warning · a boost tile that
+*starts* a session, Duolingo's early-bird shape.
+
+**Balance note to watch:** the boost stacks on the 7-day streak bonus, which
+already doubles the base. A perfect, first-time chest on a live streak under x3
+is roughly three caja sorpresas from one game. Shipped uncapped deliberately —
+if stars stop feeling scarce, a per-chest ceiling is the first knob.
+
 ## 2026-08-03 — A per-kid report: what they're learning, using, and stuck on
 
 **For:** the parent. `/informe` gave five counters, a 12-week bar chart and the

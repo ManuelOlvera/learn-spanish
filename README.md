@@ -110,7 +110,11 @@ No reading, no accounts, no setup.
 - **Carta del día** — a daily featured word on the home screen with a
   per-kid ☀️ streak.
 - **El regalo del día** — a free 🎁 on the home screen once a day (10–25⭐,
-  sometimes a ❄️), claimable once per calendar day.
+  sometimes a ❄️, sometimes a ⚡ hora doble), claimable once per calendar day.
+- **La hora doble** — a won window in which every treasure chest pays double
+  (⚡x2, 15 min) or triple (⚡x3, 10 min, la caja sorpresa only). Shown on home
+  as a bolt with a draining bar, and on the chest itself. Device-local by
+  design (ADR 014).
 - **Weekly streaks** — finishing the daily misión on 3 days makes an
   active 🔥 week; each active week bumps the weekly streak, celebrated by
   a first-open-of-the-week animation (grew / an ❄️ escudo saved it / start

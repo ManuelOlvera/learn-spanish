@@ -10,6 +10,7 @@ import type { RandomSource } from "../domain/random";
 import { walletBalance } from "../domain/stars";
 import { freezesOrStarting } from "../domain/weekly";
 import { bankStars } from "./earn-stars";
+import { grantBoost } from "./grant-boost";
 
 /** El regalo del día: open today's free gift, once per calendar day. Returns
  *  the drawn gift plus the resulting star balance, or null when today's gift
@@ -34,6 +35,11 @@ export class ClaimDailyGiftUseCase {
         kid,
         freezesOrStarting(this.store.loadFreezes(kid)) + 1,
       );
+      return { gift, stars: walletBalance(this.store.loadWallet(kid)) };
+    }
+    if (gift.type === "boost") {
+      // Pays nothing now — it multiplies the chests the kid goes on to win.
+      grantBoost(this.store, kid, gift.tier, now);
       return { gift, stars: walletBalance(this.store.loadWallet(kid)) };
     }
     return { gift, stars: bankStars(this.store, kid, gift.amount) };

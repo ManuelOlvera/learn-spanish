@@ -88,6 +88,28 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     - ☐ **Sibling head-to-head hooks** — surface "🦖 beat your parejas time" on
       home; the duelo exists but the async sibling nudge doesn't.
 
+10d. ☑ **⚡ La hora doble** — a won window where every chest pays double (x2,
+    15 min) or triple (x3, 10 min). Shaped and shipped 2026-08-11 from the
+    parent's ask ("double or triple points for a period of time, like
+    Duolingo"). Won from the two draws that already exist — the free 🎁 rolls
+    x2, la caja sorpresa also rolls the x3 — never bought. Device-local
+    (ADR 014); the stars it pays sync as normal. *(See `shipped.md`.)*
+    - ☐ **Multiply more than the chest** — the misión bonus, the gift's own
+      stars, caja sorpresa stars. Cut to keep one payout path multiplied and
+      one mental model ("chests are bigger right now").
+    - ☐ **A parent-triggered boost / scheduled happy hour** — "practice now"
+      as an adult lever, or a fixed daily window. Both were considered as the
+      trigger and lost to winning it; revisit if the parent wants a nudge they
+      control.
+    - ☐ **A boost that starts a session** — Duolingo's early-bird quest: a tile
+      on home that *offers* a window if you play in the next N minutes. The
+      shipped slice only ever rewards; this one would recruit.
+    - ☐ **Buying a boost in the shop**, and **boosts crossing devices** (the
+      second one reopens ADR 004 — start from ADR 014, don't just add a field).
+    - ☐ **A per-chest ceiling** — the boost stacks on the 7-day streak bonus,
+      so an x3 perfect first-time chest is ~3 caja sorpresas. Uncapped on
+      purpose; this is the knob if stars stop feeling scarce.
+
 ## Content shelves
 
 11. ☑ **Los verbos — a verbs shelf** — action words for pre-readers, one deck per
@@ -430,7 +452,9 @@ The queue, gathered from the sub-items above so nothing hides in history:
   the proven parejas pattern (12) · hard-mode timer/lose-state (12) ·
   guided accessory placement (13) · resize/rotate accessories (13) ·
   richer weekly missions (14) · more escudo sources (14) · sopa bent paths
-  and bonus words (20).
+  and bonus words (20) · hora doble follow-ons — multiply more than the chest,
+  a parent-triggered or scheduled window, a session-starting boost tile, a
+  per-chest ceiling (10d).
 - **Infra & platform:** CI on GitHub (fable-review features #2 — the one
   gap between a bad commit and prod) · no-Spanish-voice fallback
   (fable-review features #3) · listener→reader upgrade path (18) ·

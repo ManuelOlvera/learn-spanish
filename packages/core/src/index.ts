@@ -58,9 +58,22 @@ export { CELEBRATIONS, pickCelebration } from "./domain/celebrations";
 export type { DailyGift } from "./domain/daily-gift";
 export {
   canClaimDailyGift,
+  DAILY_GIFT_BOOST_CHANCE,
+  DAILY_GIFT_BOOST_TIER,
   DAILY_GIFT_FREEZE_CHANCE,
   drawDailyGift,
 } from "./domain/daily-gift";
+export type { Boost, BoostTier } from "./domain/boost";
+export {
+  activeBoost,
+  BOOST_MINUTES,
+  boostRemaining,
+  boostedReward,
+  isBoost,
+  isBoostTier,
+  stackBoost,
+  startBoost,
+} from "./domain/boost";
 export type { Accessory, AccessoryPlacement } from "./domain/wardrobe";
 export {
   ACCESSORIES,
@@ -73,7 +86,13 @@ export {
   wornAccessories,
 } from "./domain/wardrobe";
 export type { SurpriseResult } from "./domain/surprise";
-export { drawSurprise, SURPRISE_COST, SURPRISE_FREEZE_CHANCE } from "./domain/surprise";
+export {
+  drawSurprise,
+  SURPRISE_BOOST_CHANCE,
+  SURPRISE_COST,
+  SURPRISE_FREEZE_CHANCE,
+  SURPRISE_TRIPLE_CHANCE,
+} from "./domain/surprise";
 export type {
   WeekProgress,
   WeeklyStreak,
@@ -263,6 +282,8 @@ export { BuyFreezeUseCase } from "./application/buy-freeze";
 export { FeedPetUseCase } from "./application/feed-pet";
 export { NamePetUseCase } from "./application/name-pet";
 export { ClaimDailyGiftUseCase } from "./application/claim-daily-gift";
+export { GetBoostUseCase } from "./application/get-boost";
+export { grantBoost } from "./application/grant-boost";
 export { AdoptSpeciesUseCase } from "./application/adopt-species";
 export { SetActiveSpeciesUseCase } from "./application/set-active-species";
 export { BuyAccessoryUseCase } from "./application/buy-accessory";

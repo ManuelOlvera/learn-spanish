@@ -7,7 +7,12 @@ import type { StickerTier } from "../src/domain/sticker-tiers";
 import type { WeekProgress, WeeklyStreak } from "../src/domain/weekly";
 import { ACCESSORIES } from "../src/domain/wardrobe";
 import { defaultCollection, namePet, PET_SPECIES, STARTER_SPECIES } from "../src/domain/mascota";
-import { DAILY_GIFT_FREEZE_CHANCE } from "../src/domain/daily-gift";
+import {
+  DAILY_GIFT_BOOST_CHANCE,
+  DAILY_GIFT_FREEZE_CHANCE,
+} from "../src/domain/daily-gift";
+import { BOOST_MINUTES, startBoost, type Boost } from "../src/domain/boost";
+import { GetBoostUseCase } from "../src/application/get-boost";
 import { AVATAR_CATALOG } from "../src/domain/avatars";
 import {
   FREEZE_COST,
@@ -88,6 +93,9 @@ class FakeEconomyStore implements EconomyStore {
   dailyGiftByKid: Partial<Record<KidId, string>> = {};
   loadDailyGiftDay(kid: KidId) { return this.dailyGiftByKid[kid] ?? null; }
   saveDailyGiftDay(kid: KidId, day: string) { this.dailyGiftByKid[kid] = day; }
+  boostByKid: Partial<Record<KidId, Boost>> = {};
+  loadBoost(kid: KidId) { return this.boostByKid[kid] ?? null; }
+  saveBoost(kid: KidId, boost: Boost) { this.boostByKid[kid] = boost; }
 }
 
 const KID: KidId = "listener";
@@ -322,13 +330,13 @@ describe("ToggleAccessoryUseCase / PlaceAccessoryUseCase", () => {
 describe("OpenSurpriseUseCase", () => {
   it("refuses when unaffordable", () => {
     const store = new FakeEconomyStore();
-    expect(new OpenSurpriseUseCase(store, () => 0).execute(KID)).toBeNull();
+    expect(new OpenSurpriseUseCase(store, () => 0).execute(KID, NOW)).toBeNull();
   });
 
   it("an accessory draw records ownership and dresses the pet", () => {
     const store = new FakeEconomyStore();
     store.saveStars(KID, SURPRISE_COST);
-    const opened = new OpenSurpriseUseCase(store, () => 0).execute(KID);
+    const opened = new OpenSurpriseUseCase(store, () => 0).execute(KID, NOW);
     expect(opened!.result.type).toBe("accessory");
     const id = (opened!.result as { id: string }).id;
     expect(store.loadOwnedAccessories(KID)).toContain(id);
@@ -339,7 +347,7 @@ describe("OpenSurpriseUseCase", () => {
     const store = new FakeEconomyStore();
     store.saveStars(KID, SURPRISE_COST);
     store.saveOwnedAccessories(KID, ACCESSORIES.map((a) => a.id)); // all owned
-    const opened = new OpenSurpriseUseCase(store, () => 0.1).execute(KID);
+    const opened = new OpenSurpriseUseCase(store, () => 0.1).execute(KID, NOW);
     expect(opened!.result.type).toBe("freeze");
     expect(store.loadFreezes(KID)).toBe(STARTING_FREEZES + 1);
   });
@@ -348,10 +356,46 @@ describe("OpenSurpriseUseCase", () => {
     const store = new FakeEconomyStore();
     store.saveStars(KID, SURPRISE_COST);
     store.saveOwnedAccessories(KID, ACCESSORIES.map((a) => a.id));
-    const opened = new OpenSurpriseUseCase(store, () => 0.9).execute(KID);
+    const opened = new OpenSurpriseUseCase(store, () => 0.9).execute(KID, NOW);
     expect(opened!.result.type).toBe("stars");
     expect(opened!.stars).toBeGreaterThan(0);
     expect(store.loadStars(KID)).toBe(opened!.stars);
+  });
+
+  it("a ⚡ draw opens the window and costs the kid nothing extra", () => {
+    const store = new FakeEconomyStore();
+    store.saveStars(KID, SURPRISE_COST);
+    store.saveOwnedAccessories(KID, ACCESSORIES.map((a) => a.id));
+    // 0.2: past the accessory and freeze branches, inside the boost band, and
+    // under the triple chance — the box's own prize.
+    const opened = new OpenSurpriseUseCase(store, () => 0.2).execute(KID, NOW);
+    expect(opened!.result).toEqual({ type: "boost", tier: 3 });
+    expect(store.loadBoost(KID)).toEqual(startBoost(3, NOW));
+    expect(opened!.stars).toBe(0); // the box's price, nothing more
+  });
+
+  it("a ⚡ draw stacks onto a window already running", () => {
+    const store = new FakeEconomyStore();
+    store.saveStars(KID, SURPRISE_COST);
+    store.saveOwnedAccessories(KID, ACCESSORIES.map((a) => a.id));
+    store.saveBoost(KID, startBoost(3, NOW));
+    new OpenSurpriseUseCase(store, () => 0.2).execute(KID, NOW);
+    // Same tier: the window grows rather than restarting (domain/boost.ts).
+    expect(store.loadBoost(KID)!.until).toBe(
+      startBoost(3, NOW).until + BOOST_MINUTES[3] * 60_000,
+    );
+  });
+});
+
+describe("GetBoostUseCase", () => {
+  it("reports the running window, then nothing once it closes", () => {
+    const store = new FakeEconomyStore();
+    const get = new GetBoostUseCase(store);
+    expect(get.execute(KID, NOW)).toBeNull();
+    store.saveBoost(KID, startBoost(2, NOW));
+    expect(get.execute(KID, NOW)?.tier).toBe(2);
+    const after = new Date(NOW.getTime() + (BOOST_MINUTES[2] + 1) * 60_000);
+    expect(get.execute(KID, after)).toBeNull();
   });
 });
 
@@ -438,6 +482,17 @@ describe("ClaimDailyGiftUseCase", () => {
     expect(gift?.gift.type).toBe("freeze");
     expect(gift?.stars).toBe(40);
     expect(store.loadFreezes(KID)).toBe(STARTING_FREEZES + 1);
+  });
+
+  it("a ⚡ draw opens an x2 window and pays no stars today", () => {
+    const store = new FakeEconomyStore();
+    store.saveStars(KID, 40);
+    // Just inside the boost band, which sits directly above the freeze band.
+    const roll = DAILY_GIFT_FREEZE_CHANCE + DAILY_GIFT_BOOST_CHANCE / 2;
+    const gift = new ClaimDailyGiftUseCase(store, () => roll).execute(KID, NOW);
+    expect(gift?.gift).toEqual({ type: "boost", tier: 2 });
+    expect(gift?.stars).toBe(40); // the boost is the prize, not stars
+    expect(store.loadBoost(KID)).toEqual(startBoost(2, NOW));
   });
 });
 

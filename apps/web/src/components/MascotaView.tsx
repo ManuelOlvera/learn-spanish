@@ -331,7 +331,9 @@ export function MascotaView() {
           ? `¡${ACCESSORIES.find((a) => a.id === r.id)?.emoji ?? "🎁"} nuevo!`
           : r.type === "freeze"
             ? "❄️ ¡nuevo!"
-            : `+${r.amount} ⭐`,
+            : r.type === "boost"
+              ? `⚡ x${r.tier} ⭐` // la hora doble — the badge on home shows the rest
+              : `+${r.amount} ⭐`,
       );
       return;
     }

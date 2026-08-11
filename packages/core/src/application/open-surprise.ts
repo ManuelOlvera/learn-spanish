@@ -7,16 +7,21 @@ import type { SurpriseResult } from "../domain/surprise";
 import { buyAccessory, wear } from "../domain/wardrobe";
 import { freezesOrStarting } from "../domain/weekly";
 import { bankStars } from "./earn-stars";
+import { grantBoost } from "./grant-boost";
 import { trySpend } from "./spend-stars";
 
-/** La caja sorpresa: spend, draw, apply. Null when unaffordable. */
+/** La caja sorpresa: spend, draw, apply. Null when unaffordable. Takes the
+ *  clock because one of the prizes (a ⚡ hora doble) is a timed window. */
 export class OpenSurpriseUseCase {
   constructor(
     private readonly store: EconomyStore,
     private readonly random: RandomSource,
   ) {}
 
-  execute(kid: KidId): { result: SurpriseResult; stars: number } | null {
+  execute(
+    kid: KidId,
+    now: Date,
+  ): { result: SurpriseResult; stars: number } | null {
     const owned = this.store.loadOwnedAccessories(kid);
     const stars = trySpend(this.store, kid, SURPRISE_COST);
     if (stars === null) {
@@ -38,6 +43,10 @@ export class OpenSurpriseUseCase {
         kid,
         freezesOrStarting(this.store.loadFreezes(kid)) + 1,
       );
+      return { result, stars };
+    }
+    if (result.type === "boost") {
+      grantBoost(this.store, kid, result.tier, now);
       return { result, stars };
     }
     return { result, stars: bankStars(this.store, kid, result.amount) };

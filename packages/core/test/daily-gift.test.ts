@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   canClaimDailyGift,
+  DAILY_GIFT_BOOST_CHANCE,
   DAILY_GIFT_FREEZE_CHANCE,
   drawDailyGift,
 } from "../src/domain/daily-gift";
+
+/** Where each branch's band starts, given one branch roll (see drawDailyGift). */
+const BOOST_BAND = DAILY_GIFT_FREEZE_CHANCE;
+const STARS_BAND = DAILY_GIFT_FREEZE_CHANCE + DAILY_GIFT_BOOST_CHANCE;
 
 describe("daily gift — canClaim", () => {
   it("is claimable when never claimed", () => {
@@ -27,10 +32,26 @@ describe("daily gift — draw", () => {
     });
   });
 
+  it("draws a ⚡ boost in the band above the freeze", () => {
+    expect(drawDailyGift(() => BOOST_BAND + 0.001)).toEqual({
+      type: "boost",
+      tier: 2,
+    });
+  });
+
+  it("never hands out the x3 boost — that stays the paid box's prize", () => {
+    for (let r = 0; r < 1; r += 0.01) {
+      const gift = drawDailyGift(() => r);
+      if (gift.type === "boost") {
+        expect(gift.tier).toBe(2);
+      }
+    }
+  });
+
   it("draws stars otherwise, always a modest top-up (10–25)", () => {
-    // random() is consumed twice (freeze check, then amount), so a constant
-    // stub just past the freeze chance still lands inside the 10–25 band.
-    for (const r of [DAILY_GIFT_FREEZE_CHANCE + 0.001, 0.5, 0.999999]) {
+    // random() is consumed twice (branch, then amount), so a constant stub past
+    // the boost band still lands inside the 10–25 band.
+    for (const r of [STARS_BAND + 0.001, 0.5, 0.999999]) {
       const gift = drawDailyGift(() => r);
       expect(gift.type).toBe("stars");
       if (gift.type === "stars") {
@@ -42,7 +63,7 @@ describe("daily gift — draw", () => {
 
   it("never hands out an accessory (that stays the paid box's job)", () => {
     for (let r = 0; r < 1; r += 0.05) {
-      expect(["stars", "freeze"]).toContain(drawDailyGift(() => r).type);
+      expect(["stars", "freeze", "boost"]).toContain(drawDailyGift(() => r).type);
     }
   });
 });

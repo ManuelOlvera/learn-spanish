@@ -2,11 +2,13 @@
 
 import {
   EMPTY_WALLET,
+  isBoost,
   isCategoryAwards,
   isMissionState,
   isPetCollection,
   isWeekProgress,
   isWeeklyStreak,
+  type Boost,
   type EconomyStore,
   type KidId,
   type MissionState,
@@ -38,6 +40,7 @@ const FREEZES_KEY = "palabras.freezes.v1";
 const CATEGORY_AWARDS_KEY = "palabras.category-awards.v1";
 const RETO_KEY = "palabras.reto.v1";
 const DAILY_GIFT_KEY = "palabras.daily-gift.v1"; // dayKey of the last claim; not synced
+const BOOST_KEY = "palabras.boost.v1"; // the ⚡ hora doble window; not synced
 
 /** Schema migrations run once, on the first storage access of a session —
  *  after this, every reader can assume the current key layout. */
@@ -227,6 +230,14 @@ export class LocalStorageEconomyStore implements EconomyStore {
   }
   saveDailyGiftDay(kid: KidId, day: string): void {
     writeDoc(DAILY_GIFT_KEY, kid, day);
+  }
+
+  loadBoost(kid: KidId): Boost | null {
+    const stored: unknown = readDoc<Boost>(BOOST_KEY)[kid];
+    return isBoost(stored) ? stored : null;
+  }
+  saveBoost(kid: KidId, boost: Boost): void {
+    writeDoc(BOOST_KEY, kid, boost);
   }
 }
 

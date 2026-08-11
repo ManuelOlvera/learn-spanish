@@ -1,4 +1,5 @@
 import { ACCESSORIES } from "./wardrobe";
+import type { BoostTier } from "./boost";
 import type { RandomSource } from "./random";
 
 /** La caja sorpresa: a renewable star sink — pay and get a random reward,
@@ -11,9 +12,18 @@ export const SURPRISE_COST = 100;
 /** How often the consolation is a streak freeze (❄️) rather than stars. */
 export const SURPRISE_FREEZE_CHANCE = 0.15;
 
+/** How often the consolation is a ⚡ hora doble instead of stars. Only the box
+ *  can pay a boost worth more than the free gift's — that is what the 100⭐
+ *  buys over the 🎁. */
+export const SURPRISE_BOOST_CHANCE = 0.3;
+
+/** How often a boost from the box is the x3 rather than the x2. */
+export const SURPRISE_TRIPLE_CHANCE = 0.35;
+
 export type SurpriseResult =
   | { readonly type: "accessory"; readonly id: string }
   | { readonly type: "freeze" }
+  | { readonly type: "boost"; readonly tier: BoostTier }
   | { readonly type: "stars"; readonly amount: number };
 
 export function drawSurprise(
@@ -28,9 +38,15 @@ export function drawSurprise(
     };
   }
   // Nothing new to win (or the 30% roll): usually 20–50 stars, occasionally a
-  // freeze so the safety net can be earned, not only bought.
+  // freeze so the safety net can be earned, not only bought, or a ⚡ window.
   if (random() < SURPRISE_FREEZE_CHANCE) {
     return { type: "freeze" };
+  }
+  if (random() < SURPRISE_BOOST_CHANCE) {
+    return {
+      type: "boost",
+      tier: random() < SURPRISE_TRIPLE_CHANCE ? 3 : 2,
+    };
   }
   return { type: "stars", amount: 20 + Math.floor(random() * 31) };
 }

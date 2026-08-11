@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   activityKind,
   ALL_ACTIVITIES,
+  boostedReward,
   computeReward,
   kidForActivity,
   petFormEmoji,
@@ -16,6 +17,7 @@ import {
   STORY_ACTIVITIES,
   type ActivityId,
   type AwardResult,
+  type BoostTier,
   type StarReward,
   type StickerTier,
 } from "@learn-spanish/core";
@@ -30,6 +32,7 @@ import { getSelectedKid } from "@/lib/kid";
 import {
   addStars,
   claimCategoryReward,
+  getActiveBoost,
   getActivePet,
   getCategoryTier,
   getPetCollection,
@@ -76,6 +79,13 @@ export function DoneScreen({
 }: Props) {
   const [award, setAward] = useState<AwardResult | null>(null);
   const [streakDays, setStreakDays] = useState<number | null>(null);
+  // ⚡ La hora doble, read once on mount and then held: undefined while still
+  // reading, null for no window. Holding it is the point — the multiplier is
+  // decided when the chest is computed, so a window that closes while the kid
+  // admires the chest still pays what they were shown.
+  const [boostTier, setBoostTier] = useState<BoostTier | null | undefined>(
+    undefined,
+  );
   // The win cheer — one draw per mount, so it varies finish to finish but never
   // changes mid-screen (see domain/celebrations.ts).
   const celebration = useMemo(() => pickCelebration(Math.random), []);
@@ -90,15 +100,19 @@ export function DoneScreen({
 
   // The chest waits until the streak (and, for sticker games, the award) have
   // loaded, so its amount includes every bonus and never changes after render.
-  const ready = streakDays !== null && (noAward || award !== null);
+  const ready =
+    streakDays !== null && boostTier !== undefined && (noAward || award !== null);
   const reward: StarReward | null = ready
-    ? computeReward({
-        firstTryCorrect: firstTryCount,
-        mistakes: mistakeCount,
-        totalRounds,
-        streakDays: streakDays ?? 0,
-        firstTime: award?.isNew ?? false,
-      })
+    ? boostedReward(
+        computeReward({
+          firstTryCorrect: firstTryCount,
+          mistakes: mistakeCount,
+          totalRounds,
+          streakDays: streakDays ?? 0,
+          firstTime: award?.isNew ?? false,
+        }),
+        boostTier ?? null,
+      )
     : null;
 
   useEffect(() => {
@@ -106,6 +120,7 @@ export function DoneScreen({
     // Completing the activity feeds today's mission either way.
     const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
     markActivityDone(kid, activityKind(activity));
+    setBoostTier(getActiveBoost(kid)?.tier ?? null);
     getStreak
       .execute(kid)
       .then((s) => setStreakDays(s?.count ?? 0))
@@ -258,6 +273,20 @@ export function DoneScreen({
 
       {reward !== null && (
         <div className="flex flex-col items-center gap-2">
+          {boostTier != null && (
+            // Why this chest is fat. Sits above it, in the same yellow as the
+            // home badge, so the two read as the same thing happening.
+            <div
+              aria-label={`La hora doble: this chest is worth ${boostTier} times as much`}
+              className="pop-in flex items-center gap-2 rounded-full border-4 border-ink px-5 py-1 text-2xl font-extrabold"
+              style={{ background: "#facc15" }}
+            >
+              {/* No wiggle here: the closed chest below already has the one
+                  attention-seeking animation this screen is allowed. */}
+              <span aria-hidden>⚡</span>
+              <span aria-hidden>x{boostTier}</span>
+            </div>
+          )}
           <StarChest
             amount={reward.total}
             onOpen={() => {

@@ -174,9 +174,20 @@ describe("drawSurprise", () => {
       expect(ACCESSORIES.some((a) => a.id === r.id)).toBe(true);
     } else if (r.type === "stars") {
       expect(r.amount).toBeGreaterThan(0);
+    } else if (r.type === "boost") {
+      expect([2, 3]).toContain(r.tier);
     } else {
       expect(r.type).toBe("freeze");
     }
+  });
+
+  it("can award a ⚡ boost, and is the only draw that pays the x3", () => {
+    const allOwned = ACCESSORIES.map((a) => a.id);
+    const boosts = Array.from({ length: 200 }, (_, s) =>
+      drawSurprise(seededRandom(s), allOwned),
+    ).filter((r) => r.type === "boost");
+    expect(boosts.length).toBeGreaterThan(0);
+    expect(boosts.some((b) => b.type === "boost" && b.tier === 3)).toBe(true);
   });
 
   it("never awards an accessory once every accessory is owned", () => {

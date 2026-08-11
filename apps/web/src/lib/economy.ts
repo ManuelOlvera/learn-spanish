@@ -9,6 +9,7 @@
  * business state.
  */
 import {
+  boostRemaining,
   canClaimDailyGift as coreCanClaimDailyGift,
   categoryTierFromAlbum,
   dayKey,
@@ -16,6 +17,7 @@ import {
   freezesOrStarting,
   walletBalance,
   type ActivityId,
+  type Boost,
   type DailyGift,
   type KidId,
   type MissionKind,
@@ -233,7 +235,20 @@ export function nameActivePet(kid: KidId, name: string): PetCollection {
 export function openSurprise(
   kid: KidId,
 ): { result: SurpriseResult; stars: number } | null {
-  return container.openSurprise.execute(kid);
+  return container.openSurprise.execute(kid, new Date());
+}
+
+// ---- ⚡ la hora doble (a timed chest multiplier) ----
+
+/** The boost window paying right now, or null. Read fresh at every call site:
+ *  it expires on the clock, so a cached value goes stale on its own. */
+export function getActiveBoost(kid: KidId): Boost | null {
+  return container.getBoost.execute(kid, new Date());
+}
+
+/** How full the current window is, 0–1 — what the home badge's bar draws. */
+export function getBoostRemaining(kid: KidId): number {
+  return boostRemaining(store.loadBoost(kid), new Date());
 }
 
 // ---- el regalo del día (free daily gift) ----

@@ -44,6 +44,7 @@ import type { DailyGift } from "@learn-spanish/core";
 import { WeeklyBurst } from "@/components/WeeklyBurst";
 import { MissionBurst } from "@/components/MissionBurst";
 import { GiftReveal } from "@/components/GiftReveal";
+import { BoostBadge } from "@/components/BoostBadge";
 import { MissionCard } from "@/components/MissionCard";
 import { WeeklyCard } from "@/components/WeeklyCard";
 import { SecretDeckTile } from "@/components/SecretDeckTile";
@@ -76,6 +77,9 @@ export function HomeView({ decks, groups }: Props) {
   // gift while its reveal is on screen.
   const [giftReady, setGiftReady] = useState(false);
   const [giftReveal, setGiftReveal] = useState<DailyGift | null>(null);
+  // Bumped when today's gift may have opened a ⚡ window, so the badge re-reads
+  // without waiting for its own tick.
+  const [boostNonce, setBoostNonce] = useState(0);
   // Bumped when a cross-device pull applies changes, to re-read home state.
   const [syncNonce, setSyncNonce] = useState(0);
 
@@ -197,6 +201,9 @@ export function HomeView({ decks, groups }: Props) {
     if (res.gift.type === "freeze") {
       setWeekly((w) => (w ? { ...w, freezes: w.freezes + 1 } : w));
     }
+    if (res.gift.type === "boost") {
+      setBoostNonce((n) => n + 1);
+    }
     setGiftReveal(res.gift);
     // The stars/❄️ are banked into the synced wallet/freeze fields — push so
     // the other device sees them (the claim day itself stays per-device).
@@ -298,6 +305,8 @@ export function HomeView({ decks, groups }: Props) {
           📔
         </Link>
       </header>
+
+      <BoostBadge kid={kid} nonce={boostNonce} />
 
       {giftReady && (
         <button

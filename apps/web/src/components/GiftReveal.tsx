@@ -20,7 +20,11 @@ export function GiftReveal({ gift, onDone }: Props) {
   }, [onDone]);
 
   const spoils =
-    gift.type === "freeze" ? "a snowflake shield" : `${gift.amount} stars`;
+    gift.type === "freeze"
+      ? "a snowflake shield"
+      : gift.type === "boost"
+        ? `la hora doble — chests worth ${gift.tier} times as much for a while`
+        : `${gift.amount} stars`;
 
   return (
     <button
@@ -43,6 +47,14 @@ export function GiftReveal({ gift, onDone }: Props) {
         <span className="flex items-center gap-2 rounded-full border-4 border-ink bg-white px-6 py-1 text-3xl font-extrabold">
           {gift.type === "freeze" ? (
             <span aria-hidden>❄️</span>
+          ) : gift.type === "boost" ? (
+            // The prize is a promise, not a payout: the bolt and the multiplier
+            // say "your next chests are bigger" with no number to read.
+            <>
+              <span aria-hidden>⚡</span>
+              <span>x{gift.tier}</span>
+              <span aria-hidden>⭐</span>
+            </>
           ) : (
             <>
               <span aria-hidden>⭐</span>

@@ -1,3 +1,4 @@
+import type { Boost } from "./boost";
 import type { KidId } from "./kid";
 import type { MissionState } from "./mission";
 import type { PetCollection } from "./mascota";
@@ -67,4 +68,12 @@ export interface EconomyStore {
    *  so the stars/freeze it pays out ride the wallet/freeze fields that do. */
   loadDailyGiftDay(kid: KidId): string | null;
   saveDailyGiftDay(kid: KidId, day: string): void;
+
+  /** The kid's ⚡ hora doble window; null when none was ever won. Also NOT
+   *  synced, and for a sharper reason than the gift: an expiring timestamp
+   *  cannot survive ADR 004's additive merge (a stale peer would resurrect a
+   *  dead window). The stars it multiplies ride the wallet counters, which do
+   *  sync. See domain/boost.ts. */
+  loadBoost(kid: KidId): Boost | null;
+  saveBoost(kid: KidId, boost: Boost): void;
 }
