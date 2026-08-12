@@ -1,5 +1,39 @@
 # Shipped features
 
+## 2026-08-12 — 🖐️ El cuerpo fills up, and the deck ceiling goes to 17
+
+**For:** both kids. The body deck stopped at twelve obvious parts; the ones a
+kid actually points at on their own face were missing.
+
+**What shipped:** five cards — 🤨 *las cejas*, 🧠 *el cerebro*, 💅 *las uñas*,
+🩸 *la sangre*, 🫁 *los pulmones* — taking **El cuerpo** to 17. Pack is now
+40 decks / 469 words public, 41 / 481 with El misterio.
+
+- **The 10–15 deck ceiling was raised to 10–17.** The cap is about pacing, not
+  structure: every game caps its own round count independently, so the only
+  things that feel deck length are **Las tarjetas** (walks every card before the
+  ¡Muy bien! payoff) and **Conecta** (one board per five cards). Two extra cards
+  cost one longer flashcard sitting, on one deck.
+- **Two `question` overrides.** `la sangre` is a mass noun, so it borrows the
+  pattern already used by *el agua* and *el pan*: `¿Es sangre?`, not "¿Es una
+  sangre?". `las uñas` overrides for sound rather than grammar — the generated
+  claim would have been "¿Son unas uñas?", a stutter nobody says out loud, and
+  every claim in this app is spoken.
+- **The real ceiling is pictures, not slots.** Body vocabulary runs out of
+  distinct glyphs long before a deck runs out of room: *la espalda, el cuello,
+  el hombro, el codo, la frente, las pestañas* and *las mejillas* have no emoji
+  at all; 🦴 belongs to *delgado* in **Los tamaños**; 🦵 is *la pierna*; and
+  👁️ / 🤲 / 👣 / 🫦 would only repeat 👀 / 🖐️ / 🦶 / 👄. Since `/repaso` deals
+  picture-choice rounds from the whole pack, a repeated glyph anywhere in the
+  pack — not just within a deck — can build an unanswerable round.
+- **`las mejillas` was cut on the picture, not the word.** The faces that show a
+  blush (😊, 😀) are already **Las emociones** cards, and 😳 renders as wide eyes
+  that would collide with 👀 *los ojos*.
+
+**Where:** `packages/core/src/infrastructure/starter-pack.ts` only — the deck
+already had its shelf, accent and album slots. The ceiling and the counts live
+in `starter-pack.test.ts`; totals updated in `README.md`.
+
 ## 2026-08-11 — ⚡ La hora doble: a won window where chests pay double
 
 **For:** both kids. Stars paid at a flat rate, so no moment was ever the *good*

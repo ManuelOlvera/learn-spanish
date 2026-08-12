@@ -156,6 +156,16 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "pierna", spanish: "la pierna", english: "the leg", emoji: "🦵" },
       { id: "corazon", spanish: "el corazón", english: "the heart", emoji: "❤️" },
       { id: "dedo", spanish: "el dedo", english: "the finger", emoji: "☝️" },
+      { id: "cejas", spanish: "las cejas", english: "the eyebrows", emoji: "🤨" },
+      { id: "cerebro", spanish: "el cerebro", english: "the brain", emoji: "🧠" },
+      // "¿Son unas uñas?" stutters; the override keeps the claim sayable.
+      { id: "unas", spanish: "las uñas", english: "the nails", emoji: "💅", question: "¿Son uñas?" },
+      // Inside the body, alongside el corazón. These two are the last body
+      // parts with a picture of their own: espalda, cuello, hombro and codo
+      // have no glyph at all, 🦴 belongs to delgado, and 👁️/🤲/👣 would only
+      // repeat 👀/🖐️/🦶 in a picture-only round.
+      { id: "sangre", spanish: "la sangre", english: "the blood", emoji: "🩸", question: "¿Es sangre?" },
+      { id: "pulmones", spanish: "los pulmones", english: "the lungs", emoji: "🫁" },
     ],
   },
   {

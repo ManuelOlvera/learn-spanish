@@ -55,15 +55,15 @@ describe("starter pack content", () => {
 
   it("matches the README's advertised pack size (update both together)", async () => {
     // The root README's Features section states these totals ("40 decks /
-    // 464 words … 41 decks / 476 words total"). This test turns silent README
+    // 469 words … 41 decks / 481 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
     expect(decks).toHaveLength(41);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(476);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(481);
     expect(publicDecks).toHaveLength(40);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(464);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(469);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {
@@ -270,11 +270,17 @@ describe("starter pack content", () => {
     }
   });
 
-  it("keeps decks kid-sized: 10-15 cards each", async () => {
+  it("keeps decks kid-sized: 10-17 cards each", async () => {
+    // Raised from 15 to 17 for El cuerpo (2026-08-12). The cap is about
+    // pacing, not structure: every game caps its own rounds independently, so
+    // the only things that feel deck length are Las tarjetas (walks every card
+    // before the ¡Muy bien! payoff) and Conecta (one board per 5 cards). Two
+    // extra cards cost one longer flashcard sitting on one deck — accepted,
+    // because the alternative was leaving body parts out that have a picture.
     const decks = await repo.listDecks();
     for (const deck of decks) {
       expect(deck.cards.length).toBeGreaterThanOrEqual(10);
-      expect(deck.cards.length).toBeLessThanOrEqual(15);
+      expect(deck.cards.length).toBeLessThanOrEqual(17);
     }
   });
 
