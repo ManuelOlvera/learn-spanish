@@ -139,33 +139,57 @@ export const STARTER_PACK: readonly Deck[] = [
     ],
   },
   {
+    // The face split out of El cuerpo when drawn art arrived (ADR 015): a
+    // cheek, an eyelash and a neck have no emoji at all, so half this deck
+    // could not exist until a card could carry a picture of its own. Cards
+    // that moved kept their ids, so word stats and album progress came with
+    // them. Order is how a kid points at their own face: top to chin.
+    id: "cara",
+    nameSpanish: "La cara",
+    nameEnglish: "The face",
+    emoji: "😃",
+    cards: [
+      { id: "cabeza", spanish: "la cabeza", english: "the head", emoji: "🧑", image: "cabeza" },
+      { id: "pelo-cara", spanish: "el pelo", english: "the hair", emoji: "💇", image: "pelo" },
+      { id: "cejas", spanish: "las cejas", english: "the eyebrows", emoji: "🤨", image: "cejas" },
+      { id: "pestanas", spanish: "las pestañas", english: "the eyelashes", emoji: "👁️", image: "pestanas" },
+      { id: "ojos", spanish: "los ojos", english: "the eyes", emoji: "👀" },
+      { id: "nariz", spanish: "la nariz", english: "the nose", emoji: "👃" },
+      { id: "mejillas", spanish: "las mejillas", english: "the cheeks", emoji: "😊", image: "mejillas" },
+      { id: "boca", spanish: "la boca", english: "the mouth", emoji: "👄" },
+      { id: "labios", spanish: "los labios", english: "the lips", emoji: "🫦", image: "labios" },
+      { id: "diente", spanish: "el diente", english: "the tooth", emoji: "🦷" },
+      { id: "lengua", spanish: "la lengua", english: "the tongue", emoji: "👅" },
+      { id: "oreja", spanish: "la oreja", english: "the ear", emoji: "👂" },
+      { id: "cuello", spanish: "el cuello", english: "the neck", emoji: "🧣", image: "cuello" },
+    ],
+  },
+  {
+    // What's left once the face has its own deck: the limbs, top to bottom,
+    // then the parts inside. The drawn cards here are the joints — a shoulder,
+    // an elbow, a knee, a back and a belly are all "a body with one part
+    // highlighted", which is a picture only a drawing can make.
     id: "body",
     nameSpanish: "El cuerpo",
     nameEnglish: "The body",
     emoji: "🖐️",
     cards: [
-      { id: "mano", spanish: "la mano", english: "the hand", emoji: "🖐️" },
-      { id: "pie", spanish: "el pie", english: "the foot", emoji: "🦶" },
-      { id: "boca", spanish: "la boca", english: "the mouth", emoji: "👄" },
-      { id: "nariz", spanish: "la nariz", english: "the nose", emoji: "👃" },
-      { id: "oreja", spanish: "la oreja", english: "the ear", emoji: "👂" },
-      { id: "ojos", spanish: "los ojos", english: "the eyes", emoji: "👀" },
-      { id: "diente", spanish: "el diente", english: "the tooth", emoji: "🦷" },
-      { id: "lengua", spanish: "la lengua", english: "the tongue", emoji: "👅" },
+      { id: "hombro", spanish: "el hombro", english: "the shoulder", emoji: "🤷", image: "hombro" },
       { id: "brazo", spanish: "el brazo", english: "the arm", emoji: "💪" },
-      { id: "pierna", spanish: "la pierna", english: "the leg", emoji: "🦵" },
-      { id: "corazon", spanish: "el corazón", english: "the heart", emoji: "❤️" },
+      { id: "codo", spanish: "el codo", english: "the elbow", emoji: "🦾", image: "codo" },
+      { id: "mano", spanish: "la mano", english: "the hand", emoji: "🖐️" },
       { id: "dedo", spanish: "el dedo", english: "the finger", emoji: "☝️" },
-      { id: "cejas", spanish: "las cejas", english: "the eyebrows", emoji: "🤨" },
-      { id: "cerebro", spanish: "el cerebro", english: "the brain", emoji: "🧠" },
       // "¿Son unas uñas?" stutters; the override keeps the claim sayable.
       { id: "unas", spanish: "las uñas", english: "the nails", emoji: "💅", question: "¿Son uñas?" },
-      // Inside the body, alongside el corazón. These two are the last body
-      // parts with a picture of their own: espalda, cuello, hombro and codo
-      // have no glyph at all, 🦴 belongs to delgado, and 👁️/🤲/👣 would only
-      // repeat 👀/🖐️/🦶 in a picture-only round.
-      { id: "sangre", spanish: "la sangre", english: "the blood", emoji: "🩸", question: "¿Es sangre?" },
+      { id: "barriga", spanish: "la barriga", english: "the belly", emoji: "🫃", image: "barriga" },
+      { id: "espalda", spanish: "la espalda", english: "the back", emoji: "🔙", image: "espalda" },
+      { id: "pierna", spanish: "la pierna", english: "the leg", emoji: "🦵" },
+      { id: "rodilla", spanish: "la rodilla", english: "the knee", emoji: "🦿", image: "rodilla" },
+      { id: "pie", spanish: "el pie", english: "the foot", emoji: "🦶" },
+      { id: "corazon", spanish: "el corazón", english: "the heart", emoji: "❤️" },
+      { id: "cerebro", spanish: "el cerebro", english: "the brain", emoji: "🧠" },
       { id: "pulmones", spanish: "los pulmones", english: "the lungs", emoji: "🫁" },
+      { id: "sangre", spanish: "la sangre", english: "the blood", emoji: "🩸", question: "¿Es sangre?" },
     ],
   },
   {

@@ -11,13 +11,14 @@ import {
   type WordStats,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getWordStats, recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -225,16 +226,12 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
                     }
                   >
                     <span aria-hidden className="sticker-peel" />
-                    <span
-                      aria-hidden
-                      className={
-                        mode === "listen"
-                          ? emojiSizeClass(cardFace(choice.emoji), "text-8xl sm:text-9xl", "text-5xl sm:text-6xl")
-                          : emojiSizeClass(cardFace(choice.emoji), "text-7xl sm:text-8xl", "text-4xl sm:text-5xl")
-                      }
-                    >
-                      {cardFace(choice.emoji)}
-                    </span>
+                    <CardFace
+                      image={choice.image}
+                      face={cardFace(choice.emoji)}
+                      single={mode === "listen" ? "text-8xl sm:text-9xl" : "text-7xl sm:text-8xl"}
+                      wide={mode === "listen" ? "text-5xl sm:text-6xl" : "text-4xl sm:text-5xl"}
+                    />
                     {isCorrectPick && (
                       <span className="text-2xl font-extrabold">
                         {round.answer.spanish}

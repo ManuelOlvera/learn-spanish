@@ -448,6 +448,13 @@ The queue, gathered from the sub-items above so nothing hides in history:
   los miles y millones (17) · verbs in the games so the verbs shelf drops
   learnOnly (11) · sentence attribute content (21) · more cuentos, and
   illustrated story pages (24).
+- **Card art follow-ons (deferred from ADR 015, 2026-08-12):** draw the
+  remaining 16 cards in La cara and El cuerpo so neither deck mixes drawn and
+  emoji pictures — the known trade-off taken to ship the words emoji could not
+  show at all · card art for any other deck · a drawing system rather than
+  hand-written paths, if a third deck ever wants it · *las mejillas* and the
+  other face words currently sharing a deck with *la boca*/*los labios*, which
+  are close enough that a round should not deal both.
 - **Play & retention polish:** difficulty sizes for quiz/sí-o-no/reto —
   the proven parejas pattern (12) · hard-mode timer/lose-state (12) ·
   guided accessory placement (13) · resize/rotate accessories (13) ·

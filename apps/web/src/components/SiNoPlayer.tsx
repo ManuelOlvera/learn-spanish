@@ -11,13 +11,14 @@ import {
   type SiNoGame,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -152,12 +153,12 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
               aria-label={`Picture of ${round.card.english}`}
             >
               <span aria-hidden className="sticker-peel" />
-              <span
-                aria-hidden
-                className={emojiSizeClass(cardFace(round.card.emoji), "text-8xl sm:text-9xl", "text-5xl sm:text-6xl")}
-              >
-                {cardFace(round.card.emoji)}
-              </span>
+              <CardFace
+                image={round.card.image}
+                face={cardFace(round.card.emoji)}
+                single="text-8xl sm:text-9xl"
+                wide="text-5xl sm:text-6xl"
+              />
             </div>
 
             {mode === "listen" ? (

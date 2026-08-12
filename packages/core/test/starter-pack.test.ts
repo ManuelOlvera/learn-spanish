@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { StaticDeckRepository } from "../src/infrastructure/static-deck-repository";
+import { cardPicture } from "../src/domain/card";
 import { siNoQuestion } from "../src/domain/si-no";
 import { sceneQuestion } from "../src/domain/scene";
 
@@ -16,6 +17,7 @@ describe("starter pack content", () => {
       "numbers-tens",
       "centenas",
       "food",
+      "cara",
       "body",
       "pelo",
       "tamanos",
@@ -54,16 +56,16 @@ describe("starter pack content", () => {
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("40 decks /
-    // 469 words … 41 decks / 481 words total"). This test turns silent README
+    // The root README's Features section states these totals ("41 decks /
+    // 480 words … 42 decks / 492 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(41);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(481);
-    expect(publicDecks).toHaveLength(40);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(469);
+    expect(decks).toHaveLength(42);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(492);
+    expect(publicDecks).toHaveLength(41);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(480);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {
@@ -326,12 +328,59 @@ describe("starter pack content", () => {
     }
   });
 
-  it("never repeats an emoji within a deck (quiz choices are picture-only)", async () => {
+  it("never repeats a picture within a deck (quiz choices are picture-only)", async () => {
     const decks = await repo.listDecks();
     for (const deck of decks) {
-      const emoji = deck.cards.map((c) => c.emoji);
-      expect(new Set(emoji).size).toBe(emoji.length);
+      const pictures = deck.cards.map(cardPicture);
+      expect(new Set(pictures).size, deck.id).toBe(pictures.length);
     }
+  });
+
+  it("gives every drawn card its own art key (a key is never shared)", async () => {
+    // A reused key would silently draw one word's picture for another.
+    const drawn = (await repo.listDecks())
+      .flatMap((d) => d.cards)
+      .filter((c) => c.image !== undefined);
+    expect(drawn.length).toBeGreaterThan(0);
+    for (const card of drawn) {
+      expect(card.image, card.id).not.toBe("");
+      // The fallback stays required even when it never renders (ADR 009).
+      expect(card.emoji, card.id).not.toBe("");
+    }
+    const keys = drawn.map((c) => c.image);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("draws the words emoji cannot show, and only those", async () => {
+    const decks = await repo.listDecks();
+    const drawn = decks.flatMap((d) => d.cards).filter((c) => c.image !== undefined);
+    expect(drawn.map((c) => c.id).sort()).toEqual([
+      "barriga",
+      "cabeza",
+      "cejas",
+      "codo",
+      "cuello",
+      "espalda",
+      "hombro",
+      "labios",
+      "mejillas",
+      "pelo-cara",
+      "pestanas",
+      "rodilla",
+    ]);
+  });
+
+  it("splits the face from the body, keeping every card id (progress survives)", async () => {
+    const cara = await repo.getDeck("cara");
+    const body = await repo.getDeck("body");
+    expect(cara?.cards.map((c) => c.id)).toEqual([
+      "cabeza", "pelo-cara", "cejas", "pestanas", "ojos", "nariz", "mejillas",
+      "boca", "labios", "diente", "lengua", "oreja", "cuello",
+    ]);
+    expect(body?.cards.map((c) => c.id)).toEqual([
+      "hombro", "brazo", "codo", "mano", "dedo", "unas", "barriga", "espalda",
+      "pierna", "rodilla", "pie", "corazon", "cerebro", "pulmones", "sangre",
+    ]);
   });
 
   it("never repeats a card id across the whole pack", async () => {

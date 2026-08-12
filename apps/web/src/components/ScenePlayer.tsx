@@ -18,6 +18,7 @@ import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -193,7 +194,12 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
                           : ""
                       }
                     >
-                      {cardFace(item.card.emoji)}
+                      <CardFace
+                        image={item.card.image}
+                        face={cardFace(item.card.emoji)}
+                        single="text-5xl sm:text-6xl"
+                        wide="text-3xl sm:text-4xl"
+                      />
                     </span>
                   </button>
                 );

@@ -14,6 +14,7 @@ import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -149,11 +150,13 @@ export function SpellingPlayer({ deck, accent }: Props) {
         <>
           <section className="flex flex-1 flex-col items-center justify-center gap-6">
             <div className="flex items-center gap-4">
-              <span
-                aria-label={`Picture hint: ${round.card.english}`}
-                className="text-7xl sm:text-8xl"
-              >
-                {round.card.emoji}
+              <span role="img" aria-label={`Picture hint: ${round.card.english}`}>
+                <CardFace
+                  image={round.card.image}
+                  face={round.card.emoji}
+                  single="text-7xl sm:text-8xl"
+                  wide="text-7xl sm:text-8xl"
+                />
               </span>
               <button
                 type="button"

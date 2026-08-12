@@ -21,6 +21,7 @@ import { useCombo } from "@/lib/use-combo";
 import { feedbackMatch } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -210,11 +211,18 @@ export function SopaPlayer({ deck, accent }: Props) {
                       ? `${word.card.spanish} — found`
                       : `Find ${word.card.spanish}`
                   }
-                  className={`rounded-full border-2 border-ink px-3 py-1 text-lg font-extrabold ${
+                  className={`inline-flex items-center gap-1 rounded-full border-2 border-ink px-3 py-1 text-lg font-extrabold ${
                     found ? "bg-[var(--color-lime)]" : "bg-white"
                   }`}
                 >
-                  {found ? `${word.card.emoji} ` : ""}
+                  {found && (
+                    <CardFace
+                      image={word.card.image}
+                      face={word.card.emoji}
+                      single="text-lg"
+                      wide="text-lg"
+                    />
+                  )}
                   {word.card.spanish}
                 </span>
               );

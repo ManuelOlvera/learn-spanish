@@ -22,6 +22,9 @@ const accents: Record<string, string> = {
   "mundial-2023": "#f43f5e",
   "mundial-2026": "#dc2626",
   "halloween-japon": "#f97316",
+  // La cara sits next to El cuerpo on the shelf, so it takes a warm neighbour
+  // of the body orange rather than a colour from elsewhere in the wheel.
+  cara: "#f59e0b",
   body: "#fb923c",
   pelo: "#b45309",
   tamanos: "#2563eb",

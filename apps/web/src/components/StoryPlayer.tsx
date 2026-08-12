@@ -11,12 +11,13 @@ import {
   type VocabularyCard,
 } from "@learn-spanish/core";
 import Image from "next/image";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { storyArt } from "@/lib/story-art";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   story: Story;
@@ -324,16 +325,12 @@ export function StoryPlayer({ story, cards, mode, accent }: Props) {
                     }
                   >
                     <span aria-hidden className="sticker-peel" />
-                    <span
-                      aria-hidden
-                      className={emojiSizeClass(
-                        cardFace(choice.emoji),
-                        "text-7xl sm:text-8xl",
-                        "text-4xl sm:text-5xl",
-                      )}
-                    >
-                      {cardFace(choice.emoji)}
-                    </span>
+                    <CardFace
+                      image={choice.image}
+                      face={cardFace(choice.emoji)}
+                      single="text-7xl sm:text-8xl"
+                      wide="text-4xl sm:text-5xl"
+                    />
                     {isCorrectPick && (
                       <span className="text-2xl font-extrabold">
                         {round.answer.spanish}

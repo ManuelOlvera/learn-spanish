@@ -32,14 +32,16 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     deckIds: ["familia", "food", "house", "clothes", "fruit"],
   },
   {
-    // Describing a person: the parts, the hair and skin, the size, the mood,
-    // and the day. Las emociones sits here rather than on Jugar y aprender —
-    // a feeling is something a kid IS, not something a kid plays. Full at 5.
+    // Describing a person: the face, the parts, the hair and skin, the size,
+    // the mood, and the day. Las emociones sits here rather than on Jugar y
+    // aprender — a feeling is something a kid IS, not something a kid plays.
+    // La cara split out of El cuerpo (2026-08-12) and took the sixth seat:
+    // home is already at its 9-shelf cap, so the shelf grew instead. Full at 6.
     id: "como-soy",
     nameSpanish: "¿Cómo soy?",
     nameEnglish: "All about me",
     emoji: "🧑",
-    deckIds: ["body", "pelo", "tamanos", "feelings", "rutina"],
+    deckIds: ["cara", "body", "pelo", "tamanos", "feelings", "rutina"],
   },
   {
     id: "mundo",

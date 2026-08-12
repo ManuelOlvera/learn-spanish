@@ -9,11 +9,12 @@ import {
   type QuizMode,
   type VocabularyCard,
 } from "@learn-spanish/core";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -149,12 +150,12 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
         }
       >
         {side === "right" && mode === "listen" ? (
-          <span
-            aria-hidden
-            className={emojiSizeClass(cardFace(card.emoji), "text-5xl sm:text-6xl", "text-3xl sm:text-4xl")}
-          >
-            {cardFace(card.emoji)}
-          </span>
+          <CardFace
+            image={card.image}
+            face={cardFace(card.emoji)}
+            single="text-5xl sm:text-6xl"
+            wide="text-3xl sm:text-4xl"
+          />
         ) : (
           <span className="text-xl font-extrabold sm:text-2xl">
             {side === "left" ? card.spanish : card.english}

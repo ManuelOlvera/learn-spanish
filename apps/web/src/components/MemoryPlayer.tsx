@@ -13,10 +13,11 @@ import {
   type MemoryDifficulty,
   type MemoryTile,
 } from "@learn-spanish/core";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedbackMatch, feedbackWrong } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -222,12 +223,12 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
                 >
                   {isUp ? (
                     tile.face === "picture" ? (
-                      <span
-                        aria-hidden
-                        className={emojiSizeClass(cardFace(tile.card.emoji), "text-5xl sm:text-6xl", "text-3xl sm:text-4xl")}
-                      >
-                        {cardFace(tile.card.emoji)}
-                      </span>
+                      <CardFace
+                        image={tile.card.image}
+                        face={cardFace(tile.card.emoji)}
+                        single="text-5xl sm:text-6xl"
+                        wide="text-3xl sm:text-4xl"
+                      />
                     ) : (
                       <span className="break-words text-center text-xl font-extrabold sm:text-2xl">
                         {tile.card.spanish}

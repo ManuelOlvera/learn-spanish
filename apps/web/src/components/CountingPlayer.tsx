@@ -17,6 +17,7 @@ import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   itemPool: readonly VocabularyCard[];
@@ -170,13 +171,14 @@ export function CountingPlayer({ itemPool, numberCards, mode, accent }: Props) {
             >
               <span aria-hidden className="sticker-peel" />
               {Array.from({ length: round.count }, (_, i) => (
-                <span
+                <CardFace
                   key={i}
-                  aria-hidden
-                  className="count-item text-5xl sm:text-6xl"
-                >
-                  {round.item.emoji}
-                </span>
+                  image={round.item.image}
+                  face={round.item.emoji}
+                  single="text-5xl sm:text-6xl"
+                  wide="text-3xl sm:text-4xl"
+                  className="count-item"
+                />
               ))}
             </div>
           </section>

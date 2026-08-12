@@ -1,5 +1,46 @@
 # Shipped features
 
+## 2026-08-12 — 😃 La cara, and the first drawn cards
+
+**For:** both kids. Most body vocabulary has no emoji at all — a cheek, an
+eyelash, a neck, an elbow are not depictable on their own — so those words
+simply could not be taught in an app a pre-reader navigates by picture.
+
+**What shipped:** a card can carry a **drawing**, and twelve of them. **La
+cara 😃** splits out of El cuerpo with 13 cards; **El cuerpo 🖐️** keeps the
+limbs and the inside-the-body words at 15. Pack is now 41 decks / 480 words
+public, 42 / 492 with El misterio.
+
+- **The picture is a whole figure with one part highlighted** — how children's
+  body-part books do it, and the thing a single emoji structurally cannot be.
+  🎨 *la cabeza · el pelo · las cejas · las pestañas · las mejillas · los
+  labios · el cuello · el hombro · el codo · la rodilla · la barriga · la
+  espalda*.
+- **A card is its silhouette.** A flashcard shows one picture at ~190px, where
+  anything legible wins; the picture-choice games show four at ~96px, and that
+  is the size that decides whether a round can be answered. The first pass
+  highlighted a part on a shared doll and *cuello/hombro/codo/rodilla* became
+  four identical dolls with a dot moved. Every drawing now belongs to a
+  silhouette family — face, feature zoom, half body, limb, torso, whole
+  figure — and no family holds two cards a kid must separate by detail.
+- **One `CardFace`, ~15 call sites.** A word that is a drawing on its flashcard
+  and an emoji in the quiz teaches a pre-reader two pictures for one word, so
+  every game renders its card picture through one component.
+- **Cards kept their ids when they moved decks**, so word stats and album
+  progress came with them. The album gained La cara's section automatically —
+  slots derive from activities, not content.
+- **The shelf cap went 5 → 6.** ¿Cómo soy? was full and home is already at its
+  9-shelf cap, so the deck row grew rather than the shelf list.
+
+**Where:** `VocabularyCard.image` and `cardPicture` in `packages/core/domain`;
+the pack re-cut and the shelf seat in `infrastructure`. `apps/web` holds the
+drawings (`src/card-art/`), the key→component map (`lib/card-art.ts`) and
+`CardFace.tsx`. **ADR 015** records the format and the fallback rule.
+
+**Known trade-off:** both decks visibly mix drawn and emoji cards. Taken
+deliberately — the alternative was leaving out the words that had no picture
+at all. The way out is drawing the remaining 16, not reverting.
+
 ## 2026-08-12 — 🖐️ El cuerpo fills up, and the deck ceiling goes to 17
 
 **For:** both kids. The body deck stopped at twelve obvious parts; the ones a

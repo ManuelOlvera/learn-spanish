@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Deck } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import {
   canRecord,
@@ -13,6 +13,7 @@ import {
   type ActiveRecording,
 } from "@/lib/recorder";
 import { DoneScreen } from "@/components/DoneScreen";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -173,12 +174,12 @@ export function FlashcardPlayer({ deck, accent, noAward, backHref }: Props) {
               }`}
             >
               <span aria-hidden className="sticker-peel" />
-              <span
-                aria-hidden
-                className={`leading-none ${emojiSizeClass(face, "text-[7rem] sm:text-[9rem]", "text-[4rem] sm:text-[5rem]")}`}
-              >
-                {face}
-              </span>
+              <CardFace
+                image={card.image}
+                face={face}
+                single="text-[7rem] sm:text-[9rem]"
+                wide="text-[4rem] sm:text-[5rem]"
+              />
               <span className="text-4xl font-extrabold sm:text-5xl">
                 {card.spanish}
               </span>

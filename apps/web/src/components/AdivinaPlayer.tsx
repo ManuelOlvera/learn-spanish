@@ -28,6 +28,7 @@ import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
 import { feedbackMatch, feedbackWrong } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
+import { CardFace } from "./CardFace";
 
 interface Props {
   groupId: string;
@@ -314,11 +315,13 @@ export function AdivinaPlayer({
             {(tips.includes("picture") || tips.includes("meaning")) && (
               <div className="pop-in flex items-center gap-4">
                 {tips.includes("picture") && (
-                  <span
-                    aria-label={`Picture tip: ${game.target.card.english}`}
-                    className="text-6xl"
-                  >
-                    {game.target.card.emoji}
+                  <span role="img" aria-label={`Picture tip: ${game.target.card.english}`}>
+                    <CardFace
+                      image={game.target.card.image}
+                      face={game.target.card.emoji}
+                      single="text-6xl"
+                      wide="text-6xl"
+                    />
                   </span>
                 )}
                 {tips.includes("meaning") && (
@@ -444,9 +447,12 @@ export function AdivinaPlayer({
                   aria-label={`Hear the word (${game.target.card.english})`}
                   className="sticker flex items-center gap-3 px-5 py-3 text-2xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
                 >
-                  <span aria-hidden className="text-4xl">
-                    {game.target.card.emoji}
-                  </span>
+                  <CardFace
+                    image={game.target.card.image}
+                    face={game.target.card.emoji}
+                    single="text-4xl"
+                    wide="text-4xl"
+                  />
                   🔊
                 </button>
                 <button

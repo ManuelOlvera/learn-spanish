@@ -30,10 +30,14 @@ describe("deck groups content", () => {
     }
   });
 
-  it("keeps groups shelf-sized: 3-5 decks each", async () => {
+  it("keeps groups shelf-sized: 3-6 decks each", async () => {
+    // Raised from 5 to 6 for La cara (2026-08-12), which split out of El
+    // cuerpo once drawn card art made the face words teachable. ¿Cómo soy?
+    // was the only shelf the face could sit on, and home is already at its
+    // 9-shelf cap — so the deck row grows rather than the shelf list.
     for (const group of await groups.listGroups()) {
       expect(group.deckIds.length).toBeGreaterThanOrEqual(3);
-      expect(group.deckIds.length).toBeLessThanOrEqual(5);
+      expect(group.deckIds.length).toBeLessThanOrEqual(6);
     }
   });
 

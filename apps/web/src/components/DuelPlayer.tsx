@@ -8,7 +8,7 @@ import {
   type DuelGame,
   type KidId,
 } from "@learn-spanish/core";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getAvatar } from "@/lib/kid";
 import { addStars, markActivityDone } from "@/lib/economy";
@@ -18,6 +18,7 @@ import { useCombo } from "@/lib/use-combo";
 import { RachaBurst } from "@/components/RachaBurst";
 import { Confetti } from "@/components/Confetti";
 import { StarChest } from "@/components/StarChest";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -186,12 +187,12 @@ export function DuelPlayer({ deck, accent }: Props) {
                       : undefined
                   }
                 >
-                  <span
-                    aria-hidden
-                    className={emojiSizeClass(cardFace(choice.emoji), "text-7xl sm:text-8xl", "text-4xl sm:text-5xl")}
-                  >
-                    {cardFace(choice.emoji)}
-                  </span>
+                  <CardFace
+                    image={choice.image}
+                    face={cardFace(choice.emoji)}
+                    single="text-7xl sm:text-8xl"
+                    wide="text-4xl sm:text-5xl"
+                  />
                 </button>
               );
             })}

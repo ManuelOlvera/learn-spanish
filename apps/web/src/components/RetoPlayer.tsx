@@ -9,7 +9,7 @@ import {
   type KidId,
   type QuizRound,
 } from "@learn-spanish/core";
-import { cardFace, emojiSizeClass } from "@/lib/emoji";
+import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getSelectedKid, getAvatar } from "@/lib/kid";
 import { addStars, getRetoBest, saveRetoBest } from "@/lib/economy";
@@ -19,6 +19,7 @@ import { useCombo } from "@/lib/use-combo";
 import { RachaBurst } from "@/components/RachaBurst";
 import { Confetti } from "@/components/Confetti";
 import { StarChest } from "@/components/StarChest";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -240,12 +241,12 @@ export function RetoPlayer({ deck, accent }: Props) {
                       flashed ? (flash.good ? "pop-in" : "wobble") : ""
                     }`}
                   >
-                    <span
-                      aria-hidden
-                      className={emojiSizeClass(cardFace(choice.emoji), "text-6xl sm:text-7xl", "text-4xl sm:text-5xl")}
-                    >
-                      {cardFace(choice.emoji)}
-                    </span>
+                    <CardFace
+                      image={choice.image}
+                      face={cardFace(choice.emoji)}
+                      single="text-6xl sm:text-7xl"
+                      wide="text-4xl sm:text-5xl"
+                    />
                   </button>
                 );
               })}

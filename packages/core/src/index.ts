@@ -1,4 +1,5 @@
 export type { VocabularyCard } from "./domain/card";
+export { cardPicture } from "./domain/card";
 export type { Deck } from "./domain/deck";
 export type { DeckRepository } from "./domain/deck-repository";
 export {

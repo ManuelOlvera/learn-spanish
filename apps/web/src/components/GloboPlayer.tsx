@@ -29,6 +29,7 @@ import {
 import { Balloon } from "@/components/Balloon";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { CardFace } from "./CardFace";
 
 interface Props {
   deck: Deck;
@@ -304,8 +305,13 @@ export function GloboPlayer({ deck, accent }: Props) {
             {tipTaken ? (
               <p className="pop-in flex items-center gap-3 text-2xl font-extrabold">
                 {game.tip === "picture" ? (
-                  <span aria-label={`Picture tip: ${round.card.english}`} className="text-6xl">
-                    {round.card.emoji}
+                  <span role="img" aria-label={`Picture tip: ${round.card.english}`}>
+                    <CardFace
+                      image={round.card.image}
+                      face={round.card.emoji}
+                      single="text-6xl"
+                      wide="text-6xl"
+                    />
                   </span>
                 ) : (
                   <span aria-label={`Meaning tip: ${round.card.english}`}>

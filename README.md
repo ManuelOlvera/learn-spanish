@@ -6,10 +6,10 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 40 decks / 469 words on nine themed home-screen
+- **Flashcards** — 41 decks / 480 words on nine themed home-screen
   shelves (animals · numbers & colors · my home · all about me · the world ·
   play & learn · letters · verbs · calendar), plus a star-unlocked bonus deck
-  **El misterio 🔮** (41 decks / 481 words total), tap-to-hear audio via
+  **El misterio 🔮** (42 decks / 492 words total), tap-to-hear audio via
   browser speech synthesis — **Spain Spanish** (es-ES voice; coche,
   ordenador, hierba). **Los verbos 🏃** is a flashcards-only shelf:
   15 action words in three forms (infinitivo · gerundio · imperativo).
@@ -22,7 +22,9 @@ No reading, no accounts, no setup.
   (day cards wear the abbreviation a Spanish calendar prints — Lun, Mar,
   Mié…), the twelve months, o'clock hours on clock faces, the shape of a
   day (mañana · mediodía · siesta · noche), and the seasons.
-  **¿Cómo soy? 🧑** is the describe-yourself shelf: the body, hair and skin
+  **¿Cómo soy? 🧑** is the describe-yourself shelf: **La cara 😃** and
+  **El cuerpo 🖐️** (split apart once drawn card art let a cheek, an eyelash
+  and an elbow be shown at all — ADR 015), hair and skin
   (rubio, moreno, canoso, calvo, la piel clara · morena · oscura), size and
   build (alto, bajo, gordo, delgado), las emociones, and **Mi día 🪥** — the
   daily routine in reflexive verbs (despertarse, lavarse los dientes,
