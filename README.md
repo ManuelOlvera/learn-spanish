@@ -80,7 +80,8 @@ No reading, no accounts, no setup.
   includes ✏️ Deletrea) adds a +10⭐ bonus chest, and every finish rotates a
   spoken cheer with the pet cheering along. Stars feed and grow **la
   mascota** (a collection of adoptable pets, 5⭐ a meal; name it too), buy 🛍️
-  wardrobe accessories and drag them anywhere on the pet (saved per pet),
+  wardrobe accessories and drag them anywhere on the pet (saved per pet
+  *shape* — an egg and the hen it grows into each keep their own outfit),
   open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
   themes — every purchase behind a picture-only ✅/❌ confirm so a stray
   tap can't spend the stars (the 5⭐ meal aside); album stickers tier up to

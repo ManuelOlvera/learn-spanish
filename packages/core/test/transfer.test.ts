@@ -7,6 +7,7 @@ import {
   sanitizeSnapshot,
 } from "../src/domain/transfer";
 import type { ProgressSnapshot } from "../src/domain/transfer";
+import type { FormOutfit } from "../src/domain/mascota";
 
 const snapshot: ProgressSnapshot = {
   stickers: ["listener:animals:learn", "reader:zoo:quiz-read"],
@@ -395,6 +396,67 @@ describe("mergeProgress", () => {
     expect(
       clash.petCollections?.listener?.pets["pollito"]?.placements?.["gorro"],
     ).toEqual({ x: 20, y: 30 });
+  });
+
+  it("syncs each form's outfit separately, so growing up doesn't cross the wire", () => {
+    // Outfits are per form (an egg and a hen are different shapes). A merge
+    // that flattened them would move the hen's hat onto the egg — or, worse,
+    // drop the form the other device hasn't reached yet.
+    const col = (outfits: Record<string, FormOutfit>) => ({
+      active: "pollito",
+      owned: ["pollito"],
+      pets: { pollito: { meals: 15, lastFed: "2026-08-13", outfits } },
+    });
+    const local: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: {
+        listener: col({
+          "3": { worn: ["gorro"], placements: { gorro: { x: 50, y: 8 } } },
+        }),
+      },
+    };
+    const remote: ProgressSnapshot = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      petCollections: {
+        listener: col({
+          "0": { worn: ["lazo"], placements: { lazo: { x: 50, y: 20 } } },
+        }),
+      },
+    };
+    const merged = mergeProgress(local, remote);
+    const outfits = merged.petCollections?.listener?.pets["pollito"]?.outfits;
+    // The form only the other device had is adopted whole, not dropped.
+    expect(outfits?.["3"]).toEqual({
+      worn: ["gorro"],
+      placements: { gorro: { x: 50, y: 8 } },
+    });
+    expect(outfits?.["0"]).toEqual({
+      worn: ["lazo"],
+      placements: { lazo: { x: 50, y: 20 } },
+    });
+    // ...and both survive the encode/sanitize round trip.
+    const roundTripped = sanitizeSnapshot(decodeProgress(encodeProgress(merged)));
+    expect(
+      roundTripped.petCollections?.listener?.pets["pollito"]?.outfits,
+    ).toEqual(outfits);
+
+    // Within a shared form the receiving device wins, like worn and placements.
+    const clash = mergeProgress(local, {
+      ...remote,
+      petCollections: {
+        listener: col({
+          "3": { worn: ["corona"], placements: { gorro: { x: 99, y: 99 } } },
+        }),
+      },
+    });
+    expect(clash.petCollections?.listener?.pets["pollito"]?.outfits?.["3"]).toEqual({
+      worn: ["gorro"],
+      placements: { gorro: { x: 50, y: 8 } },
+    });
   });
 
   it("preserves a pet's given name and never lets an unnamed side clobber it", () => {

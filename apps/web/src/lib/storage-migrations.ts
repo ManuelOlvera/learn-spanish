@@ -3,6 +3,7 @@
 import {
   ALL_KIDS,
   defaultCollection,
+  petShownForm,
   type KidId,
   type PetCollection,
   type PetState,
@@ -89,6 +90,39 @@ function migrateAccessoriesToWardrobe(): void {
   }
 }
 
+/** Outfits moved from one per-pet list to one per *form*: an egg and the hen
+ *  it grows into are different shapes, and a hat placed on the hen hung in
+ *  mid-air over the egg. Each pet's existing `worn` lands on the form it is
+ *  currently showing, so nothing arrives undressed. Its `placements` are
+ *  deliberately not carried: they were dragged against whatever shape was on
+ *  screen and would be wrong for every other one, so each form restarts from
+ *  the app's default spots. The legacy fields stay put (never-delete rule). */
+function migrateOutfitsToForms(): void {
+  for (const kid of ALL_KIDS) {
+    const collection = readKidDoc<PetCollection>(PETS_KEY)[kid];
+    if (collection === undefined) {
+      continue;
+    }
+    const pets: Record<string, PetState> = {};
+    let changed = false;
+    for (const [species, pet] of Object.entries(collection.pets ?? {})) {
+      const worn = pet.worn ?? pet.accessories ?? [];
+      if (pet.outfits !== undefined || worn.length === 0) {
+        pets[species] = pet; // already converted, or nothing to carry over
+        continue;
+      }
+      pets[species] = {
+        ...pet,
+        outfits: { [String(petShownForm(species, pet))]: { worn } },
+      };
+      changed = true;
+    }
+    if (changed) {
+      writeKidDoc(PETS_KEY, kid, { ...collection, pets });
+    }
+  }
+}
+
 /** Deliberate exception to the move-only rule: wallet epochs are policy
  *  events (ADR 006). Epoch 1 zeroed every wallet for the 2026-07 economy
  *  rebalance — kept in the list so a device dormant since before that
@@ -149,6 +183,7 @@ const MIGRATIONS: readonly { id: string; run: () => void }[] = [
   { id: "wallet-epoch-1", run: resetWalletsForEpoch1 },
   { id: "wallet-epoch-2", run: restoreWalletsForEpoch },
   { id: "wallet-epoch-3", run: convertWalletsToCounters },
+  { id: "outfits-per-form", run: migrateOutfitsToForms },
 ];
 
 /** Run every not-yet-applied migration. A migration that throws is retried on

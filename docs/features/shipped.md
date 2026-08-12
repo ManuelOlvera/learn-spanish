@@ -1,5 +1,49 @@
 # Shipped features
 
+## 2026-08-13 — Outfits are remembered per shape, not per pet
+
+**For:** both kids, from the parent's report — a hat dragged onto the grown
+hen's head hung in mid-air over the egg it hatched from. Outfits lived once per
+pet and every growth form shared them, but an 🥚 and a 🐔 are different bodies:
+one saved spot cannot fit both.
+
+**What shipped:** `PetState.outfits`, keyed by form index. Each of a pet's
+shapes remembers **what it wears and where** on its own, so dressing the form on
+screen never touches the others. Ownership is unchanged — kid-level, buy a crown
+once — and outfits stay per pet on top of per form: two different eggs (the
+pollito's and the dragón's) are still independent.
+
+- **The form on screen is the thing being dressed.** `petShownForm` (the kid's
+  pinned form, else the newest reached, clamped to what the pet has) moved out
+  of `MascotaView` into the domain, and every wardrobe write — toggle, drag,
+  buying an accessory, winning one from la caja sorpresa — goes through it.
+- **Growing up arrives bare.** A pet reaching a new form has never been dressed
+  in that shape, so it shows up with nothing on until the kid dresses it. This
+  was flagged on approval and taken deliberately: it is the cost of per-form
+  outfits, and it cuts against `feedPet`'s "growth must never undress the pet"
+  rule, which now means only that a *form* keeps its outfit through a meal.
+- **Old dragged spots were dropped, not carried.** The migration lifts each
+  pet's existing `worn` onto the form it is currently showing — nobody opens the
+  app undressed — but its `placements` are left behind, because they were
+  dragged against whichever shape was on screen and would be wrong on every
+  other one. Each form restarts from the app's default spots.
+- **Sync merges per form.** `mergePet` unions the two devices' forms: a shape
+  only the other device has dressed is adopted whole, and inside a shared shape
+  the receiving device wins, like `worn`/`form`/`placements`. Without this every
+  pull would have silently flattened the outfits.
+
+**Where:** `FormOutfit` + `outfits` + `petShownForm` in `domain/mascota.ts`;
+`wear`/`toggleWorn`/`placeAccessory`/`wornAccessories`/`accessoryPlacement` all
+take a form in `domain/wardrobe.ts`; validation (`isOutfitMap`) and
+`mergeOutfits` in `domain/transfer.ts`; the four use cases derive the form
+themselves; `apps/web` threads `chosenForm` through `MascotaView` and registers
+the `outfits-per-form` migration. 21 core tests cover the split, the merge and
+the hardening; verified end to end against a seeded pre-migration device.
+
+**Deliberately not done:** per-form *default* spots (an undragged hat still
+lands at the same % on an egg as on a hen), sharing a shape across pets, and any
+"copy this outfit to my other forms" button. See the roadmap.
+
 ## 2026-08-12 — 😃 La cara, and the first drawn cards
 
 **For:** both kids. Most body vocabulary has no emoji at all — a cheek, an

@@ -1,6 +1,6 @@
 import type { EconomyStore } from "../domain/economy";
 import type { KidId } from "../domain/kid";
-import { defaultCollection } from "../domain/mascota";
+import { defaultCollection, petShownForm } from "../domain/mascota";
 import type { RandomSource } from "../domain/random";
 import { drawSurprise, SURPRISE_COST } from "../domain/surprise";
 import type { SurpriseResult } from "../domain/surprise";
@@ -31,7 +31,8 @@ export class OpenSurpriseUseCase {
     if (result.type === "accessory") {
       this.store.saveOwnedAccessories(kid, buyAccessory(owned, result.id));
       const c = this.store.loadPetCollection(kid) ?? defaultCollection();
-      const pet = wear(c.pets[c.active] ?? { meals: 0, lastFed: null }, result.id);
+      const current = c.pets[c.active] ?? { meals: 0, lastFed: null };
+      const pet = wear(current, petShownForm(c.active, current), result.id);
       this.store.savePetCollection(kid, {
         ...c,
         pets: { ...c.pets, [c.active]: pet },

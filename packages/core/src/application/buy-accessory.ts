@@ -1,12 +1,12 @@
 import type { EconomyStore } from "../domain/economy";
 import type { KidId } from "../domain/kid";
-import { defaultCollection } from "../domain/mascota";
+import { defaultCollection, petShownForm } from "../domain/mascota";
 import { ACCESSORIES, buyAccessory, ownsAccessory, wear } from "../domain/wardrobe";
 import { trySpend } from "./spend-stars";
 
 /**
- * Buy a wardrobe accessory (owned kid-level, worn per-pet) and put it straight
- * on the active pet. The price comes from the ACCESSORIES catalog — the caller
+ * Buy a wardrobe accessory (owned kid-level, worn per-form) and put it straight
+ * on the pet's form on screen. The price comes from the ACCESSORIES catalog — the caller
  * names the item, never the cost. Null for an unknown id, an owned item, or an
  * empty wallet.
  */
@@ -32,7 +32,8 @@ export class BuyAccessoryUseCase {
     const next = buyAccessory(owned, accessoryId);
     this.store.saveOwnedAccessories(kid, next);
     const c = this.store.loadPetCollection(kid) ?? defaultCollection();
-    const pet = wear(c.pets[c.active] ?? { meals: 0, lastFed: null }, accessoryId);
+    const current = c.pets[c.active] ?? { meals: 0, lastFed: null };
+    const pet = wear(current, petShownForm(c.active, current), accessoryId);
     this.store.savePetCollection(kid, { ...c, pets: { ...c.pets, [c.active]: pet } });
     return { owned: next, stars };
   }

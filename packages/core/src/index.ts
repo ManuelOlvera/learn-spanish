@@ -37,7 +37,7 @@ export {
 } from "./domain/mission";
 export type { StickerTier } from "./domain/sticker-tiers";
 export { stickerTier, TIER_THRESHOLDS } from "./domain/sticker-tiers";
-export type { PetState, PetSpecies, PetCollection } from "./domain/mascota";
+export type { FormOutfit, PetState, PetSpecies, PetCollection } from "./domain/mascota";
 export {
   anyPetHungry,
   defaultCollection,
@@ -48,6 +48,7 @@ export {
   petEmoji,
   petFormEmoji,
   petMaxForm,
+  petShownForm,
   PET_SPECIES,
   PET_STAGE_MEALS,
   petStage,

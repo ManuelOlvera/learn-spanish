@@ -1,9 +1,9 @@
-import type { PetState } from "./mascota";
+import type { FormOutfit, PetState } from "./mascota";
 
 /** El armario: accessories bought with stars — the economy's permanent
  *  sink once the pet is fully grown. Ownership belongs to the *kid* (buy a
- *  crown once), while *wearing* is per-pet, so each mascot keeps its own
- *  outfit. */
+ *  crown once), while *wearing* is per *form*: a pet's egg and its grown shape
+ *  are different bodies, so each keeps its own outfit and its own spots. */
 export interface Accessory {
   readonly id: string;
   readonly emoji: string;
@@ -68,33 +68,55 @@ export function buyAccessory(
   return owned.includes(id) ? owned : [...owned, id];
 }
 
-// ---- wearing: a per-pet outfit ----
+// ---- wearing: a per-form outfit ----
 
-/** The accessories currently on this pet. An undefined `worn` list falls back
- *  to the pet's legacy per-pet `accessories` (so pets saved before ownership
- *  moved kid-level keep showing what they wore), else nothing. */
-export function wornAccessories(pet: PetState): readonly string[] {
-  return pet.worn ?? pet.accessories ?? [];
+/** Forms are stored under their index as a string (JSON has no number keys).
+ *  A nonsense index folds to the nearest real one rather than opening a junk
+ *  slot no screen can ever show. */
+function formKey(form: number): string {
+  return String(Number.isFinite(form) ? Math.max(0, Math.trunc(form)) : 0);
 }
 
-/** Put an accessory on the pet (idempotent). Caller ensures the kid owns it. */
-export function wear(pet: PetState, id: string): PetState {
-  const worn = wornAccessories(pet);
-  return worn.includes(id) ? pet : { ...pet, worn: [...worn, id] };
+function outfitOf(pet: PetState, form: number): FormOutfit {
+  return pet.outfits?.[formKey(form)] ?? {};
 }
 
-/** Put on / take off an accessory on this pet. Caller ensures the kid owns it. */
-export function toggleWorn(pet: PetState, id: string): PetState {
-  const worn = wornAccessories(pet);
+/** Replace one form's outfit, leaving every other form untouched. */
+function withOutfit(pet: PetState, form: number, outfit: FormOutfit): PetState {
   return {
     ...pet,
-    worn: worn.includes(id)
-      ? worn.filter((w) => w !== id)
-      : [...worn, id],
+    outfits: { ...(pet.outfits ?? {}), [formKey(form)]: outfit },
   };
 }
 
-// ---- placement: where on the pet the kid dragged each accessory ----
+/** The accessories on this form of the pet. A form the kid never dressed wears
+ *  nothing — the legacy per-pet `worn`/`accessories` lists are deliberately not
+ *  consulted here; the storage migration lifts them onto a form once, so a
+ *  reader never has to know about two schemas. */
+export function wornAccessories(pet: PetState, form: number): readonly string[] {
+  return outfitOf(pet, form).worn ?? [];
+}
+
+/** Put an accessory on this form (idempotent). Caller ensures the kid owns it. */
+export function wear(pet: PetState, form: number, id: string): PetState {
+  const outfit = outfitOf(pet, form);
+  const worn = outfit.worn ?? [];
+  return worn.includes(id)
+    ? pet
+    : withOutfit(pet, form, { ...outfit, worn: [...worn, id] });
+}
+
+/** Put on / take off an accessory on this form. Caller ensures the kid owns it. */
+export function toggleWorn(pet: PetState, form: number, id: string): PetState {
+  const outfit = outfitOf(pet, form);
+  const worn = outfit.worn ?? [];
+  return withOutfit(pet, form, {
+    ...outfit,
+    worn: worn.includes(id) ? worn.filter((w) => w !== id) : [...worn, id],
+  });
+}
+
+// ---- placement: where on this form the kid dragged each accessory ----
 
 /** A spot on the pet box, as a percent of its width/height (0–100). */
 export interface AccessoryPlacement {
@@ -104,11 +126,14 @@ export interface AccessoryPlacement {
 
 const clampPercent = (n: number): number => Math.max(0, Math.min(100, n));
 
-/** Move an accessory to a spot the kid dragged it to (percent coords, clamped
- *  to the pet box). Overwrites this accessory's spot only; others are untouched.
- *  Non-finite input is ignored so a bad drag can't corrupt the outfit. */
+/** Move an accessory to a spot the kid dragged it to on this form (percent
+ *  coords, clamped to the pet box). Overwrites this accessory's spot on this
+ *  form only; other accessories — and the same accessory on every other form —
+ *  are untouched. Non-finite input is ignored so a bad drag can't corrupt the
+ *  outfit. */
 export function placeAccessory(
   pet: PetState,
+  form: number,
   id: string,
   x: number,
   y: number,
@@ -116,19 +141,22 @@ export function placeAccessory(
   if (!Number.isFinite(x) || !Number.isFinite(y)) {
     return pet;
   }
-  return {
-    ...pet,
+  const outfit = outfitOf(pet, form);
+  return withOutfit(pet, form, {
+    ...outfit,
     placements: {
-      ...(pet.placements ?? {}),
+      ...(outfit.placements ?? {}),
       [id]: { x: clampPercent(x), y: clampPercent(y) },
     },
-  };
+  });
 }
 
-/** The kid's saved spot for an accessory, or null to use the app's default. */
+/** The kid's saved spot for an accessory on this form, or null to use the
+ *  app's default spot. */
 export function accessoryPlacement(
   pet: PetState,
+  form: number,
   id: string,
 ): AccessoryPlacement | null {
-  return pet.placements?.[id] ?? null;
+  return outfitOf(pet, form).placements?.[id] ?? null;
 }

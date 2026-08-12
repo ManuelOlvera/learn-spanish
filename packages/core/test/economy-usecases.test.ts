@@ -295,7 +295,8 @@ describe("BuyAccessoryUseCase", () => {
     expect(bought!.owned).toEqual(["gorro"]);
     expect(bought!.stars).toBe(0);
     const pet = store.loadPetCollection(KID)!.pets[STARTER_SPECIES]!;
-    expect(pet.worn).toContain("gorro");
+    // Straight onto the shape on screen — a fresh pollito is still its egg.
+    expect(pet.outfits?.["0"]?.worn).toContain("gorro");
   });
 
   it("refuses unknown ids, owned items, and empty wallets", () => {
@@ -311,19 +312,34 @@ describe("BuyAccessoryUseCase", () => {
 });
 
 describe("ToggleAccessoryUseCase / PlaceAccessoryUseCase", () => {
-  it("toggling requires ownership and flips worn state", () => {
+  it("toggling requires ownership and flips the shown form's worn state", () => {
     const store = new FakeEconomyStore();
     const toggle = new ToggleAccessoryUseCase(store);
     expect(toggle.execute(KID, "gorro")).toBeNull(); // not owned
     store.saveOwnedAccessories(KID, ["gorro"]);
-    expect(toggle.execute(KID, "gorro")!.worn).toEqual(["gorro"]);
-    expect(toggle.execute(KID, "gorro")!.worn).toEqual([]);
+    // A fresh pollito is an unhatched egg: form 0 is what's on screen.
+    expect(toggle.execute(KID, "gorro")!.outfits?.["0"]?.worn).toEqual(["gorro"]);
+    expect(toggle.execute(KID, "gorro")!.outfits?.["0"]?.worn).toEqual([]);
   });
 
-  it("placing stores clamped percent coordinates on the active pet", () => {
+  it("dresses the form on screen, leaving the pet's other forms alone", () => {
+    const store = new FakeEconomyStore();
+    store.saveOwnedAccessories(KID, ["gorro"]);
+    store.savePetCollection(KID, {
+      active: "pollito",
+      owned: ["pollito"],
+      // Grown (form 3), but the kid has pinned the egg they hatched from.
+      pets: { pollito: { meals: 15, lastFed: null, form: 0 } },
+    });
+    const egg = new ToggleAccessoryUseCase(store).execute(KID, "gorro")!;
+    expect(egg.outfits?.["0"]?.worn).toEqual(["gorro"]);
+    expect(egg.outfits?.["3"]).toBeUndefined();
+  });
+
+  it("placing stores clamped percent coordinates under the shown form", () => {
     const store = new FakeEconomyStore();
     const placed = new PlaceAccessoryUseCase(store).execute(KID, "gorro", 150, -10);
-    expect(placed.placements?.["gorro"]).toEqual({ x: 100, y: 0 });
+    expect(placed.outfits?.["0"]?.placements?.["gorro"]).toEqual({ x: 100, y: 0 });
   });
 });
 

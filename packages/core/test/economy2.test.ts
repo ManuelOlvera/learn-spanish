@@ -18,6 +18,7 @@ import {
   petEmoji,
   petFormEmoji,
   petMaxForm,
+  petShownForm,
   PET_SPECIES,
   STARTER_SPECIES,
 } from "../src/domain/mascota";
@@ -145,6 +146,18 @@ describe("pet species", () => {
     // Two-form animals reach their top form once.
     expect(petMaxForm("conejo", 0)).toBe(0);
     expect(petMaxForm("conejo", 15)).toBe(1);
+  });
+
+  it("shows the newest form unless the kid pinned an earlier one", () => {
+    const grown = { meals: 15, lastFed: null };
+    // Nothing pinned: follow the newest form the pet has reached.
+    expect(petShownForm("pollito", grown)).toBe(3);
+    expect(petShownForm("pollito", { meals: 0, lastFed: null })).toBe(0);
+    // Pinned earlier: the kid's choice wins.
+    expect(petShownForm("pollito", { ...grown, form: 1 })).toBe(1);
+    // A pin the pet has outgrown-past (or never reached) clamps to what it has.
+    expect(petShownForm("pollito", { meals: 3, lastFed: null, form: 3 })).toBe(1);
+    expect(petShownForm("pollito", { ...grown, form: -2 })).toBe(0);
   });
 
   it("renders any chosen form, clamped to the species' real forms", () => {

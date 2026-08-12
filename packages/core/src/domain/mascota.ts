@@ -1,3 +1,17 @@
+/** What the kid put on one *shape* of a pet, and where. A hat that sits on a
+ *  grown hen's head hangs in mid-air over the egg it hatched from, so each form
+ *  is dressed on its own (see domain/wardrobe.ts). */
+export interface FormOutfit {
+  /** Accessory ids the kid put on this form. */
+  readonly worn?: readonly string[];
+  /** Where the kid dragged each accessory, as a percent of the pet box
+   *  (0–100 on each axis). An accessory with no entry sits at the app's
+   *  default spot. */
+  readonly placements?: Readonly<
+    Record<string, { readonly x: number; readonly y: number }>
+  >;
+}
+
 /** La mascota: each kid's creature, fed with stars, growing in stages.
  *  It can get hungry (a gentle droop) but never suffers worse. */
 export interface PetState {
@@ -6,17 +20,19 @@ export interface PetState {
   readonly lastFed: string | null;
   /** Wardrobe accessory ids the pet owns (see domain/wardrobe.ts). */
   readonly accessories?: readonly string[];
-  /** Accessory ids the kid put on THIS pet. Undefined (a pet never dressed)
-   *  means nothing is on it: owning a crown does not put it on every mascota —
-   *  each one is dressed deliberately, so switching pets shows that pet's own
-   *  outfit and not the whole wardrobe (see wornAccessories). */
+  /** Legacy per-pet outfit, replaced by `outfits`. Kept so a device still
+   *  running the old build can read what it sends; new code never reads these
+   *  two — the storage migration lifts `worn` onto the form the pet is showing
+   *  and leaves `placements` behind (an egg's spots never fit a hen anyway). */
   readonly worn?: readonly string[];
-  /** Where the kid dragged each accessory, as a percent of the pet box
-   *  (0–100 on each axis). An accessory with no entry sits at the app's
-   *  default spot (see domain/wardrobe.ts placeAccessory). */
   readonly placements?: Readonly<
     Record<string, { readonly x: number; readonly y: number }>
   >;
+  /** Outfits keyed by form index: each of this pet's shapes remembers what it
+   *  wears and where. Owning a crown does not put it on every mascota, and
+   *  dressing the hen does not dress the egg — each shape is dressed
+   *  deliberately (see wornAccessories). */
+  readonly outfits?: Readonly<Record<string, FormOutfit>>;
   /** Which growth form (stage index) to display. Undefined follows the newest
    *  reached form; a kid may pin an earlier one (see petMaxForm/petFormEmoji). */
   readonly form?: number;
@@ -143,6 +159,14 @@ export function petFormEmoji(speciesId: string, form: number): string {
   const stages = speciesStages(speciesId);
   const index = Math.max(0, Math.min(Math.trunc(form), stages.length - 1));
   return stages[index]!;
+}
+
+/** The form actually on screen: the kid's pinned choice when there is one,
+ *  else the newest form reached — always clamped to a form the pet really has.
+ *  This is the shape being dressed, so wardrobe writes go through it. */
+export function petShownForm(speciesId: string, pet: PetState): number {
+  const max = petMaxForm(speciesId, pet.meals);
+  return Math.max(0, Math.min(pet.form ?? max, max));
 }
 
 /** The emoji to draw for a species at its current meal count (its newest form). */

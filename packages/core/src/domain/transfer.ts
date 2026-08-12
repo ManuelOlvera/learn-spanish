@@ -2,7 +2,7 @@ import { isKidId } from "./kid";
 import type { KidId } from "./kid";
 import type { Streak } from "./daily";
 import type { WordStat, WordStats } from "./word-stats";
-import type { PetCollection, PetState } from "./mascota";
+import type { FormOutfit, PetCollection, PetState } from "./mascota";
 import type { WeekProgress, WeeklyStreak } from "./weekly";
 import { tierRank } from "./category";
 import type { StickerTier } from "./sticker-tiers";
@@ -349,6 +349,54 @@ export function isPetCollection(value: unknown): value is PetCollection {
   );
 }
 
+/** A dragged spot: a point on the pet box, in percent. */
+function isPlacementMap(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const entries = Object.entries(value);
+  return (
+    entries.length <= 200 &&
+    entries.every(([id, spot]) => {
+      if (!isSaneText(id) || typeof spot !== "object" || spot === null) {
+        return false;
+      }
+      const { x, y } = spot as { x: unknown; y: unknown };
+      const onBox = (n: unknown): boolean =>
+        typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100;
+      return onBox(x) && onBox(y);
+    })
+  );
+}
+
+/** Outfits keyed by form index — one entry per shape the pet can show. The
+ *  longest species has four forms, so a handful is already generous. */
+function isOutfitMap(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const entries = Object.entries(value);
+  return (
+    entries.length <= 20 &&
+    entries.every(([form, outfit]) => {
+      if (!/^\d{1,2}$/.test(form)) {
+        return false;
+      }
+      if (typeof outfit !== "object" || outfit === null) {
+        return false;
+      }
+      const { worn, placements } = outfit as {
+        worn: unknown;
+        placements: unknown;
+      };
+      return (
+        (worn === undefined || isSaneStringList(worn, 200)) &&
+        (placements === undefined || isPlacementMap(placements))
+      );
+    })
+  );
+}
+
 function isPetState(value: unknown): value is PetState {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -362,6 +410,7 @@ function isPetState(value: unknown): value is PetState {
     (pet.lastFed === null || isSaneText(pet.lastFed)) &&
     isStringListOrAbsent(pet.accessories) &&
     isStringListOrAbsent(pet.worn) &&
+    (pet.outfits === undefined || isOutfitMap(pet.outfits)) &&
     (pet.form === undefined || isSaneCount(pet.form)) &&
     (pet.name === undefined || isSaneText(pet.name))
   );
@@ -675,6 +724,10 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
     a.placements === undefined && b.placements === undefined
       ? undefined
       : { ...(b.placements ?? {}), ...(a.placements ?? {}) };
+  // Outfits are per form, so they merge per form: a shape only the other device
+  // has dressed is adopted whole (growing up on one device must not undress it
+  // on the other), and inside a shape the receiving device wins — like worn.
+  const outfits = mergeOutfits(a.outfits, b.outfits);
   // `form` is a per-device display choice, like worn: the receiving device wins.
   const form = a.form ?? b.form;
   // A name is precious — never let an unnamed side clobber a named one; the
@@ -693,7 +746,38 @@ function mergePet(a: PetState | undefined, b: PetState): PetState {
     ...(accessories.length > 0 ? { accessories } : {}),
     ...(worn !== undefined ? { worn } : {}),
     ...(placements !== undefined ? { placements } : {}),
+    ...(outfits !== undefined ? { outfits } : {}),
     ...(form !== undefined ? { form } : {}),
     ...(name !== undefined ? { name } : {}),
   };
+}
+
+/** Union the two devices' per-form outfits. Every form either side has dressed
+ *  survives; where both dressed the same form, the receiving device (a) keeps
+ *  what it is wearing and its dragged spots win item by item. */
+function mergeOutfits(
+  a: PetState["outfits"],
+  b: PetState["outfits"],
+): PetState["outfits"] {
+  if (a === undefined || b === undefined) {
+    return a ?? b;
+  }
+  const merged: Record<string, FormOutfit> = { ...b };
+  for (const [form, mine] of Object.entries(a)) {
+    const theirs = merged[form];
+    if (theirs === undefined) {
+      merged[form] = mine;
+      continue;
+    }
+    const worn = mine.worn ?? theirs.worn;
+    const placements =
+      mine.placements === undefined && theirs.placements === undefined
+        ? undefined
+        : { ...(theirs.placements ?? {}), ...(mine.placements ?? {}) };
+    merged[form] = {
+      ...(worn !== undefined ? { worn } : {}),
+      ...(placements !== undefined ? { placements } : {}),
+    };
+  }
+  return merged;
 }

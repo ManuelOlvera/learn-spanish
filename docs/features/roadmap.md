@@ -139,6 +139,27 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
 13. ☑ **Drag-to-place accessories** — free creative dress-up on the mascota.
     *(Shipped 2026-07-12: per-pet `placements`, drag anywhere and it stays. See
     `shipped.md`.)*
+    - ☑ **Outfits per shape, not per pet** — shaped and shipped 2026-08-13 from
+      the parent's ask: a hat placed on the grown hen hung in mid-air over the
+      egg, because every growth form shared one outfit. Now `PetState.outfits`
+      is keyed by form; each shape keeps its own worn set and its own spots,
+      and sync merges per form. Old dragged spots were dropped (they were
+      dragged against one shape), old `worn` was lifted onto the form each pet
+      was showing. **Known consequence, taken on approval:** a pet reaching a
+      new form arrives bare until the kid dresses it. The mitigation that was
+      offered and not taken — a new form inheriting the previous form's worn
+      set at default spots on first arrival — is the fix if that lands badly
+      with the kids.
+    - ☐ **Per-form default spots** — the built-in `ACCESSORY_SPOTS` table is
+      still keyed by accessory alone, so an *undragged* hat sits at the same
+      50%/8% on an egg as on a hen. Only kid-dragged spots are per shape.
+      The cheap version is a per-form nudge table; the real one is a spot per
+      (accessory × form), which is 38 × 4 numbers nobody wants to hand-write.
+    - ☐ **Sharing a shape across pets** — every 🥚 in the roster dressed alike
+      (dress one egg, the turtle's and the dragón's match). Considered while
+      shaping and rejected: outfits stay per pet, per form.
+    - ☐ **Copy an outfit between forms** — "put this on my other shapes too".
+      Wanted only if kids find re-dressing each form a chore.
     - ☐ **Guided placement (learning variant)** — snap to the correct spot with
       a happy cue; teaches where things go. The other half of the original idea.
     - ☐ **Resize / rotate accessories** — richer dress-up; out of the first cut.
@@ -458,6 +479,7 @@ The queue, gathered from the sub-items above so nothing hides in history:
 - **Play & retention polish:** difficulty sizes for quiz/sí-o-no/reto —
   the proven parejas pattern (12) · hard-mode timer/lose-state (12) ·
   guided accessory placement (13) · resize/rotate accessories (13) ·
+  per-form default spots, and copying an outfit between a pet's forms (13) ·
   richer weekly missions (14) · more escudo sources (14) · sopa bent paths
   and bonus words (20) · hora doble follow-ons — multiply more than the chest,
   a parent-triggered or scheduled window, a session-starting boost tile, a

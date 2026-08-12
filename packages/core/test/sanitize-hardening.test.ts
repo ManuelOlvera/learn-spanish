@@ -111,6 +111,33 @@ describe("sanitizeSnapshot magnitude caps", () => {
     expect(cleaned.pets).toBeUndefined();
   });
 
+  it("drops a pet collection whose per-form outfits are junk", () => {
+    const collection = (outfits: unknown) => ({
+      listener: {
+        active: "pollito",
+        owned: ["pollito"],
+        pets: { pollito: { meals: 2, lastFed: null, outfits } },
+      },
+    });
+    const bad = (outfits: unknown) =>
+      sanitizeSnapshot({
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        petCollections: collection(outfits),
+      }).petCollections;
+    expect(bad("not an object")).toBeUndefined();
+    // A form index that isn't one, and a spot that isn't a point on the box.
+    expect(bad({ "-4": { worn: ["gorro"] } })).toBeUndefined();
+    expect(bad({ "0": { placements: { gorro: { x: Infinity, y: 0 } } } })).toBeUndefined();
+    expect(bad({ "0": { placements: { gorro: { x: 240, y: 0 } } } })).toBeUndefined();
+    expect(bad({ "0": { worn: Array.from({ length: 6_000 }, () => "hat") } })).toBeUndefined();
+    // ...while an honest outfit passes through.
+    expect(bad({ "0": { worn: ["gorro"], placements: { gorro: { x: 50, y: 8 } } } })).toEqual(
+      collection({ "0": { worn: ["gorro"], placements: { gorro: { x: 50, y: 8 } } } }),
+    );
+  });
+
   it("still accepts a realistic snapshot untouched", () => {
     const real = {
       stickers: ["listener:animals:learn"],

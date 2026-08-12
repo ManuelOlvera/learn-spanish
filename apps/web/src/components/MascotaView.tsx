@@ -11,6 +11,7 @@ import {
   MEAL_COST,
   petFormEmoji,
   petMaxForm,
+  petShownForm,
   petStage,
   PET_SPECIES,
   PET_STAGE_MEALS,
@@ -248,9 +249,10 @@ export function MascotaView() {
   const nextStageAt = PET_STAGE_MEALS[stage + 1];
   const species = PET_SPECIES.find((s) => s.id === activeId) ?? PET_SPECIES[0]!;
   // Which form to show: the kid may pin an earlier one, capped at the newest
-  // form the pet has reached (undefined = follow the newest).
+  // form the pet has reached (undefined = follow the newest). It is also the
+  // shape being dressed — each form keeps its own outfit and spots.
   const maxForm = petMaxForm(activeId, pet.meals);
-  const chosenForm = Math.max(0, Math.min(pet.form ?? maxForm, maxForm));
+  const chosenForm = petShownForm(activeId, pet);
 
   function feed() {
     if (kid === null) return;
@@ -413,14 +415,14 @@ export function MascotaView() {
           aria-label={`Your pet: ${species.nameSpanish}, ${pet.meals} meals`}
         >
           {petFormEmoji(activeId, chosenForm)}
-          {wornAccessories(pet).map((id) => {
+          {wornAccessories(pet, chosenForm).map((id) => {
             const item = ACCESSORIES.find((a) => a.id === id);
             if (!item) return null;
             // Live drag wins; otherwise the kid's saved spot, else the default.
             const pos =
               drag?.id === id
                 ? { x: drag.x, y: drag.y }
-                : accessoryPlacement(pet, id) ?? defaultSpot(id);
+                : accessoryPlacement(pet, chosenForm, id) ?? defaultSpot(id);
 
             return (
               <span
@@ -661,7 +663,7 @@ export function MascotaView() {
         <div className="grid grid-cols-3 gap-3">
           {ACCESSORIES.map((item) => {
             const owned = ownedAccessories.includes(item.id);
-            const worn = wornAccessories(pet).includes(item.id);
+            const worn = wornAccessories(pet, chosenForm).includes(item.id);
             return (
               <button
                 type="button"

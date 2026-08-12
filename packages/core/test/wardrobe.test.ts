@@ -10,7 +10,12 @@ import {
 } from "../src/domain/wardrobe";
 import type { PetState } from "../src/domain/mascota";
 
-const egg: PetState = { meals: 0, lastFed: null };
+const pet: PetState = { meals: 0, lastFed: null };
+
+/** El pollito's own shapes: 🥚 at form 0, 🐔 at form 3. A hat that sits on the
+ *  hen's head hangs in mid-air over the egg — which is why outfits are per form. */
+const EGG = 0;
+const HEN = 3;
 
 describe("wardrobe ownership (kid-level)", () => {
   it("buying adds to the owned set, once", () => {
@@ -22,70 +27,110 @@ describe("wardrobe ownership (kid-level)", () => {
   });
 });
 
-describe("wardrobe wearing (per-pet)", () => {
-  it("a fresh pet wears nothing until dressed", () => {
-    expect(wornAccessories(egg)).toEqual([]);
+describe("wardrobe wearing (per form)", () => {
+  it("a fresh pet wears nothing on any form", () => {
+    expect(wornAccessories(pet, EGG)).toEqual([]);
+    expect(wornAccessories(pet, HEN)).toEqual([]);
   });
 
-  it("wear puts an item on, idempotently", () => {
-    const dressed = wear(egg, "gorro");
-    expect(wornAccessories(dressed)).toEqual(["gorro"]);
-    expect(wear(dressed, "gorro")).toBe(dressed);
+  it("wear puts an item on that form, idempotently", () => {
+    const dressed = wear(pet, HEN, "gorro");
+    expect(wornAccessories(dressed, HEN)).toEqual(["gorro"]);
+    expect(wear(dressed, HEN, "gorro")).toBe(dressed);
   });
 
-  it("toggle takes an item off then puts it back", () => {
-    const on = wear(egg, "gorro");
-    const off = toggleWorn(on, "gorro");
-    expect(wornAccessories(off)).toEqual([]);
-    expect(wornAccessories(toggleWorn(off, "gorro"))).toEqual(["gorro"]);
+  it("dressing the grown form leaves the egg bare", () => {
+    const dressed = wear(pet, HEN, "gorro");
+    expect(wornAccessories(dressed, EGG)).toEqual([]);
+  });
+
+  it("each form keeps its own outfit", () => {
+    const both = wear(wear(pet, HEN, "corona"), EGG, "lazo");
+    expect(wornAccessories(both, HEN)).toEqual(["corona"]);
+    expect(wornAccessories(both, EGG)).toEqual(["lazo"]);
+  });
+
+  it("toggle takes an item off that form then puts it back", () => {
+    const on = wear(pet, HEN, "gorro");
+    const off = toggleWorn(on, HEN, "gorro");
+    expect(wornAccessories(off, HEN)).toEqual([]);
+    expect(wornAccessories(toggleWorn(off, HEN, "gorro"), HEN)).toEqual(["gorro"]);
+  });
+
+  it("toggling one form never undresses another", () => {
+    const both = wear(wear(pet, HEN, "gorro"), EGG, "gorro");
+    const off = toggleWorn(both, EGG, "gorro");
+    expect(wornAccessories(off, EGG)).toEqual([]);
+    expect(wornAccessories(off, HEN)).toEqual(["gorro"]);
   });
 
   it("two pets keep independent outfits from one owned crown", () => {
-    const cat = wear({ meals: 3, lastFed: null }, "corona");
+    const cat = wear({ meals: 3, lastFed: null }, HEN, "corona");
     const dog = { meals: 3, lastFed: null }; // owns the crown too, but bare
-    expect(wornAccessories(cat)).toEqual(["corona"]);
-    expect(wornAccessories(dog)).toEqual([]);
+    expect(wornAccessories(cat, HEN)).toEqual(["corona"]);
+    expect(wornAccessories(dog, HEN)).toEqual([]);
   });
 
-  it("a legacy pet's per-pet accessories are what it wears until toggled", () => {
-    const legacy: PetState = { meals: 5, lastFed: null, accessories: ["gorro", "gafas"] };
-    expect(wornAccessories(legacy)).toEqual(["gorro", "gafas"]);
-    const off = toggleWorn(legacy, "gorro");
-    expect(wornAccessories(off)).toEqual(["gafas"]);
+  it("ignores legacy per-pet outfits — the storage migration lifts those onto a form", () => {
+    const legacy: PetState = {
+      meals: 5,
+      lastFed: null,
+      worn: ["gorro"],
+      accessories: ["gafas"],
+    };
+    expect(wornAccessories(legacy, EGG)).toEqual([]);
+    expect(wornAccessories(legacy, HEN)).toEqual([]);
+  });
+
+  it("treats a nonsense form as its nearest real one instead of storing junk", () => {
+    const dressed = wear(pet, -3.7, "gorro");
+    expect(wornAccessories(dressed, 0)).toEqual(["gorro"]);
   });
 });
 
-describe("wardrobe placement (per-pet drag spots)", () => {
+describe("wardrobe placement (per-form drag spots)", () => {
   it("has no saved spot until the kid drags it", () => {
-    expect(accessoryPlacement(egg, "gorro")).toBeNull();
+    expect(accessoryPlacement(pet, HEN, "gorro")).toBeNull();
   });
 
   it("placing saves clamped percent coords and overwrites only that item", () => {
-    const one = placeAccessory(egg, "gorro", 20, 30);
-    expect(accessoryPlacement(one, "gorro")).toEqual({ x: 20, y: 30 });
+    const one = placeAccessory(pet, HEN, "gorro", 20, 30);
+    expect(accessoryPlacement(one, HEN, "gorro")).toEqual({ x: 20, y: 30 });
 
-    const two = placeAccessory(one, "corona", 60, 10);
-    expect(accessoryPlacement(two, "gorro")).toEqual({ x: 20, y: 30 }); // untouched
-    expect(accessoryPlacement(two, "corona")).toEqual({ x: 60, y: 10 });
+    const two = placeAccessory(one, HEN, "corona", 60, 10);
+    expect(accessoryPlacement(two, HEN, "gorro")).toEqual({ x: 20, y: 30 }); // untouched
+    expect(accessoryPlacement(two, HEN, "corona")).toEqual({ x: 60, y: 10 });
 
-    const moved = placeAccessory(two, "gorro", 80, 90);
-    expect(accessoryPlacement(moved, "gorro")).toEqual({ x: 80, y: 90 });
+    const moved = placeAccessory(two, HEN, "gorro", 80, 90);
+    expect(accessoryPlacement(moved, HEN, "gorro")).toEqual({ x: 80, y: 90 });
+  });
+
+  it("the same accessory sits at its own spot on each form", () => {
+    const hen = placeAccessory(pet, HEN, "gorro", 50, 8);
+    const both = placeAccessory(hen, EGG, "gorro", 50, 20);
+    expect(accessoryPlacement(both, HEN, "gorro")).toEqual({ x: 50, y: 8 });
+    expect(accessoryPlacement(both, EGG, "gorro")).toEqual({ x: 50, y: 20 });
+  });
+
+  it("a form the kid never dragged on falls back to the default spot", () => {
+    const hen = placeAccessory(pet, HEN, "gorro", 50, 8);
+    expect(accessoryPlacement(hen, EGG, "gorro")).toBeNull();
   });
 
   it("clamps out-of-box drags to the 0–100 edges", () => {
-    const p = placeAccessory(egg, "gorro", -25, 140);
-    expect(accessoryPlacement(p, "gorro")).toEqual({ x: 0, y: 100 });
+    const p = placeAccessory(pet, HEN, "gorro", -25, 140);
+    expect(accessoryPlacement(p, HEN, "gorro")).toEqual({ x: 0, y: 100 });
   });
 
   it("ignores a non-finite drag instead of corrupting the outfit", () => {
-    const p = placeAccessory(egg, "gorro", Number.NaN, 50);
-    expect(p).toBe(egg);
-    expect(accessoryPlacement(p, "gorro")).toBeNull();
+    const p = placeAccessory(pet, HEN, "gorro", Number.NaN, 50);
+    expect(p).toBe(pet);
+    expect(accessoryPlacement(p, HEN, "gorro")).toBeNull();
   });
 
-  it("does not disturb what the pet is wearing", () => {
-    const dressed = wear(egg, "gorro");
-    const placed = placeAccessory(dressed, "gorro", 40, 40);
-    expect(wornAccessories(placed)).toEqual(["gorro"]);
+  it("does not disturb what the form is wearing", () => {
+    const dressed = wear(pet, HEN, "gorro");
+    const placed = placeAccessory(dressed, HEN, "gorro", 40, 40);
+    expect(wornAccessories(placed, HEN)).toEqual(["gorro"]);
   });
 });
