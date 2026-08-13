@@ -378,8 +378,9 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
 26. ☑ **Juegos de letras — el globo, then adivina la palabra** — two letter
     games over the pack words, **shipped as separate slices**, each **contained
     within its category**. Shaped 2026-08-02, both shipped the same day. Both
-    reader-level like la sopa (20) and Deletrea, over the same word pool
-    discipline — single word, article stripped, deaccented, uppercased.
+    reader-level at first like la sopa (20) and Deletrea — el globo opened to
+    both kids 2026-08-13 — over the same word pool discipline: single word,
+    article stripped, deaccented, uppercased.
 
     **26a. ☑ El globo (el ahorcado)** — the word is blanks; the kid taps
     letters from the Spanish alphabet and each wrong guess lets air out of a
@@ -395,9 +396,15 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       like `sopaDifficulties`.
     - **Accents are dropped** (á plays as A, matching la sopa) so the keyboard
       stays 27 keys and thumb-sized.
-    - **Stars, no album sticker** — same reason as Deletrea and la sopa: a
-      reader-only game in an album slot would un-complete every listener.
-    - **Out of scope (deferred):** a timer · listener mode · a daily word ·
+    - **Stars, no album sticker** — same as Deletrea and la sopa; it shipped
+      reader-only, and a reader-only game in an album slot would un-complete
+      every listener. Now that both kids play it the slot stays out anyway:
+      adding one would un-complete every album already finished.
+    - **☑ Both kids (2026-08-13)** — "listener mode" was deferred here and
+      then simply happened, exactly as la sopa did: the pre-reader plays it,
+      🟢 hands him the picture as its tip, and the kid gate came off the menu.
+      No difficulty split — the levels already are the split.
+    - **Out of scope (deferred):** a timer · a daily word ·
       streak or duel integration · more than one tip per round.
     - **The name was a real decision.** A hanged man does not belong in a
       3–5-year-old's sticker book, so the mechanic keeps the name *el
@@ -455,11 +462,12 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       too hard for these kids without a theme, and they're right. The theme is
       the scaffold, not a decoration.
 
-    **Watch the crowding.** This makes four reader-only letter games (✏️
-    Deletrea, 🥣 la sopa, 🎈 el globo, 🔡 adivina). La sopa opened to both
-    kids a day after shipping (2026-07-15) once the pre-reader wanted in;
-    expect the same pull here, and expect the deck choice screen to need
-    grouping before a fifth tile lands.
+    **Watch the crowding.** This makes four letter games (✏️ Deletrea, 🥣 la
+    sopa, 🎈 el globo, 🔡 adivina). Two of them are no longer reader-only: la
+    sopa opened a day after shipping (2026-07-15), el globo eleven days later
+    (2026-08-13), both because the pre-reader wanted in. That is the pattern —
+    expect adivina to be asked for next, and expect the deck choice screen to
+    need grouping before a fifth tile lands.
 
 ## Build-later shortlist (consolidated 2026-07-14)
 

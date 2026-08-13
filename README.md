@@ -43,7 +43,7 @@ No reading, no accounts, no setup.
   the numbers deck), "Deletrea" (letter-tile spelling, reader-level),
   "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
   sizes, on decks whose words fit a grid), "El globo" (guess the word
-  letter by letter before the balloon pops — reader-level, 🟢/🟡/🔴 word
+  letter by letter before the balloon pops — both kids, 🟢/🟡/🔴 word
   lengths, the 💡 tip costs a life), and "Adivina la palabra" (wordle over
   a whole shelf — type the word on a Spanish keyboard, 🟩/🟨/⬜ per letter;
   a word the app doesn't know can't be submitted and costs no guess. The

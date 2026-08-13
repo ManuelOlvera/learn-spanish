@@ -1,5 +1,34 @@
 # Shipped features
 
+## 2026-08-13 — El globo is for both kids
+
+**For:** the pre-reader, from the parent's list (`docs/bugs.md`) — "ensure the
+balloon game is available for all kids, my boy likes it too."
+
+El globo shipped reader-level on the theory that guessing the letters of a
+written word is orthography. The listener plays it anyway and likes it, so the
+kid gate is gone from the game menu; the only gate left is the real one, whether
+the deck's words can fill a length band for a 4-round run (`globoDifficulties`).
+This is la sopa's 2026-07-15 opening, one game over.
+
+- **The 🟢 level was already the pre-reader's level.** Easy is 3–5 letters and
+  its 💡 tip is the *picture* — the card's emoji, the one clue that doesn't
+  require reading. Nothing was made easier; the level that fits was already
+  there, behind the gate.
+- **Nothing else changed.** El globo stays sticker-less, so no album slot opens
+  and no finished album un-completes. `GloboPlayer` already recorded answers
+  against whichever kid is selected, so the listener's stars, rachas and word
+  stats work with no code behind the menu.
+- **The daily misión is unchanged** — el globo stays in the reader's pool only,
+  exactly as la sopa did after its own opening. Playing a game and being *asked*
+  to play it are different things; the misión still leans into what each kid is
+  working on.
+- **Deletrea stays reader-level.** Spelling from tiles has no picture-tip
+  fallback, so the gate there is still doing work.
+
+**Where:** `apps/web/src/components/GameMenu.tsx` (one condition). Core
+untouched.
+
 ## 2026-08-13 — Outfits are remembered per shape, not per pet
 
 **For:** both kids, from the parent's report — a hat dragged onto the grown
@@ -331,7 +360,8 @@ instead of hissing under the generic buzzer.
 
 Roadmap 26, shaped and shipped the same day as two separate slices. Both are
 reader-level, both are sticker-less (stars only), and both join the reader's
-daily-misión pool.
+daily-misión pool. *(El globo opened to both kids on 2026-08-13 — see the entry
+at the top of this file. Adivina remains reader-level.)*
 
 ### 🎈 El globo — the ahorcado, without the gallows
 

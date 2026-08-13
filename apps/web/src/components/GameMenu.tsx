@@ -149,9 +149,11 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
           },
         ]
       : []),
-    // El globo is reader-level like Deletrea (guessing letters of a written
-    // word is orthography), and only where the deck can fill a length band.
-    ...(kid !== "listener" && globoDifficulties(deck).length > 0
+    // El globo shipped reader-level, then went the way of la sopa (2026-08-13):
+    // the pre-reader plays it and likes it, and 🟢 hands him the picture as its
+    // tip, so the only gate left is whether the deck can fill a length band.
+    // It stays sticker-less, so no album slot. Deletrea stays reader-level.
+    ...(globoDifficulties(deck).length > 0
       ? [
           {
             emoji: "🎈",
