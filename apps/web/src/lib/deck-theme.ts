@@ -28,6 +28,13 @@ const accents: Record<string, string> = {
   body: "#fb923c",
   pelo: "#b45309",
   tamanos: "#2563eb",
+  // Formas y lugares: warm orange, deep purple, and the blue Alto o bajo
+  // brought with it from ¿Cómo soy? — three clearly different hues, since
+  // these three tiles sit side by side on one shelf. Both new decks are drawn
+  // whole, so the accent is also the ink in the pictures: every shape is
+  // filled `formas` orange, and the cat that moves is `posiciones` purple.
+  formas: "#c2410c",
+  posiciones: "#7e22ce",
   rutina: "#10b981",
   clothes: "#facc15",
   house: "#34d399",
@@ -69,6 +76,7 @@ const accents: Record<string, string> = {
   jugar: "#e879f9",
   verbos: "#f97316",
   letras: "#f43f5e",
+  "formas-lugares": "#059669",
   calendario: "#0284c7",
 };
 

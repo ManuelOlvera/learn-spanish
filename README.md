@@ -6,10 +6,11 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 41 decks / 480 words on nine themed home-screen
+- **Flashcards** — 43 decks / 504 words on ten themed home-screen
   shelves (animals · numbers & colors · my home · all about me · the world ·
-  play & learn · letters · verbs · calendar), plus a star-unlocked bonus deck
-  **El misterio 🔮** (42 decks / 492 words total), tap-to-hear audio via
+  play & learn · letters · verbs · shapes & places · calendar), plus a
+  star-unlocked bonus deck
+  **El misterio 🔮** (44 decks / 516 words total), tap-to-hear audio via
   browser speech synthesis — **Spain Spanish** (es-ES voice; coche,
   ordenador, hierba). **Los verbos 🏃** is a flashcards-only shelf:
   15 action words in three forms (infinitivo · gerundio · imperativo).
@@ -25,11 +26,20 @@ No reading, no accounts, no setup.
   **¿Cómo soy? 🧑** is the describe-yourself shelf: **La cara 😃** and
   **El cuerpo 🖐️** (split apart once drawn card art let a cheek, an eyelash
   and an elbow be shown at all — ADR 015), hair and skin
-  (rubio, moreno, canoso, calvo, la piel clara · morena · oscura), size and
-  build (alto, bajo, gordo, delgado), las emociones, and **Mi día 🪥** — the
+  (rubio, moreno, canoso, calvo, la piel clara · morena · oscura),
+  las emociones, and **Mi día 🪥** — the
   daily routine in reflexive verbs (despertarse, lavarse los dientes,
   peinarse, acostarse), the first verb deck that plays the games rather than
-  sitting flashcards-only. **Mi casa 🏠** opens with **La familia 👨‍👩‍👧‍👦** —
+  sitting flashcards-only.
+  **Formas y lugares 🔺** is the spatial shelf, and the first two decks drawn
+  whole rather than set in emoji (ADR 015): **Las formas** (círculo, cuadrado,
+  triángulo, rectángulo, óvalo, rombo, hexágono, estrella, corazón, cruz,
+  flecha, espiral) shares one fill and one stroke across all twelve cards so
+  that only the geometry differs, and **¿Dónde está? 📦** teaches position as
+  one scene with the subject moved — the same cat and the same box, arriba ·
+  abajo · dentro · fuera · encima · debajo · delante · detrás · al lado · en
+  medio · cerca · lejos. **Alto o bajo 📏** (alto, bajo, gordo, delgado) sits
+  here too: a size is a spatial idea. **Mi casa 🏠** opens with **La familia 👨‍👩‍👧‍👦** —
   the household in gender pairs (hermano · hermana, abuelo · abuela, tío ·
   tía), plus mamá, papá, el primo, el bebé and la mascota. Adjectives borrow the creature that *is* the word
   (alto 🦒, pequeño 🐭) and skin tone rides on a hand, not a face.

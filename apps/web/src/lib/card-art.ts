@@ -11,6 +11,30 @@ import { MejillasArt } from "@/card-art/mejillas";
 import { PeloArt } from "@/card-art/pelo";
 import { PestanasArt } from "@/card-art/pestanas";
 import { RodillaArt } from "@/card-art/rodilla";
+import { CirculoArt } from "@/card-art/circulo";
+import { CorazonFormaArt } from "@/card-art/corazon-forma";
+import { CruzArt } from "@/card-art/cruz";
+import { CuadradoArt } from "@/card-art/cuadrado";
+import { EspiralArt } from "@/card-art/espiral";
+import { EstrellaFormaArt } from "@/card-art/estrella-forma";
+import { FlechaArt } from "@/card-art/flecha";
+import { HexagonoArt } from "@/card-art/hexagono";
+import { OvaloArt } from "@/card-art/ovalo";
+import { RectanguloArt } from "@/card-art/rectangulo";
+import { RomboArt } from "@/card-art/rombo";
+import { TrianguloArt } from "@/card-art/triangulo";
+import { AbajoArt } from "@/card-art/abajo";
+import { AlLadoArt } from "@/card-art/al-lado";
+import { ArribaArt } from "@/card-art/arriba";
+import { CercaArt } from "@/card-art/cerca";
+import { DebajoArt } from "@/card-art/debajo";
+import { DelanteArt } from "@/card-art/delante";
+import { DentroArt } from "@/card-art/dentro";
+import { DetrasArt } from "@/card-art/detras";
+import { EnMedioArt } from "@/card-art/en-medio";
+import { EncimaArt } from "@/card-art/encima";
+import { FueraArt } from "@/card-art/fuera";
+import { LejosArt } from "@/card-art/lejos";
 
 /**
  * Card art — presentation-only, like `story-art.ts` and `deck-theme.ts`, so
@@ -29,6 +53,8 @@ import { RodillaArt } from "@/card-art/rodilla";
 export type CardArt = ComponentType<{ className?: string }>;
 
 const CARD_ART: Readonly<Record<string, CardArt>> = {
+  // La cara / El cuerpo: a whole figure with one part coloured in. These keys
+  // predate the key-equals-id rule, so "pelo-cara" draws "pelo".
   barriga: BarrigaArt,
   cabeza: CabezaArt,
   cejas: CejasArt,
@@ -41,6 +67,34 @@ const CARD_ART: Readonly<Record<string, CardArt>> = {
   pelo: PeloArt,
   pestanas: PestanasArt,
   rodilla: RodillaArt,
+  // Las formas: one fill, one stroke, only the geometry changing.
+  circulo: CirculoArt,
+  "corazon-forma": CorazonFormaArt,
+  cruz: CruzArt,
+  cuadrado: CuadradoArt,
+  espiral: EspiralArt,
+  "estrella-forma": EstrellaFormaArt,
+  flecha: FlechaArt,
+  hexagono: HexagonoArt,
+  ovalo: OvaloArt,
+  rectangulo: RectanguloArt,
+  rombo: RomboArt,
+  triangulo: TrianguloArt,
+  // ¿Dónde está?: one cat, one box, the cat moved (see posicion-scene.tsx).
+  // Both decks keep key === card id, so this half of the map reads as a list
+  // of the words themselves.
+  abajo: AbajoArt,
+  "al-lado": AlLadoArt,
+  arriba: ArribaArt,
+  cerca: CercaArt,
+  debajo: DebajoArt,
+  delante: DelanteArt,
+  dentro: DentroArt,
+  detras: DetrasArt,
+  "en-medio": EnMedioArt,
+  encima: EncimaArt,
+  fuera: FueraArt,
+  lejos: LejosArt,
 };
 
 export function cardArt(key: string | undefined): CardArt | null {

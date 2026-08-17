@@ -41,7 +41,10 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameSpanish: "¿Cómo soy?",
     nameEnglish: "All about me",
     emoji: "🧑",
-    deckIds: ["cara", "body", "pelo", "tamanos", "feelings", "rutina"],
+    // Alto o bajo left for Formas y lugares (2026-08-17) — a size is a
+    // spatial idea, and it only ever sat here for want of a shelf that was
+    // about space. Back to 5, with room again.
+    deckIds: ["cara", "body", "pelo", "feelings", "rutina"],
   },
   {
     id: "mundo",
@@ -72,6 +75,17 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameEnglish: "Verbs",
     emoji: "🏃",
     deckIds: ["verbs-infinitive", "verbs-gerund", "verbs-imperative"],
+  },
+  {
+    // The spatial shelf (2026-08-17): what a thing looks like, where it is,
+    // and how big it is. It took home to ten tiles, which re-pairs the
+    // orphaned ninth rather than adding a row. Alto o bajo moved here from
+    // ¿Cómo soy? to make three — a size belongs with the other space words.
+    id: "formas-lugares",
+    nameSpanish: "Formas y lugares",
+    nameEnglish: "Shapes & places",
+    emoji: "🔺",
+    deckIds: ["formas", "posiciones", "tamanos"],
   },
   {
     id: "calendario",

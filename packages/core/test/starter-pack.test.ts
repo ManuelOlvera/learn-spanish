@@ -21,6 +21,8 @@ describe("starter pack content", () => {
       "body",
       "pelo",
       "tamanos",
+      "formas",
+      "posiciones",
       "rutina",
       "clothes",
       "house",
@@ -56,16 +58,16 @@ describe("starter pack content", () => {
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("41 decks /
-    // 480 words … 42 decks / 492 words total"). This test turns silent README
+    // The root README's Features section states these totals ("43 decks /
+    // 504 words … 44 decks / 516 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(42);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(492);
-    expect(publicDecks).toHaveLength(41);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(480);
+    expect(decks).toHaveLength(44);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(516);
+    expect(publicDecks).toHaveLength(43);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(504);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {
@@ -180,7 +182,11 @@ describe("starter pack content", () => {
     }
   });
 
-  it("phrases the description shelf natively (a person is 'quién', not 'dónde')", async () => {
+  it("phrases describing words natively (a person is 'quién', not 'dónde')", async () => {
+    // El pelo and Alto o bajo describe a person. They sit on different
+    // shelves since Alto o bajo moved to Formas y lugares (2026-08-17) — a
+    // size is a spatial idea — but the phrasing rule follows the words, not
+    // the shelf, so both decks are still checked together here.
     const decks = await repo.listDecks();
     const pelo = decks.find((d) => d.id === "pelo")!;
     const tamanos = decks.find((d) => d.id === "tamanos")!;
@@ -352,22 +358,108 @@ describe("starter pack content", () => {
   });
 
   it("draws the words emoji cannot show, and only those", async () => {
+    // "Cannot show" is about teaching, not about coverage. The body words
+    // (2026-08-12) had no glyph at all. The two Formas y lugares decks
+    // (2026-08-17) are the other kind: emoji has glyphs, and they mis-teach.
+    //
+    // A shape deck is a lesson in controlled variation — only the geometry
+    // may change — and emoji shapes vary everything else instead: ⭕ is a
+    // hollow ring, 🔺 a solid fill, ⬜ an outline, 💎 a shaded gem, and
+    // rectángulo, óvalo and hexágono have no glyph at all. A position is
+    // worse: it has no picture of its own, only a subject and a landmark
+    // ("the cat is ON the box"), which is why the arrows a kid would be
+    // dealt instead (⬆️ vs 🔝, ⬇️ vs 👇) are unanswerable in a
+    // picture-only round. Both decks are drawn whole, so each is one hand.
     const decks = await repo.listDecks();
     const drawn = decks.flatMap((d) => d.cards).filter((c) => c.image !== undefined);
     expect(drawn.map((c) => c.id).sort()).toEqual([
+      "abajo",
+      "al-lado",
+      "arriba",
       "barriga",
       "cabeza",
       "cejas",
+      "cerca",
+      "circulo",
       "codo",
+      "corazon-forma",
+      "cruz",
+      "cuadrado",
       "cuello",
+      "debajo",
+      "delante",
+      "dentro",
+      "detras",
+      "en-medio",
+      "encima",
       "espalda",
+      "espiral",
+      "estrella-forma",
+      "flecha",
+      "fuera",
+      "hexagono",
       "hombro",
       "labios",
+      "lejos",
       "mejillas",
+      "ovalo",
       "pelo-cara",
       "pestanas",
+      "rectangulo",
       "rodilla",
+      "rombo",
+      "triangulo",
     ]);
+  });
+
+  it("keeps a drawn card's art key equal to its own id (Formas y lugares)", async () => {
+    // The body art predates this rule and keeps its own keys ("pelo-cara"
+    // draws "pelo"). For the two drawn-whole decks the key IS the id, so
+    // `card-art.ts`, the component file name and the card all line up and a
+    // 24-key registry can be checked by eye.
+    const decks = await repo.listDecks();
+    const drawnWhole = ["formas", "posiciones"].flatMap(
+      (id) => decks.find((d) => d.id === id)!.cards,
+    );
+    expect(drawnWhole).toHaveLength(24);
+    for (const card of drawnWhole) {
+      expect(card.image, card.id).toBe(card.id);
+    }
+  });
+
+  it("names shapes as things and positions as states (Formas y lugares)", async () => {
+    const decks = await repo.listDecks();
+
+    // A shape is a countable noun, so both built questions already read
+    // native — no override, same as La familia.
+    for (const card of decks.find((d) => d.id === "formas")!.cards) {
+      expect(card.usesEstar, card.id).toBeUndefined();
+      expect(card.question, card.id).toBeUndefined();
+      expect(card.sceneQuestion, card.id).toBeUndefined();
+      expect(siNoQuestion(card), card.id).toMatch(/^¿Es un[a]? \S/);
+      expect(sceneQuestion(card), card.id).toMatch(/^¿Dónde está (el|la) \S/);
+    }
+
+    // A position is never a thing — "¿Es un dentro?" is nonsense. Every card
+    // is bare and takes estar, which is all the phrasing needs: the claim
+    // becomes "¿Está dentro?" and the hunt "¿Quién está dentro?". "Quién"
+    // is right because every drawing is the same cat, moved.
+    const posiciones = decks.find((d) => d.id === "posiciones")!;
+    expect(posiciones.learnOnly).toBeUndefined();
+    for (const card of posiciones.cards) {
+      expect(card.usesEstar, card.id).toBe(true);
+      expect(card.question, card.id).toBeUndefined();
+      expect(card.sceneQuestion, card.id).toBeUndefined();
+      // Bare: an article here would make the adverb a noun again.
+      expect(/^(el|la|los|las) /.test(card.spanish), card.id).toBe(false);
+      expect(siNoQuestion(card), card.id).toBe(`¿Está ${card.spanish}?`);
+      expect(sceneQuestion(card), card.id).toBe(`¿Quién está ${card.spanish}?`);
+    }
+
+    // "entre" is the one position that cannot stand alone — "¿Está entre?"
+    // asks between what — so the deck teaches "en medio", which can.
+    expect(posiciones.cards.map((c) => c.spanish)).toContain("en medio");
+    expect(posiciones.cards.map((c) => c.spanish)).not.toContain("entre");
   });
 
   it("splits the face from the body, keeping every card id (progress survives)", async () => {

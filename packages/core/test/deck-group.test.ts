@@ -41,7 +41,7 @@ describe("deck groups content", () => {
     }
   });
 
-  it("keeps home one screen: at most 9 groups", async () => {
+  it("keeps home one screen: at most 10 groups", async () => {
     // Raised from 6 to seat Las letras (2026-07-14) — home's 2-column grid
     // absorbs one more shelf tile without scrolling meaningfully further.
     // Raised again to 8 for El calendario (2026-07-28), which also squares
@@ -50,9 +50,15 @@ describe("deck groups content", () => {
     // so the describe-a-person decks needed a shelf of their own. The ninth
     // tile ends a row alone — accepted, since the alternative was cramming
     // hair and size onto a shelf about the house.
+    // Raised to 10 for Formas y lugares (2026-08-17). Unlike every previous
+    // raise this one costs nothing in layout: it re-pairs the orphaned ninth
+    // tile, so the 2-column grid is back to even rows. Shapes and positions
+    // had no shelf they belonged on — the spatial words are neither about the
+    // house nor about the body — and Alto o bajo, a spatial idea parked on
+    // ¿Cómo soy? for want of anywhere better, moved over to join them.
     const allGroups = await groups.listGroups();
     expect(allGroups.length).toBeGreaterThanOrEqual(3);
-    expect(allGroups.length).toBeLessThanOrEqual(9);
+    expect(allGroups.length).toBeLessThanOrEqual(10);
   });
 
   it("gives every group an id, names, and a picture", async () => {

@@ -240,6 +240,60 @@ export const STARTER_PACK: readonly Deck[] = [
     ],
   },
   {
+    // Drawn whole (ADR 015): a shape deck is a lesson in controlled
+    // variation, so only the geometry may differ between cards. Emoji varies
+    // everything else instead — ⭕ is a hollow ring, 🔺 a solid fill, ⬜ an
+    // outline, 💎 a shaded gem — and has no glyph at all for rectángulo,
+    // óvalo or hexágono. Every card's `image` key is its own id.
+    id: "formas",
+    nameSpanish: "Las formas",
+    nameEnglish: "Shapes",
+    emoji: "🔺",
+    cards: [
+      { id: "circulo", spanish: "el círculo", english: "the circle", emoji: "⭕", image: "circulo" },
+      { id: "cuadrado", spanish: "el cuadrado", english: "the square", emoji: "⬜", image: "cuadrado" },
+      { id: "triangulo", spanish: "el triángulo", english: "the triangle", emoji: "🔺", image: "triangulo" },
+      { id: "rectangulo", spanish: "el rectángulo", english: "the rectangle", emoji: "🧱", image: "rectangulo" },
+      { id: "ovalo", spanish: "el óvalo", english: "the oval", emoji: "🥚", image: "ovalo" },
+      { id: "rombo", spanish: "el rombo", english: "the diamond", emoji: "🔷", image: "rombo" },
+      { id: "hexagono", spanish: "el hexágono", english: "the hexagon", emoji: "🔶", image: "hexagono" },
+      { id: "estrella-forma", spanish: "la estrella", english: "the star", emoji: "⭐", image: "estrella-forma" },
+      { id: "corazon-forma", spanish: "el corazón", english: "the heart", emoji: "❤️", image: "corazon-forma" },
+      { id: "cruz", spanish: "la cruz", english: "the cross", emoji: "➕", image: "cruz" },
+      { id: "flecha", spanish: "la flecha", english: "the arrow", emoji: "➡️", image: "flecha" },
+      { id: "espiral", spanish: "la espiral", english: "the spiral", emoji: "🌀", image: "espiral" },
+    ],
+  },
+  {
+    // A position has no picture of its own — only a subject and a landmark.
+    // Every card is therefore the same drawing, a cat and a box, with the cat
+    // moved; that repetition is what teaches the word, and it is why the deck
+    // could not exist as emoji (⬆️ vs 🔝, ⬇️ vs 👇 are one picture to a
+    // three-year-old). The words stay bare and take estar, so the games ask
+    // "¿Está dentro?" and "¿Quién está dentro?" — and "quién" is right,
+    // because the thing being placed is a cat.
+    id: "posiciones",
+    nameSpanish: "¿Dónde está?",
+    nameEnglish: "Where is it?",
+    emoji: "📦",
+    cards: [
+      { id: "arriba", spanish: "arriba", english: "up", emoji: "⬆️", image: "arriba", usesEstar: true },
+      { id: "abajo", spanish: "abajo", english: "down", emoji: "⬇️", image: "abajo", usesEstar: true },
+      { id: "dentro", spanish: "dentro", english: "inside", emoji: "📥", image: "dentro", usesEstar: true },
+      { id: "fuera", spanish: "fuera", english: "outside", emoji: "📤", image: "fuera", usesEstar: true },
+      { id: "encima", spanish: "encima", english: "on top", emoji: "🔝", image: "encima", usesEstar: true },
+      { id: "debajo", spanish: "debajo", english: "underneath", emoji: "👇", image: "debajo", usesEstar: true },
+      { id: "delante", spanish: "delante", english: "in front", emoji: "⏩", image: "delante", usesEstar: true },
+      { id: "detras", spanish: "detrás", english: "behind", emoji: "⏪", image: "detras", usesEstar: true },
+      { id: "al-lado", spanish: "al lado", english: "next to", emoji: "↔️", image: "al-lado", usesEstar: true },
+      // "entre" cannot stand alone — "¿Está entre?" asks between what — so
+      // the deck teaches the form a kid can answer with one picture.
+      { id: "en-medio", spanish: "en medio", english: "in the middle", emoji: "🎯", image: "en-medio", usesEstar: true },
+      { id: "cerca", spanish: "cerca", english: "near", emoji: "🔎", image: "cerca", usesEstar: true },
+      { id: "lejos", spanish: "lejos", english: "far", emoji: "🔭", image: "lejos", usesEstar: true },
+    ],
+  },
+  {
     // The day a kid actually lives, in infinitives — and the pack's first
     // verb deck that PLAYS. The verbs shelf is learnOnly because the built
     // claim ("¿Es un desayunar?") is nonsense; here every card overrides both

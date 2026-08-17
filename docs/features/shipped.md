@@ -1,5 +1,55 @@
 # Shipped features
 
+## 2026-08-17 — 🔺 Formas y lugares: two decks drawn whole
+
+**For:** both kids, from the parent's ask — "I want my kids to learn shapes
+(cuadrado, triángulo…) and positions (arriba, abajo…)."
+
+**What shipped:** a tenth home shelf, **Formas y lugares 🔺**, holding **Las
+formas** (12), **¿Dónde está? 📦** (12), and **Alto o bajo 📏**, moved over from
+¿Cómo soy?. Pack is now 43 decks / 504 words public, 44 / 516 with El misterio.
+
+- **Both new decks are drawn, all 24 cards.** ADR 015 added card art for words
+  emoji has *no glyph for*; these are the other case — emoji has glyphs and they
+  mis-teach. A shape deck is a lesson in controlled variation, only the geometry
+  changing, and emoji shapes vary everything else instead (⭕ a hollow ring, 🔺 a
+  solid fill, ⬜ an outline, 💎 a shaded gem) while rectángulo, óvalo and
+  hexágono have no glyph at all. So every shape shares one fill, one stroke and
+  one weight, and only the geometry differs. ADR 015 anticipated this
+  ("the way out is drawing the rest") — no new decision, a wider reading of
+  "cannot show".
+- **A position is not a picture, it is a scene.** Nothing depicts *dentro* on
+  its own; what teaches it is a subject and a landmark. All twelve cards are one
+  drawing — the same cat, the same box, the cat moved — built from a shared
+  scene kit (`apps/web/src/card-art/posicion-scene.tsx`) so the deck reads as
+  one hand and a tweak to the cat lands on all twelve at once. As emoji the deck
+  was unbuildable: ⬆️ vs 🔝 and ⬇️ vs 👇 are one picture to a three-year-old, and
+  a picture-only round dealing both is unanswerable.
+- **Telling the near-identical pairs apart was the design work.** *arriba* and
+  *abajo* get a shelf, so "up high" is a different picture from "on top of";
+  *debajo* puts the box on legs, so there is an underneath to be in; *delante*
+  and *detrás* are the same composition in opposite draw order; *fuera* shows
+  the empty box it is not in; *cerca* and *lejos* are a matched pair measured by
+  a dashed run along the floor, short and long, which is what keeps *cerca* from
+  being *al lado*.
+- **No new question overrides.** Shapes are countable nouns, so the built
+  phrasing already reads native ("¿Es un círculo?", "¿Dónde está el círculo?").
+  Positions are bare and take `usesEstar`, which yields "¿Está dentro?" and
+  "¿Quién está dentro?" — and *quién* is right, because the thing being placed
+  is a cat. The deck teaches **en medio** rather than *entre*: "¿Está entre?"
+  asks between what and cannot be answered from one picture.
+- **The 9-shelf home cap went to 10**, the first raise that costs nothing in
+  layout — the ninth tile had been ending a row alone, and the tenth re-pairs
+  it. **Alto o bajo moved** to make the three-deck minimum: a size is a spatial
+  idea, and it only ever sat on ¿Cómo soy? for want of a shelf about space.
+  ¿Cómo soy? is back to 5 with room again.
+
+**Where:** `starter-pack.ts`, `deck-groups.ts`, 24 new components in
+`apps/web/src/card-art/` plus the scene kit, `lib/card-art.ts`,
+`lib/deck-theme.ts`. Verified on a prod build: ten shelf tiles in even rows, all
+24 drawings looked at on a contact sheet, a picture-only quiz round on each deck
+(it dealt *cerca* against *al lado* and stayed answerable), no console errors.
+
 ## 2026-08-13 — El globo is for both kids
 
 **For:** the pre-reader, from the parent's list (`docs/bugs.md`) — "ensure the
