@@ -71,11 +71,13 @@ No reading, no accounts, no setup.
   back to where I left off"); the others are inert marks, which gates nothing
   because the shelf grid directly below still reaches all ten in one tap. Shelf tiles and deck tiles carry the same story up
   close: pips for how far in a kid is, 👉 on the one next thing, ⭐ on what's
-  done. Inside a deck, the game menu shows the step broken out — ⭐ on each
-  game already finished, ○ on each one still to do, an `n/6` count under the
-  deck's name, and deliberately **no** badge on the games that earn no sticker
-  (el duelo, el reto, the letter games), so a badge never promises progress it
-  can't deliver. A deck's step is complete only when **every** activity that kid can earn
+  done. Inside a deck, the game menu shows the step broken out — ○ still
+  to do, then ⭐ played, 🥈 replayed three times, 🥇 five (the album's own
+  tiers, off the same ledger) — plus an `n/6` count under the deck's name, and
+  deliberately **no** badge on the games that earn no sticker (el duelo, el
+  reto, the letter games), so a badge never promises progress it can't deliver.
+  A step still completes on the first play-through: the medals show depth
+  without slowing the route down. A deck's step is complete only when **every** activity that kid can earn
   on it is done (6 of 6 — flashcards-only verb decks at 1), the same bar as the
   album's category medal. The daily misión says which *activity*; el camino says
   which *content*. Progress is derived from the sticker album — no new storage,

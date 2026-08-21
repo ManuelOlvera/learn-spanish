@@ -80,6 +80,17 @@ cut got wrong, both fixed before the kids saw it:
   is directly below with all ten shelves on it, one tap, exactly as before el
   camino existed. So nothing is gated: see ADR 016.
 
+- **The badge now shows depth, not just done.** The parent asked whether a step
+  should need *gold* (5 play-throughs) — "that kind of proves you might be ready
+  to move on". The numbers said no on its own: gold would take the route from
+  ~250 play-throughs to ~1,245, roughly 60 hours, and the animals shelf alone to
+  ~150 sessions. It also measures the wrong thing — gold counts repetitions, not
+  knowledge, and the app already measures readiness properly (a word is learned
+  at two correct answers, ADR 012, shown per shelf in `/informe`). What landed
+  instead: the badge carries the album's tier — ○ pending, ⭐ played, 🥈 at
+  three, 🥇 at five — so depth is visible on the game menu, while a step still
+  completes on the first play-through and the route keeps moving.
+
 **Deferred (not dropped, parked on roadmap #22):** a dedicated `/camino` map
 screen · a step per game rather than per deck · mastery or an end-of-step quiz
 as the completion rule · any locking or dimming · stars or a medal for finishing

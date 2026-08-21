@@ -7,6 +7,7 @@ import {
   KID_GAME_MODES,
   sopaDifficulties,
   stickerId,
+  stickerTier,
   trailActivities,
   type ActivityId,
   type Deck,
@@ -14,6 +15,7 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
+import { getStickerCounts } from "@/lib/economy";
 import { getAvatar, getSelectedKid, KID_META } from "@/lib/kid";
 
 interface Props {
@@ -174,6 +176,21 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
 /** A mode's route is its activity id with the slash swapped for a dash
  *  ("quiz/listen" → "quiz-listen"), which is how the album already keys its
  *  stickers. Routes with no sticker (el duelo, el reto) simply never match. */
+/** The badge for each tier: nothing yet, played, replayed 3×, replayed 5×. */
+const TIER_GLYPH: Record<ReturnType<typeof stickerTier>, string> = {
+  none: "",
+  earned: "⭐",
+  silver: "🥈",
+  gold: "🥇",
+};
+
+const TIER_LABEL: Record<ReturnType<typeof stickerTier>, string> = {
+  none: "pendiente",
+  earned: "terminado",
+  silver: "plata",
+  gold: "oro",
+};
+
 function activityForHref(href: string): ActivityId {
   return href.replace("/", "-") as ActivityId;
 }
@@ -183,6 +200,9 @@ export function GameMenu({ deck, accent }: Props) {
   // Which of this deck's activities this kid has already finished — the
   // stickers themselves, so the ⭐ here and the ⭐ on el camino agree.
   const [earned, setEarned] = useState<ReadonlySet<string>>(new Set());
+  // Completion counts behind those stickers — the same ledger the album tiers
+  // from, so a 🥇 here and a 🥇 in the album are the same fact.
+  const [counts, setCounts] = useState<Readonly<Record<string, number>>>({});
 
   useEffect(() => {
     setKid(getSelectedKid());
@@ -201,6 +221,7 @@ export function GameMenu({ deck, accent }: Props) {
         }
       })
       .catch((err: unknown) => log.error("album", "failed to load", { err }));
+    setCounts(getStickerCounts());
     return () => {
       cancelled = true;
     };
@@ -219,6 +240,16 @@ export function GameMenu({ deck, accent }: Props) {
       ? 0
       : stepActivities.filter((a) => earned.has(stickerId(kid, deck.id, a)))
           .length;
+
+  /** How deep this kid has gone on one activity. A sticker earned before the
+   *  tier system has no count — the album reads that as one, so we do too. */
+  function tierOf(activity: ActivityId): ReturnType<typeof stickerTier> {
+    if (!kid) {
+      return "none";
+    }
+    const id = stickerId(kid, deck.id, activity);
+    return stickerTier(counts[id] ?? (earned.has(id) ? 1 : 0));
+  }
 
   return (
     <main
@@ -293,28 +324,27 @@ export function GameMenu({ deck, accent }: Props) {
                   // Only the six that make up the deck's step are badged. El
                   // duelo, el reto and the letter games earn no sticker, so a
                   // badge on them would promise progress they can't deliver.
-                  const counts = stepActivities.includes(activity);
-                  const done =
-                    kid !== null &&
-                    earned.has(stickerId(kid, deck.id, activity));
+                  const inStep = stepActivities.includes(activity);
+                  const tier = tierOf(activity);
                   return (
                     <Link
                       key={mode.href}
                       href={`/deck/${deck.id}/${mode.href}`}
                       aria-label={`${mode.label} — ${deck.nameEnglish}${
-                        counts ? (done ? " — terminado" : " — pendiente") : ""
+                        inStep ? ` — ${TIER_LABEL[tier]}` : ""
                       }`}
                       className="sticker relative flex h-20 w-20 items-center justify-center text-4xl active:translate-x-1 active:translate-y-1 active:shadow-none"
                     >
                       {mode.glyph}
-                      {/* ⭐ done, ○ still to do — a mark, never a lock: both
-                          buttons play, and a finished one plays again. */}
-                      {counts && (
+                      {/* ○ still to do, then ⭐ → 🥈 → 🥇 as it is replayed.
+                          A mark, never a lock: every button plays, and a
+                          finished one plays again — which is how it levels. */}
+                      {inStep && (
                         <span
                           aria-hidden
                           className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border-4 border-ink bg-white text-base"
                         >
-                          {done ? "⭐" : ""}
+                          {TIER_GLYPH[tier]}
                         </span>
                       )}
                     </Link>
