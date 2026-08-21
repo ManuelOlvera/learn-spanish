@@ -6,9 +6,14 @@ import {
   globoDifficulties,
   KID_GAME_MODES,
   sopaDifficulties,
+  stickerId,
+  trailActivities,
+  type ActivityId,
   type Deck,
   type KidId,
 } from "@learn-spanish/core";
+import { log } from "@learn-spanish/config";
+import { getAlbum } from "@/lib/client-container";
 import { getAvatar, getSelectedKid, KID_META } from "@/lib/kid";
 
 interface Props {
@@ -166,18 +171,54 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
   ];
 }
 
+/** A mode's route is its activity id with the slash swapped for a dash
+ *  ("quiz/listen" → "quiz-listen"), which is how the album already keys its
+ *  stickers. Routes with no sticker (el duelo, el reto) simply never match. */
+function activityForHref(href: string): ActivityId {
+  return href.replace("/", "-") as ActivityId;
+}
+
 export function GameMenu({ deck, accent }: Props) {
   const [kid, setKid] = useState<KidId | null | undefined>(undefined);
+  // Which of this deck's activities this kid has already finished — the
+  // stickers themselves, so the ⭐ here and the ⭐ on el camino agree.
+  const [earned, setEarned] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => {
     setKid(getSelectedKid());
   }, []);
+
+  useEffect(() => {
+    if (!kid) {
+      return;
+    }
+    let cancelled = false;
+    getAlbum
+      .execute(kid)
+      .then((ids) => {
+        if (!cancelled) {
+          setEarned(new Set(ids));
+        }
+      })
+      .catch((err: unknown) => log.error("album", "failed to load", { err }));
+    return () => {
+      cancelled = true;
+    };
+  }, [kid]);
 
   if (kid === undefined) {
     return <main className="min-h-dvh" aria-hidden />;
   }
 
   const games = gamesFor(kid, deck);
+  // The deck's step on el camino: how many of the activities this kid can earn
+  // are done. Only meaningful once a kid is picked.
+  const stepActivities = kid === null ? [] : trailActivities(deck, kid);
+  const stepDone =
+    kid === null
+      ? 0
+      : stepActivities.filter((a) => earned.has(stickerId(kid, deck.id, a)))
+          .length;
 
   return (
     <main
@@ -211,6 +252,19 @@ export function GameMenu({ deck, accent }: Props) {
             {deck.nameSpanish}
           </h1>
           <p className="text-lg font-semibold text-ink/50">{deck.nameEnglish}</p>
+          {/* This deck's stop on el camino, counted in the same stickers the
+              route counts — so the ⭐s below and the pips on the shelf agree. */}
+          {kid !== null && stepActivities.length > 0 && (
+            <p
+              className="mt-2 inline-flex items-center gap-1.5 rounded-full border-4 border-ink bg-white px-3 py-1 text-lg font-extrabold"
+              aria-label={`${stepDone} de ${stepActivities.length} juegos terminados`}
+            >
+              <span aria-hidden>⭐</span>
+              <span aria-hidden>
+                {stepDone}/{stepActivities.length}
+              </span>
+            </p>
+          )}
         </div>
 
         <div className="flex w-full max-w-md flex-col gap-5">
@@ -234,16 +288,38 @@ export function GameMenu({ deck, accent }: Props) {
                 </span>
               </div>
               <div className="flex gap-3">
-                {game.modes.map((mode) => (
-                  <Link
-                    key={mode.href}
-                    href={`/deck/${deck.id}/${mode.href}`}
-                    aria-label={`${mode.label} — ${deck.nameEnglish}`}
-                    className="sticker flex h-20 w-20 items-center justify-center text-4xl active:translate-x-1 active:translate-y-1 active:shadow-none"
-                  >
-                    {mode.glyph}
-                  </Link>
-                ))}
+                {game.modes.map((mode) => {
+                  const activity = activityForHref(mode.href);
+                  // Only the six that make up the deck's step are badged. El
+                  // duelo, el reto and the letter games earn no sticker, so a
+                  // badge on them would promise progress they can't deliver.
+                  const counts = stepActivities.includes(activity);
+                  const done =
+                    kid !== null &&
+                    earned.has(stickerId(kid, deck.id, activity));
+                  return (
+                    <Link
+                      key={mode.href}
+                      href={`/deck/${deck.id}/${mode.href}`}
+                      aria-label={`${mode.label} — ${deck.nameEnglish}${
+                        counts ? (done ? " — terminado" : " — pendiente") : ""
+                      }`}
+                      className="sticker relative flex h-20 w-20 items-center justify-center text-4xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+                    >
+                      {mode.glyph}
+                      {/* ⭐ done, ○ still to do — a mark, never a lock: both
+                          buttons play, and a finished one plays again. */}
+                      {counts && (
+                        <span
+                          aria-hidden
+                          className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full border-4 border-ink bg-white text-base"
+                        >
+                          {done ? "⭐" : ""}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}

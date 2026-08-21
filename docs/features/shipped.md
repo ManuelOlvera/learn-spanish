@@ -58,6 +58,16 @@ cut got wrong, both fixed before the kids saw it:
   also lands somewhere better than it started — a step is now exactly the
   album's category completion, so ⭐ and 🥉 stop being two different bars.
 
+- **"When I go inside the deck I can't see what's still pending."** The pips
+  count but don't name: they say 2 of 6, never *which* two, and the game menu —
+  the screen where a kid actually chooses — said nothing at all, so the only way
+  to see what was left was the album. The menu now carries the step broken out:
+  ⭐ on each finished game, ○ on each one still to do, and an `n/6` count under
+  the deck name. Only the six that make up the step are badged; el duelo, el
+  reto and the letter games stay bare, because a badge on a game that earns no
+  sticker would promise progress it can't deliver — which also makes it visible,
+  for the first time, *which* games move the route.
+
 **Deferred (not dropped, parked on roadmap #22):** a dedicated `/camino` map
 screen · a step per game rather than per deck · mastery or an end-of-step quiz
 as the completion rule · any locking or dimming · stars or a medal for finishing
