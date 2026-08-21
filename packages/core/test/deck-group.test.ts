@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { StaticDeckGroupRepository } from "../src/infrastructure/static-deck-group-repository";
 import { StaticDeckRepository } from "../src/infrastructure/static-deck-repository";
 import { ListDeckGroupsUseCase } from "../src/application/list-deck-groups";
+import {
+  groupsInTrailOrder,
+  TRAIL_GROUP_ORDER,
+} from "../src/infrastructure/deck-groups";
 
 const groups = new StaticDeckGroupRepository();
 const decks = new StaticDeckRepository();
@@ -77,5 +81,34 @@ describe("ListDeckGroupsUseCase", () => {
     await expect(useCase.execute()).resolves.toEqual(
       await groups.listGroups(),
     );
+  });
+});
+
+describe("el camino's shelf order", () => {
+  it("places every shelf on the ladder exactly once", async () => {
+    const ids = (await groups.listGroups()).map((g) => g.id);
+    expect([...TRAIL_GROUP_ORDER].sort()).toEqual([...ids].sort());
+  });
+
+  it("starts the route at the animals and ends it at the verbs", async () => {
+    const ordered = groupsInTrailOrder(await groups.listGroups());
+    expect(ordered[0]!.id).toBe("animales");
+    expect(ordered.at(-1)!.id).toBe("verbos");
+  });
+
+  it("drops a shelf nobody placed to the end instead of losing it", () => {
+    const stray = {
+      id: "sin-ladera",
+      nameSpanish: "x",
+      nameEnglish: "x",
+      emoji: "❓",
+      deckIds: [],
+    };
+    const ordered = groupsInTrailOrder([
+      stray,
+      { ...stray, id: "letras" },
+      { ...stray, id: "animales" },
+    ]);
+    expect(ordered.map((g) => g.id)).toEqual(["animales", "letras", "sin-ladera"]);
   });
 });

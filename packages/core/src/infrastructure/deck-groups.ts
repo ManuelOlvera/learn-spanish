@@ -95,3 +95,37 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     deckIds: ["dias-semana", "meses", "la-hora", "dia-noche", "estaciones"],
   },
 ];
+
+/**
+ * El camino's shelf order — easy → hard, and deliberately *not* the home
+ * screen's order above. Home is arranged for browsing (what a kid recognises
+ * fastest sits first); this is the learning ladder: the concrete and nameable
+ * before the abstract, and reading last.
+ *
+ * Every shelf must appear exactly once — the content tests enforce it, so a
+ * new shelf that nobody placed on the ladder fails the build.
+ */
+export const TRAIL_GROUP_ORDER: readonly string[] = [
+  "animales",
+  "numeros-colores",
+  "casa",
+  "como-soy",
+  "formas-lugares",
+  "jugar",
+  "mundo",
+  "calendario",
+  "letras",
+  "verbos",
+];
+
+/** The shelves in camino order. A shelf missing from the ladder falls to the
+ *  end rather than vanishing — the route must never silently drop content. */
+export function groupsInTrailOrder(
+  groups: readonly DeckGroup[],
+): readonly DeckGroup[] {
+  const rank = (group: DeckGroup): number => {
+    const at = TRAIL_GROUP_ORDER.indexOf(group.id);
+    return at === -1 ? TRAIL_GROUP_ORDER.length : at;
+  };
+  return [...groups].sort((a, b) => rank(a) - rank(b));
+}

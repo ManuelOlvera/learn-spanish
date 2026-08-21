@@ -5,6 +5,7 @@ import { listDeckGroups, listDecks } from "@/lib/container";
 import { deckAccent } from "@/lib/deck-theme";
 import { AdivinaShelfTile } from "@/components/AdivinaShelfTile";
 import { LetterCasePicker } from "@/components/LetterCasePicker";
+import { ShelfDeckGrid } from "@/components/ShelfDeckGrid";
 
 export async function generateStaticParams() {
   const groups = await listDeckGroups.execute();
@@ -66,29 +67,12 @@ export default async function GroupPage({
         {group.id === "letras" && <LetterCasePicker />}
 
         <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
-          {decks.map((deck, i) => (
-            <Link
-              key={deck.id}
-              href={`/deck/${deck.id}`}
-              style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
-              className="sticker pop-in relative flex min-h-44 flex-col items-center justify-center gap-2 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
-            >
-              <span aria-hidden className="sticker-peel" />
-              <span
-                aria-hidden
-                className="text-6xl sm:text-7xl"
-                style={{ animationDelay: `${i * 60}ms` }}
-              >
-                {deck.emoji}
-              </span>
-              <span className="text-center text-xl font-bold sm:text-2xl">
-                {deck.nameSpanish}
-              </span>
-              <span className="text-sm font-semibold text-ink/50">
-                {deck.nameEnglish}
-              </span>
-            </Link>
-          ))}
+          <ShelfDeckGrid
+            decks={decks}
+            groupId={group.id}
+            allGroups={groups}
+            allDecks={allDecks}
+          />
           {hasAdivina && <AdivinaShelfTile groupId={group.id} />}
           {group.id === "letras" && (
             <Link

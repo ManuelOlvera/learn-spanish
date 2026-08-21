@@ -1,5 +1,51 @@
 # Shipped features
 
+## 2026-08-22 — 🧭 El camino: a guided route that never locks
+
+**For:** both kids, from the parent's ask — "we need to guide them through the
+learning; is there a way to keep free choice but also have guided learning
+similar to Duolingo?" Settles roadmap #22, parked since 2026-07-15.
+
+**What shipped:** a route through the pack at two zoom levels, drawn on the two
+screens that already existed. No new page.
+
+- **Home** — every shelf tile grows a row of pips (one per deck, filled when
+  that deck's step is done); the next shelf on the ladder wears a 👉 and a
+  finished one wears a ⭐. The deck-emoji preview row stays: it is how the kids
+  recognise a shelf, and the route is not allowed to cost picture navigation.
+- **The shelf screen** — its decks are the path, in pack order, each with pips
+  for how many of its activities are done, the next one badged 👉, the finished
+  ones ⭐.
+- **A step is a deck**, complete at **3 of the 6 activities that kid can earn**
+  (`learn` plus their own difficulty's variant of each game). The three
+  learn-only verb decks offer flashcards alone, so their step is one deep —
+  otherwise the verbs shelf could never be finished.
+- **The ladder** (`TRAIL_GROUP_ORDER`) runs animales → números y colores → mi
+  casa → ¿cómo soy? → formas y lugares → jugar y aprender → el mundo → el
+  calendario → las letras → los verbos: concrete before abstract, reading last.
+  A content test pins every shelf onto it exactly once.
+
+**The two questions roadmap #22 said had to be settled first** — *one trail or
+one per shelf?* Both, because they are one mechanism at two levels: the shelves
+are the spine, each shelf's decks are its own short path. *How does it sit next
+to free play?* It never locks, dims, or hides anything, and it adds no screen —
+see ADR 016. The daily misión still answers "which activity"; the camino answers
+the question it never could, "which content".
+
+**Where:** `domain/trail.ts` (pure — steps, fills, the next stop) and the ladder
+beside the shelves in `infrastructure/deck-groups.ts`; `apps/web` gets
+`useCamino`, `TrailMarks`, and `ShelfDeckGrid` (the shelf screen's deck tiles,
+now client-side because the route is read from the browser's album). **No use
+case and no store**: progress is derived from the album on every read, so there
+is no new localStorage key, no migration, and nothing added to sync (ADR 016).
+
+**Deferred (not dropped, parked on roadmap #22):** a dedicated `/camino` map
+screen · reordering home to match the ladder, so the route reads as a path
+rather than a pointer · a step per game rather than per deck · mastery or an
+end-of-step quiz as the completion rule · any locking or dimming · stars or a
+medal for finishing a shelf's path (album medals already fire on category
+completion) · frases, cuentos and the secret deck as steps.
+
 ## 2026-08-17 — 🔺 Formas y lugares: two decks drawn whole
 
 **For:** both kids, from the parent's ask — "I want my kids to learn shapes

@@ -51,6 +51,8 @@ import { SecretDeckTile } from "@/components/SecretDeckTile";
 import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
+import { TrailBadge, TrailPips } from "@/components/TrailMarks";
+import { useCamino } from "@/lib/use-camino";
 
 interface Props {
   decks: readonly Deck[];
@@ -88,6 +90,10 @@ export function HomeView({ decks, groups }: Props) {
   // render (the filter would otherwise mint a fresh array identity each time).
   const publicDecks = useMemo(() => decks.filter((d) => !d.secret), [decks]);
   const secretDecks = useMemo(() => decks.filter((d) => d.secret), [decks]);
+
+  // El camino: how far this kid has come along the route, and the one shelf
+  // that is next. Derived from the album, so it costs no new storage.
+  const camino = useCamino(groups, publicDecks, kid, syncNonce);
 
   useEffect(() => {
     warmUpVoices();
@@ -389,6 +395,7 @@ export function HomeView({ decks, groups }: Props) {
             const deck = decks.find((d) => d.id === id);
             return deck ? [deck] : [];
           });
+          const shelf = camino?.shelves.find((s) => s.groupId === group.id);
           return (
             <Link
               key={group.id}
@@ -397,6 +404,11 @@ export function HomeView({ decks, groups }: Props) {
               className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
             >
               <span aria-hidden className="sticker-peel" />
+              {/* El camino: this shelf is the next stop, or it's finished. */}
+              {camino !== null && group.id === camino.nextGroupId && (
+                <TrailBadge state="next" />
+              )}
+              {shelf?.complete === true && <TrailBadge state="done" />}
               <span
                 aria-hidden
                 className="text-5xl sm:text-6xl"
@@ -413,6 +425,13 @@ export function HomeView({ decks, groups }: Props) {
               <span aria-hidden className="text-base tracking-wide">
                 {previews.map((d) => d.emoji).join(" ")}
               </span>
+              {shelf !== undefined && (
+                <TrailPips
+                  filled={shelf.doneSteps}
+                  total={shelf.steps.length}
+                  label={`${group.nameSpanish}, mazos terminados`}
+                />
+              )}
             </Link>
           );
         })}

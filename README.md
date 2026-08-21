@@ -63,6 +63,15 @@ No reading, no accounts, no setup.
 - **Game feel** — synthesized sounds (tones *and* filtered noise, so El globo
   can inflate, hiss and pop without a single audio file), haptics, confetti,
   and a ⚡ racha burst at 3/5/10 correct in a row.
+- **El camino** — a guided route through the pack that never locks anything:
+  the shelves in learning order, and inside each one its decks in order. Every
+  shelf tile and deck tile shows pips for how far in a kid is, a 👉 marks the
+  one next thing, a ⭐ marks what's done. A deck's step fills as its activities
+  are played (3 of the 6 a kid can earn; flashcards-only verb decks at 1). The
+  daily misión says which *activity*; el camino says which *content*. Progress
+  is derived from the sticker album — no new storage, nothing extra to sync
+  (ADR 016) — and free picture-navigation is untouched: nothing is dimmed,
+  gated, or hidden.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward
   missed words; a 🔁 "El repaso" chip appears on home when ≥3 words
   struggle. Special avatars unlock by sticker count and streaks.

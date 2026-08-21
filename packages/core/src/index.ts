@@ -174,6 +174,12 @@ export {
   pendingCategoryTier,
   tierRank,
 } from "./domain/category";
+export type { Camino, TrailShelf, TrailStep } from "./domain/trail";
+export { buildCamino, trailActivities, TRAIL_STEP_TARGET } from "./domain/trail";
+export {
+  groupsInTrailOrder,
+  TRAIL_GROUP_ORDER,
+} from "./infrastructure/deck-groups";
 export type {
   Sentence,
   SentenceGame,

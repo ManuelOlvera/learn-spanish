@@ -232,20 +232,40 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     three long-deferred items at once: quiz sentence prompts ("Toca el animal
     que dice muu", item 2), sí-o-no sentence claims ("El plátano es rojo —
     ¿sí o no?", item 4), and per-level daily cards (item 10).
-22. ☐ **A Duolingo-like trail** — the parent's idea (2026-07-15, from
-    `bugs.md`): a path the kids work through, easy → hard, *without* losing
-    what's there today. Parked, not shaped — pick it up only if free
-    navigation starts feeling directionless. Run `/shape` first; the two
-    questions it must settle:
-    - **One trail, or one per shelf?** A single spine is simpler and always
-      has an obvious "next", but the kids can't follow an interest. Per-shelf
-      trails let them chase animals or letters, but progress fragments and
-      every shelf needs its own difficulty ordering.
-    - **How does it sit next to free play?** A trail is a *prescribed* order,
-      and this app is built on navigating freely by picture — plus the daily
-      misión already answers "what do I do now". A trail risks becoming a
-      second, louder home screen and quietly demoting both. It has to be
-      additive, or it isn't worth building.
+22. ☑ **A Duolingo-like trail** — shipped 2026-08-22 as **El camino 🧭**
+    (shaped the same day; see `shipped.md` and ADR 016). Both questions this
+    item said had to be settled, and how they landed:
+    - **One trail, or one per shelf?** *Both* — they turned out to be one
+      mechanism at two zoom levels: the shelves are the spine
+      (`TRAIL_GROUP_ORDER`), and each shelf's decks are its own short path.
+      The fragmentation worry didn't bite because the shelf is already the
+      home screen's unit, and the per-shelf ordering work the item feared
+      cost nothing: deck order inside a shelf is the pack's own order.
+    - **How does it sit next to free play?** It never locks, dims or hides
+      anything, and it adds **no screen** — the route is drawn on the home
+      tiles and the shelf screen that already existed, which is what kept it
+      from becoming the second, louder home screen. The misión still answers
+      "which activity"; the camino answers "which content", which the misión
+      never did.
+    Deferred out of the slice, in rough order of appeal:
+    - ☐ **Reorder home to match the ladder** — home keeps its browsing order,
+      so the global route shows as a 👉 pointer rather than a readable path.
+      Matching them would make the spine visible at a glance; it was left out
+      because it moves tiles the kids already know by position.
+    - ☐ **A step per game, not per deck** — finer progress, but 44 decks × 12
+      games is a spreadsheet, not a trail.
+    - ☐ **Mastery or an end-of-step check as the completion rule** — more
+      meaningful than "played three of them", and the reason it was cut is in
+      ADR 016: mastery can stall a kid mid-route, which is the failure the
+      never-locks rule exists to avoid.
+    - ☐ **A reward for finishing a shelf's path or the whole camino** — album
+      medals already pay for category completion; a second economy on top of
+      the same act needs its own thinking.
+    - ☐ **A dedicated `/camino` map screen** — the thing kids like about
+      Duolingo is looking at the map. Only worth it if the pips and badges
+      prove too quiet.
+    - ☐ **Frases, cuentos and the secret deck as steps** — the route covers
+      the shelved decks only.
 23. ☑ **Los cuentos — short stories** — the rung above Las frases: connected
     prose, read or heard page by page, then 3–5 comprehension questions.
     Shaped 2026-07-26. *(Shipped 2026-07-26 — six stories, 📚 on home; grown
