@@ -16,10 +16,14 @@ screens that already existed. No new page.
 - **The shelf screen** — its decks are the path, in pack order, each with pips
   for how many of its activities are done, the next one badged 👉, the finished
   ones ⭐.
-- **A step is a deck**, complete at **3 of the 6 activities that kid can earn**
-  (`learn` plus their own difficulty's variant of each game). The three
-  learn-only verb decks offer flashcards alone, so their step is one deep —
-  otherwise the verbs shelf could never be finished.
+- **A step is a deck**, complete when **every activity that kid can earn on it**
+  is done — 6 of 6 (`learn` plus their own difficulty's variant of each game).
+  That is deliberately the album's own bar, so a deck's ⭐ on the route and its
+  🥉 in the album always mean the same thing. The three learn-only verb decks
+  offer flashcards alone, so their step is one deep — otherwise the verbs shelf
+  could never be finished. Every other deck can offer all five games: the
+  content tests hold each at 10–17 cards, above what any game needs to deal a
+  round, so a step can never be stranded uncompletable.
 - **The ladder** (`TRAIL_GROUP_ORDER`) runs animales → números y colores → mi
   casa → ¿cómo soy? → formas y lugares → jugar y aprender → el mundo → el
   calendario → las letras → los verbos: concrete before abstract, reading last.
@@ -34,17 +38,31 @@ the question it never could, "which content".
 
 **Where:** `domain/trail.ts` (pure — steps, fills, the next stop) and the ladder
 beside the shelves in `infrastructure/deck-groups.ts`; `apps/web` gets
-`useCamino`, `TrailMarks`, and `ShelfDeckGrid` (the shelf screen's deck tiles,
-now client-side because the route is read from the browser's album). **No use
+`useCamino`, `TrailMarks`, `CaminoStrip`, and `ShelfDeckGrid` (the shelf
+screen's deck tiles, now client-side because the route is read from the
+browser's album). **No use
 case and no store**: progress is derived from the album on every read, so there
 is no new localStorage key, no migration, and nothing added to sync (ADR 016).
 
+**Corrected the same day, on the parent's first look** — two things the first
+cut got wrong, both fixed before the kids saw it:
+
+- **"I don't see the path on the home page. How do I know where I'm at?"** The
+  first cut put the route only on the tiles, and home keeps its *browsing*
+  order, so the ladder was never actually drawn — it showed as a lone 👉 and
+  nothing else. Hence the **Tu camino** strip. Reordering the home grid to the
+  ladder was the alternative and was not taken: it moves five tiles the kids
+  already find by position, and it still would not have *drawn* a path.
+- **Completion moved from 3 of 6 to 6 of 6.** Three was picked so a shelf would
+  be a week's work rather than a term's; the parent wanted the full deck. It
+  also lands somewhere better than it started — a step is now exactly the
+  album's category completion, so ⭐ and 🥉 stop being two different bars.
+
 **Deferred (not dropped, parked on roadmap #22):** a dedicated `/camino` map
-screen · reordering home to match the ladder, so the route reads as a path
-rather than a pointer · a step per game rather than per deck · mastery or an
-end-of-step quiz as the completion rule · any locking or dimming · stars or a
-medal for finishing a shelf's path (album medals already fire on category
-completion) · frases, cuentos and the secret deck as steps.
+screen · a step per game rather than per deck · mastery or an end-of-step quiz
+as the completion rule · any locking or dimming · stars or a medal for finishing
+a shelf's path (album medals already fire on category completion) · frases,
+cuentos and the secret deck as steps.
 
 ## 2026-08-17 — 🔺 Formas y lugares: two decks drawn whole
 

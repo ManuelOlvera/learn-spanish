@@ -24,9 +24,11 @@ the worst failure mode here: the kid who loves the animals deck gets shut out of
 rule she cannot read. So the route persuades (a 👉 on one tile) and never forbids. El
 misterio locks a *bonus* deck for stars; that is not precedent for gating core content.
 
-*What stores the progress?* A step is "played three of this deck's activities", and the
-album already records exactly that, per kid, keyed `kid:deck:activity` — and it already
-syncs, additively, under ADR 004. Minting a parallel record of the same fact would buy a
+*What stores the progress?* A step is "played every one of this deck's activities",
+which is the album's own category completion — the album already records exactly that, per
+kid, keyed `kid:deck:activity`, and it already syncs additively under ADR 004. Pinning the
+two together means a deck's ⭐ on the route and its 🥉 medal in the album can never drift
+into meaning different things. Minting a parallel record of the same fact would buy a
 new storage key, a migration, a merge rule, and two sources of truth that can disagree.
 Deriving costs one pass over a few hundred sticker ids on render.
 
@@ -46,8 +48,10 @@ where it is useful and unhurried — the parent's `/informe`.
 - The shelf ladder (`TRAIL_GROUP_ORDER`) is content curation, so it lives beside the
   shelves in `infrastructure` and is pinned by a content test: a new shelf that nobody
   placed on the ladder fails the build rather than silently vanishing from the route.
-- The route's order is **not** the home screen's order, so home shows a "next" pointer
-  rather than a readable path. Reordering home to match is the obvious follow-up and was
-  left out deliberately — it moves tiles the kids already know by position.
+- The route's order is **not** the home screen's order (home is arranged for browsing), so
+  the ladder needs a surface of its own to be seen: the **Tu camino** strip. Reordering the
+  home grid to match was the alternative and was rejected — it moves tiles the kids find by
+  position, and a reordered grid still draws no path. The strip is therefore load-bearing,
+  not decoration: without it the global level of the route is invisible.
 - Un-gating means the camino can be ignored entirely, and for a kid who just wants to
   play the animals deck forever, it will be. That is the trade: it is a suggestion.

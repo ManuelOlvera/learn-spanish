@@ -4,11 +4,7 @@ import type { ActivityId } from "../src/domain/album";
 import type { Deck } from "../src/domain/deck";
 import type { DeckGroup } from "../src/domain/deck-group";
 import type { KidId } from "../src/domain/kid";
-import {
-  buildCamino,
-  trailActivities,
-  TRAIL_STEP_TARGET,
-} from "../src/domain/trail";
+import { buildCamino, trailActivities } from "../src/domain/trail";
 import { card } from "./helpers";
 
 function testDeck(id: string, extra: Partial<Deck> = {}): Deck {
@@ -62,20 +58,23 @@ describe("trailActivities", () => {
 });
 
 describe("buildCamino", () => {
-  it("completes a step at the target number of activities", () => {
-    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 3));
-    const step = camino.shelves[0]!.steps[0]!;
-    expect(step).toMatchObject({
+  it("completes a step only when every activity the kid can earn is done", () => {
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 6));
+    expect(camino.shelves[0]!.steps[0]).toMatchObject({
       deckId: "uno",
-      done: 3,
-      target: TRAIL_STEP_TARGET,
+      done: 6,
+      target: 6,
       complete: true,
     });
   });
 
-  it("leaves a step short of the target incomplete", () => {
-    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 2));
-    expect(camino.shelves[0]!.steps[0]).toMatchObject({ done: 2, complete: false });
+  it("leaves a step one activity short incomplete", () => {
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 5));
+    expect(camino.shelves[0]!.steps[0]).toMatchObject({
+      done: 5,
+      target: 6,
+      complete: false,
+    });
   });
 
   it("completes a learn-only deck at its single activity", () => {
@@ -94,15 +93,15 @@ describe("buildCamino", () => {
   });
 
   it("points at the first incomplete deck of the first incomplete shelf", () => {
-    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 3));
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 6));
     expect(camino.nextGroupId).toBe("g1");
     expect(camino.nextDeckId).toBe("dos");
   });
 
   it("skips a finished shelf when picking the next step", () => {
     const earned = [
-      ...stickersFor("listener", uno, 3),
-      ...stickersFor("listener", dos, 3),
+      ...stickersFor("listener", uno, 6),
+      ...stickersFor("listener", dos, 6),
     ];
     const camino = buildCamino(groups, decks, "listener", earned);
     expect(camino.shelves[0]!.complete).toBe(true);
@@ -111,7 +110,7 @@ describe("buildCamino", () => {
   });
 
   it("has no next step once every shelf is done", () => {
-    const earned = [uno, dos, tres].flatMap((d) => stickersFor("listener", d, 3));
+    const earned = [uno, dos, tres].flatMap((d) => stickersFor("listener", d, 6));
     const camino = buildCamino(groups, decks, "listener", earned);
     expect(camino.nextGroupId).toBeNull();
     expect(camino.nextDeckId).toBeNull();
@@ -119,14 +118,14 @@ describe("buildCamino", () => {
   });
 
   it("counts a shelf's finished steps", () => {
-    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 3));
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 6));
     expect(camino.shelves[0]).toMatchObject({ doneSteps: 1, complete: false });
     expect(camino.shelves[0]!.steps).toHaveLength(2);
   });
 
   it("keeps each kid's route independent", () => {
     // The reader has finished "uno"; the listener's own route is untouched.
-    const camino = buildCamino(groups, decks, "listener", stickersFor("reader", uno, 3));
+    const camino = buildCamino(groups, decks, "listener", stickersFor("reader", uno, 6));
     expect(camino.shelves[0]!.steps[0]).toMatchObject({ done: 0, complete: false });
     expect(camino.nextDeckId).toBe("uno");
   });
@@ -153,6 +152,7 @@ describe("buildCamino", () => {
     const camino = buildCamino(groups, decks, "listener", earned);
     expect(camino.shelves[0]!.steps[0]).toMatchObject({ deckId: "uno", done: 0 });
     expect(camino.shelves[0]!.steps[1]).toMatchObject({ deckId: "dos", done: 3 });
+    expect(camino.shelves[0]!.steps[1]!.complete).toBe(false);
     expect(camino.nextDeckId).toBe("uno");
   });
 });

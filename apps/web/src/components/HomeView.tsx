@@ -52,6 +52,7 @@ import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
 import { TrailBadge, TrailPips } from "@/components/TrailMarks";
+import { CaminoStrip } from "@/components/CaminoStrip";
 import { useCamino } from "@/lib/use-camino";
 
 interface Props {
@@ -388,6 +389,10 @@ export function HomeView({ decks, groups }: Props) {
           </span>
         </Link>
       )}
+
+      {/* The ladder on one line: home's grid keeps its browsing order, so the
+          route needs its own place to be seen. */}
+      {camino !== null && <CaminoStrip camino={camino} groups={groups} />}
 
       <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
         {groups.map((group, i) => {

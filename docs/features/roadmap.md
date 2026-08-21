@@ -248,16 +248,22 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       "which activity"; the camino answers "which content", which the misión
       never did.
     Deferred out of the slice, in rough order of appeal:
-    - ☐ **Reorder home to match the ladder** — home keeps its browsing order,
-      so the global route shows as a 👉 pointer rather than a readable path.
-      Matching them would make the spine visible at a glance; it was left out
-      because it moves tiles the kids already know by position.
+    - ✗ **Reorder home to match the ladder** — considered 2026-08-22 when the
+      parent reported the real problem ("I don't see the path in the home
+      page") and **not taken**: it moves five tiles the kids find by position,
+      and a grid in ladder order still isn't a *drawn* path. The **Tu camino
+      strip** was built instead — the whole ladder on one line above the
+      shelves, ⭐ on the finished, the current stop ringed, every stop a live
+      link. Home's browsing order stays. Don't re-propose the reorder without
+      new evidence; the strip is what "see the path" asked for.
     - ☐ **A step per game, not per deck** — finer progress, but 44 decks × 12
       games is a spreadsheet, not a trail.
     - ☐ **Mastery or an end-of-step check as the completion rule** — more
-      meaningful than "played three of them", and the reason it was cut is in
-      ADR 016: mastery can stall a kid mid-route, which is the failure the
-      never-locks rule exists to avoid.
+      meaningful than "played every one of them", and the reason it was cut is
+      in ADR 016: mastery can stall a kid mid-route, which is the failure the
+      never-locks rule exists to avoid. (The 3-of-6 threshold the first cut
+      shipped with became 6-of-6 the same day on the parent's ask, which is a
+      higher bar but still a *plays* bar, not a *knows-it* bar.)
     - ☐ **A reward for finishing a shelf's path or the whole camino** — album
       medals already pay for category completion; a second economy on top of
       the same act needs its own thinking.

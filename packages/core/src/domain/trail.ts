@@ -19,11 +19,6 @@ import type { KidId } from "./kid";
  * deck cannot lose a step, because the sticker that proves it stays earned.
  */
 
-/** Activities that finish a deck's step. Deliberately a fraction of the six a
- *  kid can earn: enough that a step means more than one flick through the
- *  flashcards, few enough that a shelf is a week's work and not a term's. */
-export const TRAIL_STEP_TARGET = 3;
-
 /** One stop on a shelf's path: a deck, and how far into it the kid is. */
 export interface TrailStep {
   readonly deckId: string;
@@ -50,9 +45,15 @@ export interface Camino {
 
 /**
  * The activities that count toward a deck's step for one kid: the shared
- * `learn` plus that kid's own difficulty variant of each game (six in all).
+ * `learn` plus that kid's own difficulty variant of each game (six in all) —
+ * and a step is done only when **every one** of them is. That is deliberately
+ * the same bar as the album's own category completion, so a deck's ⭐ on the
+ * route and its 🥉 in the album always mean the same thing.
+ *
  * A learn-only deck (the verbs shelf) offers flashcards and nothing else, so
  * its step is one activity deep — otherwise it could never be completed.
+ * Every other deck can offer all five games: the content tests hold every deck
+ * at 10–17 cards, comfortably above what any of them needs to deal a round.
  */
 export function trailActivities(deck: Deck, kid: KidId): readonly ActivityId[] {
   return deck.learnOnly ? ["learn"] : activitiesForKid(ALL_ACTIVITIES, kid);
@@ -67,8 +68,12 @@ function stepFor(
   const done = activities.filter((activity) =>
     earned.has(stickerId(kid, deck.id, activity)),
   ).length;
-  const target = Math.min(TRAIL_STEP_TARGET, activities.length);
-  return { deckId: deck.id, done, target, complete: done >= target };
+  return {
+    deckId: deck.id,
+    done,
+    target: activities.length,
+    complete: done === activities.length,
+  };
 }
 
 /**
