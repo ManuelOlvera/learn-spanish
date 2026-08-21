@@ -53,5 +53,12 @@ where it is useful and unhurried — the parent's `/informe`.
   home grid to match was the alternative and was rejected — it moves tiles the kids find by
   position, and a reordered grid still draws no path. The strip is therefore load-bearing,
   not decoration: without it the global level of the route is invisible.
+- **The strip's stops are mostly inert, and that is not a violation of the rule above.**
+  Only the current one is a link; the rest are marks, and the ones ahead are drawn pale.
+  "Never locks" is a claim about *reaching content*, and every shelf remains one tap away
+  in the grid directly below — the strip simply stopped being a duplicate, less legible
+  copy of it. The test to apply to any future change here: could a kid still get to that
+  shelf without the strip's help? While the grid is unchanged, the answer is yes. If the
+  strip ever becomes the *only* way to a shelf, this ADR is broken and needs revisiting.
 - Un-gating means the camino can be ignored entirely, and for a kid who just wants to
   play the animals deck forever, it will be. That is the trade: it is a suggestion.

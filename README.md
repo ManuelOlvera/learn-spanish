@@ -65,9 +65,11 @@ No reading, no accounts, no setup.
   and a ⚡ racha burst at 3/5/10 correct in a row.
 - **El camino** — a guided route through the pack that never locks anything:
   the shelves in learning order, and inside each one its decks in order. A
-  **Tu camino** strip on home draws the whole ladder on one line — every shelf
-  in route order, ⭐ on the finished ones, the current one ringed and bigger, and
-  each stop a live link. Shelf tiles and deck tiles carry the same story up
+  **Tu camino** strip on home draws the whole ladder on one line in three
+  shades — a finished shelf filled lime with a ⭐, the current one white, bigger
+  and ringed, the ones ahead pale. Only the current stop is tappable ("take me
+  back to where I left off"); the others are inert marks, which gates nothing
+  because the shelf grid directly below still reaches all ten in one tap. Shelf tiles and deck tiles carry the same story up
   close: pips for how far in a kid is, 👉 on the one next thing, ⭐ on what's
   done. Inside a deck, the game menu shows the step broken out — ⭐ on each
   game already finished, ○ on each one still to do, an `n/6` count under the

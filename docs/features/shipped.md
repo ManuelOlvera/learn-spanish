@@ -68,6 +68,18 @@ cut got wrong, both fixed before the kids saw it:
   sticker would promise progress it can't deliver — which also makes it visible,
   for the first time, *which* games move the route.
 
+- **"El camino doesn't clearly show what's pending."** The first strip had one
+  shade for everything and leaned on a small ⭐ to say "done", so done and
+  not-yet looked identical at a glance. Now three shades carry it: finished is
+  filled lime with the ⭐, the current stop is white, bigger and ringed, and the
+  stops ahead are pale. Fading the ones ahead is a *progress display*, not a
+  locked door — which is only true because of the change below.
+- **The strip is a progress bar, not a menu.** Only the current stop is
+  tappable now ("take me back to where I left off"); the other nine are inert
+  marks. They were a second, less legible copy of the shelf grid — and that grid
+  is directly below with all ten shelves on it, one tap, exactly as before el
+  camino existed. So nothing is gated: see ADR 016.
+
 **Deferred (not dropped, parked on roadmap #22):** a dedicated `/camino` map
 screen · a step per game rather than per deck · mastery or an end-of-step quiz
 as the completion rule · any locking or dimming · stars or a medal for finishing

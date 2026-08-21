@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { Camino, DeckGroup } from "@learn-spanish/core";
 import { groupsInTrailOrder } from "@learn-spanish/core";
-import { deckAccent } from "@/lib/deck-theme";
 
 interface Props {
   camino: Camino;
@@ -16,9 +15,15 @@ interface Props {
  * glance. The home grid keeps its own browsing order (the kids find shelves by
  * position), so the ladder needs somewhere of its own to be *seen*; this is it.
  *
- * Every stop is a live link, finished or not — the strip shows the route, it
- * never gates it. Nothing is dimmed either: a stop the kid hasn't reached looks
- * exactly like one they have, minus the ⭐ and the ring.
+ * Three shades, so "where am I / what's left" is answerable without reading:
+ * a finished stop is filled lime and wears a ⭐, the current one is white,
+ * bigger and ringed, and a stop still ahead is pale. That last one is a *muted
+ * progress display*, not a locked door — see below.
+ *
+ * Only the current stop is tappable, because the one thing you want from here
+ * is "take me to where I left off"; the other nine would just be a second, less
+ * legible copy of the shelf grid. This gates nothing: that grid sits directly
+ * below with every shelf on it, one tap, exactly as before el camino existed.
  */
 export function CaminoStrip({ camino, groups }: Props) {
   const hereRef = useRef<HTMLAnchorElement>(null);
@@ -52,31 +57,12 @@ export function CaminoStrip({ camino, groups }: Props) {
                   className={`h-1 w-4 sm:w-6 ${done ? "bg-[var(--color-lime-deep)]" : "bg-ink/15"}`}
                 />
               )}
-              <Link
+              <Stop
                 ref={here ? hereRef : undefined}
-                href={`/group/${group.id}`}
-                aria-label={`${group.nameSpanish}${done ? " — terminado" : here ? " — estás aquí" : ""}`}
-                style={{ "--accent": deckAccent(group.id) } as React.CSSProperties}
-                className={`relative flex items-center justify-center rounded-full border-4 border-ink bg-white active:translate-y-0.5 ${
-                  here ? "h-14 w-14 text-3xl" : "h-11 w-11 text-xl"
-                }`}
-              >
-                <span aria-hidden>{group.emoji}</span>
-                {done && (
-                  <span
-                    aria-hidden
-                    className="absolute -right-1 -top-1 text-sm leading-none"
-                  >
-                    ⭐
-                  </span>
-                )}
-                {here && (
-                  <span
-                    aria-hidden
-                    className="absolute -inset-1.5 rounded-full border-4 border-[var(--color-lime-deep)]"
-                  />
-                )}
-              </Link>
+                group={group}
+                done={done}
+                here={here}
+              />
             </div>
           );
         })}
@@ -84,3 +70,65 @@ export function CaminoStrip({ camino, groups }: Props) {
     </section>
   );
 }
+
+interface StopProps {
+  group: DeckGroup;
+  done: boolean;
+  here: boolean;
+}
+
+/**
+ * One stop. The current one is a link ("continue where I left off"); the rest
+ * are inert marks — a kid reaches those shelves from the grid below, which is
+ * where shelf navigation has always lived.
+ */
+const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
+  { group, done, here },
+  ref,
+) {
+  const size = here ? "h-14 w-14 text-3xl" : "h-11 w-11 text-xl";
+  // The three shades: filled = behind you, white = you, pale = ahead.
+  const shade = done
+    ? "border-ink bg-[var(--color-lime)]"
+    : here
+      ? "border-ink bg-white"
+      : "border-ink/25 bg-paper";
+  const face = (
+    <>
+      <span aria-hidden className={here || done ? undefined : "opacity-40"}>
+        {group.emoji}
+      </span>
+      {done && (
+        <span aria-hidden className="absolute -right-1 -top-1 text-sm leading-none">
+          ⭐
+        </span>
+      )}
+      {here && (
+        <span
+          aria-hidden
+          className="absolute -inset-1.5 rounded-full border-4 border-[var(--color-lime-deep)]"
+        />
+      )}
+    </>
+  );
+  const shared = `relative flex shrink-0 items-center justify-center rounded-full border-4 ${size} ${shade}`;
+  const state = done ? "terminado" : here ? "estás aquí" : "pendiente";
+
+  if (!here) {
+    return (
+      <span role="img" aria-label={`${group.nameSpanish} — ${state}`} className={shared}>
+        {face}
+      </span>
+    );
+  }
+  return (
+    <Link
+      ref={ref}
+      href={`/group/${group.id}`}
+      aria-label={`${group.nameSpanish} — ${state}`}
+      className={`${shared} active:translate-y-0.5`}
+    >
+      {face}
+    </Link>
+  );
+});
