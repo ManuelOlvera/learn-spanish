@@ -1,9 +1,10 @@
 import { ALL_ACTIVITIES, stickerId } from "./album";
 import type { ActivityId } from "./album";
-import { activitiesForKid } from "./category";
+import { activitiesForKid, categoryTierFromAlbum, tierRank } from "./category";
 import type { Deck } from "./deck";
 import type { DeckGroup } from "./deck-group";
 import type { KidId } from "./kid";
+import type { StickerTier } from "./sticker-tiers";
 
 /**
  * El camino — the guided route through the pack, at two zoom levels: the
@@ -25,6 +26,9 @@ export interface TrailStep {
   readonly done: number;
   readonly target: number;
   readonly complete: boolean;
+  /** How *deep*: the album's own medal for this deck, so a route mark and the
+   *  album page can never disagree. `none` until the step is complete. */
+  readonly tier: StickerTier;
 }
 
 /** One shelf's path. */
@@ -33,6 +37,9 @@ export interface TrailShelf {
   readonly steps: readonly TrailStep[];
   readonly doneSteps: number;
   readonly complete: boolean;
+  /** The weakest tier among its decks — a shelf is only as gold as its least
+   *  played deck, the same "weakest slot" rule the album uses within a deck. */
+  readonly tier: StickerTier;
 }
 
 /** The whole route, plus the one thing to do next. */
@@ -63,6 +70,7 @@ function stepFor(
   deck: Deck,
   kid: KidId,
   earned: ReadonlySet<string>,
+  counts: Readonly<Record<string, number>>,
 ): TrailStep {
   const activities = trailActivities(deck, kid);
   const done = activities.filter((activity) =>
@@ -73,7 +81,21 @@ function stepFor(
     done,
     target: activities.length,
     complete: done === activities.length,
+    // Deliberately the album's own function rather than a parallel rule: it
+    // already handles the weakest-slot logic and the pre-tier stickers that
+    // carry no count row.
+    tier: categoryTierFromAlbum(kid, deck.id, activities, counts, earned),
   };
+}
+
+/** The weakest tier in a list — a shelf is as strong as its least-played deck. */
+function weakestTier(tiers: readonly StickerTier[]): StickerTier {
+  if (tiers.length === 0) {
+    return "none";
+  }
+  return tiers.reduce((weakest, tier) =>
+    tierRank(tier) < tierRank(weakest) ? tier : weakest,
+  );
 }
 
 /**
@@ -89,6 +111,9 @@ export function buildCamino(
   decks: readonly Deck[],
   kid: KidId,
   earned: readonly string[],
+  /** Completion counts behind the stickers — the tier ledger. A sticker with no
+   *  row reads as one play, matching what the album shows. */
+  counts: Readonly<Record<string, number>> = {},
 ): Camino {
   const owned = new Set(earned);
   const shelves = groups.map((group): TrailShelf => {
@@ -96,14 +121,16 @@ export function buildCamino(
       const deck = decks.find((d) => d.id === deckId);
       return deck === undefined || deck.secret === true
         ? []
-        : [stepFor(deck, kid, owned)];
+        : [stepFor(deck, kid, owned, counts)];
     });
     const doneSteps = steps.filter((step) => step.complete).length;
+    const complete = steps.length > 0 && doneSteps === steps.length;
     return {
       groupId: group.id,
       steps,
       doneSteps,
-      complete: steps.length > 0 && doneSteps === steps.length,
+      complete,
+      tier: complete ? weakestTier(steps.map((s) => s.tier)) : "none",
     };
   });
 

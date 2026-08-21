@@ -11,6 +11,7 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
+import { getStickerCounts } from "@/lib/economy";
 
 /**
  * El camino for the selected kid, or null while it's unknown (storage not read
@@ -39,7 +40,15 @@ export function useCamino(
         .execute(kid)
         .then((earned) => {
           if (!cancelled) {
-            setCamino(buildCamino(groupsInTrailOrder(groups), decks, kid, earned));
+            setCamino(
+              buildCamino(
+                groupsInTrailOrder(groups),
+                decks,
+                kid,
+                earned,
+                getStickerCounts(),
+              ),
+            );
           }
         })
         .catch((err: unknown) => log.error("camino", "failed to load", { err }));

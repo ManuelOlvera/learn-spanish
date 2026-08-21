@@ -42,6 +42,11 @@ where it is useful and unhurried — the parent's `/informe`.
 - Replaying cannot lose ground: the sticker that proves a step stays earned forever.
 - The route inherits sync for free — a deck finished on the tablet is finished on the
   phone as soon as the stickers merge, with no new field in `ProgressSnapshot`.
+- **Depth comes from the album's own function, never a parallel rule.** A step's
+  medal is `categoryTierFromAlbum` — the same call the album page makes — so a deck showing
+  🥇 in the album cannot show ⭐ on the route. Re-deriving tiers inside the trail would be
+  two rules over one ledger, and they drifted the first time this was built (the route
+  hard-coded ⭐ while the album tiered).
 - **A step cannot express anything the album cannot.** Order-within-a-deck, time spent, a
   score threshold, or "done today" are all unrepresentable. Any of them means real storage,
   and that reopens ADR 004 (a merge rule) — do not add a camino key to dodge that.

@@ -45,7 +45,9 @@ export function ShelfDeckGrid({ decks, groupId, allGroups, allDecks }: Props) {
           >
             <span aria-hidden className="sticker-peel" />
             {deck.id === camino?.nextDeckId && <TrailBadge state="next" />}
-            {step?.complete === true && <TrailBadge state="done" />}
+            {step?.complete === true && (
+              <TrailBadge state="done" tier={step.tier} />
+            )}
             <span
               aria-hidden
               className="text-6xl sm:text-7xl"

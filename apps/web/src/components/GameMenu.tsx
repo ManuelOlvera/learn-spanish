@@ -16,6 +16,7 @@ import {
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
 import { getStickerCounts } from "@/lib/economy";
+import { TIER_GLYPH, TIER_LABEL } from "@/components/TrailMarks";
 import { getAvatar, getSelectedKid, KID_META } from "@/lib/kid";
 
 interface Props {
@@ -176,21 +177,6 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
 /** A mode's route is its activity id with the slash swapped for a dash
  *  ("quiz/listen" → "quiz-listen"), which is how the album already keys its
  *  stickers. Routes with no sticker (el duelo, el reto) simply never match. */
-/** The badge for each tier: nothing yet, played, replayed 3×, replayed 5×. */
-const TIER_GLYPH: Record<ReturnType<typeof stickerTier>, string> = {
-  none: "",
-  earned: "⭐",
-  silver: "🥈",
-  gold: "🥇",
-};
-
-const TIER_LABEL: Record<ReturnType<typeof stickerTier>, string> = {
-  none: "pendiente",
-  earned: "terminado",
-  silver: "plata",
-  gold: "oro",
-};
-
 function activityForHref(href: string): ActivityId {
   return href.replace("/", "-") as ActivityId;
 }

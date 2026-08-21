@@ -5,6 +5,7 @@ import type { Deck } from "../src/domain/deck";
 import type { DeckGroup } from "../src/domain/deck-group";
 import type { KidId } from "../src/domain/kid";
 import { buildCamino, trailActivities } from "../src/domain/trail";
+import { TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
 import { card } from "./helpers";
 
 function testDeck(id: string, extra: Partial<Deck> = {}): Deck {
@@ -26,6 +27,18 @@ function group(id: string, deckIds: readonly string[]): DeckGroup {
     emoji: "📦",
     deckIds,
   };
+}
+
+/** Play every one of a deck's activities `times` over, as the counts ledger
+ *  would record it. */
+function countsFor(
+  kid: KidId,
+  deck: Deck,
+  times: number,
+): Record<string, number> {
+  return Object.fromEntries(
+    trailActivities(deck, kid).map((a) => [stickerId(kid, deck.id, a), times]),
+  );
 }
 
 /** Earn the first `n` activities this kid can actually earn on a deck. */
@@ -154,5 +167,91 @@ describe("buildCamino", () => {
     expect(camino.shelves[0]!.steps[1]).toMatchObject({ deckId: "dos", done: 3 });
     expect(camino.shelves[0]!.steps[1]!.complete).toBe(false);
     expect(camino.nextDeckId).toBe("uno");
+  });
+});
+
+describe("a step's tier", () => {
+  it("is none until every activity is played at least once", () => {
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 5));
+    expect(camino.shelves[0]!.steps[0]!.tier).toBe("none");
+  });
+
+  it("is earned on one play-through of each", () => {
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 6));
+    expect(camino.shelves[0]!.steps[0]!.tier).toBe("earned");
+  });
+
+  it("reaches silver and gold as the deck is replayed", () => {
+    const silver = buildCamino(
+      groups,
+      decks,
+      "listener",
+      stickersFor("listener", uno, 6),
+      countsFor("listener", uno, TIER_THRESHOLDS.silver),
+    );
+    expect(silver.shelves[0]!.steps[0]!.tier).toBe("silver");
+
+    const gold = buildCamino(
+      groups,
+      decks,
+      "listener",
+      stickersFor("listener", uno, 6),
+      countsFor("listener", uno, TIER_THRESHOLDS.gold),
+    );
+    expect(gold.shelves[0]!.steps[0]!.tier).toBe("gold");
+  });
+
+  it("is only as strong as the deck's weakest activity", () => {
+    // Everything gold but one activity played once — the album calls that
+    // "earned", and the route must say exactly the same thing.
+    const counts = countsFor("listener", uno, TIER_THRESHOLDS.gold);
+    counts[stickerId("listener", "uno", "scene-listen")] = 1;
+    const camino = buildCamino(
+      groups,
+      decks,
+      "listener",
+      stickersFor("listener", uno, 6),
+      counts,
+    );
+    expect(camino.shelves[0]!.steps[0]!.tier).toBe("earned");
+  });
+});
+
+describe("a shelf's tier", () => {
+  it("is none while any deck on it is unfinished", () => {
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 6));
+    expect(camino.shelves[0]!.tier).toBe("none");
+  });
+
+  it("takes the weakest deck's tier once the shelf is done", () => {
+    const earned = [
+      ...stickersFor("listener", uno, 6),
+      ...stickersFor("listener", dos, 6),
+    ];
+    const counts = {
+      ...countsFor("listener", uno, TIER_THRESHOLDS.gold),
+      ...countsFor("listener", dos, TIER_THRESHOLDS.silver),
+    };
+    const camino = buildCamino(groups, decks, "listener", earned, counts);
+    expect(camino.shelves[0]!.complete).toBe(true);
+    expect(camino.shelves[0]!.tier).toBe("silver");
+  });
+
+  it("is gold only when every deck on it is gold", () => {
+    const earned = [
+      ...stickersFor("listener", uno, 6),
+      ...stickersFor("listener", dos, 6),
+    ];
+    const counts = {
+      ...countsFor("listener", uno, TIER_THRESHOLDS.gold),
+      ...countsFor("listener", dos, TIER_THRESHOLDS.gold),
+    };
+    const camino = buildCamino(groups, decks, "listener", earned, counts);
+    expect(camino.shelves[0]!.tier).toBe("gold");
+  });
+
+  it("treats a sticker with no count row as one play (pre-tier albums)", () => {
+    const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 6), {});
+    expect(camino.shelves[0]!.steps[0]!.tier).toBe("earned");
   });
 });

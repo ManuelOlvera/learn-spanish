@@ -2,8 +2,9 @@
 
 import { forwardRef, useEffect, useRef } from "react";
 import Link from "next/link";
-import type { Camino, DeckGroup } from "@learn-spanish/core";
+import type { Camino, DeckGroup, StickerTier } from "@learn-spanish/core";
 import { groupsInTrailOrder } from "@learn-spanish/core";
+import { TIER_GLYPH, TIER_LABEL } from "@/components/TrailMarks";
 
 interface Props {
   camino: Camino;
@@ -16,7 +17,7 @@ interface Props {
  * position), so the ladder needs somewhere of its own to be *seen*; this is it.
  *
  * Three shades, so "where am I / what's left" is answerable without reading:
- * a finished stop is filled lime and wears a ⭐, the current one is white,
+ * a finished stop is filled lime and wears its medal (⭐/🥈/🥇), the current one is white,
  * bigger and ringed, and a stop still ahead is pale. That last one is a *muted
  * progress display*, not a locked door — see below.
  *
@@ -48,6 +49,7 @@ export function CaminoStrip({ camino, groups }: Props) {
         {ordered.map((group, i) => {
           const shelf = camino.shelves.find((s) => s.groupId === group.id);
           const done = shelf?.complete === true;
+          const tier: StickerTier = shelf?.tier ?? "none";
           const here = group.id === camino.nextGroupId;
           return (
             <div key={group.id} className="flex shrink-0 items-center">
@@ -62,6 +64,7 @@ export function CaminoStrip({ camino, groups }: Props) {
                 group={group}
                 done={done}
                 here={here}
+                tier={tier}
               />
             </div>
           );
@@ -75,6 +78,7 @@ interface StopProps {
   group: DeckGroup;
   done: boolean;
   here: boolean;
+  tier: StickerTier;
 }
 
 /**
@@ -83,7 +87,7 @@ interface StopProps {
  * where shelf navigation has always lived.
  */
 const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
-  { group, done, here },
+  { group, done, here, tier },
   ref,
 ) {
   const size = here ? "h-14 w-14 text-3xl" : "h-11 w-11 text-xl";
@@ -100,7 +104,7 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
       </span>
       {done && (
         <span aria-hidden className="absolute -right-1 -top-1 text-sm leading-none">
-          ⭐
+          {TIER_GLYPH[tier]}
         </span>
       )}
       {here && (
@@ -112,7 +116,7 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
     </>
   );
   const shared = `relative flex shrink-0 items-center justify-center rounded-full border-4 ${size} ${shade}`;
-  const state = done ? "terminado" : here ? "estás aquí" : "pendiente";
+  const state = done ? TIER_LABEL[tier] : here ? "estás aquí" : "pendiente";
 
   if (!here) {
     return (

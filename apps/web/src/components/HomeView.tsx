@@ -413,7 +413,9 @@ export function HomeView({ decks, groups }: Props) {
               {camino !== null && group.id === camino.nextGroupId && (
                 <TrailBadge state="next" />
               )}
-              {shelf?.complete === true && <TrailBadge state="done" />}
+              {shelf?.complete === true && (
+                <TrailBadge state="done" tier={shelf.tier} />
+              )}
               <span
                 aria-hidden
                 className="text-5xl sm:text-6xl"

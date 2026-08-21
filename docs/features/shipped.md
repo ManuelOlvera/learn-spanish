@@ -91,6 +91,14 @@ cut got wrong, both fixed before the kids saw it:
   three, 🥇 at five — so depth is visible on the game menu, while a step still
   completes on the first play-through and the route keeps moving.
 
+- **The medals reached the route, not just the game menu.** Shipping tiers on
+  the game menu alone left the deck tiles, shelf tiles and strip hard-coding a
+  plain ⭐ — so a kid with Números y colores at gold saw 🥇 in the album and a
+  bare star everywhere else. `TrailStep` and `TrailShelf` now carry a tier,
+  computed with the album's *own* `categoryTierFromAlbum` rather than a parallel
+  rule, so the two can't drift: a deck is as gold as its least-played game, a
+  shelf as gold as its least-played deck.
+
 **Deferred (not dropped, parked on roadmap #22):** a dedicated `/camino` map
 screen · a step per game rather than per deck · mastery or an end-of-step quiz
 as the completion rule · any locking or dimming · stars or a medal for finishing

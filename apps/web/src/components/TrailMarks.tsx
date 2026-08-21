@@ -1,5 +1,7 @@
 "use client";
 
+import type { StickerTier } from "@learn-spanish/core";
+
 /**
  * How el camino is drawn on a tile it doesn't own: a row of pips for "how far
  * into this", and a corner badge for "you are here" / "this one is finished".
@@ -41,16 +43,36 @@ export function TrailPips({ filled, total, label }: PipsProps) {
   );
 }
 
-/** `next` = the one thing to do now; `done` = finished. Neither locks anything. */
-export function TrailBadge({ state }: { state: "next" | "done" }) {
-  const next = state === "next";
+/** A finished thing's medal, off the album's tiers: played, 3×, 5×. */
+export const TIER_GLYPH: Record<StickerTier, string> = {
+  none: "",
+  earned: "⭐",
+  silver: "🥈",
+  gold: "🥇",
+};
+
+export const TIER_LABEL: Record<StickerTier, string> = {
+  none: "pendiente",
+  earned: "terminado",
+  silver: "plata",
+  gold: "oro",
+};
+
+/** `next` = the one thing to do now; a tier = finished, and how deeply. The
+ *  medal is the album's, so a deck that shows 🥇 in the album shows 🥇 here.
+ *  Neither state locks anything. */
+export function TrailBadge(
+  props: { state: "next" } | { state: "done"; tier: StickerTier },
+) {
+  const next = props.state === "next";
+  const tier = props.state === "done" ? props.tier : "earned";
   return (
     <span
       role="img"
-      aria-label={next ? "Sigue aquí" : "Terminado"}
+      aria-label={next ? "Sigue aquí" : TIER_LABEL[tier]}
       className="absolute -left-1.5 -top-1.5 flex h-12 w-12 items-center justify-center rounded-full border-4 border-ink bg-white text-2xl"
     >
-      <span aria-hidden>{next ? "👉" : "⭐"}</span>
+      <span aria-hidden>{next ? "👉" : TIER_GLYPH[tier]}</span>
     </span>
   );
 }

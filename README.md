@@ -66,12 +66,14 @@ No reading, no accounts, no setup.
 - **El camino** — a guided route through the pack that never locks anything:
   the shelves in learning order, and inside each one its decks in order. A
   **Tu camino** strip on home draws the whole ladder on one line in three
-  shades — a finished shelf filled lime with a ⭐, the current one white, bigger
-  and ringed, the ones ahead pale. Only the current stop is tappable ("take me
+  shades — a finished shelf filled lime wearing its medal, the current one
+  white, bigger and ringed, the ones ahead pale. Only the current stop is tappable ("take me
   back to where I left off"); the others are inert marks, which gates nothing
   because the shelf grid directly below still reaches all ten in one tap. Shelf tiles and deck tiles carry the same story up
-  close: pips for how far in a kid is, 👉 on the one next thing, ⭐ on what's
-  done. Inside a deck, the game menu shows the step broken out — ○ still
+  close: pips for how far in a kid is, 👉 on the one next thing, and the album's
+  own medal on what's done — ⭐ played, 🥈 replayed three times, 🥇 five. A deck
+  is only as gold as its least-played game and a shelf only as gold as its
+  least-played deck, so a mark on the route always matches the album page. Inside a deck, the game menu shows the step broken out — ○ still
   to do, then ⭐ played, 🥈 replayed three times, 🥇 five (the album's own
   tiers, off the same ledger) — plus an `n/6` count under the deck's name, and
   deliberately **no** badge on the games that earn no sticker (el duelo, el
