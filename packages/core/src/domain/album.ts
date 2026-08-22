@@ -24,6 +24,7 @@ export type ActivityId =
   | "spelling"
   | "sopa"
   | "globo"
+  | "hablar"
   | "adivina";
 
 /** The activities every deck offers (frases are pack-wide, not per-deck). */

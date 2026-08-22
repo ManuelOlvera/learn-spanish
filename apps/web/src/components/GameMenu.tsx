@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   globoDifficulties,
+  hasConversation,
   KID_GAME_MODES,
   sopaDifficulties,
   stickerId,
@@ -108,6 +109,18 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
         { glyph: "🔤", href: "scene/read", label: "Seek by word" },
       ),
     },
+    // Only on decks whose words are things a person can like — "¿Te gusta el
+    // codo?" is grammatical and absurd, so the tile is simply absent elsewhere.
+    ...(hasConversation(deckId)
+      ? [
+          {
+            emoji: "🗣️",
+            spanish: "Habla conmigo",
+            english: "Talk with your pet",
+            modes: [{ glyph: "💬", href: "hablar", label: "Talk with your pet" }],
+          },
+        ]
+      : []),
     {
       emoji: "⚔️",
       spanish: "El duelo",

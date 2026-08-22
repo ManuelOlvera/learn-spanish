@@ -129,3 +129,39 @@ export function groupsInTrailOrder(
   };
   return [...groups].sort((a, b) => rank(a) - rank(b));
 }
+
+/**
+ * Decks Habla con tu mascota runs on. Curated, not computed: the frames
+ * ("¿Te gusta el perro?", "¿Qué prefieres, el gato o el perro?") only read
+ * natively for things a person can *like*, which rules out body parts, letters,
+ * numbers, positions, dates, feelings and the verb decks — "¿Te gusta el codo?"
+ * is grammatical and absurd, and absurd is worse than absent for a 5-year-old.
+ *
+ * Los colores is the near miss: its words are bare adjectives (rojo, verde), so
+ * the frame would produce "¿Te gusta rojo?". A content test pins the rule that
+ * keeps this list honest — every card here carries its article.
+ */
+export const CONVERSATION_DECKS: readonly string[] = [
+  "animals",
+  "zoo",
+  "bugs",
+  "sea",
+  "aves",
+  "food",
+  "fruit",
+  "toys",
+  "sports",
+  "music",
+  "clothes",
+  "vehicles",
+  "nature",
+  "school",
+  "city",
+  "house",
+];
+
+/** Whether a deck offers a conversation — the 🗣️ tile is simply absent
+ *  elsewhere, the same way Adivina and La sopa come and go. */
+export function hasConversation(deckId: string): boolean {
+  return CONVERSATION_DECKS.includes(deckId);
+}

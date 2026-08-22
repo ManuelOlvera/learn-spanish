@@ -329,7 +329,15 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
 ## Talking & letter games (shaped 2026-08-02)
 
 25. ⏸️ **Habla conmigo — a real conversation partner (AI)** — the app's first
-    runtime LLM. The kid holds a microphone button, says something in Spanish,
+    runtime LLM. **Its fallback shipped 2026-08-22** as 🗣️ Habla conmigo (the
+    tap-to-choose version ADR 010 named: the mascota speaks, the kid picks one
+    of 2–3 replies, no microphone, no model, works offline — see
+    `shipped.md`). That does **not** unpark this item: the shipped version is a
+    template engine with a fixed rhythm, and the reason to build this one is
+    exactly the thing templates can't do. What it changes is the starting
+    point — the turn model, the deck scoping and the screen already exist, so
+    this becomes "swap the frames for a model", not a feature from scratch.
+    The terms below are unchanged. The kid holds a microphone button, says something in Spanish,
     and the **mascota** answers aloud in simple Spanish, on the topic of the
     deck she entered from. Shaped 2026-08-02: voice in, voice out, real model
     behind a server route. **Parked the same day** — shaped and costed, not

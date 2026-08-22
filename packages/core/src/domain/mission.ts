@@ -22,14 +22,18 @@ export const MISSION_KINDS = [
   "globo",
   "adivina",
   "reto",
+  "hablar",
 ] as const;
 
 /** La misión del día: three activity kinds to complete, new every day,
  *  different per kid, +MISSION_BONUS stars from the bonus chest. */
 export type MissionKind = (typeof MISSION_KINDS)[number];
 
-/** Kinds either kid can complete at their own difficulty. Reto stays out for
- *  both: it's timed, and the misión must be pressure-free. */
+/** Kinds either kid can complete at their own difficulty. Two of the canonical
+ *  kinds stay out of every pool: `reto` is timed and the misión must be
+ *  pressure-free, and `hablar` lives on only 16 of the 44 decks, so drawing it
+ *  could set a task the deck a kid opens cannot offer. Both are still in
+ *  MISSION_KINDS so they keep a type and an icon. */
 const SHARED_KINDS: readonly MissionKind[] = [
   "learn",
   "quiz",

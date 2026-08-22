@@ -1,5 +1,59 @@
 # Shipped features
 
+## 2026-08-22 — 🗣️ Habla conmigo: the first game with no right answer
+
+**For:** both kids, aimed at the pre-reader. From the engagement review — every
+game in the app *asks* and the kid picks the **correct** answer; nothing let a
+kid choose what to **say**. 🎤 Say-it-back records and replays but never
+responds.
+
+**What shipped:** the mascota says something in Spanish, the kid taps one of
+2–3 things to say back, hears their own sentence spoken aloud, and the pet
+answers *that choice*. Five turns — greeting, three things to talk about,
+goodbye — then the usual chest.
+
+- **This is ADR 010's no-microphone fallback, not roadmap 25.** No speech
+  recognition, no model, no route handler, no API key, no capability code, and
+  it works offline. Roadmap 25 (the real conversation partner) stays parked on
+  exactly the terms it was parked on.
+- **There is no correct answer, and the domain has no way to express one.** No
+  score, no ✅/❌, no wrong tap to dock a star. The chest pays for turns taken.
+  It is the one game in the app a kid cannot lose.
+- **The pet has its own taste.** `petPrefers` hashes the pet's *name* with a
+  card id into a stable like/dislike, so "¿Te gusta el gato?" is met with
+  "¡A mí también!" or "¿Sí? A mí no me gusta mucho" — the same frame, two
+  different conversations, and the pet reads as somebody. Naming a new pet
+  genuinely gets a new companion rather than a re-skin.
+- **Sixteen decks, not forty-four.** The frames only read for things a person
+  can like; "¿Te gusta el codo?" is grammatical and absurd, and absurd is worse
+  than absent for a five-year-old. Los colores is the near miss — its words are
+  bare adjectives, so the frame would say "¿Te gusta rojo?". A content test pins
+  the rule that keeps the list honest: every card on it carries its article.
+- **Two levels, one pack:** the pre-reader taps pictures; the reader taps the
+  same answers written in Spanish.
+
+**Said plainly at shaping time, because it is the feature's ceiling:** this is a
+template engine and it will eventually repeat. Three phrasings per frame, the
+pet's opinions and no-word-twice give ~450 distinct question turns on a 15-card
+deck, but the *rhythm* never varies — ask, tap, one-line answer. The expectation
+taken on approval: fresh for the 5-year-old for weeks (repeated frames are how
+the language lands at that age), thin for the 8-year-old within days. The
+non-repetitive version is roadmap 25, and its price hasn't changed.
+
+**Where:** `domain/conversation.ts` (turn model, frames, the pet's taste — pure,
+no I/O), the eligible-deck list beside the shelves in
+`infrastructure/deck-groups.ts`, and `apps/web` gets `ConversationPlayer` and
+the `/deck/[deckId]/hablar` route. `hablar` joins `MISSION_KINDS` for its type
+and icon but no draw pool — it exists on only 16 decks, so a drawn misión could
+set a task the kid's deck can't offer.
+
+**Deferred (not dropped):** an album sticker slot, so this does **not** advance
+el camino — same as El globo, La sopa and Adivina, and better fixed for all of
+them at once than special-cased here · anything with a microphone (roadmap 25) ·
+grading or correcting the kid's Spanish · more frames (¿tienes…?, ¿de qué
+color…?) · Los colores via a "el color rojo" frame · conversation memory across
+sessions · the pet referring back to what she said last time.
+
 ## 2026-08-22 — 🧭 El camino: a guided route that never locks
 
 **For:** both kids, from the parent's ask — "we need to guide them through the

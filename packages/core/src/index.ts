@@ -174,6 +174,21 @@ export {
   pendingCategoryTier,
   tierRank,
 } from "./domain/category";
+export type {
+  Conversation,
+  ConversationChoice,
+  ConversationTurn,
+  TurnKind,
+} from "./domain/conversation";
+export {
+  createConversation,
+  petPrefers,
+  CONVERSATION_TURNS,
+} from "./domain/conversation";
+export {
+  CONVERSATION_DECKS,
+  hasConversation,
+} from "./infrastructure/deck-groups";
 export type { Camino, TrailShelf, TrailStep } from "./domain/trail";
 export { buildCamino, trailActivities } from "./domain/trail";
 export {

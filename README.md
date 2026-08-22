@@ -54,7 +54,11 @@ No reading, no accounts, no setup.
   "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
   sizes, on decks whose words fit a grid), "El globo" (guess the word
   letter by letter before the balloon pops — both kids, 🟢/🟡/🔴 word
-  lengths, the 💡 tip costs a life), and "Adivina la palabra" (wordle over
+  lengths, the 💡 tip costs a life), "Habla conmigo" (🗣️ the mascota says something in Spanish, the kid
+  taps one of 2–3 things to say back, hears their own sentence spoken, and the
+  pet answers *that* — no right answer anywhere, and the pet has its own taste,
+  so it agrees or argues; on the 16 decks whose words are things a person can
+  like), and "Adivina la palabra" (wordle over
   a whole shelf — type the word on a Spanish keyboard, 🟩/🟨/⬜ per letter;
   a word the app doesn't know can't be submitted and costs no guess. The
   shelf's theme stays on screen, and four tips — meaning, picture, first

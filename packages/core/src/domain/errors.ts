@@ -49,3 +49,19 @@ export class QuizDeckTooSmallError extends Error {
     this.name = "QuizDeckTooSmallError";
   }
 }
+
+/** Habla con tu mascota needs enough words to fill five turns without asking
+ *  about the same one twice. Eligible decks are a curated list held well above
+ *  this, so hitting it means the list let through a deck that shrank. */
+export class ConversationDeckTooSmallError extends Error {
+  constructor(
+    public readonly deckId: string,
+    public readonly cardCount: number,
+    public readonly minimum: number,
+  ) {
+    super(
+      `Deck ${deckId} has ${cardCount} cards; a conversation needs ${minimum}`,
+    );
+    this.name = "ConversationDeckTooSmallError";
+  }
+}

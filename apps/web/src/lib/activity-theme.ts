@@ -30,5 +30,6 @@ export const ACTIVITY_META: Record<
   spelling: { game: "✏️", mode: "🔤", english: "Spelling" },
   sopa: { game: "🥣", mode: "🔤", english: "Word search" },
   globo: { game: "🎈", mode: "🔤", english: "Balloon word guess" },
+  hablar: { game: "🗣️", mode: "💬", english: "Talk with your pet" },
   adivina: { game: "🔡", mode: "🔤", english: "Guess the word" },
 };

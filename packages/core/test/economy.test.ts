@@ -83,9 +83,14 @@ describe("dailyMission", () => {
       expect(MISSION_KINDS).toContain(kind);
     }
     // Every kind in the pools must actually come up — a kind that can be drawn
-    // but never is would hide a missing icon from this test.
+    // but never is would hide a missing icon from this test. Two kinds are in
+    // the canonical list for their icon and their type, and deliberately out of
+    // every draw pool: `reto` is timed and the misión must be pressure-free,
+    // and `hablar` exists on only 16 of the 44 decks, so drawing it could set a
+    // task the kid's chosen deck cannot offer.
+    const neverDrawn: readonly MissionKind[] = ["reto", "hablar"];
     expect([...drawn].sort()).toEqual(
-      MISSION_KINDS.filter((kind) => kind !== "reto")
+      MISSION_KINDS.filter((kind) => !neverDrawn.includes(kind))
         .slice()
         .sort(),
     );

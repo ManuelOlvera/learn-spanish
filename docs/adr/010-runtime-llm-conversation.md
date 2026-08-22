@@ -1,7 +1,10 @@
 # ADR 010: A runtime LLM for Habla conmigo — the terms, decided before the build
 
 - **Date:** 2026-08-02
-- **Status:** proposed (feature parked 2026-08-02 — build not started)
+- **Status:** proposed (feature parked 2026-08-02 — build not started). **The
+  no-microphone fallback named in Consequences shipped 2026-08-22** as 🗣️ Habla
+  conmigo; it needs nothing in this ADR — no route, no key, no capability code,
+  no audio anywhere — so none of the terms below have been exercised or relaxed.
 
 ## Decision
 
