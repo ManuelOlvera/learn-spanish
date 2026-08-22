@@ -202,6 +202,22 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
 
 ## Parent ideas (from docs/bugs.md, shaped 2026-07-14)
 
+15a. ☑ **El reto de papá — the parent in the loop** — `/informe` was read-only,
+    so the one screen that knows which decks are going badly could not say so
+    to the kid. Shipped 2026-08-22: 🎯 Retar on any struggling deck puts a 👨
+    card on that kid's home; any activity on the deck completes it; +15⭐.
+    Device-local (see `shipped.md` for why crossing devices is an ADR 004
+    decision, not a field).
+    - ☐ **Set it from the parent's own phone** — the version the parent
+      actually wanted first. Needs a mutable, clearable value in the sync
+      snapshot; start from ADR 014's reasoning, don't just add a field.
+    - ☐ **Word-level challenges** — tick three tricky words rather than a deck.
+      Needs those exact words tracked across any game, and a kid can't see how
+      close they are.
+    - ☐ **A message from the parent** — written (the reader can read it) or
+      recorded (ADR 003 governs voice; a *parent's* voice is a different
+      question from a kid's, and storing any audio is new ground).
+
 16. ☑ **Las letras — alphabet shelf** — vowels (with accented forms) + full
     alphabet as a seventh shelf, both cases on the card face ("Bb"), names
     by ear. *(Shipped 2026-07-14. See `shipped.md`.)*

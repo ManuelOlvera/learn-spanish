@@ -31,6 +31,11 @@ import {
   type WeeklyView,
   type WeekProgress,
   type WeeklyStreak,
+  claimChallenge,
+  recordChallengeActivity,
+  setChallenge,
+  CHALLENGE_BONUS,
+  type ParentChallenge,
 } from "@learn-spanish/core";
 import * as container from "./client-container";
 
@@ -372,6 +377,47 @@ export function getRetoBest(kid: KidId, deckId: string): number {
 }
 
 /** Returns true when the score sets a new record (and saves it). */
+// ---- el reto de papá ----
+
+export function getChallenge(kid: KidId): ParentChallenge | null {
+  return store.loadChallenge(kid);
+}
+
+/** Set (or replace) a kid's challenge from the report. */
+export function setKidChallenge(kid: KidId, deckId: string): ParentChallenge {
+  const challenge = setChallenge(deckId);
+  store.saveChallenge(kid, challenge);
+  return challenge;
+}
+
+export function clearKidChallenge(kid: KidId): void {
+  store.saveChallenge(kid, null);
+}
+
+/** Fold a finished activity in; returns true when it just completed. */
+export function noteChallengeActivity(kid: KidId, deckId: string): boolean {
+  const before = store.loadChallenge(kid);
+  const after = recordChallengeActivity(before, deckId);
+  if (after !== before && after !== null) {
+    store.saveChallenge(kid, after);
+    return after.done && !(before?.done ?? false);
+  }
+  return false;
+}
+
+/** Bank the challenge bonus; returns the new star balance, or null if there
+ *  was nothing to claim. */
+export function claimChallengeBonus(kid: KidId): number | null {
+  const claimed = claimChallenge(store.loadChallenge(kid));
+  if (claimed === null) {
+    return null;
+  }
+  // Paid means over: clear it rather than leaving a finished challenge on the
+  // home screen forever. The parent sets the next one when they want one.
+  store.saveChallenge(kid, null);
+  return addStars(kid, CHALLENGE_BONUS);
+}
+
 /** Every deck's record for a kid — the sync snapshot carries the whole map. */
 export function getRetoBests(kid: KidId): Readonly<Record<string, number>> {
   return store.loadRetoBest(kid);

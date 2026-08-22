@@ -1,3 +1,4 @@
+import type { ParentChallenge } from "./challenge";
 import type { Boost } from "./boost";
 import type { KidId } from "./kid";
 import type { MissionState } from "./mission";
@@ -57,6 +58,10 @@ export interface EconomyStore {
     kid: KidId,
     awards: Readonly<Record<string, StickerTier>>,
   ): void;
+
+  /** El reto de papá: the challenge a parent set for this kid, if any. */
+  loadChallenge(kid: KidId): ParentChallenge | null;
+  saveChallenge(kid: KidId, challenge: ParentChallenge | null): void;
 
   /** Deck → best reto score, per kid. */
   loadRetoBest(kid: KidId): Readonly<Record<string, number>>;

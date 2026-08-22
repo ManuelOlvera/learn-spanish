@@ -32,6 +32,7 @@ import { getSelectedKid } from "@/lib/kid";
 import {
   addStars,
   claimCategoryReward,
+  noteChallengeActivity,
   getActiveBoost,
   getActivePet,
   getCategoryTier,
@@ -120,6 +121,9 @@ export function DoneScreen({
     // Completing the activity feeds today's mission either way.
     const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
     markActivityDone(kid, activityKind(activity));
+    // El reto de papá completes on *any* activity for its deck, so it folds in
+    // here beside the misión rather than in each player.
+    noteChallengeActivity(kid, stickerDeckId);
     setBoostTier(getActiveBoost(kid)?.tier ?? null);
     getStreak
       .execute(kid)
@@ -134,7 +138,7 @@ export function DoneScreen({
     // moment this screen mounts, and a kid may leave without ever opening the
     // chest (which pushes again with the stars when it is opened).
     void syncPush();
-  }, [activity, noAward]);
+  }, [activity, noAward, stickerDeckId]);
 
   useEffect(() => {
     if (award?.isNew) {

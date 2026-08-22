@@ -3,6 +3,7 @@ import type { EconomyStore } from "../src/domain/economy";
 import type { KidId } from "../src/domain/kid";
 import type { MissionState } from "../src/domain/mission";
 import type { PetCollection } from "../src/domain/mascota";
+import type { ParentChallenge } from "../src/domain/challenge";
 import type { StickerTier } from "../src/domain/sticker-tiers";
 import type { WeekProgress, WeeklyStreak } from "../src/domain/weekly";
 import { ACCESSORIES } from "../src/domain/wardrobe";
@@ -88,6 +89,9 @@ class FakeEconomyStore implements EconomyStore {
   saveStickerCounts(counts: Readonly<Record<string, number>>) { this.counts = counts; }
   loadCategoryAwards(kid: KidId) { return this.awardsByKid[kid] ?? {}; }
   saveCategoryAwards(kid: KidId, awards: Readonly<Record<string, StickerTier>>) { this.awardsByKid[kid] = awards; }
+  challengeByKid: Partial<Record<KidId, ParentChallenge | null>> = {};
+  loadChallenge(kid: KidId) { return this.challengeByKid[kid] ?? null; }
+  saveChallenge(kid: KidId, challenge: ParentChallenge | null) { this.challengeByKid[kid] = challenge; }
   loadRetoBest(kid: KidId) { return this.retoByKid[kid] ?? {}; }
   saveRetoBest(kid: KidId, best: Readonly<Record<string, number>>) { this.retoByKid[kid] = best; }
   dailyGiftByKid: Partial<Record<KidId, string>> = {};

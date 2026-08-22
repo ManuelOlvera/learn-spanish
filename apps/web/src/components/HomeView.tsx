@@ -10,6 +10,7 @@ import {
   type Deck,
   type DeckGroup,
   type KidId,
+  type ParentChallenge,
   type Streak,
   type VocabularyCard,
 } from "@learn-spanish/core";
@@ -22,7 +23,9 @@ import {
   buyFreeze,
   canClaimDailyGift,
   claimDailyGift,
+  claimChallengeBonus,
   claimMissionBonus,
+  getChallenge,
   getActivePet,
   getMission,
   getPetCollection,
@@ -46,6 +49,7 @@ import { MissionBurst } from "@/components/MissionBurst";
 import { GiftReveal } from "@/components/GiftReveal";
 import { BoostBadge } from "@/components/BoostBadge";
 import { MissionCard } from "@/components/MissionCard";
+import { ChallengeCard } from "@/components/ChallengeCard";
 import { WeeklyCard } from "@/components/WeeklyCard";
 import { SecretDeckTile } from "@/components/SecretDeckTile";
 import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
@@ -68,6 +72,8 @@ export function HomeView({ decks, groups }: Props) {
   const [weakCount, setWeakCount] = useState(0);
   const [dailyWobble, setDailyWobble] = useState(0);
   const [mission, setMission] = useState<MissionView | null>(null);
+  // El reto de papá, set from /informe on this device.
+  const [challenge, setChallenge] = useState<ParentChallenge | null>(null);
   const [stars, setStars] = useState(0);
   const [petFace, setPetFace] = useState("🥚");
   const [petHungry, setPetHungry] = useState(false);
@@ -154,6 +160,7 @@ export function HomeView({ decks, groups }: Props) {
         log.error("word-stats", "failed to load", { err }),
       );
     setMission(getMission(kid));
+    setChallenge(getChallenge(kid));
     setStars(getStars(kid));
     const collection = getPetCollection(kid);
     const activePet = getActivePet(kid);
@@ -188,6 +195,20 @@ export function HomeView({ decks, groups }: Props) {
       setStars(balance);
       setMission(kid ? getMission(kid) : null);
       setMissionBurst(true);
+      void syncPush();
+    }
+  }
+
+  /** Bank the challenge bonus and clear the card. */
+  function claimChallengeReward() {
+    if (!kid) {
+      return;
+    }
+    const balance = claimChallengeBonus(kid);
+    if (balance !== null) {
+      feedbackFanfare();
+      setStars(balance);
+      setChallenge(getChallenge(kid));
       void syncPush();
     }
   }
@@ -364,6 +385,19 @@ export function HomeView({ decks, groups }: Props) {
         </button>
       )}
 
+      {/* Papá's challenge sits above the misión: a person set it, so it
+          outranks the daily draw. */}
+      {challenge !== null &&
+        (() => {
+          const deck = decks.find((d) => d.id === challenge.deckId);
+          return deck === undefined ? null : (
+            <ChallengeCard
+              challenge={challenge}
+              deck={deck}
+              onClaim={claimChallengeReward}
+            />
+          );
+        })()}
       {mission !== null && <MissionCard mission={mission} onClaim={claimBonus} />}
 
       {weekly !== null && (

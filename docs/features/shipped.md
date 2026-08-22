@@ -1,5 +1,46 @@
 # Shipped features
 
+## 2026-08-22 — 👨 El reto de papá: the report stops being read-only
+
+**For:** the parent first. At 3–8 a parent's attention outweighs every star in
+the app, and `/informe` — the one screen that knows exactly which decks are
+going badly — had no way to say so to the kid.
+
+**What shipped:** in a kid's report, every struggling-word deck grows a
+**🎯 Retar** button. Tapping it puts a 👨 card on that kid's home screen naming
+the deck; finishing *any* activity on it completes the challenge, and the card
+turns into a **+15⭐** chest.
+
+- **Any activity counts.** The aim is to get the kid back into that deck at
+  all, and a pre-reader can't be asked to find one particular game.
+- **It speaks itself.** "¡Papá te reta! Vamos a Los animales." — tapping the
+  card says the line aloud and goes to the deck, because the kid it's aimed at
+  cannot read it.
+- **Badged 👨, not 🎯** — La misión already owns 🎯 and sits directly below.
+  Two identical icons on a screen navigated by picture alone was caught in the
+  verify screenshots, not in review.
+- **Paid means over.** Claiming clears the challenge rather than leaving a
+  finished card on home forever; the parent sets the next one when they want
+  one. Also caught in verify — the first cut left a dead link behind.
+- **One per kid, and it outranks the misión** on screen: a person set it.
+- **Device-local, deliberately.** A challenge is mutable state with a lifecycle
+  (set → done → claimed → replaced), which is the one shape ADR 004's additive
+  merge cannot carry — the same reason ADR 014 kept the ⚡ boost off the
+  snapshot. Setting it from the parent's *own* phone is therefore a decision,
+  not a field, and it stays out of this slice.
+
+**Where:** `domain/challenge.ts` (pure state machine), `loadChallenge` /
+`saveChallenge` on the `EconomyStore` port with a new
+`palabras.challenge.v1` key (new, so nothing to migrate — an absent or corrupt
+doc reads as "no challenge"), the facade in `apps/web/src/lib/economy.ts`, the
+🎯 Retar button in `KidReportView`, `ChallengeCard` on home, and one line in
+`DoneScreen` so completion folds in beside the misión.
+
+**Deferred (not dropped):** setting it from the parent's own device · word-level
+challenges rather than a whole deck · a written or recorded message from the
+parent · more than one challenge at a time · a deadline or expiry · a history of
+past challenges · a "mamá" variant (the card says papá).
+
 ## 2026-08-22 — 🏆 El récord de tu hermano: rivalry without both kids in the room
 
 **For:** both kids. El duelo is the only head-to-head in the app and it needs

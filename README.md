@@ -124,6 +124,13 @@ No reading, no accounts, no setup.
   themes — every purchase behind a picture-only ✅/❌ confirm so a stray
   tap can't spend the stars (the 5⭐ meal aside); album stickers tier up to
   silver/gold with replays.
+- **El reto de papá** — the report stops being read-only: tapping 🎯 Retar on
+  any struggling deck in `/informe` puts a 👨 card on that kid's home screen
+  (above the misión — a person set it, so it outranks the daily draw). It speaks
+  itself aloud for the pre-reader, finishing *any* activity on that deck
+  completes it, and the payout is a +15⭐ chest. One per kid at a time;
+  device-local by design — a challenge is mutable state with a lifecycle, the
+  one shape ADR 004's additive merge can't carry (same reason as ADR 014's ⚡).
 - **Parent report** — `/informe` summarises both kids (strong and tricky
   words, a 📈 weekly learned-words trend sampled on every game complete);
   tapping a kid opens their own report: a mastery meter per shelf with the

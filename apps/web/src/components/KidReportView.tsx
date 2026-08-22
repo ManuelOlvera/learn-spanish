@@ -12,12 +12,18 @@ import {
   type Deck,
   type DeckMastery,
   type KidId,
+  type ParentChallenge,
   type KidReport,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getKidReport, getPracticeLog } from "@/lib/client-container";
 import { getAvatar, KID_META } from "@/lib/kid";
-import { getUnlockedDecks } from "@/lib/economy";
+import {
+  clearKidChallenge,
+  getChallenge,
+  getUnlockedDecks,
+  setKidChallenge,
+} from "@/lib/economy";
 import { deckAccent } from "@/lib/deck-theme";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 
@@ -238,7 +244,7 @@ export function KidReportView({ decks, kid }: Props) {
           <GamesPlayed report={report} />
           <AccuracyByGame log={practice} />
           <PracticeCalendar log={practice} />
-          <Struggling report={report} byId={byId} />
+          <Struggling report={report} byId={byId} kid={kid} />
         </>
       )}
     </main>
@@ -460,11 +466,19 @@ function AccuracyByGame({ log }: { log: AnswerLog }) {
 function Struggling({
   report,
   byId,
+  kid,
 }: {
   report: KidReport;
   byId: Map<string, Deck>;
+  kid: KidId;
 }) {
   const total = report.struggling.reduce((n, g) => n + g.cards.length, 0);
+  // The parent-facing half of el reto de papá: this is the only screen that
+  // knows which decks are going badly, so this is where the challenge is set.
+  const [challenge, setChallengeState] = useState<ParentChallenge | null>(null);
+  useEffect(() => {
+    setChallengeState(getChallenge(kid));
+  }, [kid]);
   return (
     <section className="sticker relative flex flex-col gap-3 p-5">
       <span aria-hidden className="sticker-peel" />
@@ -478,19 +492,46 @@ function Struggling({
           <p className="text-sm font-semibold text-ink/60">
             {plural(total, "palabra", "palabras")}, la más atorada primero.
           </p>
-          {report.struggling.map((group) => (
-            <div key={group.deckId}>
-              <h3 className="text-base font-extrabold text-ink/70">
-                {byId.get(group.deckId)?.emoji}{" "}
-                {byId.get(group.deckId)?.nameSpanish}
-              </h3>
-              <p className="text-lg font-semibold">
-                {group.cards
-                  .map((c) => `${c.emoji} ${c.spanish} (${c.english})`)
-                  .join(" · ")}
-              </p>
-            </div>
-          ))}
+          {report.struggling.map((group) => {
+            const isSet = challenge?.deckId === group.deckId;
+            return (
+              <div key={group.deckId}>
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-base font-extrabold text-ink/70">
+                    {byId.get(group.deckId)?.emoji}{" "}
+                    {byId.get(group.deckId)?.nameSpanish}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isSet) {
+                        clearKidChallenge(kid);
+                        setChallengeState(null);
+                      } else {
+                        setChallengeState(setKidChallenge(kid, group.deckId));
+                      }
+                    }}
+                    aria-label={
+                      isSet
+                        ? `Clear the challenge on ${byId.get(group.deckId)?.nameEnglish}`
+                        : `Set a challenge on ${byId.get(group.deckId)?.nameEnglish}`
+                    }
+                    className="shrink-0 rounded-full border-2 border-ink px-3 py-1 text-sm font-extrabold"
+                    style={{
+                      background: isSet ? "var(--color-lime)" : "white",
+                    }}
+                  >
+                    {isSet ? "✓ Retado" : "🎯 Retar"}
+                  </button>
+                </div>
+                <p className="text-lg font-semibold">
+                  {group.cards
+                    .map((c) => `${c.emoji} ${c.spanish} (${c.english})`)
+                    .join(" · ")}
+                </p>
+              </div>
+            );
+          })}
         </>
       )}
     </section>

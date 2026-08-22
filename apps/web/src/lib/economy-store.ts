@@ -18,6 +18,7 @@ import {
   type WeekProgress,
   type WeeklyStreak,
 } from "@learn-spanish/core";
+import { isParentChallenge, type ParentChallenge } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { runStorageMigrations } from "./storage-migrations";
 
@@ -39,6 +40,9 @@ const WEEK_PROGRESS_KEY = "palabras.week-progress.v1";
 const FREEZES_KEY = "palabras.freezes.v1";
 const CATEGORY_AWARDS_KEY = "palabras.category-awards.v1";
 const RETO_KEY = "palabras.reto.v1";
+// New key, so there is nothing to migrate — an unreadable or absent doc just
+// reads as "no challenge set" (no migration entry needed).
+const CHALLENGE_KEY = "palabras.challenge.v1";
 const DAILY_GIFT_KEY = "palabras.daily-gift.v1"; // dayKey of the last claim; not synced
 const BOOST_KEY = "palabras.boost.v1"; // the ⚡ hora doble window; not synced
 
@@ -207,6 +211,14 @@ export class LocalStorageEconomyStore implements EconomyStore {
     awards: Readonly<Record<string, StickerTier>>,
   ): void {
     writeDoc(CATEGORY_AWARDS_KEY, kid, awards);
+  }
+
+  loadChallenge(kid: KidId): ParentChallenge | null {
+    const stored = readDoc<unknown>(CHALLENGE_KEY)[kid];
+    return isParentChallenge(stored) ? stored : null;
+  }
+  saveChallenge(kid: KidId, challenge: ParentChallenge | null): void {
+    writeDoc(CHALLENGE_KEY, kid, challenge);
   }
 
   loadRetoBest(kid: KidId): Readonly<Record<string, number>> {

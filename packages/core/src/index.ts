@@ -189,6 +189,15 @@ export {
   CONVERSATION_DECKS,
   hasConversation,
 } from "./infrastructure/deck-groups";
+export type { ParentChallenge } from "./domain/challenge";
+export {
+  challengeClaimable,
+  claimChallenge,
+  isParentChallenge,
+  recordChallengeActivity,
+  setChallenge,
+  CHALLENGE_BONUS,
+} from "./domain/challenge";
 export type { Camino, TrailShelf, TrailStep } from "./domain/trail";
 export { buildCamino, trailActivities } from "./domain/trail";
 export {
