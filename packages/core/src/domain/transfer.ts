@@ -54,6 +54,12 @@ export interface ProgressSnapshot {
   /** Highest category-completion tier each deck's chest has been paid out for,
    *  per kid — merge keeps the higher tier so a chest never re-pays on sync. */
   readonly categoryAwards?: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>>;
+  /** Deck → best El reto score, per kid. Merge takes the max, which is exactly
+   *  ADR 004's additive rule — a best score only ever goes up, so syncing can
+   *  never take a record away. (Contrast the ⚡ boost, whose expiry made it the
+   *  one shape that merge can't carry — ADR 014.) It syncs so a record set on
+   *  one device is still there to be beaten on the other. */
+  readonly retoBests?: Partial<Record<KidId, Readonly<Record<string, number>>>>;
   /** Today's daily-mission state per kid — merge unions the done kinds within a
    *  day (later day supersedes) and keeps `claimed` once set, so a completed
    *  mission shows complete on every device and the bonus can't be re-claimed. */
@@ -262,6 +268,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     candidate.categoryAwards,
     isCategoryAwards,
   );
+  const retoBests = sanitizeKidRecord(candidate.retoBests, isRetoBests);
   const missions = sanitizeKidRecord(candidate.missions, isMissionState);
   return {
     stickers,
@@ -284,6 +291,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
     ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
+    ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
 }
@@ -313,6 +321,19 @@ export function isMissionState(value: unknown): value is MissionState {
 const CLAIMABLE_TIERS: readonly StickerTier[] = ["earned", "silver", "gold"];
 
 /** A deck→tier ledger: keys must be sticker-deck-like, values real claim tiers. */
+export function isRetoBests(
+  value: unknown,
+): value is Readonly<Record<string, number>> {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const entries = Object.entries(value);
+  return (
+    entries.length <= MAX_LIST &&
+    entries.every(([deckId, score]) => isSaneText(deckId) && isSaneCount(score))
+  );
+}
+
 export function isCategoryAwards(
   value: unknown,
 ): value is Readonly<Record<string, StickerTier>> {
@@ -629,6 +650,26 @@ export function mergeProgress(
     categoryAwards[kid] = merged;
   }
 
+  // Reto records: per deck keep the higher score. A best only goes up, so this
+  // is a plain max-merge and no device can erase the other's record.
+  const retoBests: Partial<Record<KidId, Record<string, number>>> = {};
+  for (const [kid, record] of Object.entries(current.retoBests ?? {}) as [
+    KidId,
+    Record<string, number>,
+  ][]) {
+    retoBests[kid] = { ...record };
+  }
+  for (const [kid, record] of Object.entries(incoming.retoBests ?? {}) as [
+    KidId,
+    Record<string, number>,
+  ][]) {
+    const merged: Record<string, number> = { ...(retoBests[kid] ?? {}) };
+    for (const [deckId, score] of Object.entries(record)) {
+      merged[deckId] = Math.max(merged[deckId] ?? 0, score);
+    }
+    retoBests[kid] = merged;
+  }
+
   // Daily mission: a later day supersedes; within the same day, union the done
   // kinds and keep `claimed` once either device has claimed the bonus.
   const missions: Partial<Record<KidId, MissionState>> = { ...(current.missions ?? {}) };
@@ -695,6 +736,7 @@ export function mergeProgress(
     ...(Object.keys(weekly).length > 0 ? { weekly } : {}),
     ...(Object.keys(weekProgress).length > 0 ? { weekProgress } : {}),
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
+    ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
 }

@@ -1,3 +1,5 @@
+import { ALL_KIDS } from "./kid";
+import type { KidId } from "./kid";
 import type { Deck } from "./deck";
 import type { VocabularyCard } from "./card";
 import { QuizDeckTooSmallError } from "./errors";
@@ -49,4 +51,10 @@ export function createDuel(
   });
 
   return { deckId: deck.id, rounds };
+}
+
+/** The kid on the other side of a record chase. El duelo needs both kids in
+ *  the room; this is how one kid competes with the other while playing alone. */
+export function rivalFor(kid: KidId): KidId {
+  return ALL_KIDS.find((other) => other !== kid) ?? kid;
 }

@@ -85,8 +85,13 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     Spanish exclamations instead of a fixed *¡Muy bien!*. *(Shipped 2026-07-18.)*
     - ☐ **Pet moods** — a happy/sad face driven by feeding & streak state (today
       only the existing hungry droop). The next step for the companion idea.
-    - ☐ **Sibling head-to-head hooks** — surface "🦖 beat your parejas time" on
-      home; the duelo exists but the async sibling nudge doesn't.
+    - ◐ **Sibling head-to-head hooks** — **half shipped 2026-08-22** as the
+      reto record chase: El reto shows the other kid's best on that deck and
+      celebrates passing it (see `shipped.md`), and `retoBests` joined the sync
+      snapshot as a max-merge so it works across devices. What's left is the
+      *home-screen* nudge this item asked for ("🦖 beat your parejas time") —
+      that needs records for games that don't keep one yet, and a place on home
+      that isn't already taken by the misión, the gift and el camino.
 
 10d. ☑ **⚡ La hora doble** — a won window where every chest pays double (x2,
     15 min) or triple (x3, 10 min). Shaped and shipped 2026-08-11 from the

@@ -11,8 +11,9 @@ import {
 } from "@learn-spanish/core";
 import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
-import { getSelectedKid, getAvatar } from "@/lib/kid";
+import { getSelectedKid, getAvatar, KID_META } from "@/lib/kid";
 import { addStars, getRetoBest, saveRetoBest } from "@/lib/economy";
+import { rivalFor } from "@learn-spanish/core";
 import { feedbackFanfare } from "@/lib/feedback";
 import { syncPush } from "@/lib/sync";
 import { useCombo } from "@/lib/use-combo";
@@ -37,6 +38,8 @@ export function RetoPlayer({ deck, accent }: Props) {
   const [score, setScore] = useState(0);
   const [phase, setPhase] = useState<"ready" | "play" | "done">("ready");
   const [isRecord, setIsRecord] = useState(false);
+  // True when this run passed the *other* kid's best on this deck.
+  const [beatRival, setBeatRival] = useState(false);
   const [flash, setFlash] = useState<{ id: string; good: boolean; nonce: number } | null>(null);
   const ticker = useRef<number | null>(null);
   const combo = useCombo();
@@ -79,6 +82,11 @@ export function RetoPlayer({ deck, accent }: Props) {
   useEffect(() => {
     if (phase === "done" && kid !== null) {
       feedbackFanfare();
+      // Read the rival's record *before* saving: beating a sibling is a
+      // separate, louder thing than beating your own best, and both can happen
+      // in the same run.
+      const rivalBest = getRetoBest(rivalFor(kid), deck.id);
+      setBeatRival(rivalBest > 0 && score > rivalBest);
       setIsRecord(saveRetoBest(kid, deck.id, score));
     }
     // deliberately keyed on phase alone: score/kid are read when time is up
@@ -151,6 +159,20 @@ export function RetoPlayer({ deck, accent }: Props) {
               🏆 Récord: {getRetoBest(kid, deck.id)}
             </p>
           )}
+          {/* Who to beat. Shown only when the other kid actually has a record
+              on this deck — never an empty challenge, and never a ranking. */}
+          {kid !== null && getRetoBest(rivalFor(kid), deck.id) > 0 && (
+            <p
+              aria-label={`${KID_META[rivalFor(kid)].english} record ${getRetoBest(rivalFor(kid), deck.id)}`}
+              className="sticker flex items-center gap-3 px-5 py-2 text-2xl font-extrabold"
+              style={{ "--accent": "var(--color-lime-deep)" } as React.CSSProperties}
+            >
+              <span aria-hidden className="text-3xl">
+                {getAvatar(rivalFor(kid))}
+              </span>
+              {getRetoBest(rivalFor(kid), deck.id)}
+            </p>
+          )}
           <button
             type="button"
             onClick={start}
@@ -163,10 +185,25 @@ export function RetoPlayer({ deck, accent }: Props) {
         </section>
       ) : phase === "done" ? (
         <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
-          {isRecord && <Confetti />}
+          {(isRecord || beatRival) && <Confetti />}
           <h1 className="text-5xl font-extrabold">
-            {isRecord ? "🏆 ¡Nuevo récord!" : "¡Tiempo!"}
+            {beatRival
+              ? "🏆 ¡Le ganaste!"
+              : isRecord
+                ? "🏆 ¡Nuevo récord!"
+                : "¡Tiempo!"}
           </h1>
+          {/* Whose record just fell. Nothing at all is shown when they lose —
+              the chase never turns into a rebuke. */}
+          {beatRival && kid !== null && (
+            <p
+              aria-label={`You beat the ${KID_META[rivalFor(kid)].english} kid`}
+              className="flex items-center gap-2 text-3xl font-extrabold"
+            >
+              <span aria-hidden>{getAvatar(rivalFor(kid))}</span>
+              <span aria-hidden>👑</span>
+            </p>
+          )}
           <p aria-label={`You scored ${score}`} className="text-4xl font-extrabold">
             ✅ {score}
           </p>

@@ -23,6 +23,8 @@ import { getAvatars, setAvatar } from "./kid";
 import {
   getActivePet,
   getCategoryAwards,
+  getRetoBests,
+  saveRetoBests,
   getFreezes,
   getOwnedAccessories,
   getOwnedAvatars,
@@ -64,6 +66,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
   const weekly: Partial<Record<KidId, WeeklyStreak>> = {};
   const weekProgress: Partial<Record<KidId, WeekProgress>> = {};
   const categoryAwards: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>> = {};
+  const retoBests: Partial<Record<KidId, Readonly<Record<string, number>>>> = {};
   const missions: Partial<Record<KidId, MissionState>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
@@ -106,6 +109,10 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (Object.keys(awards).length > 0) {
       categoryAwards[kid] = awards;
     }
+    const bests = getRetoBests(kid);
+    if (Object.keys(bests).length > 0) {
+      retoBests[kid] = bests;
+    }
     const mission = getStoredMission(kid);
     if (mission !== null) {
       missions[kid] = mission;
@@ -131,6 +138,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     ...(Object.keys(ownedAccessories).length > 0 ? { ownedAccessories } : {}),
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
+    ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
 }
@@ -201,6 +209,10 @@ export async function applySnapshot(merged: ProgressSnapshot): Promise<void> {
     const kidAwards = merged.categoryAwards?.[kid];
     if (kidAwards !== undefined) {
       saveCategoryAwards(kid, kidAwards);
+    }
+    const kidBests = merged.retoBests?.[kid];
+    if (kidBests !== undefined) {
+      saveRetoBests(kid, kidBests);
     }
     const kidMission = merged.missions?.[kid];
     if (kidMission !== undefined) {

@@ -49,7 +49,9 @@ No reading, no accounts, no setup.
   "Las parejas" (memory match, with 🟢/🟡/🔴 board sizes — 3/5/8 pairs),
   "Conecta" (connect the columns),
   "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
-  "El reto" (60-second lightning round), "¿Cuántos hay?" (counting, on
+  "El reto" (60-second lightning round — and it shows the *other* kid's best
+  on that deck, so beating your sibling is its own 🏆 celebration; nothing is
+  shown when you don't), "¿Cuántos hay?" (counting, on
   the numbers deck), "Deletrea" (letter-tile spelling, reader-level),
   "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
   sizes, on decks whose words fit a grid), "El globo" (guess the word

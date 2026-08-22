@@ -1,5 +1,39 @@
 # Shipped features
 
+## 2026-08-22 — 🏆 El récord de tu hermano: rivalry without both kids in the room
+
+**For:** both kids. El duelo is the only head-to-head in the app and it needs
+them both present at once; when they play alone, nothing makes one kid's
+achievement visible to the other. Sibling rivalry is the strongest engagement
+lever in the house and it was untouched. (Roadmap 10b's "sibling head-to-head
+hooks", open since 2026-07-18.)
+
+**What shipped:** El reto's start screen shows the *other* kid's best score on
+that deck — their avatar and one number — and passing it lands a distinct
+celebration, 🏆 ¡Le ganaste! with the beaten kid's avatar and a 👑, on top of the
+existing personal-record one.
+
+- **Nothing is shown when they lose.** No ranking, no running tally, no "you're
+  behind" — one number before, one moment after. The chase must never become a
+  rebuke to the kid who is three years younger.
+- **No rival appears if the other kid has never played that deck.** An empty
+  challenge is worse than none.
+- **`retoBests` now syncs.** It never did — a correction to what this session
+  first claimed. It rides the snapshot as a per-kid per-deck **max** merge, which
+  is exactly ADR 004's additive rule: a best score only goes up, so no device can
+  take a record away. (Contrast ADR 014's ⚡ boost — an expiring value is the one
+  shape that merge cannot carry, which is why *that* stayed local.) Without this
+  the feature silently did nothing whenever the kids used different devices.
+
+**Where:** `rivalFor` in `domain/duel.ts` (the other head-to-head concept), the
+`retoBests` field, validator and max-merge in `domain/transfer.ts`, the snapshot
+build/apply in `apps/web/src/lib/transfer.ts`, and the two screens in
+`RetoPlayer`.
+
+**Deferred (not dropped):** records for any other game (parejas time, globo
+streak) · a leaderboard screen · any overall ranking of the two kids · a
+home-screen nudge when your record has been beaten · notifications.
+
 ## 2026-08-22 — 🗣️ Habla conmigo: the first game with no right answer
 
 **For:** both kids, aimed at the pre-reader. From the engagement review — every

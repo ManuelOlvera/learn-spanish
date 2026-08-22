@@ -129,7 +129,7 @@ export { COMBO_MILESTONES, isComboMilestone } from "./domain/combo";
 export type { SceneGame, SceneItem } from "./domain/scene";
 export { createSceneGame, SCENE_ITEMS, SCENE_ROUNDS, sceneQuestion } from "./domain/scene";
 export type { DuelGame, DuelRound } from "./domain/duel";
-export { createDuel, DUEL_ROUNDS } from "./domain/duel";
+export { createDuel, rivalFor, DUEL_ROUNDS } from "./domain/duel";
 export type { WordStat, WordStats, WordStatsStore } from "./domain/word-stats";
 export {
   pickReviewCards,

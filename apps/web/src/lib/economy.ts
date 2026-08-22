@@ -372,6 +372,19 @@ export function getRetoBest(kid: KidId, deckId: string): number {
 }
 
 /** Returns true when the score sets a new record (and saves it). */
+/** Every deck's record for a kid — the sync snapshot carries the whole map. */
+export function getRetoBests(kid: KidId): Readonly<Record<string, number>> {
+  return store.loadRetoBest(kid);
+}
+
+/** Set a kid's whole record map (used when a sync merge resolves records). */
+export function saveRetoBests(
+  kid: KidId,
+  bests: Readonly<Record<string, number>>,
+): void {
+  store.saveRetoBest(kid, bests);
+}
+
 export function saveRetoBest(kid: KidId, deckId: string, score: number): boolean {
   return container.saveRetoBest.execute(kid, deckId, score);
 }
