@@ -105,6 +105,31 @@ describe("createSopaGame", () => {
     }
   });
 
+  it("never hides one word inside another — araña and telaraña split boards", () => {
+    // The bug: ARAÑA reads inside TELARAÑA, so both words hid on one line and
+    // a single selection found two cards.
+    const deck: Deck = {
+      id: "bugs-test",
+      nameSpanish: "Bichos",
+      nameEnglish: "Bugs",
+      emoji: "🐛",
+      cards: ["araña", "telaraña", "hormiga", "abeja", "mosca", "grillo", "oruga", "avispa"].map(
+        (w) => ({ id: w, spanish: `la ${w}`, english: w, emoji: "🐛" }),
+      ),
+    };
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 60; seed++) {
+      const game = createSopaGame(deck, "hard", seededRandom(seed));
+      const answers = game.words.map((w) => w.answer);
+      expect(answers).toHaveLength(SOPA_BOARDS.hard.words);
+      expect(answers.includes("ARAÑA") && answers.includes("TELARAÑA")).toBe(false);
+      answers.forEach((a) => seen.add(a));
+    }
+    // Both stay in rotation — the loser of a collision isn't banned outright.
+    expect(seen.has("ARAÑA")).toBe(true);
+    expect(seen.has("TELARAÑA")).toBe(true);
+  });
+
   it("is deterministic for a seeded random source", () => {
     const deck = sopaDeck();
     const a = createSopaGame(deck, "medium", seededRandom(3));
@@ -173,6 +198,20 @@ describe("sopaDifficulties", () => {
     const decks = await new StaticDeckRepository().listDecks();
     const animals = decks.find((d) => d.id === "animals")!;
     expect(sopaDifficulties(animals)).toEqual(["easy", "medium", "hard"]);
+    // A deck whose only extra word nests inside another can't fill that seat.
+    const nested: Deck = {
+      id: "nested",
+      nameSpanish: "N",
+      nameEnglish: "N",
+      emoji: "🕸️",
+      cards: ["araña", "telaraña", "mosca"].map((w) => ({
+        id: w,
+        spanish: `la ${w}`,
+        english: w,
+        emoji: "🐛",
+      })),
+    };
+    expect(sopaDifficulties(nested)).toEqual([]); // 3 words, only 2 seatable
     // Centenas words are mostly too long for any grid.
     const centenas = decks.find((d) => d.id === "centenas")!;
     expect(sopaDifficulties(centenas)).toEqual([]);

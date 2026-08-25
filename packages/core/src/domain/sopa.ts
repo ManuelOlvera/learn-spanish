@@ -11,6 +11,8 @@ import { bareWord, SPANISH_ALPHABET } from "./spanish";
  * right, top to bottom, and both downward diagonals — never backwards, this
  * is reading practice. The kid taps the first and last letter; a straight
  * selection whose letters spell an unfound word (either tap order) finds it.
+ * Because a selection is judged by its letters, no two words on one board may
+ * read inside each other — see `collide`.
  */
 export type SopaDifficulty = "easy" | "medium" | "hard";
 
@@ -70,14 +72,51 @@ function candidates(deck: Deck, maxLength: number): readonly SopaWord[] {
   });
 }
 
+const backwards = (word: string): string => [...word].reverse().join("");
+
+/** Two words can't share a board when one reads inside the other: ARAÑA sits
+ *  in TELARAÑA, so both hide on a single line and the kid finds two words in
+ *  one selection. Reversed counts too — a selection is read in either tap
+ *  order, so LOS inside SOL would credit the wrong card. */
+function collide(a: string, b: string): boolean {
+  return (
+    a.includes(b) ||
+    b.includes(a) ||
+    a.includes(backwards(b)) ||
+    b.includes(backwards(a))
+  );
+}
+
+/** Takes words in the given order, skipping any that collides with one
+ *  already taken, up to `limit`. Order decides who survives a collision, so
+ *  a shuffled pool keeps both araña and telaraña in rotation — just never on
+ *  the same board. */
+function withoutCollisions(
+  words: readonly SopaWord[],
+  limit: number,
+): SopaWord[] {
+  const picked: SopaWord[] = [];
+  for (const word of words) {
+    if (picked.length === limit) {
+      break;
+    }
+    if (!picked.some((seated) => collide(seated.answer, word.answer))) {
+      picked.push(word);
+    }
+  }
+  return picked;
+}
+
 /** The board sizes this deck can actually fill — the menu and the in-game
  *  picker offer only these. */
 export function sopaDifficulties(deck: Deck): readonly SopaDifficulty[] {
-  return SOPA_DIFFICULTIES.filter(
-    (difficulty) =>
-      candidates(deck, SOPA_BOARDS[difficulty].size).length >=
-      SOPA_BOARDS[difficulty].words,
-  );
+  return SOPA_DIFFICULTIES.filter((difficulty) => {
+    const board = SOPA_BOARDS[difficulty];
+    return (
+      withoutCollisions(candidates(deck, board.size), board.words).length >=
+      board.words
+    );
+  });
 }
 
 /** Word directions: rightward, downward, and the two downward diagonals —
@@ -135,17 +174,24 @@ export function createSopaGame(
 ): SopaGame {
   const board = SOPA_BOARDS[difficulty];
   const pool = candidates(deck, board.size);
-  if (pool.length < board.words) {
-    throw new QuizDeckTooSmallError(deck.id, pool.length, board.words);
+  // Deck order is a deterministic witness: if greedy can seat `board.words`
+  // collision-free words here, a shuffle can too.
+  const seatable = withoutCollisions(pool, board.words).length;
+  if (seatable < board.words) {
+    throw new QuizDeckTooSmallError(deck.id, seatable, board.words);
   }
 
   // Long words are the hardest to seat; place them first. A collision-heavy
   // board is simply retried — with ≤5 short words on a 6–8 grid a handful of
   // attempts always lands.
   for (let boardAttempt = 0; boardAttempt < 25; boardAttempt++) {
-    const words = shuffled(pool, random)
-      .slice(0, board.words)
-      .sort((a, b) => b.answer.length - a.answer.length);
+    const words = withoutCollisions(
+      shuffled(pool, random),
+      board.words,
+    ).sort((a, b) => b.answer.length - a.answer.length);
+    if (words.length < board.words) {
+      continue;
+    }
     const grid: string[] = Array.from({ length: board.size * board.size }, () => "");
     if (words.every((word) => tryPlace(grid, board.size, word.answer, random))) {
       for (let i = 0; i < grid.length; i++) {
@@ -157,7 +203,7 @@ export function createSopaGame(
     }
   }
   // Practically unreachable; a typed error beats a corrupt board.
-  throw new QuizDeckTooSmallError(deck.id, pool.length, board.words);
+  throw new QuizDeckTooSmallError(deck.id, seatable, board.words);
 }
 
 /** The inclusive cells from `from` to `to` when they sit on one straight
