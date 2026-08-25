@@ -134,8 +134,8 @@ pet's answer — so a kid who cannot read the screen had no way to hear *who was
 talking*.
 
 **What shipped:** `speakSpanish` takes an optional speaker role. The pet's
-prompt and the pet's reply share one voice at pitch 0.8; the kid's chosen
-sentence keeps the app's existing voice at pitch 1.
+prompt and the pet's reply share one voice; the kid's chosen sentence keeps
+the app's existing voice at pitch 1.
 
 - **The kid's line is the practice audio, so it did not move.** It keeps voice
   0 and pitch 1 — byte-for-byte what every game sounded like before roles
@@ -144,8 +144,16 @@ sentence keeps the app's existing voice at pitch 1.
 - **Pitch is the load-bearing half, not the voice.** Devices differ wildly in
   how many Spanish voices they expose (nine `es-ES` on a Mac, sometimes one on
   a tablet); pitch works everywhere. On a one-voice device the two speakers
-  still separate, just by pitch alone. Verified at three voice counts —
-  many, one, and none — plus a no-crash pass with no Spanish voice at all.
+  still separate, just by pitch alone.
+- **Android does not do voices at all — found on the phone, not in the test.**
+  Chrome there returns one entry per *locale*, so asking for a second Spanish
+  voice returns the same one, and asking for a different locale reads Spanish
+  in an English voice when that pack is missing. Voice choice is therefore
+  restricted to the kid's own accent, so a device either has a real second
+  speaker or none: real second voice → the pet lifts to 1.15 pitch; none →
+  1.6 pitch and 0.7 rate, the only levers Android leaves. Verified against
+  four simulated devices — desktop, Android's locale list, one voice, and no
+  Spanish voice at all.
 - **Habla conmigo now warms the voice list.** It was the only player that
   never called `warmUpVoices()`, and it is the one that speaks from a mount
   effect rather than a tap — the worst place to find the list empty, and worse
