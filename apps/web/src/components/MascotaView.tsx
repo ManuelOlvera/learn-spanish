@@ -27,7 +27,10 @@ import {
   feedActivePet,
   getOwnedAccessories,
   getPetCollection,
+  buyFreeze,
   getStars,
+  type WeeklyView,
+  rolloverWeekly,
   nameActivePet,
   openSurprise,
   placeAccessoryOnActive,
@@ -52,6 +55,7 @@ import { useDeniedWobble } from "@/lib/use-denied-wobble";
 import { syncPush } from "@/lib/sync";
 import { BuyConfirm } from "@/components/BuyConfirm";
 import { Confetti } from "@/components/Confetti";
+import { WeeklyCard } from "@/components/WeeklyCard";
 
 /** Where each accessory's *centre* sits on the pet, as a percent of the emoji
  *  box (0% = top/left edge). Both axes are centred (see the -translate below),
@@ -160,6 +164,23 @@ export function MascotaView() {
   const [kid, setKid] = useState<KidId | null>(null);
   const [collection, setCollection] = useState<PetCollection | null>(null);
   const [stars, setStars] = useState(0);
+  const [weekly, setWeekly] = useState<WeeklyView | null>(null);
+
+  /** Try to buy a ❄️; false lets the WeeklyCard play its denied wobble. */
+  function handleBuyFreeze(): boolean {
+    if (kid === null) {
+      return false;
+    }
+    const result = buyFreeze(kid);
+    if (result === null) {
+      return false;
+    }
+    feedbackRacha();
+    setStars(result.stars);
+    setWeekly((w) => (w ? { ...w, freezes: result.freezes } : w));
+    void syncPush();
+    return true;
+  }
   const [munch, setMunch] = useState(0);
   const [evolved, setEvolved] = useState(false);
   const wobble = useDeniedWobble();
@@ -188,6 +209,7 @@ export function MascotaView() {
   function refresh(k: KidId) {
     setCollection(getPetCollection(k));
     setStars(getStars(k));
+    setWeekly(rolloverWeekly(k));
     setOwnedAccessories(getOwnedAccessories(k));
     setOwnedThemes(getOwnedThemes(k));
     setTheme(getSelectedTheme(k));
@@ -392,6 +414,13 @@ export function MascotaView() {
           {getAvatar(kid)}
         </span>
       </header>
+
+      {/* La racha semanal lives here rather than on home: buying a ❄️ costs
+          stars, and this screen is where stars are spent. Home only keeps the
+          first-open-of-the-week celebration, which is a moment, not a shop. */}
+      {weekly !== null && (
+        <WeeklyCard weekly={weekly} stars={stars} onBuyFreeze={handleBuyFreeze} />
+      )}
 
       {evolved && <Confetti />}
 

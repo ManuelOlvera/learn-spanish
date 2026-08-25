@@ -189,6 +189,8 @@ export {
   CONVERSATION_DECKS,
   hasConversation,
 } from "./infrastructure/deck-groups";
+export type { HomeFocus, HomeFocusInput } from "./domain/home-focus";
+export { pickHomeFocus } from "./domain/home-focus";
 export type { ParentChallenge } from "./domain/challenge";
 export {
   challengeClaimable,

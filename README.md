@@ -155,8 +155,18 @@ No reading, no accounts, no setup.
   persisted on-device (no accounts). Filling a whole category — and levelling it
   to silver, then gold — stamps a 🥉/🥈/🥇 medal and opens an escalating
   completion chest (+15 / +30 / +50⭐).
+- **Home says one thing** — the gift, papá's challenge, the misión and el
+  repaso used to render as separate stacked cards; on a phone with two of them
+  active the first shelf tile sat *below the fold*. Home now shows exactly one
+  of them, the most urgent, by a domain rule (`pickHomeFocus`): anything holding
+  unclaimed stars outranks any suggestion, and a person's challenge outranks the
+  app's own. The shelf grid follows the camino's ladder order, and la mascota —
+  not learning content — moved out of the grid up to the header beside 📔,
+  carrying the ⭐ balance. La racha semanal moved to the mascota screen, which is
+  where stars are spent.
 - **Carta del día** — a daily featured word on the home screen with a
-  per-kid ☀️ streak.
+  per-kid ☀️ streak. It is not part of the rotation: it's Spanish content
+  rather than chrome, and it feeds the ☀️ streak, which hiding it would break.
 - **El regalo del día** — a free 🎁 on the home screen once a day (10–25⭐,
   sometimes a ❄️, sometimes a ⚡ hora doble), claimable once per calendar day.
 - **La hora doble** — a won window in which every treasure chest pays double

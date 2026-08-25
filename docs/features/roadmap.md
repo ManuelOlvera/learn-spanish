@@ -269,7 +269,12 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       "which activity"; the camino answers "which content", which the misión
       never did.
     Deferred out of the slice, in rough order of appeal:
-    - ✗ **Reorder home to match the ladder** — considered 2026-08-22 when the
+    - ☑ **Reorder home to match the ladder** — **done 2026-08-25** at the
+      parent's direct request, as part of the "home says one thing" pass. The
+      objection below (it moves tiles the kids find by position) still stands
+      and was overruled deliberately; if they struggle to find a shelf, this is
+      the change to look at first. Original reasoning kept:
+    - ✗ ~~Reorder home to match the ladder~~ — considered 2026-08-22 when the
       parent reported the real problem ("I don't see the path in the home
       page") and **not taken**: it moves five tiles the kids find by position,
       and a grid in ladder order still isn't a *drawn* path. The **Tu camino

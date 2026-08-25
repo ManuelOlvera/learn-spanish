@@ -1,5 +1,56 @@
 # Shipped features
 
+## 2026-08-25 — 🏠 Home says one thing
+
+**For:** both kids, and it started as a measurement rather than a hunch. Home
+had grown to eight stacked bands — ⚡ boost, 🎁 gift, la carta del día, 👨 el
+reto de papá, 🎯 la misión, 🔥 la semana, 🔁 el repaso, 🧭 tu camino — each added
+by a feature that was reasonable on its own.
+
+**What it actually cost**, measured on the live build before the change:
+
+| | First shelf tile appeared at | Things above it |
+|---|---|---|
+| Tablet, quiet day | 65% down the screen | 6 |
+| Tablet, busy day | 82% | 8 |
+| Phone, quiet day | 89% | 6 |
+| **Phone, busy day** | **107% — below the fold** | 8 |
+
+A pre-reader with papá's challenge and el repaso both active could not see a
+single thing to play without scrolling. Eight things shouting is the same as
+none: it also broke the design language's own rule, *"one action per screen."*
+
+**What shipped:**
+
+- **One slot instead of five cards.** Which one is a domain rule
+  (`pickHomeFocus`), not a pile of `&&` in JSX: claims first (🎁 gift →
+  👨 challenge payout → 🎯 misión payout), then pointers, a person's ahead of
+  the app's (👨 challenge → 🔁 repaso → 🎯 misión). A property test walks all 64
+  flag combinations to prove two cards can never stack again.
+- **La carta del día stays out of the rotation** — it is Spanish content rather
+  than chrome, and it feeds the ☀️ daily streak, which hiding it on a busy day
+  would silently break.
+- **The shelf grid follows the ladder** (`groupsInTrailOrder`), so the browsing
+  order and el camino's route are finally the same order. This is the reorder
+  rejected on 2026-08-22 as too disruptive; the parent asked for it directly.
+- **La mascota left the grid for the header**, beside 📔, carrying the ⭐
+  balance — "it's not learning" was the parent's framing, and the shelf grid is
+  learning content only. **La racha semanal moved to the mascota screen**: it
+  couldn't live in a slot it would rarely win, and buying a ❄️ spends stars, so
+  it belongs where stars are spent.
+- **The header became a real flex row.** Adding a third button to a centred
+  title with absolutely-positioned corners put the egg straight through
+  "¡Palabras!" at phone width — caught in a screenshot, not in review.
+
+**Result, measured the same way:** first tile at **44%** on tablet and **58%**
+on phone — and *constant*, no longer depending on how much is pending, which is
+the whole point.
+
+**Deferred (not dropped):** a compact status row for the ambient things (misión
+progress, 🔥, ⭐) so they are glanceable without a card · moving la carta del día
+into the rotation once the ☀️ streak has another way to be fed · trimming the
+four remaining bands further.
+
 ## 2026-08-22 — 👨 El reto de papá: the report stops being read-only
 
 **For:** the parent first. At 3–8 a parent's attention outweighs every star in

@@ -5,6 +5,9 @@ import Link from "next/link";
 import {
   dailyCard,
   KID_GAME_MODES,
+  challengeClaimable,
+  groupsInTrailOrder,
+  pickHomeFocus,
   pickReviewCards,
   REVIEW_MIN,
   type Deck,
@@ -20,7 +23,6 @@ import { syncPull, syncPush } from "@/lib/sync";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedStreak, getStreak, getWordStats } from "@/lib/client-container";
 import {
-  buyFreeze,
   canClaimDailyGift,
   claimDailyGift,
   claimChallengeBonus,
@@ -50,7 +52,6 @@ import { GiftReveal } from "@/components/GiftReveal";
 import { BoostBadge } from "@/components/BoostBadge";
 import { MissionCard } from "@/components/MissionCard";
 import { ChallengeCard } from "@/components/ChallengeCard";
-import { WeeklyCard } from "@/components/WeeklyCard";
 import { SecretDeckTile } from "@/components/SecretDeckTile";
 import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
@@ -101,6 +102,18 @@ export function HomeView({ decks, groups }: Props) {
   // El camino: how far this kid has come along the route, and the one shelf
   // that is next. Derived from the album, so it costs no new storage.
   const camino = useCamino(groups, publicDecks, kid, syncNonce);
+
+  // The one thing home says today. A domain rule, not a pile of && in JSX —
+  // see domain/home-focus.ts for why claims outrank suggestions.
+  const focus = pickHomeFocus({
+    giftReady,
+    challengePending: challenge !== null && !challenge.done,
+    challengeClaimable: challengeClaimable(challenge),
+    missionClaimable:
+      mission !== null && mission.complete && !mission.state.claimed,
+    missionPending: mission !== null && !mission.complete,
+    repasoReady: weakCount >= REVIEW_MIN,
+  });
 
   useEffect(() => {
     warmUpVoices();
@@ -238,22 +251,6 @@ export function HomeView({ decks, groups }: Props) {
     void syncPush();
   }
 
-  /** Try to buy a ❄️; false lets the WeeklyCard play its denied wobble. */
-  function handleBuyFreeze(): boolean {
-    if (!kid) {
-      return false;
-    }
-    const res = buyFreeze(kid);
-    if (res === null) {
-      return false;
-    }
-    feedbackRacha();
-    setStars(res.stars);
-    setWeekly((w) => (w ? { ...w, freezes: res.freezes } : w));
-    void syncPush();
-    return true;
-  }
-
   /** Try to unlock a secret deck; false lets the tile play its denied wobble. */
   function handleUnlock(deckId: string, cost: number): boolean {
     if (!kid) {
@@ -310,46 +307,69 @@ export function HomeView({ decks, groups }: Props) {
       {giftReveal !== null && (
         <GiftReveal gift={giftReveal} onDone={() => setGiftReveal(null)} />
       )}
-      <header className="relative w-full text-center">
-        <h1 className="text-6xl font-extrabold tracking-tight sm:text-7xl">
-          ¡Palabras!
-        </h1>
-        <p className="mt-1 text-lg font-semibold text-ink/60">
-          Tap a sticker to play
-        </p>
+      {/* A real three-column row rather than a title with buttons absolutely
+          placed on top of it: with a third button (la mascota) the old layout
+          put the egg straight through "¡Palabras!" at phone width. */}
+      <header className="flex w-full items-start justify-between gap-2">
         <button
           type="button"
           onClick={() => setKid(null)}
           aria-label={`Playing as ${avatar} (${meta.english}) — tap to switch kids`}
-          className="sticker absolute left-0 top-0 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+          className="sticker flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
         >
           {avatar}
         </button>
-        <Link
-          href="/album"
-          aria-label="Open the sticker album"
-          className="sticker absolute right-0 top-0 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
-        >
-          📔
-        </Link>
+
+        <div className="min-w-0 flex-1 text-center">
+          <h1 className="truncate text-xl font-extrabold tracking-tight sm:text-6xl">
+            ¡Palabras!
+          </h1>
+          <p className="mt-1 hidden text-lg font-semibold text-ink/60 sm:block">
+            Tap a sticker to play
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-start gap-2">
+          {/* La mascota is not learning content, so it no longer sits among the
+              shelves — it belongs with the album, as the other half of "your
+              stuff". The star balance rides it, since this is where stars go. */}
+          <Link
+            href="/mascota"
+            aria-label={
+              petHungry
+                ? `La mascota is hungry — feed it with your ${stars} stars`
+                : `La mascota — feed it with your ${stars} stars`
+            }
+            style={{ "--accent": "#fbbf24" } as React.CSSProperties}
+            className="sticker relative flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            <span aria-hidden>{petFace}</span>
+            {petHungry && (
+              <span
+                aria-hidden
+                className="chest-tease absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-ink bg-white text-base"
+              >
+                🥺
+              </span>
+            )}
+            <span
+              aria-hidden
+              className="absolute -bottom-2 rounded-full border-2 border-ink bg-white px-1.5 text-xs font-extrabold"
+            >
+              ⭐{stars}
+            </span>
+          </Link>
+          <Link
+            href="/album"
+            aria-label="Open the sticker album"
+            className="sticker flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            📔
+          </Link>
+        </div>
       </header>
 
       <BoostBadge kid={kid} nonce={boostNonce} />
-
-      {giftReady && (
-        <button
-          type="button"
-          onClick={openGift}
-          aria-label="El regalo del día — open today's free gift"
-          className="sticker chest-tease relative flex items-center gap-3 px-6 py-3 text-xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
-          style={{ "--accent": "var(--color-lime)" } as React.CSSProperties}
-        >
-          <span aria-hidden className="text-4xl">
-            🎁
-          </span>
-          El regalo del día
-        </button>
-      )}
 
       {daily && (
         <button
@@ -385,9 +405,28 @@ export function HomeView({ decks, groups }: Props) {
         </button>
       )}
 
-      {/* Papá's challenge sits above the misión: a person set it, so it
-          outranks the daily draw. */}
-      {challenge !== null &&
+      {/* One thing, not eight. Which one is a domain rule (pickHomeFocus):
+          anything holding unclaimed stars outranks any suggestion, and a
+          person's challenge outranks the app's own. Everything not shown is
+          still reachable — the misión completes by playing, el repaso by the
+          camino, la mascota from the header. */}
+      {focus === "gift" && (
+        <button
+          type="button"
+          onClick={openGift}
+          aria-label="El regalo del día — open today's free gift"
+          className="sticker chest-tease relative flex items-center gap-3 px-6 py-3 text-xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
+          style={{ "--accent": "var(--color-lime)" } as React.CSSProperties}
+        >
+          <span aria-hidden className="text-4xl">
+            🎁
+          </span>
+          El regalo del día
+        </button>
+      )}
+
+      {(focus === "challenge" || focus === "challenge-claim") &&
+        challenge !== null &&
         (() => {
           const deck = decks.find((d) => d.id === challenge.deckId);
           return deck === undefined ? null : (
@@ -398,13 +437,12 @@ export function HomeView({ decks, groups }: Props) {
             />
           );
         })()}
-      {mission !== null && <MissionCard mission={mission} onClaim={claimBonus} />}
 
-      {weekly !== null && (
-        <WeeklyCard weekly={weekly} stars={stars} onBuyFreeze={handleBuyFreeze} />
+      {(focus === "mission" || focus === "mission-claim") && mission !== null && (
+        <MissionCard mission={mission} onClaim={claimBonus} />
       )}
 
-      {weakCount >= REVIEW_MIN && (
+      {focus === "repaso" && (
         <Link
           href="/repaso"
           aria-label={`Review ${weakCount} tricky words`}
@@ -429,7 +467,7 @@ export function HomeView({ decks, groups }: Props) {
       {camino !== null && <CaminoStrip camino={camino} groups={groups} />}
 
       <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
-        {groups.map((group, i) => {
+        {groupsInTrailOrder(groups).map((group, i) => {
           const previews = group.deckIds.flatMap((id) => {
             const deck = decks.find((d) => d.id === id);
             return deck ? [deck] : [];
@@ -476,39 +514,6 @@ export function HomeView({ decks, groups }: Props) {
             </Link>
           );
         })}
-
-        <Link
-          href="/mascota"
-          aria-label={
-            petHungry
-              ? `La mascota is hungry — feed it with your ${stars} stars`
-              : `La mascota — feed it with your ${stars} stars`
-          }
-          style={{ "--accent": "#fbbf24" } as React.CSSProperties}
-          className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
-        >
-          <span aria-hidden className="sticker-peel" />
-          {petHungry && (
-            <span
-              aria-hidden
-              className="chest-tease absolute -right-2 -top-2 flex h-10 w-10 items-center justify-center rounded-full border-4 border-ink bg-white text-2xl"
-            >
-              🥺
-            </span>
-          )}
-          <span aria-hidden className="text-5xl sm:text-6xl">
-            {petFace}
-          </span>
-          <span className="text-center text-xl font-extrabold sm:text-2xl">
-            La mascota
-          </span>
-          <span
-            aria-hidden
-            className="rounded-full border-2 border-ink bg-white px-3 text-base font-extrabold"
-          >
-            ⭐ {stars}
-          </span>
-        </Link>
 
         <Link
           href={kid ? `/frases/${KID_GAME_MODES[kid].quiz}` : "/frases"}
