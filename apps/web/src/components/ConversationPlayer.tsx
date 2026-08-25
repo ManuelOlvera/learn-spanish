@@ -9,7 +9,7 @@ import {
   type Deck,
   type KidId,
 } from "@learn-spanish/core";
-import { speakSpanish } from "@/lib/speech";
+import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getActivePet, getPetCollection } from "@/lib/economy";
 import { petFormEmoji, petMaxForm } from "@learn-spanish/core";
 import { getSelectedKid } from "@/lib/kid";
@@ -42,6 +42,9 @@ export function ConversationPlayer({ deck, accent }: Props) {
   const [round, setRound] = useState(0);
 
   useEffect(() => {
+    // The pet speaks first, from this effect rather than a tap, so the voice
+    // list has to be warm before that line — two speakers need two voices.
+    warmUpVoices();
     const picked = getSelectedKid();
     setKid(picked);
     const which = picked ?? "listener";
@@ -68,7 +71,7 @@ export function ConversationPlayer({ deck, accent }: Props) {
   // The pet speaks its line whenever a new turn arrives.
   useEffect(() => {
     if (turn !== null && said === null) {
-      speakSpanish(turn.prompt);
+      speakSpanish(turn.prompt, "pet");
     }
   }, [turn, said]);
 
@@ -77,10 +80,10 @@ export function ConversationPlayer({ deck, accent }: Props) {
       feedbackPop();
       setSaid(choice);
       // The kid hears the sentence they just chose — that is the practice.
-      speakSpanish(choice.spanish);
+      speakSpanish(choice.spanish, "kid");
       window.setTimeout(() => {
         setShowReply(true);
-        speakSpanish(choice.reply);
+        speakSpanish(choice.reply, "pet");
       }, REPLY_DELAY_MS);
     },
     [],
@@ -155,7 +158,9 @@ export function ConversationPlayer({ deck, accent }: Props) {
         {/* The pet, and what it is saying right now. */}
         <button
           type="button"
-          onClick={() => speakSpanish(showReply && said ? said.reply : turn.prompt)}
+          onClick={() =>
+            speakSpanish(showReply && said ? said.reply : turn.prompt, "pet")
+          }
           aria-label="Hear it again"
           className="sticker pop-in flex w-full flex-col items-center gap-3 p-5 active:translate-x-1 active:translate-y-1 active:shadow-none"
         >

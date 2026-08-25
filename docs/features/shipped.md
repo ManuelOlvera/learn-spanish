@@ -126,6 +126,35 @@ build/apply in `apps/web/src/lib/transfer.ts`, and the two screens in
 streak) · a leaderboard screen · any overall ranking of the two kids · a
 home-screen nudge when your record has been beaten · notifications.
 
+## 2026-08-25 — 🗣️ Two voices in Habla conmigo
+
+**For:** both kids, the pre-reader first. Reported from the sofa: the game put
+three lines through one voice — the pet's question, the kid's own sentence, the
+pet's answer — so a kid who cannot read the screen had no way to hear *who was
+talking*.
+
+**What shipped:** `speakSpanish` takes an optional speaker role. The pet's
+prompt and the pet's reply share one voice at pitch 0.8; the kid's chosen
+sentence keeps the app's existing voice at pitch 1.
+
+- **The kid's line is the practice audio, so it did not move.** It keeps voice
+  0 and pitch 1 — byte-for-byte what every game sounded like before roles
+  existed. Only the pet's lines changed, which also means the ~15 other call
+  sites pass nothing and sound identical.
+- **Pitch is the load-bearing half, not the voice.** Devices differ wildly in
+  how many Spanish voices they expose (nine `es-ES` on a Mac, sometimes one on
+  a tablet); pitch works everywhere. On a one-voice device the two speakers
+  still separate, just by pitch alone. Verified at three voice counts —
+  many, one, and none — plus a no-crash pass with no Spanish voice at all.
+- **Habla conmigo now warms the voice list.** It was the only player that
+  never called `warmUpVoices()`, and it is the one that speaks from a mount
+  effect rather than a tap — the worst place to find the list empty, and worse
+  still once picking the *right* voice matters.
+
+**Deferred (not dropped):** question/answer voices in Los cuentos, La escena
+and Cuenta conmigo · a per-mascota voice so each pet sounds like itself across
+sessions · any parent-facing voice picker.
+
 ## 2026-08-22 — 🗣️ Habla conmigo: the first game with no right answer
 
 **For:** both kids, aimed at the pre-reader. From the engagement review — every

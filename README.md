@@ -58,8 +58,9 @@ No reading, no accounts, no setup.
   letter by letter before the balloon pops — both kids, 🟢/🟡/🔴 word
   lengths, the 💡 tip costs a life), "Habla conmigo" (🗣️ the mascota says something in Spanish, the kid
   taps one of 2–3 things to say back, hears their own sentence spoken, and the
-  pet answers *that* — no right answer anywhere, and the pet has its own taste,
-  so it agrees or argues; on the 16 decks whose words are things a person can
+  pet answers *that* — no right answer anywhere, the pet has its own taste,
+  so it agrees or argues, and the pet and the kid speak in different voices
+  so a pre-reader can hear who is talking; on the 16 decks whose words are things a person can
   like), and "Adivina la palabra" (wordle over
   a whole shelf — type the word on a Spanish keyboard, 🟩/🟨/⬜ per letter;
   a word the app doesn't know can't be submitted and costs no guess. The

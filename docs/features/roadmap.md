@@ -537,6 +537,12 @@ The queue, gathered from the sub-items above so nothing hides in history:
   los miles y millones (17) · verbs in the games so the verbs shelf drops
   learnOnly (11) · sentence attribute content (21) · more cuentos, and
   illustrated story pages (24).
+- **Speaker-voice follow-ons (deferred from the two-voice fix, 2026-08-25):**
+  question/answer voices in the other games that ask then answer — Los cuentos,
+  La escena, Cuenta conmigo · a per-mascota voice, so each pet sounds like
+  itself across sessions (needs a stable mapping for when the device's voice
+  list changes, and pulls the economy layer into an adapter that is presentation
+  today) · a parent-facing voice picker.
 - **Card art follow-ons (deferred from ADR 015, 2026-08-12):** draw the
   remaining 16 cards in La cara and El cuerpo so neither deck mixes drawn and
   emoji pictures — the known trade-off taken to ship the words emoji could not
