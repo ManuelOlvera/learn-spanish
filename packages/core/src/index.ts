@@ -306,7 +306,7 @@ export { StaticDeckRepository } from "./infrastructure/static-deck-repository";
 export type { EconomyStore } from "./domain/economy";
 export { EarnStarsUseCase } from "./application/earn-stars";
 export { SpendStarsUseCase } from "./application/spend-stars";
-export { GetMissionUseCase } from "./application/get-mission";
+export { GetMissionUseCase, missionOnHome } from "./application/get-mission";
 export type { MissionView } from "./application/get-mission";
 export { MarkActivityDoneUseCase } from "./application/mark-activity-done";
 export { ClaimMissionBonusUseCase } from "./application/claim-mission-bonus";

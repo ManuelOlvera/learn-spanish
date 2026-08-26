@@ -1,5 +1,32 @@
 # Shipped features
 
+## 2026-08-26 — 🎯 La misión comes back to home
+
+**The bug:** after *Home says one thing* (below), la misión del día stopped
+appearing. It was in the one-slot rotation, ranked last of six, and two of the
+cards above it never expire — `repasoReady` is true from the third stuck word
+until those words are reviewed, and papá's challenge stays pending until that
+one deck is played. So a kid with three stuck words never saw la misión at all.
+
+**Why it was the wrong card to rank last:** it is the only one of the six that
+is *perishable* — it redraws at midnight, so a day it is not shown is a day it
+is lost — and the only one with nowhere else to live. El repaso is reachable
+from el camino, the challenge from its own deck, la racha from la mascota;
+la misión existed on home or nowhere. Ranking it last did not delay it, it
+deleted it.
+
+**The fix:** la misión leaves the rotation and is drawn on its own, alongside
+el camino and la carta del día, which were kept out of the slot for the same
+reason (hiding la carta would silently break the ☀️ streak). It goes away only
+when it is *finished* — three tasks done **and** the bonus chest opened, so a
+complete-but-unclaimed misión still shows, because it is holding stars the kid
+has earned and not been paid (`missionOnHome`). Home is one slot plus la misión:
+still four bands at worst, not eight.
+
+**Locked by** `packages/core/test/home-focus.test.ts` — the property test now
+walks all 16 flag combinations of the four remaining focus cards, and five cases
+pin la misión's lifecycle from untouched to claimed.
+
 ## 2026-08-25 — 🏠 Home says one thing
 
 **For:** both kids, and it started as a measurement rather than a hunch. Home

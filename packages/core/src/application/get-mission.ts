@@ -30,6 +30,18 @@ export function missionView(
   return { kinds, state, complete: missionComplete(state, kinds) };
 }
 
+/**
+ * Whether home still draws la misión. It is not one of the cards competing for
+ * the single focus slot (see `domain/home-focus`) — it is perishable and has
+ * nowhere else to live, so it is drawn on its own and leaves the screen only
+ * once BOTH halves are done: the three tasks completed and the bonus chest
+ * opened. A complete-but-unclaimed misión still shows, because it is holding
+ * stars the kid has earned and not yet been paid.
+ */
+export function missionOnHome(view: MissionView | null): view is MissionView {
+  return view !== null && !(view.complete && view.state.claimed);
+}
+
 export class GetMissionUseCase {
   constructor(private readonly store: EconomyStore) {}
 

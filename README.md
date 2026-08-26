@@ -127,7 +127,8 @@ No reading, no accounts, no setup.
   silver/gold with replays.
 - **El reto de papá** — the report stops being read-only: tapping 🎯 Retar on
   any struggling deck in `/informe` puts a 👨 card on that kid's home screen
-  (above the misión — a person set it, so it outranks the daily draw). It speaks
+  (the one focus slot — a person set it, so it outranks the app's own
+  suggestions). It speaks
   itself aloud for the pre-reader, finishing *any* activity on that deck
   completes it, and the payout is a +15⭐ chest. One per kid at a time;
   device-local by design — a challenge is mutable state with a lifecycle, the
@@ -156,12 +157,13 @@ No reading, no accounts, no setup.
   persisted on-device (no accounts). Filling a whole category — and levelling it
   to silver, then gold — stamps a 🥉/🥈/🥇 medal and opens an escalating
   completion chest (+15 / +30 / +50⭐).
-- **Home says one thing** — the gift, papá's challenge, the misión and el
-  repaso used to render as separate stacked cards; on a phone with two of them
-  active the first shelf tile sat *below the fold*. Home now shows exactly one
-  of them, the most urgent, by a domain rule (`pickHomeFocus`): anything holding
-  unclaimed stars outranks any suggestion, and a person's challenge outranks the
-  app's own. The shelf grid follows the camino's ladder order, and la mascota —
+- **Home says one thing** — the gift, papá's challenge and el repaso used to
+  render as separate stacked cards; on a phone with two of them active the first
+  shelf tile sat *below the fold*. Home now shows exactly one of them, the most
+  urgent, by a domain rule (`pickHomeFocus`): anything holding unclaimed stars
+  outranks any suggestion, and a person's challenge outranks the app's own.
+  La misión is drawn on its own, outside that rotation — it resets at midnight
+  and has no other screen, so it leaves home only once it is finished. The shelf grid follows the camino's ladder order, and la mascota —
   not learning content — moved out of the grid up to the header beside 📔,
   carrying the ⭐ balance. La racha semanal moved to the mascota screen, which is
   where stars are spent.

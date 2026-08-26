@@ -7,6 +7,7 @@ import {
   KID_GAME_MODES,
   challengeClaimable,
   groupsInTrailOrder,
+  missionOnHome,
   pickHomeFocus,
   pickReviewCards,
   REVIEW_MIN,
@@ -109,9 +110,6 @@ export function HomeView({ decks, groups }: Props) {
     giftReady,
     challengePending: challenge !== null && !challenge.done,
     challengeClaimable: challengeClaimable(challenge),
-    missionClaimable:
-      mission !== null && mission.complete && !mission.state.claimed,
-    missionPending: mission !== null && !mission.complete,
     repasoReady: weakCount >= REVIEW_MIN,
   });
 
@@ -408,8 +406,8 @@ export function HomeView({ decks, groups }: Props) {
       {/* One thing, not eight. Which one is a domain rule (pickHomeFocus):
           anything holding unclaimed stars outranks any suggestion, and a
           person's challenge outranks the app's own. Everything not shown is
-          still reachable — the misión completes by playing, el repaso by the
-          camino, la mascota from the header. */}
+          still reachable — el repaso by the camino, la mascota from the
+          header. La misión is NOT in this rotation: see below. */}
       {focus === "gift" && (
         <button
           type="button"
@@ -438,9 +436,11 @@ export function HomeView({ decks, groups }: Props) {
           );
         })()}
 
-      {(focus === "mission" || focus === "mission-claim") && mission !== null && (
-        <MissionCard mission={mission} onClaim={claimBonus} />
-      )}
+      {/* La misión is drawn outside the slot above, like el camino: it resets
+          at midnight and no other screen can show it, so competing for one slot
+          meant a kid with stuck words never saw it at all. It leaves home only
+          once it is done and the chest is open (missionOnHome). */}
+      {missionOnHome(mission) && <MissionCard mission={mission} onClaim={claimBonus} />}
 
       {focus === "repaso" && (
         <Link

@@ -13,15 +13,23 @@
  *
  * Deliberately NOT in here: la carta del día (it is Spanish content, not
  * chrome, and it feeds the ☀️ streak — hiding it on a busy day would break the
- * streak) and el camino (a route, always drawn).
+ * streak), el camino (a route, always drawn), and **la misión del día**.
+ *
+ * La misión is the same shape of mistake la carta would have been. It was in
+ * the rotation once, ranked last, and that made it unreachable: every card
+ * above it except the 🎁 gift *keeps* — stuck words stay stuck until they are
+ * reviewed, and papá's challenge stays pending until that one deck is played —
+ * while la misión resets at midnight and is gone. A kid with three stuck words
+ * simply never saw it. It is also the only one of the six with nowhere else to
+ * live (el repaso is reachable from el camino, the challenge from its deck),
+ * so being hidden meant being lost. It is drawn on its own now, and leaves the
+ * screen only when it is finished — see `missionOnHome`.
  */
 export type HomeFocus =
   | "gift"
   | "challenge-claim"
-  | "mission-claim"
   | "challenge"
   | "repaso"
-  | "mission"
   | null;
 
 export interface HomeFocusInput {
@@ -31,10 +39,6 @@ export interface HomeFocusInput {
   readonly challengePending: boolean;
   /** …or one that is finished and still owes its chest. */
   readonly challengeClaimable: boolean;
-  /** The daily misión's three tasks are all done, bonus unclaimed. */
-  readonly missionClaimable: boolean;
-  /** The misión exists and is still in progress. */
-  readonly missionPending: boolean;
   /** Enough words are stuck to be worth a 🔁 pass. */
   readonly repasoReady: boolean;
 }
@@ -51,15 +55,9 @@ export function pickHomeFocus(input: HomeFocusInput): HomeFocus {
   if (input.challengeClaimable) {
     return "challenge-claim";
   }
-  if (input.missionClaimable) {
-    return "mission-claim";
-  }
   // Then the pointers, a person's ahead of the app's.
   if (input.challengePending) {
     return "challenge";
   }
-  if (input.repasoReady) {
-    return "repaso";
-  }
-  return input.missionPending ? "mission" : null;
+  return input.repasoReady ? "repaso" : null;
 }
