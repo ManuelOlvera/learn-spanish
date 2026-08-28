@@ -1,5 +1,47 @@
 # Shipped features
 
+## 2026-08-28 — 🔧 Quality-review follow-ups: patched deps, bounded sync, salvaged albums, capped cache
+
+Four of the five follow-ups from the 2026-08-28 review (`docs/quality-review-followups.md`).
+
+**Dependencies patched.** `next` 15.5.20 → 15.5.24 clears all eight of its
+advisories, including the two highs. `vitest`/`@vitest/coverage-v8` 2.1.9 → 3.2.7
+clears the critical (the Vitest UI server RCE — never run here, but it is the
+kind of thing that should not sit in a lockfile) and needed no test migration:
+all 580 tests passed unchanged. `pnpm.overrides` lift `postcss`, `nanoid`,
+`js-yaml`, and `brace-expansion` out of transitive pins. **29 advisories → 5.**
+The remaining five are `vite`/`esbuild` under vitest and `sharp` under `next` —
+build-time tooling, reachable only by someone who can already run our build, and
+in `sharp`'s case an image-optimization path this app never takes (ADR 015).
+
+**Sync requests are bounded** (`supabase-progress-store.ts`). Every RPC now
+carries `AbortSignal.timeout(10s)`. Sync operations are serialized per device
+and all of them are best-effort background work, so a request that never
+settled did not mean one slow pull — it silently ended sync for the life of the
+tab, with nothing on screen to say so. A captive portal is exactly that shape.
+A stall now raises the typed `SyncTimeoutError` (distinct from the plain
+`TypeError` an offline device throws, so the log can tell "no network" from
+"wedged") and the next pull retries.
+
+**A corrupt album no longer costs every sticker** (`album-store.ts`). The reader
+accepted the stored array only if *every* entry was a string, so one bad entry
+reset a child's whole collection to empty. `salvageStickerIds` keeps the usable
+entries and drops only the damaged ones. Verified end-to-end: an album seeded
+with 3 good and 3 corrupt entries now loads the 3, where it previously loaded 0.
+The other local stores (`word-stats`, `answer-log`, `economy`, `streak`) were
+already per-entry and needed no change.
+
+**The service worker cache is capped** at 400 entries, evicted oldest-first,
+with the precached shell exempt — see the ADR 005 addendum for why the cache is
+*not* versioned per deploy (that would empty it on every ship and break the
+offline launch this app exists for).
+
+**Not done:** Playwright smoke tests (deferred — `/verify` already drives the
+built app, and there is no CI to run them) and Supabase write rate-limiting,
+whose substance shipped in `0002_progress_hardening.sql` back in July; the
+residual is free-tier quota burn, better answered by a spend alert than an Edge
+Function. Both are recorded in the follow-ups doc.
+
 ## 2026-08-28 — 🐛 Three parent-reported bugs: the week's roller, the found ring, la boca
 
 Three reports from the same session, two of them regressions from the week's

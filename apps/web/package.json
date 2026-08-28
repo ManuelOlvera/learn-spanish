@@ -12,7 +12,7 @@
   "dependencies": {
     "@learn-spanish/config": "workspace:*",
     "@learn-spanish/core": "workspace:*",
-    "next": "^15.3.0",
+    "next": "^15.5.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

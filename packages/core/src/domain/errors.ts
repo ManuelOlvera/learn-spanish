@@ -65,3 +65,25 @@ export class ConversationDeckTooSmallError extends Error {
     this.name = "ConversationDeckTooSmallError";
   }
 }
+
+/**
+ * A sync RPC gave up before the network answered (ADR 004). Sync is
+ * serialized per device, so an exchange that never settles ends sync for the
+ * life of the tab; the adapter bounds every request and raises this instead,
+ * leaving one failed exchange the next pull retries.
+ */
+export class SyncTimeoutError extends Error {
+  constructor(
+    public readonly fn: string,
+    public readonly timeoutMs: number,
+  ) {
+    super(`Sync call ${fn} timed out after ${timeoutMs}ms`);
+    this.name = "SyncTimeoutError";
+  }
+}
+
+/** True for the abort a bounded `fetch` raises, and only that — an ordinary
+ *  offline `TypeError` must stay distinguishable from a stall. */
+export function isTimeoutError(err: unknown): boolean {
+  return err instanceof Error && err.name === "TimeoutError";
+}

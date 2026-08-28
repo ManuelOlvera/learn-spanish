@@ -4,9 +4,11 @@ export type { Deck } from "./domain/deck";
 export type { DeckRepository } from "./domain/deck-repository";
 export {
   DeckNotFoundError,
+  isTimeoutError,
   QrEmptyPayloadError,
   QrPayloadTooLongError,
   QuizDeckTooSmallError,
+  SyncTimeoutError,
 } from "./domain/errors";
 export type { RandomSource } from "./domain/random";
 export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
@@ -163,6 +165,7 @@ export {
   STORIES_ID,
   STORY_ACTIVITIES,
   stickerId,
+  salvageStickerIds,
   upgradeLegacyStickers,
 } from "./domain/album";
 export {

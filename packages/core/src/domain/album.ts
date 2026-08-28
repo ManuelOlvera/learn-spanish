@@ -103,3 +103,29 @@ export interface StickerCountsStore {
   load(): Promise<Readonly<Record<string, number>>>;
   save(counts: Readonly<Record<string, number>>): Promise<void>;
 }
+
+/** A sticker id is short; anything longer is corruption or a storage bomb. */
+const MAX_STICKER_ID = 128;
+/** Matches the transfer sanitizer's list cap — the same album, same ceiling. */
+const MAX_STICKERS = 5_000;
+
+/**
+ * Rescue every usable sticker id from an untrusted stored album.
+ *
+ * The album reader used to accept the array only if *every* entry was a
+ * string, so one corrupt entry threw away a child's whole collection. Salvage
+ * per entry instead: a damaged document costs the damaged stickers and
+ * nothing more. Runs *before* `upgradeLegacyStickers`, so it must not judge
+ * id shape — legacy two-part ids are still valid input to the upgrader.
+ */
+export function salvageStickerIds(raw: unknown): readonly string[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  return raw
+    .filter(
+      (id): id is string =>
+        typeof id === "string" && id !== "" && id.length <= MAX_STICKER_ID,
+    )
+    .slice(0, MAX_STICKERS);
+}

@@ -11,6 +11,9 @@
  *  - Cross-origin (the optional Supabase sync) and non-GET: untouched. Sync
  *    RPCs are POSTs and must never be cached.
  *
+ * Storage: the cache is capped at MAX_ENTRIES and trimmed oldest-first, so
+ * assets left behind by past deploys cannot grow without bound.
+ *
  * Update semantics: skipWaiting + clients.claim — a new worker takes over on
  * the next load. Bump CACHE to invalidate everything (needed only if a
  * stable-URL shell asset like the icon changes shape).
@@ -21,6 +24,44 @@ const CACHE = "palabras-v1";
  * Hashed assets can't be listed here (no build manifest) and don't need to
  * be — they're cached on first use below. */
 const SHELL = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-maskable.svg"];
+
+/* Storage ceiling. Hashed asset URLs are immutable, so a redeploy mints a new
+ * set and the previous one is never requested again — dead weight that would
+ * otherwise accumulate one full set per deploy, forever, on a device a family
+ * keeps installed for months. (Route visits and story art are self-limiting:
+ * both are finite corpora. Deploys are the unbounded axis.)
+ *
+ * Deliberately NOT fixed by versioning CACHE per build. That empties the cache
+ * on every deploy, and the offline launch is this app's whole point (ADR 005):
+ * ship on Friday and a family driving on Saturday arrives with only the shell.
+ * A cap keeps what was used recently and drops the oldest instead.
+ *
+ * cache.keys() resolves in insertion order, so "oldest" needs no bookkeeping —
+ * FIFO, no timestamps, no IndexedDB alongside. Sized for roughly two full app
+ * versions including all story art. */
+const MAX_ENTRIES = 400;
+
+/* A trim walks every key, so amortize it instead of paying on each request. */
+const TRIM_EVERY = 25;
+let writesSinceTrim = 0;
+
+async function trimCache() {
+  const cache = await caches.open(CACHE);
+  const keys = await cache.keys();
+  let excess = keys.length - MAX_ENTRIES;
+  for (const key of keys) {
+    if (excess <= 0) {
+      break;
+    }
+    /* Never evict the shell: it is what makes a cold offline launch work, and
+     * install only re-adds it when the worker itself updates. */
+    if (SHELL.includes(new URL(key.url).pathname)) {
+      continue;
+    }
+    void cache.delete(key);
+    excess -= 1;
+  }
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -38,6 +79,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
       )
+      .then(() => trimCache())
       .then(() => self.clients.claim()),
   );
 });
@@ -47,7 +89,13 @@ async function fetchAndCache(request) {
   if (response.ok) {
     const copy = response.clone();
     const cache = await caches.open(CACHE);
+    /* Fire-and-forget on purpose: the response must not wait on storage. */
     void cache.put(request, copy);
+    writesSinceTrim += 1;
+    if (writesSinceTrim >= TRIM_EVERY) {
+      writesSinceTrim = 0;
+      void trimCache();
+    }
   }
   return response;
 }

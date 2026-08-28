@@ -15,6 +15,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [architecture-diagrams.md](architecture-diagrams.md) — **[living]** the system on one page: monorepo graph, sync sequence, localStorage key inventory
 - [runbooks.md](runbooks.md) — **[living]** deploy, rollback, and Vercel gotchas
 - `supabase/migrations/` — not docs, but load-bearing: SQL applied by hand to the live project per the runbook, **before** the code that needs it ships
+- [quality-review-followups.md](quality-review-followups.md) — **[living]** the 2026-08-28 review's follow-up list, each item marked done / corrected / deliberately deferred
 - [fable-review/](fable-review/) — **[archived]** point-in-time implementation review (2026-07-13):
   [security](fable-review/security.md) · [code quality](fable-review/code-quality.md) ·
   [architecture](fable-review/architecture.md) · [docs](fable-review/docs.md) ·
