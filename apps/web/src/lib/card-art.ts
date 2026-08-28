@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { BarrigaArt } from "@/card-art/barriga";
+import { BocaArt } from "@/card-art/boca";
 import { CabezaArt } from "@/card-art/cabeza";
 import { CejasArt } from "@/card-art/cejas";
 import { CodoArt } from "@/card-art/codo";
@@ -56,6 +57,7 @@ const CARD_ART: Readonly<Record<string, CardArt>> = {
   // La cara / El cuerpo: a whole figure with one part coloured in. These keys
   // predate the key-equals-id rule, so "pelo-cara" draws "pelo".
   barriga: BarrigaArt,
+  boca: BocaArt,
   cabeza: CabezaArt,
   cejas: CejasArt,
   codo: CodoArt,

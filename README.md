@@ -25,7 +25,8 @@ No reading, no accounts, no setup.
   day (mañana · mediodía · siesta · noche), and the seasons.
   **¿Cómo soy? 🧑** is the describe-yourself shelf: **La cara 😃** and
   **El cuerpo 🖐️** (split apart once drawn card art let a cheek, an eyelash
-  and an elbow be shown at all — ADR 015), hair and skin
+  and an elbow be shown at all — ADR 015; *la boca* is drawn too, not because
+  👄 is missing but because 👄 *is* los labios), hair and skin
   (rubio, moreno, canoso, calvo, la piel clara · morena · oscura),
   las emociones, and **Mi día 🪥** — the
   daily routine in reflexive verbs (despertarse, lavarse los dientes,
@@ -165,8 +166,9 @@ No reading, no accounts, no setup.
   La misión is drawn on its own, outside that rotation — it resets at midnight
   and has no other screen, so it leaves home only once it is finished. The shelf grid follows the camino's ladder order, and la mascota —
   not learning content — moved out of the grid up to the header beside 📔,
-  carrying the ⭐ balance. La racha semanal moved to the mascota screen, which is
-  where stars are spent.
+  carrying the ⭐ balance. La racha semanal moved off home too — first to the
+  mascota screen, then (parent-reported) to `/informe`, where the family already
+  reads 🔥 and ❄️ and where buying an escudo is the grown-up call it is (ADR 017).
 - **Carta del día** — a daily featured word on the home screen with a
   per-kid ☀️ streak. It is not part of the rotation: it's Spanish content
   rather than chrome, and it feeds the ☀️ streak, which hiding it would break.
@@ -179,9 +181,11 @@ No reading, no accounts, no setup.
 - **Weekly streaks** — finishing the daily misión on 3 days makes an
   active 🔥 week; each active week bumps the weekly streak, celebrated by
   a first-open-of-the-week animation (grew / an ❄️ escudo saved it / start
-  again). Kids start with 3 escudos, buy more for 30⭐ on home, or win one
-  from the 🎁 caja sorpresa; a missed week spends an escudo before the
-  streak resets. `/informe` shows each kid's 🔥 and ❄️ counts.
+  again). Kids start with 3 escudos, win one from the 🎁 caja sorpresa, or buy
+  more for 30⭐ from the Semana card on `/informe`; a missed week spends an
+  escudo before the streak resets. Home is the only screen that *rolls* the
+  week — rolling is what fires the celebration, so every other screen reads a
+  no-write projection of it (ADR 017).
 
 **Live:** https://learn-spanish-manuelolveras-projects.vercel.app
 (deploy/rollback: `docs/runbooks.md`)

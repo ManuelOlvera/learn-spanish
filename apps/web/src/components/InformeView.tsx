@@ -22,7 +22,10 @@ import {
   sampleTrend,
 } from "@/lib/client-container";
 import { getAvatar, KID_META } from "@/lib/kid";
-import { getFreezes, getStars, getWeeklyCount } from "@/lib/economy";
+import { buyFreeze, getStars, readWeekly, type WeeklySnapshot } from "@/lib/economy";
+import { syncPush } from "@/lib/sync";
+import { feedbackRacha } from "@/lib/feedback";
+import { WeeklyCard } from "@/components/WeeklyCard";
 
 interface Props {
   decks: readonly Deck[];
@@ -33,8 +36,7 @@ interface KidReport {
   readonly avatar: string;
   readonly stars: number;
   readonly streak: Streak | null;
-  readonly weeklyStreak: number;
-  readonly freezes: number;
+  readonly weekly: WeeklySnapshot;
   readonly stickers: number;
   readonly strong: readonly VocabularyCard[];
   readonly tricky: readonly VocabularyCard[];
@@ -123,8 +125,7 @@ export function InformeView({ decks }: Props) {
           avatar: getAvatar(kid),
           stars: getStars(kid),
           streak,
-          weeklyStreak: getWeeklyCount(kid),
-          freezes: getFreezes(kid),
+          weekly: readWeekly(kid),
           stickers: stickers.length,
           strong: strongWords(cards, stats, 5),
           tricky: pickReviewCards(cards, stats, 5),
@@ -138,6 +139,24 @@ export function InformeView({ decks }: Props) {
         setReports([]);
       });
   }, [decks]);
+
+  /** Buy one ❄️ for a kid; false lets the WeeklyCard play its denied wobble. */
+  function handleBuyFreeze(kid: KidId): boolean {
+    const result = buyFreeze(kid);
+    if (result === null) {
+      return false;
+    }
+    feedbackRacha();
+    setReports((current) =>
+      (current ?? []).map((r) =>
+        r.kid === kid
+          ? { ...r, stars: result.stars, weekly: { ...r.weekly, freezes: result.freezes } }
+          : r,
+      ),
+    );
+    void syncPush();
+    return true;
+  }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 p-4 sm:p-6">
@@ -197,19 +216,17 @@ export function InformeView({ decks }: Props) {
               <span className="rounded-full border-2 border-ink bg-white px-3">
                 ☀️ {report.streak?.count ?? 0}
               </span>
-              <span
-                className="rounded-full border-2 border-ink bg-white px-3"
-                title="Weekly streak"
-              >
-                🔥 {report.weeklyStreak}
-              </span>
-              <span
-                className="rounded-full border-2 border-ink bg-white px-3"
-                title="Streak freezes"
-              >
-                ❄️ {report.freezes}
-              </span>
             </div>
+            {/* La racha semanal: shown and shopped here rather than on a kid's
+                screen. A ❄️ is bought with the kid's stars but is a parent's
+                call — it forgives a missed week — and home keeps the one
+                thing it says. Read-only for the streak itself: only home may
+                roll the week, which is what fires the ¡Semana N! moment. */}
+            <WeeklyCard
+              weekly={report.weekly}
+              stars={report.stars}
+              onBuyFreeze={() => handleBuyFreeze(report.kid)}
+            />
             <TrendBlock trend={report.trend} />
             <div>
               <h3 className="text-base font-extrabold text-ink/70">

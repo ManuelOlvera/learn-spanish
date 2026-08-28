@@ -361,6 +361,11 @@ describe("starter pack content", () => {
     // "Cannot show" is about teaching, not about coverage. The body words
     // (2026-08-12) had no glyph at all. The two Formas y lugares decks
     // (2026-08-17) are the other kind: emoji has glyphs, and they mis-teach.
+    // `boca` (2026-08-28) is the third kind: 👄 *is* a pair of lips, so it
+    // and los labios were one picture to a kid who cannot read the word
+    // under it (parent-reported). A mouth is the opening, not the border —
+    // only a drawing can say that, so la boca is now a face with its mouth
+    // open and los labios stays lips closed, filling the frame.
     //
     // A shape deck is a lesson in controlled variation — only the geometry
     // may change — and emoji shapes vary everything else instead: ⭕ is a
@@ -377,6 +382,7 @@ describe("starter pack content", () => {
       "al-lado",
       "arriba",
       "barriga",
+      "boca",
       "cabeza",
       "cejas",
       "cerca",

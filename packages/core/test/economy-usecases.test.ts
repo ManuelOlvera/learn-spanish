@@ -34,6 +34,7 @@ import { GetMissionUseCase } from "../src/application/get-mission";
 import { MarkActivityDoneUseCase } from "../src/application/mark-activity-done";
 import { ClaimMissionBonusUseCase } from "../src/application/claim-mission-bonus";
 import { RolloverWeeklyUseCase } from "../src/application/rollover-weekly";
+import { ReadWeeklyUseCase } from "../src/application/read-weekly";
 import { BuyFreezeUseCase } from "../src/application/buy-freeze";
 import { FeedPetUseCase } from "../src/application/feed-pet";
 import { NamePetUseCase } from "../src/application/name-pet";
@@ -212,6 +213,34 @@ describe("RolloverWeeklyUseCase", () => {
     expect(view.freezes).toBe(STARTING_FREEZES - 1);
     expect(store.loadFreezes(KID)).toBe(STARTING_FREEZES - 1); // persisted
     expect(store.loadWeekly(KID)).toEqual({ week: "2026-07-13", count: 2 });
+  });
+});
+
+describe("ReadWeeklyUseCase", () => {
+  // The parent report shows the weekly streak but must never *consume* the
+  // rollover: `outcome` fires exactly once per new week, and the screen that
+  // celebrates it is home. A second caller that wrote would steal it.
+  it("projects a finished week without persisting anything", () => {
+    const store = new FakeEconomyStore();
+    store.saveWeekly(KID, { week: "2026-07-06", count: 2 }); // week before NOW's
+    const snapshot = new ReadWeeklyUseCase(store).execute(KID, NOW);
+    expect(snapshot.count).toBe(2);
+    expect(snapshot.freezes).toBe(STARTING_FREEZES - 1); // a freeze *would* be spent
+    expect(store.loadWeekly(KID)).toEqual({ week: "2026-07-06", count: 2 }); // untouched
+    expect(store.loadFreezes(KID)).toBeNull(); // untouched
+  });
+
+  it("leaves home's celebration intact for the same week", () => {
+    const store = new FakeEconomyStore();
+    store.saveWeekly(KID, { week: "2026-07-06", count: 2 });
+    new ReadWeeklyUseCase(store).execute(KID, NOW);
+    expect(new RolloverWeeklyUseCase(store).execute(KID, NOW).outcome).toBe("frozen");
+  });
+
+  it("reports this week's active days and the starting freeze grant", () => {
+    const store = new FakeEconomyStore();
+    const snapshot = new ReadWeeklyUseCase(store).execute(KID, NOW);
+    expect(snapshot).toEqual({ count: 0, freezes: STARTING_FREEZES, activeDays: 0 });
   });
 });
 

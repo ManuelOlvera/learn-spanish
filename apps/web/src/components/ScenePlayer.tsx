@@ -187,10 +187,16 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
                     )} ${isFound ? "pop-in scale-125" : isWrong ? "wobble" : ""}`}
                     style={{ left: `${item.x}%`, top: `${item.y}%` }}
                   >
+                    {/* inline-flex, not a bare inline span: a drawn card
+                        renders a block <svg>, and a block box splits an inline
+                        parent into two empty fragments — which painted the
+                        ring twice, above and below the picture, and never
+                        around it (parent-reported 2026-08-28). A flex box
+                        contains whatever CardFace draws, glyph or drawing. */}
                     <span
                       className={
                         isFound
-                          ? "rounded-full bg-[var(--color-lime)] p-1 shadow-[0_0_0_4px_var(--color-ink)]"
+                          ? "inline-flex items-center justify-center rounded-full bg-[var(--color-lime)] p-1 shadow-[0_0_0_4px_var(--color-ink)]"
                           : ""
                       }
                     >

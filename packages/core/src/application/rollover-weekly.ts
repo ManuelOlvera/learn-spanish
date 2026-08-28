@@ -7,14 +7,11 @@ import {
   weekKey,
 } from "../domain/weekly";
 import type { RolloverOutcome } from "../domain/weekly";
+import type { WeeklySnapshot } from "./read-weekly";
 
-/** The weekly streak as home shows it. */
-export interface WeeklyView {
-  /** Active weeks earned so far. */
-  readonly count: number;
-  readonly freezes: number;
-  /** Active days recorded this week (0…ACTIVE_WEEK_DAYS). */
-  readonly activeDays: number;
+/** The weekly streak as home shows it: the displayable snapshot every screen
+ *  shares, plus the one thing only the rolling screen may know. */
+export interface WeeklyView extends WeeklySnapshot {
   /** What the week rollover did — drives the once-per-week animation. */
   readonly outcome: RolloverOutcome;
 }

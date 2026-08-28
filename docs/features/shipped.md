@@ -1,5 +1,56 @@
 # Shipped features
 
+## 2026-08-28 — 🐛 Three parent-reported bugs: the week's roller, the found ring, la boca
+
+Three reports from the same session, two of them regressions from the week's
+own changes.
+
+**La racha semanal was on the pet screen** (*"the semana popup shows up"*).
+Nothing was popping: the Semana card had been *moved* there by *Home says one
+thing* three days earlier, so it appeared where it never had. It has gone off
+the kids' screens entirely, to `/informe` — which already showed each kid's 🔥
+and ❄️ as chips, and where buying an escudo reads as the grown-up call it is.
+The card replaces those two chips rather than sitting beside them.
+
+Underneath sat a defect the report never saw. `rolloverWeekly` is a **write**:
+advancing `weekly.week` is exactly what makes its `outcome` non-`"none"` once
+per week, and la mascota called it in `refresh()` — on mount, and again after
+every meal, purchase and accessory drag. A kid who opened the pet screen before
+home consumed the roll silently, and home's ¡Semana N! never fired that week.
+Split into `ReadWeeklyUseCase`, which projects the same `rollWeek` and persists
+nothing, for every screen that only displays; home stays the only roller.
+`WeeklyCard` now takes `WeeklySnapshot`, which has no `outcome` field, so a
+display screen cannot reach the celebration even by accident. **ADR 017.**
+
+**A vertical line after every correct tap in busca y toca.** The found item's
+lime ring was a bare **inline** `<span>` wrapped around `CardFace`, and a drawn
+card renders a `display:block` `<svg>`. A block box splits an inline parent into
+two fragments, so the ring painted *twice* — two 16px ink squares stacked above
+and below the picture — and never around the picture at all. Untouched since
+ADR 015 introduced drawn cards; it hid while only La cara and El cuerpo mixed a
+few drawings in, then became every single correct tap once Las formas and
+¿Dónde está? shipped drawn whole. The ring is `inline-flex` now, which contains
+whatever CardFace draws. Emoji cards gain from it too: the highlight used to be
+a tall pill sized by font metrics rather than by the glyph, and is now a circle.
+
+**La boca and los labios were the same picture.** Not a drawing that came out
+badly — 👄 *is* a pair of lips, and this deck deals pictures alone, so "Pick the
+mouth" against "Pick the lips" was a coin flip. La boca is drawn now: a face
+with its mouth wide open, because a mouth is the *opening* and only a drawing
+says that, while los labios stays lips closed and filling the frame. Different
+silhouette families, so they hold apart at the ~96px a picture-choice tile
+gives them. The teeth are one band under the top lip rather than a row — el
+diente and la lengua are cards of their own in this deck and neither may be
+what a kid sees when asked for la boca. This is the first card drawn *despite*
+having a working glyph, which is precisely the cap ADR 015's last consequence
+named; the pack test's "and only those" list carries the reason.
+
+**Locked by** three `ReadWeeklyUseCase` cases in
+`packages/core/test/economy-usecases.test.ts` (a projection that writes nothing,
+and home's celebration still intact after a read), and the drawn-card list in
+`packages/core/test/starter-pack.test.ts`. The ring is CSS, so it was verified
+in the browser: one box, not two, on both a drawn and an emoji card.
+
 ## 2026-08-26 — 🎯 La misión comes back to home
 
 **The bug:** after *Home says one thing* (below), la misión del día stopped

@@ -22,6 +22,7 @@ import {
   MarkActivityDoneUseCase,
   OpenSurpriseUseCase,
   PlaceAccessoryUseCase,
+  ReadWeeklyUseCase,
   RecordAnswerUseCase,
   RolloverWeeklyUseCase,
   SampleTrendUseCase,
@@ -92,6 +93,7 @@ export const getMission = new GetMissionUseCase(economyStore);
 export const markActivityDone = new MarkActivityDoneUseCase(economyStore);
 export const claimMissionBonus = new ClaimMissionBonusUseCase(economyStore);
 export const rolloverWeekly = new RolloverWeeklyUseCase(economyStore);
+export const readWeekly = new ReadWeeklyUseCase(economyStore);
 export const buyFreeze = new BuyFreezeUseCase(economyStore);
 export const feedPet = new FeedPetUseCase(economyStore);
 export const namePet = new NamePetUseCase(economyStore);

@@ -28,6 +28,7 @@ import {
   type StickerTier,
   type SurpriseResult,
   type Wallet,
+  type WeeklySnapshot,
   type WeeklyView,
   type WeekProgress,
   type WeeklyStreak,
@@ -39,7 +40,7 @@ import {
 } from "@learn-spanish/core";
 import * as container from "./client-container";
 
-export type { MissionView, WeeklyView };
+export type { MissionView, WeeklySnapshot, WeeklyView };
 
 const store = container.economyStore;
 
@@ -103,7 +104,9 @@ export function getFreezes(kid: KidId): number {
   return freezesOrStarting(store.loadFreezes(kid));
 }
 
-/** Read the weekly streak, rolling finished weeks over first. Call on app open. */
+/** Read the weekly streak, rolling finished weeks over first — a **write**, and
+ *  the write is what makes `outcome` fire once per week. Home is the only
+ *  caller (ADR 017); every screen that just shows la racha uses `readWeekly`. */
 export function rolloverWeekly(kid: KidId): WeeklyView {
   return container.rolloverWeekly.execute(kid, new Date());
 }
@@ -115,9 +118,10 @@ export function buyFreeze(
   return container.buyFreeze.execute(kid);
 }
 
-/** Read the weekly streak without rolling over (parent report, InformeView). */
-export function getWeeklyCount(kid: KidId): number {
-  return store.loadWeekly(kid)?.count ?? 0;
+/** The weekly streak as a screen shows it, without rolling it over — rolling
+ *  is what fires home's once-a-week celebration, so only home may do it. */
+export function readWeekly(kid: KidId): WeeklySnapshot {
+  return container.readWeekly.execute(kid, new Date());
 }
 
 // ---- sync accessors (ADR 004): expose freeze/weekly state to the snapshot ----

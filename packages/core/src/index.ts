@@ -312,6 +312,8 @@ export { MarkActivityDoneUseCase } from "./application/mark-activity-done";
 export { ClaimMissionBonusUseCase } from "./application/claim-mission-bonus";
 export { RolloverWeeklyUseCase } from "./application/rollover-weekly";
 export type { WeeklyView } from "./application/rollover-weekly";
+export { ReadWeeklyUseCase } from "./application/read-weekly";
+export type { WeeklySnapshot } from "./application/read-weekly";
 export { BuyFreezeUseCase } from "./application/buy-freeze";
 export { FeedPetUseCase } from "./application/feed-pet";
 export { NamePetUseCase } from "./application/name-pet";

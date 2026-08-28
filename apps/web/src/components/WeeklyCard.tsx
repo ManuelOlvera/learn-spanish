@@ -4,20 +4,24 @@ import { useState } from "react";
 import {
   ACTIVE_WEEK_DAYS,
   FREEZE_COST,
-  type WeeklyView,
+  type WeeklySnapshot,
 } from "@learn-spanish/core";
 import { BuyConfirm } from "@/components/BuyConfirm";
 import { useDeniedWobble } from "@/lib/use-denied-wobble";
 
 interface Props {
-  weekly: WeeklyView;
+  /** The snapshot, never the rollover view: this card only ever *shows* the
+   *  streak, so it must not be reachable from the once-a-week `outcome`. */
+  weekly: WeeklySnapshot;
   stars: number;
   /** Try to buy one ❄️; returns false when refused (the card then wobbles). */
   onBuyFreeze: () => boolean;
 }
 
-/** The home screen's Semana card: the weekly streak, this week's active-day
- *  dots, and the buy-a-freeze button. */
+/** The Semana card: the weekly streak, this week's active-day dots, and the
+ *  buy-a-freeze button. Lives on the parent report (`/informe`) — a ❄️ is
+ *  bought with a kid's stars but forgives a missed week, which is a parent's
+ *  call, and neither home nor la mascota has a slot to spare for it. */
 export function WeeklyCard({ weekly, stars, onBuyFreeze }: Props) {
   const wobble = useDeniedWobble();
   const [confirming, setConfirming] = useState(false);
@@ -36,7 +40,7 @@ export function WeeklyCard({ weekly, stars, onBuyFreeze }: Props) {
 
   return (
     <div
-      className="sticker relative flex w-full max-w-md items-center justify-between gap-3 px-5 py-3"
+      className="sticker relative flex w-full items-center justify-between gap-3 px-5 py-3"
       aria-label={`Weekly streak: ${weekly.count} weeks, ${weekly.activeDays} of ${ACTIVE_WEEK_DAYS} days this week, ${weekly.freezes} freezes`}
     >
       <span aria-hidden className="sticker-peel" />

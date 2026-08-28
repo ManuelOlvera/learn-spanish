@@ -156,7 +156,7 @@ export const STARTER_PACK: readonly Deck[] = [
       { id: "ojos", spanish: "los ojos", english: "the eyes", emoji: "👀" },
       { id: "nariz", spanish: "la nariz", english: "the nose", emoji: "👃" },
       { id: "mejillas", spanish: "las mejillas", english: "the cheeks", emoji: "😊", image: "mejillas" },
-      { id: "boca", spanish: "la boca", english: "the mouth", emoji: "👄" },
+      { id: "boca", spanish: "la boca", english: "the mouth", emoji: "👄", image: "boca" },
       { id: "labios", spanish: "los labios", english: "the lips", emoji: "🫦", image: "labios" },
       { id: "diente", spanish: "el diente", english: "the tooth", emoji: "🦷" },
       { id: "lengua", spanish: "la lengua", english: "the tongue", emoji: "👅" },
