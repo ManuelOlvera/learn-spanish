@@ -121,6 +121,12 @@ Everything the app persists on a device. "Synced" means the value rides the
 pointers and presentation choices deliberately do not (ADR 004). Schema moves
 between keys happen only in `storage-migrations.ts`.
 
+Everything here is localStorage. The app writes exactly one **sessionStorage**
+flag — `palabras.error-reloaded` in `app/error.tsx`, which lets a route error
+retry itself once against the current deployment before showing the
+picture-only recovery screen. It holds no progress and is gone when the tab
+closes, so it is not part of this inventory.
+
 | Key | Owner | Holds | Synced |
 | --- | --- | --- | --- |
 | `palabras.kid.v1` | `lib/kid.ts` | which kid is selected on this device | no (pointer) |
@@ -129,7 +135,9 @@ between keys happen only in `storage-migrations.ts`.
 | `palabras.streaks.v1` | `lib/streak-store.ts` | daily ☀️ streak per kid | yes |
 | `palabras.word-stats.v1` | `lib/word-stats-store.ts` | right/wrong tallies per word | yes |
 | `palabras.stars.v1` | `lib/economy-store.ts` | ⭐ wallet per kid | yes |
+| `palabras.wallet.v1` | `lib/economy-store.ts` | the counter wallet: earned/spent per kid, balance derived (`stars.v1` is the legacy balance view) | yes (as `wallets`, which wins over `stars` on merge — ADR 008) |
 | `palabras.mission.v1` | `lib/economy-store.ts` | today's misión state | yes |
+| `palabras.daily-gift.v1` | `lib/economy-store.ts` | dayKey of the last daily-gift claim | no (per-device) |
 | `palabras.pets.v2` | `lib/economy-store.ts` | pet collections | yes |
 | `palabras.pet.v1` | migration source only | legacy single pet | legacy |
 | `palabras.sticker-counts.v1` | `lib/economy-store.ts` | completion counts (tiers) | yes |
@@ -141,9 +149,12 @@ between keys happen only in `storage-migrations.ts`.
 | `palabras.freezes.v1` | `lib/economy-store.ts` | ❄️ escudos | yes |
 | `palabras.category-awards.v1` | `lib/economy-store.ts` | claimed chest tiers per deck | yes |
 | `palabras.reto.v1` | `lib/economy-store.ts` | best reto scores | no (per-device) |
+| `palabras.challenge.v1` | `lib/economy-store.ts` | el reto de papá: the challenge set for a kid | no (per-device — a challenge is set on the device it is played from) |
+| `palabras.boost.v1` | `lib/economy-store.ts` | the ⚡ hora doble window | **never** (ADR 014 — an expiring timestamp is the one shape the additive merge cannot carry; expiry is decided on read) |
 | `palabras.trend.v2` | `lib/trend-store.ts` | weekly learned-words samples | no (derived from synced stats) |
 | `palabras.answer-log.v1` | `lib/answer-log-store.ts` | last 90 days of answers, each with its game and timestamp | **never** (ADR 013 — a per-answer record of a child stays on its device) |
 | `palabras.trend.v1` | superseded by v2 | samples taken under the old "learned" bar (ADR 012) — left behind, never migrated | no |
 | `palabras.sync.v1` | `lib/sync.ts` | the pairing code (capability key) | no (device pairing) |
 | `palabras.theme.v1` / `palabras.owned-themes.v1` | `lib/theme.ts` | paper theme selection/ownership | no (per-device look) |
+| `palabras.letter-case.v1` | `lib/letter-case.ts` | which case a kid sees on letter cards (A / a / Aa), defaulting to upper | no (a display choice, not progress — ADR 004) |
 | `palabras.migrations.v1` | `lib/storage-migrations.ts` | applied migration ids | no (device bookkeeping) |

@@ -62,6 +62,9 @@ Custom project skills (in `.claude/skills/`, invokable as slash commands):
 - `/diagram` — generate/update Mermaid, kept in sync with `docs/architecture-diagrams.md`.
 - `/adr` — record (or check first) a load-bearing decision as a ~10-line ADR in
   `docs/adr/` (template: `000-template.md`).
+- `/doc-audit` — the weekly sweep that checks every doc claim against the code
+  (counts, the localStorage inventory, links, the index) and fixes what has gone
+  stale. A net for what slipped past Documentation Hygiene, not a substitute.
 - `/ship` — pre-push checklist; becomes load-bearing once a deploy target exists.
 - `verify` — build, launch, and drive the app end-to-end (see
   `.claude/skills/verify/SKILL.md` for the recipe and sandbox gotchas).
