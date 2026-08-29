@@ -25,11 +25,15 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     // La familia took the seat that freed up (2026-08-01): the people of the
     // house belong with the house, and ¿Cómo soy? — the other candidate — is
     // about one person, not the ones around them. Full again at 5.
+    // La comida and La fruta left for the new La comida shelf (2026-08-29):
+    // food is the category a 3-year-old points at most, and it had outgrown
+    // being two tiles inside the house. Back to 3 — the shelf minimum, and
+    // the seats are free again for the rooms of the house.
     id: "casa",
     nameSpanish: "Mi casa",
     nameEnglish: "My home",
     emoji: "🏠",
-    deckIds: ["familia", "food", "house", "clothes", "fruit"],
+    deckIds: ["familia", "house", "clothes"],
   },
   {
     // Describing a person: the face, the parts, the hair and skin, the size,
@@ -47,11 +51,14 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     deckIds: ["cara", "body", "pelo", "feelings", "rutina"],
   },
   {
+    // Los vehículos left for El transporte (2026-08-29) — a car is not a
+    // fact about the world the way weather and the city are, and it was the
+    // one deck here a kid asked for by name.
     id: "mundo",
     nameSpanish: "El mundo",
     nameEnglish: "The world",
     emoji: "🌍",
-    deckIds: ["nature", "weather", "vehicles", "jobs", "city"],
+    deckIds: ["nature", "weather", "jobs", "city"],
   },
   {
     id: "jugar",
@@ -59,6 +66,30 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     nameEnglish: "Play & learn",
     emoji: "🎨",
     deckIds: ["toys", "sports", "school", "music"],
+  },
+  {
+    // La comida (2026-08-29): food and fruit were buried inside Mi casa, and
+    // the pack had exactly one vegetable. Promoted to a shelf of its own and
+    // filled out to six — the shelf cap — so the whole meal is one place:
+    // the ingredients, the vegetables, the sweets, the dish, and the table
+    // it is eaten at.
+    id: "comida",
+    nameSpanish: "La comida",
+    nameEnglish: "Food",
+    emoji: "🍽️",
+    deckIds: ["food", "fruit", "verduras", "dulces", "platos", "mesa"],
+  },
+  {
+    // El transporte (2026-08-29): the other half of the same ask. Los
+    // vehículos came over from El mundo and brought four new decks — the
+    // working vehicles a kid names in the street, the small wheels and the
+    // rails, the air-and-sea second tier (el avión and el barco stay in Los
+    // vehículos), and the things you carry on a journey.
+    id: "transporte",
+    nameSpanish: "El transporte",
+    nameEnglish: "Transport",
+    emoji: "🚗",
+    deckIds: ["vehicles", "trabajo", "ruedas", "aire-mar", "viaje"],
   },
   {
     id: "letras",
@@ -109,9 +140,13 @@ export const TRAIL_GROUP_ORDER: readonly string[] = [
   "animales",
   "numeros-colores",
   "casa",
+  // La comida rides high on the ladder: a 3-year-old already knows these
+  // things by sight in a way they do not know a profession or a month.
+  "comida",
   "como-soy",
   "formas-lugares",
   "jugar",
+  "transporte",
   "mundo",
   "calendario",
   "letras",
@@ -158,6 +193,15 @@ export const CONVERSATION_DECKS: readonly string[] = [
   "school",
   "city",
   "house",
+  // The 2026-08-29 shelves. En la mesa is deliberately absent: "¿Te gusta el
+  // tenedor?" is grammatical and strange, and strange is worse than absent.
+  // El viaje is out for the same reason — you like a place, not a passport.
+  "verduras",
+  "dulces",
+  "platos",
+  "trabajo",
+  "ruedas",
+  "aire-mar",
 ];
 
 /** Whether a deck offers a conversation — the 🗣️ tile is simply absent

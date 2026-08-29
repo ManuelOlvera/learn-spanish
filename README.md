@@ -6,11 +6,11 @@ No reading, no accounts, no setup.
 
 ## Features
 
-- **Flashcards** — 43 decks / 504 words on ten themed home-screen
-  shelves (animals · numbers & colors · my home · all about me · the world ·
-  play & learn · letters · verbs · shapes & places · calendar), plus a
-  star-unlocked bonus deck
-  **El misterio 🔮** (44 decks / 516 words total), tap-to-hear audio via
+- **Flashcards** — 51 decks / 586 words on twelve themed home-screen
+  shelves (animals · numbers & colors · my home · all about me · food ·
+  transport · the world · play & learn · letters · verbs · shapes & places ·
+  calendar), plus a star-unlocked bonus deck
+  **El misterio 🔮** (52 decks / 598 words total), tap-to-hear audio via
   browser speech synthesis — **Spain Spanish** (es-ES voice; coche,
   ordenador, hierba). **Los verbos 🏃** is a flashcards-only shelf:
   15 action words in three forms (infinitivo · gerundio · imperativo).
@@ -77,7 +77,7 @@ No reading, no accounts, no setup.
   shades — a finished shelf filled lime wearing its medal, the current one
   white, bigger and ringed, the ones ahead pale. Only the current stop is tappable ("take me
   back to where I left off"); the others are inert marks, which gates nothing
-  because the shelf grid directly below still reaches all ten in one tap. Shelf tiles and deck tiles carry the same story up
+  because the shelf grid directly below still reaches all twelve in one tap. Shelf tiles and deck tiles carry the same story up
   close: pips for how far in a kid is, 👉 on the one next thing, and the album's
   own medal on what's done — ⭐ played, 🥈 replayed three times, 🥇 five. A deck
   is only as gold as its least-played game and a shelf only as gold as its

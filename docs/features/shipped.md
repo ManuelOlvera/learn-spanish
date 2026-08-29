@@ -1,5 +1,68 @@
 # Shipped features
 
+## 2026-08-29 — 🍽️ La comida y 🚗 El transporte: the two shelves a kid asks for by name
+
+A parent ask ("more sections for my kids — one around food, one around
+transport") that turned out to be **mostly a promotion, not an invention**.
+`La comida` and `La fruta` already shipped, buried as two tiles inside 🏠 Mi
+casa; `Los vehículos` already shipped inside 🌍 El mundo, and it already had
+coche, moto and tren. What the pack genuinely lacked was vegetables — exactly
+one, `la zanahoria` — and any shelf a kid could reach in one tap.
+
+**What shipped:** two home shelves and eight new decks.
+
+| 🍽️ **La comida** (6 decks — the shelf cap) | 🚗 **El transporte** (5 decks) |
+|---|---|
+| La comida *(moved from Mi casa)* | Los vehículos *(moved from El mundo)* |
+| La fruta *(moved from Mi casa)* | Vehículos de trabajo 🚒 — 10 |
+| **Las verduras** 🥦 — 12 | **Ruedas y raíles** 🛴 — 10 |
+| **Los dulces** 🍬 — 10 | **Por el aire y el mar** 🛩️ — 10 |
+| **En el plato** 🍕 — 10 | **El viaje** 🧳 — 10 |
+| **En la mesa** 🍴 — 10 | |
+
+Pack: **43 → 51 decks / 504 → 586 words** public (52 / 598 with El misterio).
+
+**Home's shelf cap went 10 → 12**, and like the Formas y lugares raise it costs
+nothing in layout: two tiles keep the 2-column grid on even rows. Mi casa falls
+back to three decks (the shelf minimum) and El mundo to four — both still legal,
+and both have free seats again.
+
+**The rule that shaped the content.** A card id is pack-unique and every
+sticker, star and word-stat is keyed by it, so the three moved decks were moved
+*untouched* — a pinned test now asserts all 36 of their card ids survive the
+move, because "tidy the ids while we're here" would silently wipe progress on
+the three most-played decks. The same uniqueness pushed two words out of El
+viaje: `la mochila` and `el mapa` were the obvious cards, but both already
+teach in La escuela, so the deck took `la cámara` and `la entrada` instead
+rather than move a kid's sticker.
+
+**Decisions worth recording:**
+
+- **Two decks were renamed off the shaped plan.** "Sobre ruedas" could not
+  reach the 10-card floor with distinct emoji — patinete, monopatín, patines,
+  silla de ruedas and carrito is five, and there is no glyph for a triciclo or
+  a remolque — so it became **Ruedas y raíles** and took the metro, the vagón,
+  the monorraíl, the funicular and the teleférico. Honest naming beat a deck
+  padded to length.
+- **`el avión`, `el barco`, `el cohete` and `el helicóptero` stay in Los
+  vehículos.** Por el aire y el mar therefore teaches the second tier (la
+  avioneta, la lancha, el crucero, el ferry, la canoa) rather than duplicating
+  the four a kid already has stickers for.
+- **En la mesa and El viaje are off the conversation list.** "¿Te gusta el
+  tenedor?" is grammatical and strange, and strange is worse than absent for a
+  five-year-old — the same reasoning that keeps Los colores off it. The other
+  six new decks joined `CONVERSATION_DECKS`; every card carries its article, so
+  the content test that guards the frame stays honest.
+- **Multi-word cards sit out the letter games by design.** `bareWord` returns
+  null for "el camión de bomberos", so La sopa, El globo and Adivina simply do
+  not offer those cards — the same come-and-go behaviour those games already
+  have. Each new deck keeps enough single-word cards to stay playable.
+
+**Where La comida sits on el camino:** high, right after Mi casa. A
+three-year-old knows a banana and a fire engine by sight in a way they do not
+know a profession or a month, so both shelves rank above El mundo and El
+calendario on the ladder.
+
 ## 2026-08-28 — 🔧 Quality-review follow-ups: patched deps, bounded sync, salvaged albums, capped cache
 
 Four of the five follow-ups from the 2026-08-28 review (`docs/quality-review-followups.md`).

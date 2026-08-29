@@ -53,21 +53,29 @@ describe("starter pack content", () => {
       "la-hora",
       "dia-noche",
       "estaciones",
+      "verduras",
+      "dulces",
+      "platos",
+      "mesa",
+      "trabajo",
+      "ruedas",
+      "aire-mar",
+      "viaje",
       "mystery",
     ]);
   });
 
   it("matches the README's advertised pack size (update both together)", async () => {
-    // The root README's Features section states these totals ("43 decks /
-    // 504 words … 44 decks / 516 words total"). This test turns silent README
+    // The root README's Features section states these totals ("51 decks /
+    // 586 words … 52 decks / 598 words total"). This test turns silent README
     // drift into a red build: when content changes, recount, update the
     // README bullet, then these numbers — in the same change.
     const decks = await repo.listDecks();
     const publicDecks = decks.filter((d) => !d.secret);
-    expect(decks).toHaveLength(44);
-    expect(decks.flatMap((d) => d.cards)).toHaveLength(516);
-    expect(publicDecks).toHaveLength(43);
-    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(504);
+    expect(decks).toHaveLength(52);
+    expect(decks.flatMap((d) => d.cards)).toHaveLength(598);
+    expect(publicDecks).toHaveLength(51);
+    expect(publicDecks.flatMap((d) => d.cards)).toHaveLength(586);
   });
 
   it("ships the whole alphabet as a game-enabled letters shelf", async () => {

@@ -45,7 +45,7 @@ describe("deck groups content", () => {
     }
   });
 
-  it("keeps home one screen: at most 10 groups", async () => {
+  it("keeps home one screen: at most 12 groups", async () => {
     // Raised from 6 to seat Las letras (2026-07-14) — home's 2-column grid
     // absorbs one more shelf tile without scrolling meaningfully further.
     // Raised again to 8 for El calendario (2026-07-28), which also squares
@@ -60,9 +60,58 @@ describe("deck groups content", () => {
     // had no shelf they belonged on — the spatial words are neither about the
     // house nor about the body — and Alto o bajo, a spatial idea parked on
     // ¿Cómo soy? for want of anywhere better, moved over to join them.
+    // Raised to 12 for La comida and El transporte (2026-08-29), and like the
+    // last raise it costs nothing in layout: two tiles keep the 2-column grid
+    // on even rows. Both shelves are promotions rather than inventions — food,
+    // fruit and vehicles already existed as decks buried inside Mi casa and
+    // El mundo, and the two categories a kid names most now open from home in
+    // one tap. Mi casa falls back to the 3-deck minimum, El mundo to 4.
     const allGroups = await groups.listGroups();
     expect(allGroups.length).toBeGreaterThanOrEqual(3);
-    expect(allGroups.length).toBeLessThanOrEqual(10);
+    expect(allGroups.length).toBeLessThanOrEqual(12);
+  });
+
+  it("shelves La comida and El transporte, and the moved decks keep every card id", async () => {
+    // The 2026-08-29 promotion. Both shelves are mostly *moves*: food, fruit
+    // and vehicles already shipped inside Mi casa and El mundo. A move must
+    // never rewrite a card id — every sticker, star and word-stat a kid has
+    // earned is keyed by it, so a "tidy up the ids while we're here" edit
+    // would silently wipe progress on the three most-played decks.
+    const allGroups = await groups.listGroups();
+    const byId = new Map(allGroups.map((g) => [g.id, g]));
+
+    expect(byId.get("comida")!.deckIds).toEqual([
+      "food", "fruit", "verduras", "dulces", "platos", "mesa",
+    ]);
+    expect(byId.get("transporte")!.deckIds).toEqual([
+      "vehicles", "trabajo", "ruedas", "aire-mar", "viaje",
+    ]);
+
+    // The decks that moved, with the card ids they must still carry.
+    const moved: Record<string, readonly string[]> = {
+      food: [
+        "manzana", "platano", "pan", "leche", "queso", "huevo", "fresa",
+        "naranja-fruta", "zanahoria", "galleta", "agua", "helado",
+      ],
+      fruit: [
+        "pera", "uva", "sandia", "melon", "pina", "melocoton", "cereza",
+        "limon", "kiwi", "coco", "mango", "aguacate",
+      ],
+      vehicles: [
+        "coche", "autobus", "tren", "avion", "barco", "bicicleta", "moto",
+        "camion", "cohete", "helicoptero", "tractor", "ambulancia",
+      ],
+    };
+    for (const [deckId, cardIds] of Object.entries(moved)) {
+      const deck = await decks.getDeck(deckId);
+      expect(deck!.cards.map((c) => c.id), deckId).toEqual(cardIds);
+    }
+
+    // The shelves they left are still legal, not emptied below the minimum.
+    expect(byId.get("casa")!.deckIds).toEqual(["familia", "house", "clothes"]);
+    expect(byId.get("mundo")!.deckIds).toEqual([
+      "nature", "weather", "jobs", "city",
+    ]);
   });
 
   it("gives every group an id, names, and a picture", async () => {

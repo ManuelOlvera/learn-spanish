@@ -132,6 +132,21 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       decks teach one verb in three forms, so the gerund and imperative decks
       need their own claim shapes before the flag can come off.)*
 
+23. ☑ **La comida y El transporte — two shelves from a parent ask** — food was
+    two tiles buried in Mi casa with exactly one vegetable, and transport was
+    one tile in El mundo. *(Shipped 2026-08-29: eight new decks, home's shelf
+    cap 10 → 12, pack 43 → 51 decks / 504 → 586 words. See `shipped.md`.)*
+    - ☐ **Sentences and cuentos over the new words** — Las frases and the
+      story pack still teach none of the 82 new words. Deliberately cut to
+      keep this change content-only; the sentence pool has room.
+    - ☐ **En la mesa in the conversation** — held back because "¿Te gusta el
+      tenedor?" is odd. Revisit if the kids ask for the 🗣️ tile on it.
+    - ☐ **Drawn card art for the food decks** — every new card is emoji.
+      🥬 and 🫛 are the weakest glyphs; a drawn lechuga would teach better.
+    - ☐ **A third food deck: las bebidas** — cut because el agua and la leche
+      already live in La comida and the remaining drinks emoji are thin. The
+      shelf is at its 6-deck cap anyway, so this needs a seat first.
+
 ## Difficulty & play
 
 12. ☑ **Difficulty levels** — 🟢/🟡/🔴 board sizes. *(Shipped 2026-07-12 for

@@ -67,6 +67,19 @@ const accents: Record<string, string> = {
   "la-hora": "#eab308",
   "dia-noche": "#4f46e5",
   estaciones: "#65a30d",
+  // La comida (2026-08-29). food (#fb7185) and fruit (#f97316) keep the
+  // accents they already had; the four new tiles take hues that stay apart
+  // from them and from each other on one shelf.
+  verduras: "#16a34a",
+  dulces: "#f472b6",
+  platos: "#d97706",
+  mesa: "#0ea5e9",
+  // El transporte. vehicles keeps its blue (#60a5fa); the rest spread out
+  // around it so no two tiles on the shelf read as the same colour.
+  trabajo: "#dc2626",
+  ruedas: "#7c3aed",
+  "aire-mar": "#0284c7",
+  viaje: "#ca8a04",
   // home-screen shelves (deck groups)
   animales: "#f59e0b",
   "numeros-colores": "#38bdf8",
@@ -78,6 +91,8 @@ const accents: Record<string, string> = {
   letras: "#f43f5e",
   "formas-lugares": "#059669",
   calendario: "#0284c7",
+  comida: "#ea580c",
+  transporte: "#3b82f6",
 };
 
 export function deckAccent(deckId: string): string {
