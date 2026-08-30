@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buildSyncLink } from "@learn-spanish/core";
+import { buildSyncLink, PairingNotStoredError } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { QrCode } from "@/components/QrCode";
 import {
@@ -24,6 +24,15 @@ interface Props {
  * the design language, text is for parents; kids never see this. Pairing is a
  * one-time parent action: show this device's code on A, type it once on B.
  */
+/** What to tell the parent about a failed pairing. A refused localStorage
+ *  write is not a network problem and must not be reported as one — the cloud
+ *  side worked, and retrying on better wifi will not help. */
+function pairingErrorMessage(err: unknown): string {
+  return err instanceof PairingNotStoredError
+    ? "Conectado, pero este dispositivo no pudo guardar el código. Si estás en modo privado, ábrelo en una ventana normal."
+    : "No se pudo conectar. Revisa tu internet e inténtalo otra vez.";
+}
+
 export function SyncPanel({ onSynced }: Props) {
   const [paired, setPaired] = useState(() => isPaired());
   const [code, setCode] = useState<string | null>(() => getSyncCode());
@@ -56,7 +65,7 @@ export function SyncPanel({ onSynced }: Props) {
       setPaired(true);
     } catch (err) {
       log.error("sync", "could not start hosting", { err });
-      setMessage("No se pudo conectar. Revisa tu internet e inténtalo otra vez.");
+      setMessage(pairingErrorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -84,7 +93,7 @@ export function SyncPanel({ onSynced }: Props) {
       onSynced();
     } catch (err) {
       log.error("sync", "could not join", { err });
-      setMessage("No se pudo conectar. Revisa tu internet e inténtalo otra vez.");
+      setMessage(pairingErrorMessage(err));
     } finally {
       setBusy(false);
     }

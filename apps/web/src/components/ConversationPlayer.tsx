@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createConversation,
@@ -40,6 +40,15 @@ export function ConversationPlayer({ deck, accent }: Props) {
   const [showReply, setShowReply] = useState(false);
   const [done, setDone] = useState(false);
   const [round, setRound] = useState(0);
+  /** The pending "pet answers back" timer, so leaving mid-turn cancels it. */
+  const replyTimer = useRef<number | null>(null);
+
+  function clearReplyTimer() {
+    if (replyTimer.current !== null) {
+      window.clearTimeout(replyTimer.current);
+      replyTimer.current = null;
+    }
+  }
 
   useEffect(() => {
     // The pet speaks first, from this effect rather than a tap, so the voice
@@ -58,6 +67,10 @@ export function ConversationPlayer({ deck, accent }: Props) {
       // An unnamed pet still has something to introduce itself as.
       name: active.name && active.name !== "" ? active.name : "tu amigo",
     });
+    // The reply is spoken 1.4s after the tap, so a kid who taps the back
+    // button in between would otherwise hear the pet answer over the next
+    // screen — the one place in the app audio can outlive its picture.
+    return clearReplyTimer;
   }, []);
 
   // One conversation per run; `round` re-rolls it on replay.
@@ -81,7 +94,9 @@ export function ConversationPlayer({ deck, accent }: Props) {
       setSaid(choice);
       // The kid hears the sentence they just chose — that is the practice.
       speakSpanish(choice.spanish, "kid");
-      window.setTimeout(() => {
+      clearReplyTimer();
+      replyTimer.current = window.setTimeout(() => {
+        replyTimer.current = null;
         setShowReply(true);
         speakSpanish(choice.reply, "pet");
       }, REPLY_DELAY_MS);
@@ -90,6 +105,7 @@ export function ConversationPlayer({ deck, accent }: Props) {
   );
 
   function next() {
+    clearReplyTimer();
     setSaid(null);
     setShowReply(false);
     if (talk !== null && index + 1 >= talk.turns.length) {
@@ -100,6 +116,7 @@ export function ConversationPlayer({ deck, accent }: Props) {
   }
 
   function replay() {
+    clearReplyTimer();
     setDone(false);
     setIndex(0);
     setSaid(null);

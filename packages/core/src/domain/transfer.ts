@@ -145,6 +145,36 @@ function isValidStickerId(id: string): boolean {
   return parts.length === 3 && isKidId(parts[0]!) && parts.every((p) => p !== "");
 }
 
+/**
+ * Sticker counts, salvaged per entry.
+ *
+ * Shared by both trust boundaries — the sync sanitizer below and the local
+ * counts document in `economy-store` — so a remote row and this device's own
+ * disk are held to the same rules. It matters most locally: `AwardStickerUseCase`
+ * adds 1 to whatever it finds, so a count stored as the string "3" becomes
+ * "31", which compares as gold and then grows by concatenation on every replay,
+ * feeding an inflated tier into the category chest that pays stars.
+ *
+ * Safe to apply to the stored document: `palabras.sticker-counts.v1` arrived
+ * with the star economy, which postdates kid profiles, so unlike the album it
+ * has never held shared-era "deck:activity" keys for the id check to drop.
+ */
+export function sanitizeStickerCounts(
+  raw: unknown,
+): Readonly<Record<string, number>> {
+  if (typeof raw !== "object" || raw === null) {
+    return {};
+  }
+  const counts: Record<string, number> = {};
+  for (const [id, count] of Object.entries(raw).slice(0, MAX_LIST)) {
+    // A count of zero is an absent sticker, not a held one.
+    if (isValidStickerId(id) && isSaneCount(count) && count > 0) {
+      counts[id] = count;
+    }
+  }
+  return counts;
+}
+
 function isStreak(value: unknown): value is Streak {
   return (
     typeof value === "object" &&
@@ -241,14 +271,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   const stars = sanitizeKidRecord(candidate.stars, isSaneCount);
   const wallets = sanitizeKidRecord(candidate.wallets, isWallet);
   const pets = sanitizeKidRecord(candidate.pets, isPetState);
-  const stickerCounts: Record<string, number> = {};
-  if (typeof candidate.stickerCounts === "object" && candidate.stickerCounts !== null) {
-    for (const [id, count] of Object.entries(candidate.stickerCounts).slice(0, MAX_LIST)) {
-      if (isValidStickerId(id) && isSaneCount(count) && count > 0) {
-        stickerCounts[id] = count;
-      }
-    }
-  }
+  const stickerCounts = sanitizeStickerCounts(candidate.stickerCounts);
   const petCollections = sanitizeKidRecord(
     candidate.petCollections,
     isPetCollection,

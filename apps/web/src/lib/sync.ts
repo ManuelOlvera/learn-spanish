@@ -6,6 +6,7 @@ import {
   isPairingCode,
   mergeProgress,
   normalizePairingCode,
+  PairingNotStoredError,
   PullProgressUseCase,
   PushProgressUseCase,
 } from "@learn-spanish/core";
@@ -66,8 +67,19 @@ export function isPaired(): boolean {
   return getSyncCode() !== null;
 }
 
+/** Persisting the code is what actually pairs the device, so unlike every
+ *  other write in this file a failure here cannot be logged and shrugged off:
+ *  the caller has already pushed (and, on join, already merged), and reporting
+ *  success would leave the parent believing a device is paired when the next
+ *  app open will not sync. Raised as its own error so the panel can say the
+ *  true thing — storage refused — instead of blaming the network. */
 function setSyncCode(code: string): void {
-  window.localStorage.setItem(SYNC_KEY, code);
+  try {
+    window.localStorage.setItem(SYNC_KEY, code);
+  } catch (err) {
+    log.error("sync", "paired but could not store the code", { err });
+    throw new PairingNotStoredError(err);
+  }
 }
 
 /** Stop syncing this device. Progress already on-device is untouched; the

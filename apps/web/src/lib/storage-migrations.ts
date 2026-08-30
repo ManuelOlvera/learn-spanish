@@ -173,22 +173,58 @@ function convertWalletsToCounters(): void {
   }
 }
 
-/** Ordered: later migrations may read the output of earlier ones. Ids are
+/** Ordered: later migrations may read the output of earlier ones, and a
+ *  migration that does names the one it reads in `dependsOn`. Ids are
  *  literal, never interpolated from WALLET_EPOCH — devices have already
  *  recorded the earlier ids, and a shifting id would re-run a past migration
  *  under a new name while the new one never registered. */
-const MIGRATIONS: readonly { id: string; run: () => void }[] = [
+interface Migration {
+  readonly id: string;
+  readonly run: () => void;
+  /** The migration whose output this one reads. When that one has not
+   *  succeeded yet, this one must wait rather than run on the un-migrated
+   *  input and then record itself as done forever. */
+  readonly dependsOn?: string;
+}
+
+const MIGRATIONS: readonly Migration[] = [
   { id: "pet-v1-to-collection", run: migrateLegacyPetToCollection },
-  { id: "accessories-to-wardrobe", run: migrateAccessoriesToWardrobe },
+  {
+    id: "accessories-to-wardrobe",
+    run: migrateAccessoriesToWardrobe,
+    dependsOn: "pet-v1-to-collection",
+  },
   { id: "wallet-epoch-1", run: resetWalletsForEpoch1 },
-  { id: "wallet-epoch-2", run: restoreWalletsForEpoch },
-  { id: "wallet-epoch-3", run: convertWalletsToCounters },
-  { id: "outfits-per-form", run: migrateOutfitsToForms },
+  {
+    id: "wallet-epoch-2",
+    run: restoreWalletsForEpoch,
+    dependsOn: "wallet-epoch-1",
+  },
+  {
+    id: "wallet-epoch-3",
+    run: convertWalletsToCounters,
+    dependsOn: "wallet-epoch-2",
+  },
+  {
+    id: "outfits-per-form",
+    run: migrateOutfitsToForms,
+    dependsOn: "pet-v1-to-collection",
+  },
 ];
 
-/** Run every not-yet-applied migration. A migration that throws is retried on
- *  the next session (it is not recorded as applied); the ones after it still
- *  run so one bad key can't block the rest. */
+/**
+ * Run every not-yet-applied migration. A migration that throws is retried on
+ * the next session (it is not recorded as applied), and independent migrations
+ * after it still run so one bad key can't block the rest — but one that
+ * `dependsOn` a migration that has not succeeded is held back with it.
+ *
+ * Without that hold, a failure silently discarded the dependency's whole
+ * point: if `wallet-epoch-2` (the ADR 007 goodwill seed) threw, `wallet-epoch-3`
+ * would convert the *un-seeded* balance into the counter wallet and record
+ * itself applied. Epoch 2 would then retry, write the seed to the legacy key,
+ * and find nothing left to convert it — the kid's restored balance gone for
+ * good, with the log claiming a clean retry.
+ */
 export function runStorageMigrations(): void {
   let applied: string[];
   try {
@@ -203,6 +239,16 @@ export function runStorageMigrations(): void {
   }
   for (const migration of MIGRATIONS) {
     if (applied.includes(migration.id)) {
+      continue;
+    }
+    if (
+      migration.dependsOn !== undefined &&
+      !applied.includes(migration.dependsOn)
+    ) {
+      log.warn(
+        "migrations",
+        `${migration.id} held back; ${migration.dependsOn} has not run`,
+      );
       continue;
     }
     try {

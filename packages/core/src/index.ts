@@ -5,6 +5,7 @@ export type { DeckRepository } from "./domain/deck-repository";
 export {
   DeckNotFoundError,
   isTimeoutError,
+  PairingNotStoredError,
   QrEmptyPayloadError,
   QrPayloadTooLongError,
   QuizDeckTooSmallError,
@@ -255,6 +256,7 @@ export {
   isWeeklyStreak,
   mergeProgress,
   sanitizeSnapshot,
+  sanitizeStickerCounts,
 } from "./domain/transfer";
 export type { ByteSource, RemoteProgressStore } from "./domain/sync";
 export {

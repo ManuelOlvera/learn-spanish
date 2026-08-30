@@ -1,5 +1,69 @@
 # Shipped features
 
+## 2026-08-31 — 🔧 Quality-review fixes: a leaked timer, an unguarded count, a skipped migration, a mislabelled failure
+
+The four defects from the 2026-08-31 whole-codebase review
+(`docs/quality-review-2026-08-31.md`). The other four findings are refactors
+with named triggers, deliberately left alone.
+
+**The pet no longer talks over the next screen** (`ConversationPlayer.tsx`).
+Habla con tu mascota speaks the pet's reply 1.4s after the kid picks what to
+say, on a `setTimeout` that nothing held and nothing cleared — the only
+`setTimeout` in `apps/web` without a `clearTimeout`. Tap a reply, tap back
+inside that window, and the pet answered aloud over the game menu: audio
+outliving the picture it belongs to, in an app where a pre-reader has only the
+audio to go on. Now parked in a ref and cleared on unmount, on next, and on
+replay. Verified with a positive control, because "no sound happened" is the
+kind of pass a broken probe also produces: staying on the screen still speaks
+both lines, leaving mid-delay now speaks none.
+
+**Sticker counts are validated on read** (`economy-store.ts`). Every other
+reader in that adapter validates with a core guard; `loadStickerCounts` cast
+straight through. `AwardStickerUseCase` adds 1 to whatever it finds, so a count
+stored as the string `"3"` became `"31"` — which compares as gold, then grows
+by concatenation on every replay, feeding an inflated tier into the category
+chest that pays stars. The sanitizer's own loop is now an exported
+`sanitizeStickerCounts()` called by *both* `sanitizeSnapshot` and the local
+read: one mechanism, both trust boundaries, which is what the July review asked
+for and what `salvageStickerIds` did for the album. Checked before applying the
+id guard locally, since it could have dropped real data: this key arrived with
+the star economy, which postdates kid profiles, so unlike the album it has
+never held shared-era `deck:activity` entries.
+
+**A failed migration no longer strands the one that reads it**
+(`storage-migrations.ts`). The registry said later migrations may read earlier
+output; the runner said everything after a failure still runs. Both could not
+hold. If `wallet-epoch-2` (the ADR 007 goodwill seed) threw, `wallet-epoch-3`
+converted the *un-seeded* balance and recorded itself applied — epoch 2 would
+retry, write the seed, and find nothing left to convert it. A restored balance
+gone for good, with the log claiming a clean retry. Migrations now declare
+`dependsOn` and a dependent is held back (and logged) until its input succeeds;
+independent ones still run past a failure, so the original intent survives.
+
+**A refused pairing write says so** (`sync.ts`, `SyncPanel.tsx`). Persisting
+the pairing code is what actually pairs the device, and it was the one
+unguarded localStorage write in a file that guards every other one. On failure
+the parent was told to check their internet — which had just worked. The typed
+`PairingNotStoredError` now carries the real cause and the panel says the code
+could not be saved on this device, suggesting a normal window if they are
+browsing privately. It still fails closed; it just no longer blames the wrong
+thing.
+
+**Not done, and why:** the `transfer.ts` field registry (19 snapshot fields × 4
+hand-written sites, +45% since it was first deferred) waits for the next change
+that adds a field — rewriting 287 lines of correct, well-tested merge logic
+cold buys nothing until then. A `useSelectedKid()` hook for the 21 components
+that re-derive the current kid three different ways, and splitting `MascotaView`
+(754 lines), wait for the next change that touches them; `HomeView` regrew past
+its own extraction, which is the argument against doing it speculatively. All
+recorded with their triggers in the review doc.
+
+Verified: 597 core tests (7 added), 98.26% coverage, and a click-through of the
+reply timer, the corrupt-counts award path (a seeded doc holding `"3"`, a
+shared-era key and `-2` leaves only sane counts and shows *¡Nueva pegatina!*
+where the concatenation would have shown gold), the full legacy migration chain,
+and the sync panel.
+
 ## 2026-08-29 — 🍽️ La comida y 🚗 El transporte: the two shelves a kid asks for by name
 
 A parent ask ("more sections for my kids — one around food, one around

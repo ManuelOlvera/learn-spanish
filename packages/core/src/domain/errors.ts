@@ -82,6 +82,19 @@ export class SyncTimeoutError extends Error {
   }
 }
 
+/**
+ * The pairing round-trip succeeded but the code could not be written to this
+ * device (private browsing, a full quota). The device is genuinely unpaired,
+ * so this must not be reported as a network failure: the parent needs to know
+ * their storage refused the write, not to retry on better wifi.
+ */
+export class PairingNotStoredError extends Error {
+  constructor(public readonly cause: unknown) {
+    super("Paired successfully but could not store the code on this device");
+    this.name = "PairingNotStoredError";
+  }
+}
+
 /** True for the abort a bounded `fetch` raises, and only that — an ordinary
  *  offline `TypeError` must stay distinguishable from a stall. */
 export function isTimeoutError(err: unknown): boolean {

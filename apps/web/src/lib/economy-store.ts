@@ -8,6 +8,7 @@ import {
   isPetCollection,
   isWeekProgress,
   isWeeklyStreak,
+  sanitizeStickerCounts,
   type Boost,
   type EconomyStore,
   type KidId,
@@ -184,15 +185,29 @@ export class LocalStorageEconomyStore implements EconomyStore {
         return {};
       }
       const parsed: unknown = JSON.parse(raw);
-      return typeof parsed === "object" && parsed !== null
-        ? (parsed as Record<string, number>)
-        : {};
+      // Salvaged per entry with the same guard the sync sanitizer uses: the
+      // award use case adds 1 to whatever it finds here, and a count stored as
+      // a string would concatenate its way to a permanent gold tier.
+      const counts = sanitizeStickerCounts(parsed);
+      const found = typeof parsed === "object" && parsed !== null
+        ? Object.keys(parsed).length
+        : 0;
+      if (Object.keys(counts).length < found) {
+        log.warn("economy", "dropped malformed sticker counts", {
+          kept: Object.keys(counts).length,
+          found,
+        });
+      }
+      return counts;
     } catch (err) {
       log.warn("economy", "sticker counts unreadable", { err });
       return {};
     }
   }
   saveStickerCounts(counts: Readonly<Record<string, number>>): void {
+    // Gated like every other write path: a save that lands before this
+    // session's first read must not skip the schema migrations.
+    ensureMigrated();
     try {
       window.localStorage.setItem(COUNTS_KEY, JSON.stringify(counts));
     } catch (err) {

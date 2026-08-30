@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { salvageStickerIds } from "../src/domain/album";
-import { isTimeoutError, SyncTimeoutError } from "../src/domain/errors";
+import { sanitizeStickerCounts } from "../src/domain/transfer";
+import {
+  isTimeoutError,
+  PairingNotStoredError,
+  SyncTimeoutError,
+} from "../src/domain/errors";
 
 /**
  * Regression tests for the 2026-08-28 quality review: a corrupted local
@@ -64,5 +69,77 @@ describe("isTimeoutError", () => {
     expect(err.fn).toBe("put_progress");
     expect(err.timeoutMs).toBe(10_000);
     expect(err.message).toContain("put_progress");
+  });
+
+  it("tells a refused pairing write apart from a network failure", () => {
+    // The panel branches on this to avoid blaming the internet for a
+    // localStorage refusal, which retrying on better wifi will never fix.
+    const quota = new DOMException("quota", "QuotaExceededError");
+    const err = new PairingNotStoredError(quota);
+    expect(err).toBeInstanceOf(PairingNotStoredError);
+    expect(err.name).toBe("PairingNotStoredError");
+    expect(err.cause).toBe(quota);
+    expect(new SyncTimeoutError("get_progress", 10_000)).not.toBeInstanceOf(
+      PairingNotStoredError,
+    );
+  });
+});
+
+/**
+ * Regression tests for the 2026-08-31 quality review finding 2: the local
+ * sticker-counts document was the one storage read in `economy-store` that
+ * skipped its guard, and `AwardStickerUseCase` adds 1 to whatever it finds.
+ */
+describe("sanitizeStickerCounts", () => {
+  it("drops a count that is not a number, so the award can't concatenate", () => {
+    // The bug this prevents: `previous + 1` on the string "3" yields "31",
+    // which compares as gold and then grows to "311" on the next play.
+    const counts = sanitizeStickerCounts({
+      "reader:animales:quiz": "3",
+      "listener:casa:memory": 2,
+    });
+    expect(counts).toEqual({ "listener:casa:memory": 2 });
+  });
+
+  it("keeps an intact document unchanged", () => {
+    const raw = { "reader:animales:quiz": 4, "listener:casa:memory": 1 };
+    expect(sanitizeStickerCounts(raw)).toEqual(raw);
+  });
+
+  it("drops ids the album could never contain", () => {
+    expect(
+      sanitizeStickerCounts({
+        "reader:animales:quiz": 2,
+        "animales:quiz": 5, // shared-era shape; never written to this key
+        "nobody:casa:quiz": 5, // not a kid
+        "": 5,
+      }),
+    ).toEqual({ "reader:animales:quiz": 2 });
+  });
+
+  it("drops counts outside the sane range", () => {
+    expect(
+      sanitizeStickerCounts({
+        "reader:a:quiz": 0, // a count of zero is an absent sticker
+        "reader:b:quiz": -3,
+        "reader:c:quiz": 1.5,
+        "reader:d:quiz": Number.MAX_SAFE_INTEGER,
+        "reader:e:quiz": 2,
+      }),
+    ).toEqual({ "reader:e:quiz": 2 });
+  });
+
+  it("salvages nothing from a non-object", () => {
+    expect(sanitizeStickerCounts(null)).toEqual({});
+    expect(sanitizeStickerCounts(undefined)).toEqual({});
+    expect(sanitizeStickerCounts("gold")).toEqual({});
+    expect(sanitizeStickerCounts(7)).toEqual({});
+  });
+
+  it("caps a storage-filling document", () => {
+    const raw = Object.fromEntries(
+      Array.from({ length: 9_000 }, (_, i) => [`reader:d${i}:quiz`, 1]),
+    );
+    expect(Object.keys(sanitizeStickerCounts(raw))).toHaveLength(5_000);
   });
 });
