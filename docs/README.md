@@ -16,7 +16,7 @@ Markers: **[living]** kept current with the code · **[append-log]** grows, neve
 - [runbooks.md](runbooks.md) — **[living]** deploy, rollback, and Vercel gotchas
 - `supabase/migrations/` — not docs, but load-bearing: SQL applied by hand to the live project per the runbook, **before** the code that needs it ships
 - [quality-review-followups.md](quality-review-followups.md) — **[living]** the 2026-08-28 review's follow-up list, each item marked done / corrected / deliberately deferred
-- [quality-review-2026-08-31.md](quality-review-2026-08-31.md) — **[living]** the 2026-08-31 whole-codebase review: gates, eight findings, each marked fixed / deferred (with its trigger) / open, plus the security and UX passes that followed (SQL trust model, capability-key lifetime, target-size and contrast audit, the Crockford fold)
+- [quality-review-2026-08-31.md](quality-review-2026-08-31.md) — **[living]** the 2026-08-31 whole-codebase review: gates, eight findings, each marked fixed / deferred (with its trigger) / open, plus the security and UX passes that followed (SQL trust model, capability-key lifetime, target-size and contrast audit, the Crockford fold) and the apps/web test harness that closed finding 8
 - [fable-review/](fable-review/) — **[archived]** point-in-time implementation review (2026-07-13):
   [security](fable-review/security.md) · [code quality](fable-review/code-quality.md) ·
   [architecture](fable-review/architecture.md) · [docs](fable-review/docs.md) ·

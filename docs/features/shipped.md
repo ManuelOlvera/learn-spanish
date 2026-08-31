@@ -1,5 +1,38 @@
 # Shipped features
 
+## 2026-08-31 — 🧪 The web layer gets a test harness
+
+`apps/web` had no tests at all, which is where the last two reviews' findings
+had migrated to — four adapter fixes shipped this week rested on a manual
+click-through and nothing else. It now has vitest + jsdom and **30 tests** over
+the migration registry, `economy-store` and pairing-code persistence in
+`sync.ts`. `pnpm test` runs both packages.
+
+This is the harness the 2026-08-28 review recommended and no more: no
+Playwright, no component rendering. Components stay with `/verify`, which
+drives the real built app — a second browser harness would duplicate it with
+nothing to run it.
+
+**Why unit tests and not more click-through.** Every defect these cover lives on
+a path `/verify` cannot reach, because it only ever drives a *healthy* device.
+`test/storage.ts` is a localStorage stand-in that refuses writes the way a full
+quota does, refuses reads the way a locked-down browser does, or holds a corrupt
+document — which is what makes the adapters' actual contract testable.
+
+**The migration test is the one that earns its keep**, and it was verified the
+only way a regression test can be: by neutering the `dependsOn` guard and
+watching it go red. `wallet-epoch-3` claims itself applied while
+`wallet-epoch-2` is still pending — the silent, permanent loss of an ADR 007
+seeded balance. What was an argument in a review doc is now a test.
+
+Also pinned deliberately: `saveWallet` and `saveStickerCounts` **swallow** a
+refused write. That is the known open behaviour, not an oversight, and the test
+records it so the day it changes, it changes on purpose.
+
+No coverage floor on `apps/web`. The floor belongs on `packages/core` where the
+business logic lives; a number here would only measure how much UI had been
+dragged into jsdom.
+
 ## 2026-08-31 — 🔒 Security and UX passes: a misread pairing code now connects
 
 A security pass and a UX pass over the whole app, after the quality review

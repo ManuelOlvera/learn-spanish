@@ -259,7 +259,7 @@ wardrobe/placement drag surface (the `pointermove`/`pointerup` effect at
 flow, the naming editor, and the pet display itself. None of them are testable
 today because `apps/web` has no test harness (finding 8).
 
-### 8. `apps/web` still has zero tests, and that is where the untested logic now is — **open**
+### 8. `apps/web` still has zero tests, and that is where the untested logic now is — **fixed**
 
 Core is at 98.26%. `apps/web` is at nothing — no harness exists. The
 2026-08-28 review deferred this deliberately and named the right cheapest fix
@@ -279,6 +279,31 @@ that has no tests.
 Two use cases show 0% coverage — `get-streak.ts` and `get-word-stats.ts`. I
 checked: both are three-line pass-throughs to a store with no logic to test.
 Not a gap; noted so the next reader does not chase it.
+
+**Fixed.** `apps/web` now has vitest + jsdom and **30 tests** over the layer
+that had none: the migration registry, `economy-store`, and pairing-code
+persistence in `sync.ts`. The harness is exactly the one the 2026-08-28 review
+recommended and no more — no Playwright, no component rendering, which stays
+with `/verify` against the real built app.
+
+What made it worth doing is the shape of the bugs. Every one of them lives on a
+path a click-through cannot reach, because `/verify` only ever drives a
+*healthy* device: `test/storage.ts` is a localStorage stand-in that can refuse
+writes, refuse reads, or hold a corrupt document on demand.
+
+The migration test is the one that earns its keep, and it was checked the only
+way a regression test can be: **by neutering the `dependsOn` guard and watching
+it fail** — `wallet-epoch-3` records itself as applied while `wallet-epoch-2` is
+still pending, which is precisely the silent, permanent loss finding 4
+describes. Reasoning in prose is now a test.
+
+Also pinned: that `saveWallet`/`saveStickerCounts` **swallow** a refused write.
+That is the known open behaviour, and the test says so — the day it changes, it
+should change on purpose.
+
+`pnpm test` now runs both packages. No coverage floor on `apps/web` yet: the
+floor belongs on `packages/core`, where the business logic is, and a number
+here would only measure how much UI has been dragged into jsdom.
 
 ---
 

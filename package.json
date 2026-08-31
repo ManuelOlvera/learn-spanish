@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "pnpm --filter @learn-spanish/web dev",
     "build": "pnpm --filter @learn-spanish/web build",
-    "test": "pnpm --filter @learn-spanish/core test",
+    "test": "pnpm --filter @learn-spanish/core test && pnpm --filter @learn-spanish/web test",
     "art": "apps/web/scripts/optimize-story-art.sh",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint"
