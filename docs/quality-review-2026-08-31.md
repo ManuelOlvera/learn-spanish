@@ -3,14 +3,23 @@
 Point-in-time review of the whole codebase (~25.3k lines across `apps/web`,
 `packages/core`, `packages/config`).
 
-> **Status (2026-08-31):** findings **1, 2, 4 and 5 are fixed** in the same
-> session, each marked below. Findings 3, 6 and 7 are deliberately deferred —
-> all three are trigger-gated refactors, not defects, and the triggers are
-> named. Finding 8 is unchanged and is the reason 4 and 5 rest on `/verify`
-> rather than on tests of their own. Verified with the gates at the foot of
-> this file plus a `/verify` click-through covering the reply timer (with a
-> positive control), the corrupt-counts award path, the legacy migration
-> chain, and the sync panel.
+> **Status (2026-09-01): all eight findings are fixed.** 1, 2, 4 and 5 (the
+> defects) went first, then the security and UX passes recorded at the foot of
+> this file, then 8 (the `apps/web` harness), and finally 3, 6 and 7 — the three
+> refactors this review had deferred behind triggers, done on request.
+>
+> Two things were deliberately **not** changed, both recorded where they belong:
+> the CSP keeps `unsafe-inline`, because a nonce is incompatible with
+> prerendering rather than merely laborious (finding 3 of the security pass);
+> and `get_progress`/`delete_progress` keep no format check, because adding one
+> would turn a silent null into a thrown error and misreport a mistyped code as
+> a network failure. The one open item needs no code: a Supabase spend alert,
+> which cannot be set from this repo.
+>
+> Verified throughout with the gates at the foot of this file plus `/verify`
+> click-throughs — the reply timer with a positive control, the corrupt-counts
+> award path, the legacy migration chain, the pairing fold, all eight converted
+> screens in both kid states, and a two-device transfer-code merge.
 
 Two earlier reviews cover ground this one deliberately does not re-tread:
 [fable-review/code-quality.md](fable-review/code-quality.md) (2026-07-13, items
@@ -136,7 +145,7 @@ entries purged, the healthy count preserved, and the done screen showing
 *¡Nueva pegatina!* rather than the gold medal the concatenation would have
 produced.
 
-### 3. The `transfer.ts` field registry is now overdue — its own trigger fired — **deferred**
+### 3. The `transfer.ts` field registry is now overdue — its own trigger fired — **fixed**
 
 `packages/core/src/domain/transfer.ts`
 
@@ -159,9 +168,30 @@ Adding one snapshot field today means touching four separate hand-written lists:
 merge tests are thorough and they have held the line. The finding is the cost
 curve, not a present bug: every field is one more chance for sanitize and merge
 to disagree, and the only thing catching that today is a reviewer remembering to
-check. A `{ key, guard, merge }` registry with `union` / `max` / `laterDayWins`
-combinators makes a new field one entry, and makes drift unrepresentable rather
-than merely untested. Keep the existing merge tests as the spec.
+check.
+
+**Fixed.** `mergeProgress` went from **286 lines to 126**, and a field's rule is
+now one named line — `mergeKidField(current.freezes, incoming.freezes, highest)`
+where it used to be an eight-line typed loop. The combinators are `highest`,
+`union`, `takeTheirs`, `bestPerKey(rank)` and `preferring(better)`, plus four
+named rules for the shapes that are genuinely their own (word stats, week
+progress, missions, pet collections). Three fields stay outside the registry
+because they are irregular rather than merely different: stickers are a flat
+list, sticker counts are not keyed by kid, and the wallet is gated on its epoch.
+
+The whole file barely shrank (856 → 826 lines) — the loop bodies were traded for
+documented combinators. That is the point: the win is the marginal cost of the
+*next* field, not the size of the file today.
+
+Done the safe way, because this rewrites correct code. **Eight characterisation
+tests went in first**, pinning the rules that had no direct test of their own
+(per-word stat maxima, the three unions, reto maxima, sticker-count maxima,
+idempotence, order-independence); they passed against the old implementation
+before a line moved, then against the new one. Two more went in afterwards: the
+refactor turned "an older incoming week/mission loses" from a silent
+fall-through into an explicit branch, which made visible that nothing had ever
+tested a stale device failing to roll the week back. 610 core tests now, and a
+two-device merge driven in the browser end to end.
 
 ### 4. The migration runner can permanently skip a migration's input — **fixed**
 
@@ -214,7 +244,7 @@ local state, then throws; `SyncPanel` reports "could not connect" while the
 merge has in fact landed and the device is unpaired. No data is lost — the merge
 is a union — but the reported state is wrong.
 
-### 6. Twenty-one components repeat the same mount-read of the selected kid, with three different meanings for `null` — **deferred**
+### 6. Components repeat the same mount-read of the selected kid, with three different meanings for `null` — **fixed**
 
 Every screen re-derives the current kid the same way, because it can only be
 read after mount:
@@ -235,13 +265,20 @@ inconsistency is. Three different encodings are live at once:
   defaults silently
 
 The middle form is the one that can be wrong: a component that cannot tell
-"loading" from "unset" will flash the no-kid branch on every mount. A
-`useSelectedKid()` hook returning a discriminated `{ status: "loading" }
-| { status: "none" }  | { status: "picked", kid }` names the distinction once and
-makes the collapsed form impossible. The repo already set this precedent by
-extracting `useDeniedWobble()` for a far smaller duplication.
+"loading" from "unset" will flash the no-kid branch on every mount.
 
-### 7. `MascotaView` is now larger than `HomeView` was when `HomeView` was split — **deferred**
+**Fixed** — `useSelectedKid()` returns `loading | none | picked`, and
+`useSelectedKidOr(fallback)` covers the common case of a screen with a sensible
+default that only needs to know when the read has finished.
+
+**Correcting the count above:** twenty-one files *touch* `getSelectedKid`, but
+only ten do the mount-state dance. Eleven read it inside an event handler, which
+is already right and was left alone. Of the ten, **eight moved to the hook**;
+`AlbumView` and `HomeView` keep their own state deliberately, because both let
+you switch kids on the screen — their `kid` is mutable component state, not a
+read-once value, and the hook would have broken the switcher.
+
+### 7. `MascotaView` is now larger than `HomeView` was when `HomeView` was split — **fixed**
 
 `apps/web/src/components/MascotaView.tsx` — **754 lines**, 13 `useState`
 hooks in one function, holding pet collection, stars, munch counter, evolution
@@ -256,8 +293,20 @@ splitting relieved the symptom for one release and the file regrew.
 `MascotaView` has at least four separable pieces along its own seams: the
 wardrobe/placement drag surface (the `pointermove`/`pointerup` effect at
 `:207-236`, which is self-contained and correct), the shop/purchase confirm
-flow, the naming editor, and the pet display itself. None of them are testable
-today because `apps/web` has no test harness (finding 8).
+flow, the naming editor, and the pet display itself.
+
+**Fixed, partly and on purpose.** The three shopping grids came out as
+`PetShelf`, `Wardrobe` and `ThemePicker` — pure presentation taking what they
+show and handing taps back up (757 → 641 lines). They are three components
+rather than one generic grid because what a tile *shows* differs: a pet carries
+a hunger badge and a growth form, an accessory a worn state, a theme a swatch;
+collapsing them would need a render prop per difference.
+
+What stays is the pet stage and the purchase flow, which are genuinely one
+thing — the drag surface, name editor, feed button and form picker all read and
+write the same pet. Splitting those would thread ten props to save lines, and
+`HomeView` is the cautionary tale: it was split for line count in July and grew
+back past where it started.
 
 ### 8. `apps/web` still has zero tests, and that is where the untested logic now is — **fixed**
 

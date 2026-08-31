@@ -507,3 +507,155 @@ describe("mergeProgress", () => {
     expect(decodeProgress(encodeProgress(full))).toEqual(full);
   });
 });
+
+/**
+ * Characterisation tests written *before* the merge-rule registry refactor, to
+ * pin the rules that had no direct test of their own. They describe today's
+ * behaviour exactly; if the refactor changes any of them, it is a bug in the
+ * refactor, not a test to update.
+ */
+describe("mergeProgress — every field's rule, pinned", () => {
+  const bare: ProgressSnapshot = { stickers: [], streaks: {}, avatars: {} };
+
+  it("takes the per-word maximum of right and wrong counts", () => {
+    const merged = mergeProgress(
+      { ...bare, stats: { listener: { perro: { right: 5, wrong: 1 } } } },
+      { ...bare, stats: { listener: { perro: { right: 2, wrong: 4 }, gato: { right: 1, wrong: 0 } } } },
+    );
+    expect(merged.stats?.listener).toEqual({
+      perro: { right: 5, wrong: 4 },
+      gato: { right: 1, wrong: 0 },
+    });
+  });
+
+  it("unions owned avatars, so a bought avatar is never lost", () => {
+    const merged = mergeProgress(
+      { ...bare, ownedAvatars: { reader: ["🐼", "🦊"] } },
+      { ...bare, ownedAvatars: { reader: ["🦊", "🐸"], listener: ["🦖"] } },
+    );
+    expect(merged.ownedAvatars?.reader).toEqual(["🐼", "🦊", "🐸"]);
+    expect(merged.ownedAvatars?.listener).toEqual(["🦖"]);
+  });
+
+  it("unions unlocked secret decks", () => {
+    const merged = mergeProgress(
+      { ...bare, unlockedDecks: { listener: ["misterio"] } },
+      { ...bare, unlockedDecks: { listener: ["misterio", "espacio"] } },
+    );
+    expect(merged.unlockedDecks?.listener).toEqual(["misterio", "espacio"]);
+  });
+
+  it("keeps the higher reto record per deck, from either side", () => {
+    const merged = mergeProgress(
+      { ...bare, retoBests: { reader: { animals: 12, casa: 3 } } },
+      { ...bare, retoBests: { reader: { animals: 7, colors: 9 } } },
+    );
+    expect(merged.retoBests?.reader).toEqual({ animals: 12, casa: 3, colors: 9 });
+  });
+
+  it("max-merges sticker counts, so a tier never regresses on sync", () => {
+    const merged = mergeProgress(
+      { ...bare, stickerCounts: { "listener:animals:quiz": 5, "reader:casa:memory": 1 } },
+      { ...bare, stickerCounts: { "listener:animals:quiz": 2, "reader:zoo:sopa": 3 } },
+    );
+    expect(merged.stickerCounts).toEqual({
+      "listener:animals:quiz": 5,
+      "reader:casa:memory": 1,
+      "reader:zoo:sopa": 3,
+    });
+  });
+
+  it("keeps a kid the incoming side has never heard of", () => {
+    const merged = mergeProgress(
+      { ...bare, freezes: { listener: 2 }, weekly: { listener: { week: "2026-W30", count: 4 } } },
+      { ...bare, freezes: { reader: 1 } },
+    );
+    expect(merged.freezes).toEqual({ listener: 2, reader: 1 });
+    expect(merged.weekly?.listener).toEqual({ week: "2026-W30", count: 4 });
+  });
+
+  it("ignores a week older than the one this device is already in", () => {
+    // A stale device must not roll the week back. The old code expressed this
+    // as a fall-through; the registry makes it an explicit branch, so it gets
+    // an explicit test.
+    const merged = mergeProgress(
+      { ...bare, weekProgress: { listener: { week: "2026-W31", days: ["mon"] } } },
+      { ...bare, weekProgress: { listener: { week: "2026-W30", days: ["tue", "wed"] } } },
+    );
+    expect(merged.weekProgress?.listener).toEqual({ week: "2026-W31", days: ["mon"] });
+  });
+
+  it("ignores a mission older than today's, claimed or not", () => {
+    const merged = mergeProgress(
+      { ...bare, missions: { listener: { day: "2026-07-12", done: ["quiz"], claimed: false } } },
+      { ...bare, missions: { listener: { day: "2026-07-11", done: ["match"], claimed: true } } },
+    );
+    expect(merged.missions?.listener).toEqual({
+      day: "2026-07-12",
+      done: ["quiz"],
+      claimed: false,
+    });
+  });
+
+  it("adopts a wallet for a kid this device has never had one for", () => {
+    const merged = mergeProgress(
+      { ...bare, wallets: { listener: { earned: 10, spent: 2 } } },
+      { ...bare, wallets: { reader: { earned: 30, spent: 5 } } },
+    );
+    expect(merged.wallets?.reader).toEqual({ earned: 30, spent: 5 });
+    expect(merged.wallets?.listener).toEqual({ earned: 10, spent: 2 });
+    // The legacy balance view follows the counters.
+    expect(merged.stars?.reader).toBe(25);
+  });
+
+  it("is idempotent: merging the same pair twice changes nothing", () => {
+    // The property the whole design rests on — every exchange re-merges, so a
+    // rule that inflated on repeat would drift a little on every game complete.
+    const a: ProgressSnapshot = {
+      stickers: ["listener:animals:learn"],
+      streaks: { listener: { day: "2026-07-11", count: 3 } },
+      avatars: { listener: "🦖" },
+      stats: { listener: { perro: { right: 2, wrong: 1 } } },
+      wallets: { listener: { earned: 40, spent: 10 } },
+      freezes: { listener: 2 },
+      ownedAccessories: { listener: ["gorro"] },
+      retoBests: { listener: { animals: 8 } },
+      stickerCounts: { "listener:animals:learn": 3 },
+    };
+    const b: ProgressSnapshot = {
+      ...bare,
+      stickers: ["reader:casa:quiz"],
+      stats: { listener: { perro: { right: 5, wrong: 0 } } },
+      wallets: { listener: { earned: 55, spent: 5 } },
+      freezes: { listener: 1 },
+      ownedAccessories: { listener: ["gorro", "lazo"] },
+      retoBests: { listener: { animals: 3, casa: 6 } },
+      stickerCounts: { "listener:animals:learn": 7 },
+    };
+    const once = mergeProgress(a, b);
+    expect(mergeProgress(once, b)).toEqual(once);
+    expect(mergeProgress(once, a)).toEqual(once);
+  });
+
+  it("is order-independent for the commutative rules", () => {
+    const a: ProgressSnapshot = {
+      ...bare,
+      freezes: { listener: 3 },
+      ownedAvatars: { listener: ["🦖"] },
+      retoBests: { listener: { animals: 9 } },
+    };
+    const b: ProgressSnapshot = {
+      ...bare,
+      freezes: { listener: 1 },
+      ownedAvatars: { listener: ["🐸"] },
+      retoBests: { listener: { animals: 4 } },
+    };
+    const ab = mergeProgress(a, b);
+    const ba = mergeProgress(b, a);
+    expect(ab.freezes).toEqual(ba.freezes);
+    expect(ab.retoBests).toEqual(ba.retoBests);
+    expect([...(ab.ownedAvatars?.listener ?? [])].sort()).toEqual(
+      [...(ba.ownedAvatars?.listener ?? [])].sort(),
+    );
+  });
+});

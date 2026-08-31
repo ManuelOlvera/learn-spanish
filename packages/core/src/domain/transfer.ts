@@ -478,12 +478,202 @@ function isWordStats(value: unknown): value is WordStats {
   );
 }
 
-/** Import = merge, never overwrite: sticker union, later streak day wins
- *  (higher count on ties), incoming avatars win where present. */
+/**
+ * How one kid's value for a field is combined. `mine` is undefined when this
+ * device has never held one — the common case for a field the other device
+ * invented.
+ */
+type Combine<T> = (mine: T | undefined, theirs: T) => T;
+
+/**
+ * Apply a per-kid rule across two kid-keyed documents.
+ *
+ * Almost every snapshot field is `Partial<Record<KidId, T>>` and differs only
+ * in how one kid's value is combined, so the walk lives here once and each
+ * field below names its rule instead of rewriting the loop. Kids the incoming
+ * side has never heard of are carried through untouched — a device only one
+ * child uses must never delete the other's progress.
+ */
+function mergeKidField<T>(
+  mine: Partial<Record<KidId, T>> | undefined,
+  theirs: Partial<Record<KidId, T>> | undefined,
+  combine: Combine<T>,
+): Partial<Record<KidId, T>> {
+  const merged: Partial<Record<KidId, T>> = { ...(mine ?? {}) };
+  for (const [kid, value] of Object.entries(theirs ?? {}) as [KidId, T][]) {
+    merged[kid] = combine(merged[kid], value);
+  }
+  return merged;
+}
+
+/** Bigger wins. The workhorse: every counter in the economy only goes up, so
+ *  this is idempotent and safe against a stale peer. */
+const highest: Combine<number> = (mine, theirs) => Math.max(mine ?? 0, theirs);
+
+/** Everything either side owns, first-seen order — bought content is never lost. */
+const union: Combine<readonly string[]> = (mine, theirs) => [
+  ...new Set([...(mine ?? []), ...theirs]),
+];
+
+/** The incoming value always wins, for fields where the other device is simply
+ *  more recent and there is nothing to reconcile. */
+const takeTheirs: Combine<string> = (_mine, theirs) => theirs;
+
+/** Per key of a record, whichever side ranks higher. */
+function bestPerKey<V>(
+  rank: (value: V) => number,
+): Combine<Readonly<Record<string, V>>> {
+  return (mine, theirs) => {
+    const merged: Record<string, V> = { ...(mine ?? {}) };
+    for (const [key, value] of Object.entries(theirs)) {
+      const existing = merged[key];
+      if (existing === undefined || rank(value) > rank(existing)) {
+        merged[key] = value;
+      }
+    }
+    return merged;
+  };
+}
+
+/** Whole-value contest: the incoming value replaces this device's only when
+ *  `better` says so, so a tie keeps what the receiving device already had. */
+function preferring<T>(better: (theirs: T, mine: T) => boolean): Combine<T> {
+  return (mine, theirs) =>
+    mine === undefined || better(theirs, mine) ? theirs : mine;
+}
+
+/** Per word the higher right and the higher wrong, independently, so a
+ *  re-import can never inflate either. */
+const mergeWordStats: Combine<WordStats> = (mine, theirs) => {
+  const merged: Record<string, WordStat> = { ...(mine ?? {}) };
+  for (const [cardId, stat] of Object.entries(theirs)) {
+    const existing = merged[cardId];
+    merged[cardId] = {
+      right: Math.max(existing?.right ?? 0, stat.right),
+      wrong: Math.max(existing?.wrong ?? 0, stat.wrong),
+    };
+  }
+  return merged;
+};
+
+/** Within one week union the active days; a later week supersedes outright —
+ *  it is a fresh week that reset the day set, not a smaller one. */
+const mergeWeekProgress: Combine<WeekProgress> = (mine, theirs) => {
+  if (mine === undefined || theirs.week > mine.week) {
+    return theirs;
+  }
+  if (theirs.week < mine.week) {
+    return mine;
+  }
+  return { week: mine.week, days: [...new Set([...mine.days, ...theirs.days])] };
+};
+
+/** A later day supersedes; within a day, union what was done and keep
+ *  `claimed` once either device has taken the bonus, so it cannot re-pay. */
+const mergeMission: Combine<MissionState> = (mine, theirs) => {
+  if (mine === undefined || theirs.day > mine.day) {
+    return theirs;
+  }
+  if (theirs.day < mine.day) {
+    return mine;
+  }
+  return {
+    day: mine.day,
+    done: [...new Set([...mine.done, ...theirs.done])],
+    claimed: mine.claimed || theirs.claimed,
+  };
+};
+
+/** Union owned species and merge each pet. Which pet is on screen is a
+ *  per-device choice like `worn` and `form`: the RECEIVING device wins and the
+ *  incoming value only fills a gap. Incoming-wins made every pull adopt the
+ *  other device's active pet — feed the one on screen, then a pull would swap
+ *  in a pet that had not been fed in days and the hungry face came back
+ *  (docs/bugs.md). */
+const mergeCollection: Combine<PetCollection> = (mine, theirs) => {
+  if (mine === undefined) {
+    return theirs;
+  }
+  const pets: Record<string, PetState> = { ...mine.pets };
+  for (const [species, pet] of Object.entries(theirs.pets)) {
+    pets[species] = mergePet(pets[species], pet);
+  }
+  return {
+    active: mine.active || theirs.active,
+    owned: [...new Set([...mine.owned, ...theirs.owned])],
+    pets,
+  };
+};
+
+/**
+ * Import = merge, never overwrite.
+ *
+ * Each field names the rule it obeys rather than spelling out the walk, so a
+ * new snapshot field is one line here and one guard in `sanitizeSnapshot` —
+ * and, more to the point, so the rule is legible at a glance instead of being
+ * inferred from twenty lines of loop. The irregular fields below keep their own
+ * code because they are genuinely irregular: stickers are a flat list, sticker
+ * counts are not keyed by kid, and the wallet is gated on its epoch.
+ */
 export function mergeProgress(
   current: ProgressSnapshot,
   incoming: ProgressSnapshot,
 ): ProgressSnapshot {
+  // ---- the regular per-kid fields, one rule each ----
+  const streaks = mergeKidField<Streak>(
+    current.streaks,
+    incoming.streaks,
+    preferring((t, m) => t.day > m.day || (t.day === m.day && t.count > m.count)),
+  );
+  const avatars = mergeKidField<string>(current.avatars, incoming.avatars, takeTheirs);
+  const stats = mergeKidField(current.stats, incoming.stats, mergeWordStats);
+  const pets = mergeKidField(current.pets, incoming.pets, (mine, theirs) =>
+    mergePet(mine, theirs),
+  );
+  const petCollections = mergeKidField(
+    current.petCollections,
+    incoming.petCollections,
+    mergeCollection,
+  );
+  const ownedAvatars = mergeKidField(current.ownedAvatars, incoming.ownedAvatars, union);
+  const ownedAccessories = mergeKidField(
+    current.ownedAccessories,
+    incoming.ownedAccessories,
+    union,
+  );
+  const unlockedDecks = mergeKidField(
+    current.unlockedDecks,
+    incoming.unlockedDecks,
+    union,
+  );
+  const freezes = mergeKidField(current.freezes, incoming.freezes, highest);
+  const weekly = mergeKidField<WeeklyStreak>(
+    current.weekly,
+    incoming.weekly,
+    preferring((t, m) => t.count > m.count || (t.count === m.count && t.week > m.week)),
+  );
+  const weekProgress = mergeKidField(
+    current.weekProgress,
+    incoming.weekProgress,
+    mergeWeekProgress,
+  );
+  // Per deck keep the higher tier, so a completion chest that already paid on
+  // one device never re-pays after the sticker counts sync in.
+  const categoryAwards = mergeKidField(
+    current.categoryAwards,
+    incoming.categoryAwards,
+    bestPerKey<StickerTier>(tierRank),
+  );
+  // A reto best only ever goes up, so no device can erase the other's record.
+  const retoBests = mergeKidField(
+    current.retoBests,
+    incoming.retoBests,
+    bestPerKey<number>((score) => score),
+  );
+  const missions = mergeKidField(current.missions, incoming.missions, mergeMission);
+
+  // ---- the irregular fields ----
+
   const stickers = [...current.stickers];
   for (const id of incoming.stickers) {
     if (!stickers.includes(id)) {
@@ -491,260 +681,48 @@ export function mergeProgress(
     }
   }
 
-  const streaks: Partial<Record<KidId, Streak>> = { ...current.streaks };
-  for (const [kid, streak] of Object.entries(incoming.streaks) as [
-    KidId,
-    Streak,
-  ][]) {
-    const existing = streaks[kid];
-    if (
-      existing === undefined ||
-      streak.day > existing.day ||
-      (streak.day === existing.day && streak.count > existing.count)
-    ) {
-      streaks[kid] = streak;
-    }
-  }
-
-  // Per-word maxima keep the merge idempotent (re-importing never inflates).
-  const stats: Partial<Record<KidId, WordStats>> = { ...(current.stats ?? {}) };
-  for (const [kid, incomingStats] of Object.entries(incoming.stats ?? {}) as [
-    KidId,
-    WordStats,
-  ][]) {
-    const merged: Record<string, WordStat> = { ...(stats[kid] ?? {}) };
-    for (const [cardId, stat] of Object.entries(incomingStats)) {
-      const existing = merged[cardId];
-      merged[cardId] = {
-        right: Math.max(existing?.right ?? 0, stat.right),
-        wrong: Math.max(existing?.wrong ?? 0, stat.wrong),
-      };
-    }
-    stats[kid] = merged;
-  }
-
-  // Economy fields max-merge for idempotence (re-import never inflates) —
-  // except across wallet epochs: a bumped WALLET_EPOCH is a deliberate wallet
-  // event (a reset, a schema change), so wallet fields from an older epoch
-  // are discarded, never merged, or every stale cloud row and transfer code
-  // would resurrect the pre-bump values.
-  const currentEpoch = current.walletEpoch ?? 0;
-  const incomingEpoch = incoming.walletEpoch ?? 0;
-  const walletEpoch = Math.max(currentEpoch, incomingEpoch);
-  // Counter wallets: per-counter max. Both counters are monotonic, so this is
-  // idempotent AND spend-safe — a stale peer's lower `spent` can't undo a buy.
-  const wallets: Partial<Record<KidId, Wallet>> = {
-    ...(currentEpoch === walletEpoch ? current.wallets ?? {} : {}),
-  };
-  if (incomingEpoch === walletEpoch) {
-    for (const [kid, wallet] of Object.entries(incoming.wallets ?? {}) as [KidId, Wallet][]) {
-      const existing = wallets[kid];
-      wallets[kid] = existing === undefined
-        ? wallet
-        : {
-            earned: Math.max(existing.earned, wallet.earned),
-            spent: Math.max(existing.spent, wallet.spent),
-          };
-    }
-  }
-  // Legacy balances still merge for kids without counters (old snapshots);
-  // wherever a counter wallet exists it is authoritative and overwrites the
-  // balance view below.
-  const stars: Partial<Record<KidId, number>> = {
-    ...(currentEpoch === walletEpoch ? current.stars ?? {} : {}),
-  };
-  if (incomingEpoch === walletEpoch) {
-    for (const [kid, value] of Object.entries(incoming.stars ?? {}) as [KidId, number][]) {
-      stars[kid] = Math.max(stars[kid] ?? 0, value);
-    }
-  }
-  for (const [kid, wallet] of Object.entries(wallets) as [KidId, Wallet][]) {
-    stars[kid] = walletBalance(wallet);
-  }
+  // Not keyed by kid: a sticker id already carries the kid.
   const stickerCounts: Record<string, number> = { ...(current.stickerCounts ?? {}) };
   for (const [id, count] of Object.entries(incoming.stickerCounts ?? {})) {
     stickerCounts[id] = Math.max(stickerCounts[id] ?? 0, count);
   }
-  const pets: Partial<Record<KidId, PetState>> = { ...(current.pets ?? {}) };
-  for (const [kid, pet] of Object.entries(incoming.pets ?? {}) as [KidId, PetState][]) {
-    pets[kid] = mergePet(pets[kid], pet);
-  }
 
-  // Owned avatars union (bought content is never lost on a merge).
-  const ownedAvatars: Partial<Record<KidId, readonly string[]>> = {
-    ...(current.ownedAvatars ?? {}),
-  };
-  for (const [kid, list] of Object.entries(incoming.ownedAvatars ?? {}) as [
-    KidId,
-    readonly string[],
-  ][]) {
-    ownedAvatars[kid] = [...new Set([...(ownedAvatars[kid] ?? []), ...list])];
-  }
-
-  // Owned accessories union too (bought once, kept forever).
-  const ownedAccessories: Partial<Record<KidId, readonly string[]>> = {
-    ...(current.ownedAccessories ?? {}),
-  };
-  for (const [kid, list] of Object.entries(incoming.ownedAccessories ?? {}) as [
-    KidId,
-    readonly string[],
-  ][]) {
-    ownedAccessories[kid] = [
-      ...new Set([...(ownedAccessories[kid] ?? []), ...list]),
-    ];
-  }
-
-  // Secret-deck unlocks union too (a bought deck is never lost).
-  const unlockedDecks: Partial<Record<KidId, readonly string[]>> = {
-    ...(current.unlockedDecks ?? {}),
-  };
-  for (const [kid, list] of Object.entries(incoming.unlockedDecks ?? {}) as [
-    KidId,
-    readonly string[],
-  ][]) {
-    unlockedDecks[kid] = [...new Set([...(unlockedDecks[kid] ?? []), ...list])];
-  }
-
-  // Freezes max-merge (a bought/earned freeze is never lost on a merge).
-  const freezes: Partial<Record<KidId, number>> = { ...(current.freezes ?? {}) };
-  for (const [kid, count] of Object.entries(incoming.freezes ?? {}) as [
-    KidId,
-    number,
-  ][]) {
-    freezes[kid] = Math.max(freezes[kid] ?? 0, count);
-  }
-
-  // Weekly streak: higher count wins, later in-progress week breaks ties.
-  const weekly: Partial<Record<KidId, WeeklyStreak>> = { ...(current.weekly ?? {}) };
-  for (const [kid, streak] of Object.entries(incoming.weekly ?? {}) as [
-    KidId,
-    WeeklyStreak,
-  ][]) {
-    const existing = weekly[kid];
-    if (
-      existing === undefined ||
-      streak.count > existing.count ||
-      (streak.count === existing.count && streak.week > existing.week)
-    ) {
-      weekly[kid] = streak;
-    }
-  }
-
-  // Week progress: union active days within the same week; a later week (a
-  // fresh week that reset the day set) supersedes an older one.
-  const weekProgress: Partial<Record<KidId, WeekProgress>> = {
-    ...(current.weekProgress ?? {}),
-  };
-  for (const [kid, incomingWeek] of Object.entries(incoming.weekProgress ?? {}) as [
-    KidId,
-    WeekProgress,
-  ][]) {
-    const existing = weekProgress[kid];
-    if (existing === undefined || incomingWeek.week > existing.week) {
-      weekProgress[kid] = incomingWeek;
-    } else if (incomingWeek.week === existing.week) {
-      weekProgress[kid] = {
-        week: existing.week,
-        days: [...new Set([...existing.days, ...incomingWeek.days])],
-      };
-    }
-  }
-
-  // Category awards: per deck keep the higher tier, so a completion chest that
-  // already paid on one device never re-pays after the sticker counts sync in.
-  const categoryAwards: Partial<Record<KidId, Record<string, StickerTier>>> = {};
-  for (const [kid, record] of Object.entries(current.categoryAwards ?? {}) as [
-    KidId,
-    Record<string, StickerTier>,
-  ][]) {
-    categoryAwards[kid] = { ...record };
-  }
-  for (const [kid, record] of Object.entries(incoming.categoryAwards ?? {}) as [
-    KidId,
-    Record<string, StickerTier>,
-  ][]) {
-    const merged: Record<string, StickerTier> = { ...(categoryAwards[kid] ?? {}) };
-    for (const [deckId, tier] of Object.entries(record)) {
-      const existing = merged[deckId];
-      if (existing === undefined || tierRank(tier) > tierRank(existing)) {
-        merged[deckId] = tier;
-      }
-    }
-    categoryAwards[kid] = merged;
-  }
-
-  // Reto records: per deck keep the higher score. A best only goes up, so this
-  // is a plain max-merge and no device can erase the other's record.
-  const retoBests: Partial<Record<KidId, Record<string, number>>> = {};
-  for (const [kid, record] of Object.entries(current.retoBests ?? {}) as [
-    KidId,
-    Record<string, number>,
-  ][]) {
-    retoBests[kid] = { ...record };
-  }
-  for (const [kid, record] of Object.entries(incoming.retoBests ?? {}) as [
-    KidId,
-    Record<string, number>,
-  ][]) {
-    const merged: Record<string, number> = { ...(retoBests[kid] ?? {}) };
-    for (const [deckId, score] of Object.entries(record)) {
-      merged[deckId] = Math.max(merged[deckId] ?? 0, score);
-    }
-    retoBests[kid] = merged;
-  }
-
-  // Daily mission: a later day supersedes; within the same day, union the done
-  // kinds and keep `claimed` once either device has claimed the bonus.
-  const missions: Partial<Record<KidId, MissionState>> = { ...(current.missions ?? {}) };
-  for (const [kid, incomingMission] of Object.entries(incoming.missions ?? {}) as [
-    KidId,
-    MissionState,
-  ][]) {
-    const existing = missions[kid];
-    if (existing === undefined || incomingMission.day > existing.day) {
-      missions[kid] = incomingMission;
-    } else if (incomingMission.day === existing.day) {
-      missions[kid] = {
-        day: existing.day,
-        done: [...new Set([...existing.done, ...incomingMission.done])],
-        claimed: existing.claimed || incomingMission.claimed,
-      };
-    }
-  }
-
-  // Pet collections: union owned species, max-merge each pet, keep an active.
-  const petCollections: Partial<Record<KidId, PetCollection>> = {
-    ...(current.petCollections ?? {}),
-  };
-  for (const [kid, incomingCol] of Object.entries(
-    incoming.petCollections ?? {},
-  ) as [KidId, PetCollection][]) {
-    const existing = petCollections[kid];
-    if (existing === undefined) {
-      petCollections[kid] = incomingCol;
-      continue;
-    }
-    const owned = [...new Set([...existing.owned, ...incomingCol.owned])];
-    const petsBySpecies: Record<string, PetState> = { ...existing.pets };
-    for (const [species, pet] of Object.entries(incomingCol.pets)) {
-      petsBySpecies[species] = mergePet(petsBySpecies[species], pet);
-    }
-    petCollections[kid] = {
-      // Which pet is on screen is a per-device choice, like `worn` and `form`
-      // below: the RECEIVING device wins, and the incoming value only fills a
-      // gap. Incoming-wins made every pull adopt the other device's active pet
-      // — feed the one on screen, then a pull would swap in a pet that had not
-      // been fed in days and the hungry face came back (docs/bugs.md).
-      active: existing.active || incomingCol.active,
-      owned,
-      pets: petsBySpecies,
-    };
+  // The wallet is epoch-gated: a bumped WALLET_EPOCH is a deliberate wallet
+  // event (a reset, a schema change), so wallet fields from an older epoch are
+  // discarded rather than merged, or every stale cloud row and transfer code
+  // would resurrect the pre-bump values.
+  const currentEpoch = current.walletEpoch ?? 0;
+  const incomingEpoch = incoming.walletEpoch ?? 0;
+  const walletEpoch = Math.max(currentEpoch, incomingEpoch);
+  // Counters are monotonic, so per-counter max is idempotent AND spend-safe: a
+  // stale peer's lower `spent` cannot undo a buy.
+  const wallets = mergeKidField<Wallet>(
+    currentEpoch === walletEpoch ? current.wallets : {},
+    incomingEpoch === walletEpoch ? incoming.wallets : {},
+    (mine, theirs) =>
+      mine === undefined
+        ? theirs
+        : {
+            earned: Math.max(mine.earned, theirs.earned),
+            spent: Math.max(mine.spent, theirs.spent),
+          },
+  );
+  // Legacy balances still merge for kids without counters (old snapshots);
+  // wherever a counter wallet exists it is authoritative and overwrites the
+  // balance view below.
+  const stars = mergeKidField<number>(
+    currentEpoch === walletEpoch ? current.stars : {},
+    incomingEpoch === walletEpoch ? incoming.stars : {},
+    highest,
+  );
+  for (const [kid, wallet] of Object.entries(wallets) as [KidId, Wallet][]) {
+    stars[kid] = walletBalance(wallet);
   }
 
   return {
     stickers,
     streaks,
-    avatars: { ...current.avatars, ...incoming.avatars },
+    avatars,
     stats,
     stars,
     ...(Object.keys(wallets).length > 0 ? { wallets } : {}),

@@ -1,5 +1,54 @@
 # Shipped features
 
+## 2026-09-01 — 🧹 The three deferred refactors: a merge registry, a kid hook, and la mascota's shelves
+
+The last three findings from the 2026-08-31 review, each of which had been
+parked behind a trigger. Done on request, and none of them changes what the app
+does — every one is verified as behaviour-preserving.
+
+**`mergeProgress` is a registry now: 286 lines → 126.** A field's merge rule is
+one named line where it used to be an eight-line typed loop —
+`mergeKidField(current.freezes, incoming.freezes, highest)`. The combinators are
+`highest`, `union`, `takeTheirs`, `bestPerKey(rank)` and `preferring(better)`,
+plus four named rules for shapes that are genuinely their own (word stats, week
+progress, missions, pet collections). Stickers, sticker counts and the
+epoch-gated wallet stay outside it, being irregular rather than merely
+different. The file itself barely shrank — loop bodies traded for documented
+combinators — which is the point: the win is what the *next* field costs.
+
+Rewriting correct code needs a net, so eight characterisation tests went in
+first, pinning the rules that had no direct test (per-word stat maxima, the
+three unions, reto and sticker-count maxima, idempotence, order-independence).
+They passed against the old implementation before a line moved. Two more went in
+after: making "an older incoming week or mission loses" an explicit branch
+instead of a fall-through revealed that nothing had ever tested a stale device
+failing to roll the week back. Then a two-device merge driven in the browser —
+wallet counters, sticker union, freeze max, per-deck reto records from both
+sides, accessory union — all correct.
+
+**`useSelectedKid` names the three states.** Which kid is playing can only be
+read after mount, so the answer is *loading*, *none* or *picked* — and six
+components had collapsed the first two into one `null`, which is what lets a
+screen flash its no-kid branch for a frame. Eight components moved to the hook.
+`AlbumView` and `HomeView` deliberately did not: both let you switch kids on the
+screen, so their kid is mutable state and the hook would have broken the
+switcher. (The review said twenty-one components; twenty-one *files* touch
+`getSelectedKid`, but eleven read it inside an event handler, which is already
+right.)
+
+**La mascota's three shopping grids** came out as `PetShelf`, `Wardrobe` and
+`ThemePicker` — pure presentation, 757 → 641 lines. Three components rather than
+one generic grid, because what a tile shows differs: a hunger badge and growth
+form, a worn state, a colour swatch. The pet stage and purchase flow stay
+together, being genuinely one thing; `HomeView` already showed what a split made
+for line count alone is worth.
+
+**Also:** the CSP gained `worker-src 'self'` and `frame-src 'none'`, and a
+comment explaining why it cannot drop `unsafe-inline` — a nonce must be minted
+per request, every route here is prerendered so the app can boot offline, and a
+nonce policy over prerendered HTML would block Next's own bootstrap and stop the
+app hydrating at all. Not effort; incompatibility.
+
 ## 2026-08-31 — 🧪 The web layer gets a test harness
 
 `apps/web` had no tests at all, which is where the last two reviews' findings
