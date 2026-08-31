@@ -7,12 +7,11 @@ import {
   KID_GAME_MODES,
   type ConversationChoice,
   type Deck,
-  type KidId,
 } from "@learn-spanish/core";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getActivePet, getPetCollection } from "@/lib/economy";
 import { petFormEmoji, petMaxForm } from "@learn-spanish/core";
-import { getSelectedKid } from "@/lib/kid";
+import { useSelectedKid } from "@/lib/use-selected-kid";
 import { feedbackPop } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
 
@@ -33,7 +32,8 @@ const REPLY_DELAY_MS = 1400;
  * is the one game in the app a kid cannot lose.
  */
 export function ConversationPlayer({ deck, accent }: Props) {
-  const [kid, setKid] = useState<KidId | null | undefined>(undefined);
+  const selected = useSelectedKid();
+  const kid = selected.status === "picked" ? selected.kid : null;
   const [pet, setPet] = useState<{ emoji: string; name: string } | null>(null);
   const [index, setIndex] = useState(0);
   const [said, setSaid] = useState<ConversationChoice | null>(null);
@@ -50,13 +50,20 @@ export function ConversationPlayer({ deck, accent }: Props) {
     }
   }
 
+  // The reply is spoken 1.4s after the tap, so a kid who taps the back button
+  // in between would otherwise hear the pet answer over the next screen — the
+  // one place in the app audio can outlive its picture. Its own effect, so it
+  // cannot be disturbed by anything the kid lookup below does.
+  useEffect(() => clearReplyTimer, []);
+
   useEffect(() => {
     // The pet speaks first, from this effect rather than a tap, so the voice
     // list has to be warm before that line — two speakers need two voices.
     warmUpVoices();
-    const picked = getSelectedKid();
-    setKid(picked);
-    const which = picked ?? "listener";
+    if (selected.status === "loading") {
+      return;
+    }
+    const which = kid ?? "listener";
     const collection = getPetCollection(which);
     const active = getActivePet(which);
     setPet({
@@ -67,11 +74,7 @@ export function ConversationPlayer({ deck, accent }: Props) {
       // An unnamed pet still has something to introduce itself as.
       name: active.name && active.name !== "" ? active.name : "tu amigo",
     });
-    // The reply is spoken 1.4s after the tap, so a kid who taps the back
-    // button in between would otherwise hear the pet answer over the next
-    // screen — the one place in the app audio can outlive its picture.
-    return clearReplyTimer;
-  }, []);
+  }, [selected, kid]);
 
   // One conversation per run; `round` re-rolls it on replay.
   const talk = useMemo(
@@ -124,7 +127,7 @@ export function ConversationPlayer({ deck, accent }: Props) {
     setRound((r) => r + 1);
   }
 
-  if (kid === undefined || pet === null || talk === null || turn === null) {
+  if (selected.status === "loading" || pet === null || talk === null || turn === null) {
     return <main className="min-h-dvh" aria-hidden />;
   }
 

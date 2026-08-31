@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { KidId } from "@learn-spanish/core";
-import { getSelectedKid } from "@/lib/kid";
+import { useSelectedKid } from "@/lib/use-selected-kid";
 import { deckAccent } from "@/lib/deck-theme";
 
 interface Props {
@@ -19,13 +17,15 @@ interface Props {
  * not show it, and the selected kid is a browser-storage value.
  */
 export function AdivinaShelfTile({ groupId }: Props) {
-  const [kid, setKid] = useState<KidId | null | undefined>(undefined);
+  const selected = useSelectedKid();
 
-  useEffect(() => {
-    setKid(getSelectedKid());
-  }, []);
-
-  if (kid === "listener" || kid === undefined) {
+  // Hidden while the kid is still being read, and for the listener — but shown
+  // when nobody has been picked, which is what the old `undefined`/`null`
+  // split encoded.
+  if (
+    selected.status === "loading" ||
+    (selected.status === "picked" && selected.kid === "listener")
+  ) {
     return null;
   }
 

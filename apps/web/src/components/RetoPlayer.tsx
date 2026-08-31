@@ -6,12 +6,12 @@ import {
   createQuizRound,
   KID_GAME_MODES,
   type Deck,
-  type KidId,
   type QuizRound,
 } from "@learn-spanish/core";
 import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
-import { getSelectedKid, getAvatar, KID_META } from "@/lib/kid";
+import { getAvatar, KID_META } from "@/lib/kid";
+import { useSelectedKidOr } from "@/lib/use-selected-kid";
 import { addStars, getRetoBest, saveRetoBest } from "@/lib/economy";
 import { rivalFor } from "@learn-spanish/core";
 import { feedbackFanfare } from "@/lib/feedback";
@@ -32,7 +32,7 @@ export const RETO_SECONDS = 60;
 /** El reto: answer as many as you can in 60 seconds. Wrong answers just
  *  move on — the clock is the only pressure. Best score per deck+kid. */
 export function RetoPlayer({ deck, accent }: Props) {
-  const [kid, setKid] = useState<KidId | null>(null);
+  const kid = useSelectedKidOr("listener");
   const [round, setRound] = useState<QuizRound | null>(null);
   const [timeLeft, setTimeLeft] = useState(RETO_SECONDS);
   const [score, setScore] = useState(0);
@@ -46,7 +46,6 @@ export function RetoPlayer({ deck, accent }: Props) {
 
   useEffect(() => {
     warmUpVoices();
-    setKid(getSelectedKid() ?? "listener");
     return () => {
       if (ticker.current !== null) {
         window.clearInterval(ticker.current);

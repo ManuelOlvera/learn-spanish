@@ -8,7 +8,24 @@ import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
  * sync (ADR 004 — *.supabase.co rather than an env-injected host keeps this
  * config env-free) and blob: media for say-it-back playback (ADR 003).
  * 'unsafe-inline' is required by Next's inline bootstrap scripts and inline
- * styles (next/font, style attributes) — there is no nonce infrastructure here.
+ * styles (next/font, style attributes).
+ *
+ * It cannot be replaced by a nonce here, and the reason is structural rather
+ * than effort: a nonce must be fresh per request and stamped into the HTML,
+ * which requires rendering per request. Every route in this app is prerendered
+ * at build time (28 of them, no middleware, no dynamic route) because the whole
+ * point is a PWA that boots offline — ADR 002 and ADR 005. Serving a nonce CSP
+ * over prerendered HTML would leave the baked-in bootstrap scripts unsigned,
+ * CSP would block them, and the app would not hydrate at all. Hashing the
+ * inline scripts instead is possible in principle but means a post-build step
+ * emitting per-route headers, where one missed hash is a blank screen for a
+ * family that is offline in a car — the exact failure this app is built to
+ * avoid.
+ *
+ * What this costs is a safety net, not a floor: the app renders no
+ * user-supplied or third-party HTML (no dangerouslySetInnerHTML anywhere, React
+ * escaping throughout), so there is no way to get an inline script onto a page
+ * in the first place. Revisit if that ever changes.
  */
 const CSP = [
   "default-src 'self'",
@@ -19,6 +36,9 @@ const CSP = [
   "media-src 'self' blob:",
   "connect-src 'self' https://*.supabase.co",
   "manifest-src 'self'",
+  // The service worker is same-origin; nothing here is ever framed.
+  "worker-src 'self'",
+  "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

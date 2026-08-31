@@ -21,6 +21,7 @@ import {
   type PetCollection,
 } from "@learn-spanish/core";
 import { getSelectedKid, getAvatar } from "@/lib/kid";
+import { useSelectedKidOr } from "@/lib/use-selected-kid";
 import {
   adoptSpecies,
   buyAccessoryForActive,
@@ -157,7 +158,7 @@ function pendingDetails(
  *  the active pet; stars also adopt new pets, dress them, open surprise
  *  boxes, and buy themes — a renewable star sink. */
 export function MascotaView() {
-  const [kid, setKid] = useState<KidId | null>(null);
+  const kid = useSelectedKidOr("listener");
   const [collection, setCollection] = useState<PetCollection | null>(null);
   const [stars, setStars] = useState(0);
   const [munch, setMunch] = useState(0);
@@ -194,10 +195,10 @@ export function MascotaView() {
   }
 
   useEffect(() => {
-    const current = getSelectedKid() ?? "listener";
-    setKid(current);
-    refresh(current);
-  }, []);
+    if (kid !== null) {
+      refresh(kid);
+    }
+  }, [kid]);
 
   // While an accessory is being dragged, track the pointer at the window level
   // so the drag keeps up even when the finger leaves the little emoji, and the

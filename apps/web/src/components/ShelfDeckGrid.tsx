@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Deck, DeckGroup, KidId } from "@learn-spanish/core";
+import type { Deck, DeckGroup } from "@learn-spanish/core";
 import { deckAccent } from "@/lib/deck-theme";
-import { getSelectedKid } from "@/lib/kid";
+import { useSelectedKid } from "@/lib/use-selected-kid";
 import { useCamino } from "@/lib/use-camino";
 import { TrailBadge, TrailPips } from "@/components/TrailMarks";
 
@@ -25,10 +24,8 @@ interface Props {
  * and nothing is ever locked.
  */
 export function ShelfDeckGrid({ decks, groupId, allGroups, allDecks }: Props) {
-  const [kid, setKid] = useState<KidId | null | undefined>(undefined);
-  useEffect(() => {
-    setKid(getSelectedKid());
-  }, []);
+  const selected = useSelectedKid();
+  const kid = selected.status === "picked" ? selected.kid : null;
   const camino = useCamino(allGroups, allDecks, kid);
   const shelf = camino?.shelves.find((s) => s.groupId === groupId);
 

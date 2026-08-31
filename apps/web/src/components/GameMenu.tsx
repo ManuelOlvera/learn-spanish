@@ -18,7 +18,8 @@ import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
 import { getStickerCounts } from "@/lib/economy";
 import { TIER_GLYPH, TIER_LABEL } from "@/components/TrailMarks";
-import { getAvatar, getSelectedKid, KID_META } from "@/lib/kid";
+import { getAvatar, KID_META } from "@/lib/kid";
+import { useSelectedKid } from "@/lib/use-selected-kid";
 
 interface Props {
   deck: Deck;
@@ -195,17 +196,15 @@ function activityForHref(href: string): ActivityId {
 }
 
 export function GameMenu({ deck, accent }: Props) {
-  const [kid, setKid] = useState<KidId | null | undefined>(undefined);
+  const selected = useSelectedKid();
+  // `gamesFor` wants a real kid or nothing; "still reading" is handled below.
+  const kid = selected.status === "picked" ? selected.kid : null;
   // Which of this deck's activities this kid has already finished — the
   // stickers themselves, so the ⭐ here and the ⭐ on el camino agree.
   const [earned, setEarned] = useState<ReadonlySet<string>>(new Set());
   // Completion counts behind those stickers — the same ledger the album tiers
   // from, so a 🥇 here and a 🥇 in the album are the same fact.
   const [counts, setCounts] = useState<Readonly<Record<string, number>>>({});
-
-  useEffect(() => {
-    setKid(getSelectedKid());
-  }, []);
 
   useEffect(() => {
     if (!kid) {
@@ -226,7 +225,7 @@ export function GameMenu({ deck, accent }: Props) {
     };
   }, [kid]);
 
-  if (kid === undefined) {
+  if (selected.status === "loading") {
     return <main className="min-h-dvh" aria-hidden />;
   }
 

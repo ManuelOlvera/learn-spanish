@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { KID_GAME_MODES, type KidId, type Story } from "@learn-spanish/core";
-import { getSelectedKid } from "@/lib/kid";
+import { KID_GAME_MODES, type Story } from "@learn-spanish/core";
+import { useSelectedKidOr } from "@/lib/use-selected-kid";
 import { deckAccent } from "@/lib/deck-theme";
 
 interface Props {
@@ -13,11 +12,7 @@ interface Props {
 /** The story shelf: pick a cuento by its picture. The difficulty comes from
  *  whoever is playing, so a kid never sees a mode chooser here. */
 export function StoryShelf({ stories }: Props) {
-  const [kid, setKid] = useState<KidId | null>(null);
-
-  useEffect(() => {
-    setKid(getSelectedKid());
-  }, []);
+  const kid = useSelectedKidOr("listener");
 
   // Before storage is read (and on a deep link with no kid ever picked) the
   // pre-reader's level is the safe default — it never shows written prompts.

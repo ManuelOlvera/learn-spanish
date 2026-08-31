@@ -7,11 +7,10 @@ import {
   MAX_QUIZ_ROUNDS,
   pickReviewCards,
   type Deck,
-  type KidId,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getWordStats } from "@/lib/client-container";
-import { getSelectedKid } from "@/lib/kid";
+import { useSelectedKidOr } from "@/lib/use-selected-kid";
 import { QuizPlayer } from "@/components/QuizPlayer";
 
 interface Props {
@@ -21,14 +20,15 @@ interface Props {
 /** El repaso: a quiz over exactly the words this kid keeps missing.
  *  No sticker — the reward is the words getting easier. */
 export function RepasoView({ decks }: Props) {
-  const [kid, setKid] = useState<KidId | null>(null);
+  const kid = useSelectedKidOr("listener");
   const [reviewDeck, setReviewDeck] = useState<Deck | null | undefined>(undefined);
 
   useEffect(() => {
-    const current = getSelectedKid() ?? "listener";
-    setKid(current);
+    if (kid === null) {
+      return; // still reading which kid is playing
+    }
     getWordStats
-      .execute(current)
+      .execute(kid)
       .then((stats) => {
         const weak = pickReviewCards(
           decks.flatMap((d) => d.cards),
@@ -57,7 +57,7 @@ export function RepasoView({ decks }: Props) {
         log.error("word-stats", "failed to load for repaso", { err });
         setReviewDeck(null);
       });
-  }, [decks]);
+  }, [decks, kid]);
 
   if (reviewDeck === undefined || kid === null) {
     return <main className="min-h-dvh" aria-hidden />;
