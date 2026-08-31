@@ -53,6 +53,11 @@ import { useDeniedWobble } from "@/lib/use-denied-wobble";
 import { syncPush } from "@/lib/sync";
 import { BuyConfirm } from "@/components/BuyConfirm";
 import { Confetti } from "@/components/Confetti";
+import {
+  PetShelf,
+  ThemePicker,
+  Wardrobe,
+} from "@/components/MascotaShelves";
 
 /** Where each accessory's *centre* sits on the pet, as a percent of the emoji
  *  box (0% = top/left edge). Both axes are centred (see the -translate below),
@@ -573,72 +578,17 @@ export function MascotaView() {
         )}
       </section>
 
-      {/* ---- Mis mascotas: switch + adopt ---- */}
-      <section className="w-full">
-        <h2 className="mb-2 text-lg font-extrabold text-ink/70">🐾 Mis mascotas</h2>
-        <div className="grid grid-cols-4 gap-3">
-          {PET_SPECIES.map((s) => {
-            const owned = collection.owned.includes(s.id);
-            const isActive = s.id === activeId;
-            const p = collection.pets[s.id];
-            const petHungry = owned && isPetHungry(p ?? null, today);
-            return (
-              <button
-                type="button"
-                key={s.id}
-                onClick={() => {
-                  if (kid === null) return;
-                  if (owned) {
-                    setActiveSpecies(kid, s.id);
-                    feedbackSticker();
-                    refresh(kid);
-                    return;
-                  }
-                  ask({ kind: "pet", id: s.id }, s.cost);
-                }}
-                aria-label={
-                  owned
-                    ? petHungry
-                      ? `Play with ${s.nameEnglish} (hungry)`
-                      : `Play with ${s.nameEnglish}`
-                    : `Adopt ${s.nameEnglish} for ${s.cost} stars`
-                }
-                className={`sticker relative flex flex-col items-center gap-1 p-3 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                  !owned ? "opacity-80" : ""
-                }`}
-                style={
-                  isActive
-                    ? ({ "--sticker-face": "var(--color-lime)" } as React.CSSProperties)
-                    : undefined
-                }
-              >
-                {petHungry && (
-                  <span
-                    aria-hidden
-                    className="chest-tease absolute -right-1.5 -top-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-ink bg-white text-base"
-                  >
-                    🥺
-                  </span>
-                )}
-                <span
-                  aria-hidden
-                  className={`text-4xl ${petHungry ? "opacity-70 grayscale-[30%]" : ""}`}
-                >
-                  {owned
-                    ? petFormEmoji(
-                        s.id,
-                        Math.min(p?.form ?? Infinity, petMaxForm(s.id, p?.meals ?? 0)),
-                      )
-                    : s.stages[s.stages.length - 1]}
-                </span>
-                <span className="text-xs font-extrabold">
-                  {owned ? (isActive ? "★" : "") : `${s.cost}⭐`}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <PetShelf
+        collection={collection}
+        today={today}
+        onPlay={(id) => {
+          if (kid === null) return;
+          setActiveSpecies(kid, id);
+          feedbackSticker();
+          refresh(kid);
+        }}
+        onAdopt={(s) => ask({ kind: "pet", id: s.id }, s.cost)}
+      />
 
       {/* ---- Caja sorpresa ---- */}
       <section className="flex flex-col items-center gap-2">
@@ -660,98 +610,32 @@ export function MascotaView() {
         )}
       </section>
 
-      {/* ---- El armario ---- */}
-      <section className="w-full">
-        <h2 className="mb-2 text-lg font-extrabold text-ink/70">🛍️ El armario</h2>
-        <div className="grid grid-cols-3 gap-3">
-          {ACCESSORIES.map((item) => {
-            const owned = ownedAccessories.includes(item.id);
-            const worn = wornAccessories(pet, chosenForm).includes(item.id);
-            return (
-              <button
-                type="button"
-                key={item.id}
-                onClick={() => {
-                  if (kid === null) return;
-                  if (owned) {
-                    // Free once owned: just put it on or take it off.
-                    toggleAccessoryForActive(kid, item.id);
-                    feedbackSticker();
-                    refresh(kid);
-                    return;
-                  }
-                  ask({ kind: "accessory", id: item.id }, item.cost);
-                }}
-                aria-label={
-                  !owned
-                    ? `Buy ${item.emoji} for ${item.cost} stars`
-                    : worn
-                      ? `Take off ${item.emoji}`
-                      : `Put on ${item.emoji}`
-                }
-                aria-pressed={owned ? worn : undefined}
-                className={`sticker flex flex-col items-center gap-1 p-3 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                  owned && !worn ? "opacity-60" : ""
-                }`}
-                style={
-                  worn
-                    ? ({ "--sticker-face": "var(--color-lime)" } as React.CSSProperties)
-                    : undefined
-                }
-              >
-                <span aria-hidden className="text-4xl">
-                  {item.emoji}
-                </span>
-                <span className="text-sm font-extrabold">
-                  {!owned ? `${item.cost}⭐` : worn ? "✓" : "＋"}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <Wardrobe
+        owned={ownedAccessories}
+        worn={wornAccessories(pet, chosenForm)}
+        onToggle={(id) => {
+          if (kid === null) return;
+          // Free once owned: just put it on or take it off.
+          toggleAccessoryForActive(kid, id);
+          feedbackSticker();
+          refresh(kid);
+        }}
+        onBuy={(item) => ask({ kind: "accessory", id: item.id }, item.cost)}
+      />
 
-      {/* ---- Temas ---- */}
-      <section className="w-full pb-6">
-        <h2 className="mb-2 text-lg font-extrabold text-ink/70">🎨 Temas</h2>
-        <div className="grid grid-cols-3 gap-3">
-          {THEMES.map((t) => {
-            const owned = ownedThemes.includes(t.id) || t.cost === 0;
-            const selected = t.id === theme;
-            return (
-              <button
-                type="button"
-                key={t.id}
-                onClick={() => {
-                  if (kid === null) return;
-                  if (owned) {
-                    setSelectedTheme(kid, t.id);
-                    setTheme(t.id);
-                    feedbackSticker();
-                    return;
-                  }
-                  ask({ kind: "theme", id: t.id }, t.cost);
-                }}
-                aria-label={
-                  owned ? `Use the ${t.nameSpanish} theme` : `Buy ${t.nameSpanish} for ${t.cost} stars`
-                }
-                className={`sticker flex flex-col items-center gap-1 p-3 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                  selected ? "ring-4 ring-ink" : ""
-                }`}
-              >
-                <span
-                  aria-hidden
-                  className="h-8 w-8 rounded-full border-4 border-ink"
-                  style={{ background: t.paper }}
-                />
-                <span className="text-xs font-extrabold">
-                  {owned ? (selected ? "★" : t.nameSpanish) : `${t.cost}⭐`}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <div className="w-full pb-6">
+        <ThemePicker
+          owned={ownedThemes}
+          current={theme}
+          onSelect={(id) => {
+            if (kid === null) return;
+            setSelectedTheme(kid, id);
+            setTheme(id);
+            feedbackSticker();
+          }}
+          onBuy={(t) => ask({ kind: "theme", id: t.id }, t.cost)}
+        />
+      </div>
     </main>
   );
 }
