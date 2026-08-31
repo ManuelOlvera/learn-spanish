@@ -159,6 +159,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity={mode === "listen" ? "quiz-listen" : "quiz-read"}
           onReplay={restart}
           noAward={review}

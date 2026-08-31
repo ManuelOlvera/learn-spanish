@@ -189,6 +189,7 @@ export function ConnectPlayer({ deck, mode, accent }: Props) {
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity={mode === "listen" ? "connect-listen" : "connect-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}

@@ -55,7 +55,9 @@ No reading, no accounts, no setup.
   shown when you don't), "¿Cuántos hay?" (counting, on
   the numbers deck), "Deletrea" (letter-tile spelling, reader-level),
   "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
-  sizes, on decks whose words fit a grid), "El globo" (guess the word
+  sizes, on decks whose words fit a grid; each hidden word has a colour of its
+  own, matched by its chip in the word list, and a letter two words cross on is
+  painted with the two of them mixed), "El globo" (guess the word
   letter by letter before the balloon pops — both kids, 🟢/🟡/🔴 word
   lengths, the 💡 tip costs a life), "Habla conmigo" (🗣️ the mascota says something in Spanish, the kid
   taps one of 2–3 things to say back, hears their own sentence spoken, and the
@@ -157,14 +159,20 @@ No reading, no accounts, no setup.
   shows only the games a kid can actually play (so a category is completable),
   persisted on-device (no accounts). Filling a whole category — and levelling it
   to silver, then gold — stamps a 🥉/🥈/🥇 medal and opens an escalating
-  completion chest (+15 / +30 / +50⭐).
+  completion chest (+15 / +30 / +50⭐). "The games a kid can actually play" is
+  per *deck*, not one list for all of them (`earnableActivities`): a learn-only
+  verbs deck is one sticker deep, and the album, the deck's game menu, el camino
+  and the chest all ask that one function, so they can never disagree.
 - **Home says one thing** — the gift, papá's challenge and el repaso used to
   render as separate stacked cards; on a phone with two of them active the first
   shelf tile sat *below the fold*. Home now shows exactly one of them, the most
   urgent, by a domain rule (`pickHomeFocus`): anything holding unclaimed stars
   outranks any suggestion, and a person's challenge outranks the app's own.
   La misión is drawn on its own, outside that rotation — it resets at midnight
-  and has no other screen, so it leaves home only once it is finished. The shelf grid follows the camino's ladder order, and la mascota —
+  and has no other screen, so it leaves home only once it is finished. Each of
+  its three icons is a link into the game it names, on el camino's own next
+  deck when that deck can host it (`missionTarget`) — a pre-reader who can read
+  the picture but not the words gets there in one tap. The shelf grid follows the camino's ladder order, and la mascota —
   not learning content — moved out of the grid up to the header beside 📔,
   carrying the ⭐ balance. La racha semanal moved off home too — first to the
   mascota screen, then (parent-reported) to `/informe`, where the family already

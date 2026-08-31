@@ -135,6 +135,7 @@ export function ConversationPlayer({ deck, accent }: Props) {
     return (
       <DoneScreen
         stickerDeckId={deck.id}
+        deck={deck}
         activity="hablar"
         onReplay={replay}
         noAward

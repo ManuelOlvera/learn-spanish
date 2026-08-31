@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   activityKind,
-  ALL_ACTIVITIES,
   boostedReward,
   computeReward,
+  earnableActivities,
   kidForActivity,
   petFormEmoji,
   petMaxForm,
@@ -18,6 +18,7 @@ import {
   type ActivityId,
   type AwardResult,
   type BoostTier,
+  type Deck,
   type StarReward,
   type StickerTier,
 } from "@learn-spanish/core";
@@ -50,6 +51,12 @@ import { StarChest } from "@/components/StarChest";
 interface Props {
   /** Which album section the sticker files under (a deck id, or "frases"). */
   stickerDeckId: string;
+  /** The deck itself, when the section is one — only its earnable-activity set
+   *  is wanted. A learn-only deck's category is a single sticker deep, and
+   *  without the deck the chest measured it against six slots it could never
+   *  fill, so finishing the verbs' flashcards paid nothing. Absent for the
+   *  pack-wide sections (las frases, los cuentos), which branch below. */
+  deck?: Deck;
   activity: ActivityId;
   onReplay: () => void;
   /** Where "more games" lives for this activity. */
@@ -70,6 +77,7 @@ interface Props {
  */
 export function DoneScreen({
   stickerDeckId,
+  deck,
   activity,
   onReplay,
   back,
@@ -190,7 +198,7 @@ export function DoneScreen({
             ? SENTENCE_ACTIVITIES
             : stickerDeckId === STORIES_ID
               ? STORY_ACTIVITIES
-              : ALL_ACTIVITIES;
+              : earnableActivities(deck, kid);
         const earned = new Set(await getAlbum.execute(kid));
         const tier = getCategoryTier(kid, stickerDeckId, activities, earned);
         if (tier === "none") {
@@ -209,7 +217,7 @@ export function DoneScreen({
     return () => {
       cancelled = true;
     };
-  }, [stickerDeckId, activity, noAward]);
+  }, [stickerDeckId, deck, activity, noAward]);
 
   return (
     <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">

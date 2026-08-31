@@ -47,6 +47,14 @@ where it is useful and unhurried — the parent's `/informe`.
   🥇 in the album cannot show ⭐ on the route. Re-deriving tiers inside the trail would be
   two rules over one ledger, and they drifted the first time this was built (the route
   hard-coded ⭐ while the album tiered).
+- **The rule covers the activity *set*, not only the tier** (extended 2026-09-01). The
+  first cut of this ADR pinned the medal to `categoryTierFromAlbum` but left *which slots
+  a section holds* written down twice — `trailActivities` in the route, `ALL_ACTIVITIES`
+  in the album page and the completion chest — and they drifted exactly as predicted: a
+  learn-only verbs deck read as finished on the route and a third full in the album, whose
+  medal and chest could then never fire. Both now call `earnableActivities(deck, kid)` in
+  `domain/category.ts`, and `trail.ts` is one of its callers. When a *third* surface needs
+  to know what a section holds, it calls that function too.
 - **A step cannot express anything the album cannot.** Order-within-a-deck, time spent, a
   score threshold, or "done today" are all unrepresentable. Any of them means real storage,
   and that reopens ADR 004 (a merge rule) — do not add a camino key to dodge that.

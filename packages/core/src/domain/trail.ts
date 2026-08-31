@@ -1,6 +1,5 @@
-import { ALL_ACTIVITIES, stickerId } from "./album";
-import type { ActivityId } from "./album";
-import { activitiesForKid, categoryTierFromAlbum, tierRank } from "./category";
+import { stickerId } from "./album";
+import { categoryTierFromAlbum, earnableActivities, tierRank } from "./category";
 import type { Deck } from "./deck";
 import type { DeckGroup } from "./deck-group";
 import type { KidId } from "./kid";
@@ -51,28 +50,19 @@ export interface Camino {
 }
 
 /**
- * The activities that count toward a deck's step for one kid: the shared
- * `learn` plus that kid's own difficulty variant of each game (six in all) —
- * and a step is done only when **every one** of them is. That is deliberately
- * the same bar as the album's own category completion, so a deck's ⭐ on the
- * route and its 🥉 in the album always mean the same thing.
- *
- * A learn-only deck (the verbs shelf) offers flashcards and nothing else, so
- * its step is one activity deep — otherwise it could never be completed.
- * Every other deck can offer all five games: the content tests hold every deck
- * at 10–17 cards, comfortably above what any of them needs to deal a round.
+ * A deck's step is done only when **every** sticker this kid can earn on it
+ * is — deliberately the same bar, computed by the same function, as the
+ * album's own category completion (`earnableActivities`), so a deck's ⭐ on
+ * the route and its 🥉 in the album always mean the same thing. Two copies of
+ * that rule is exactly what drifted before: see the note on that function.
  */
-export function trailActivities(deck: Deck, kid: KidId): readonly ActivityId[] {
-  return deck.learnOnly ? ["learn"] : activitiesForKid(ALL_ACTIVITIES, kid);
-}
-
 function stepFor(
   deck: Deck,
   kid: KidId,
   earned: ReadonlySet<string>,
   counts: Readonly<Record<string, number>>,
 ): TrailStep {
-  const activities = trailActivities(deck, kid);
+  const activities = earnableActivities(deck, kid);
   const done = activities.filter((activity) =>
     earned.has(stickerId(kid, deck.id, activity)),
   ).length;

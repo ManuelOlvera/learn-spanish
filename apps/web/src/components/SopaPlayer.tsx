@@ -21,6 +21,7 @@ import { useCombo } from "@/lib/use-combo";
 import { feedbackMatch } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
+import { mixSopaColors, sopaWordColor } from "@/lib/sopa-colors";
 import { CardFace } from "./CardFace";
 
 interface Props {
@@ -46,7 +47,12 @@ export function SopaPlayer({ deck, accent }: Props) {
   const [game, setGame] = useState<SopaGame | null>(null);
   const [anchor, setAnchor] = useState<number | null>(null);
   const [foundIds, setFoundIds] = useState<readonly string[]>([]);
-  const [foundCells, setFoundCells] = useState<ReadonlySet<number>>(new Set());
+  // Which found words own each cell, by their index in `game.words`. A list,
+  // not one owner: two words may legally cross on a shared letter, and that
+  // cell is painted with both of them mixed.
+  const [cellOwners, setCellOwners] = useState<
+    ReadonlyMap<number, readonly number[]>
+  >(new Map());
   const [wrongNonce, setWrongNonce] = useState(0);
   const [missedSinceFind, setMissedSinceFind] = useState(false);
   const [firstTries, setFirstTries] = useState(0);
@@ -65,7 +71,7 @@ export function SopaPlayer({ deck, accent }: Props) {
     setGame(createSopaGame(deck, level));
     setAnchor(null);
     setFoundIds([]);
-    setFoundCells(new Set());
+    setCellOwners(new Map());
     setMissedSinceFind(false);
     setFirstTries(0);
     setMistakes(0);
@@ -110,7 +116,14 @@ export function SopaPlayer({ deck, accent }: Props) {
     combo.correct();
     speakSpanish(word.card.spanish);
     setFoundIds((prev) => [...prev, word.card.id]);
-    setFoundCells((prev) => new Set([...prev, ...line]));
+    const owner = game.words.indexOf(word);
+    setCellOwners((prev) => {
+      const next = new Map(prev);
+      for (const cell of line) {
+        next.set(cell, [...(next.get(cell) ?? []), owner]);
+      }
+      return next;
+    });
     if (!missedSinceFind) {
       setFirstTries((n) => n + 1);
     }
@@ -186,6 +199,7 @@ export function SopaPlayer({ deck, accent }: Props) {
       ) : done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity="sopa"
           onReplay={restart}
           noAward
@@ -201,8 +215,9 @@ export function SopaPlayer({ deck, accent }: Props) {
       ) : (
         <>
           <section className="flex flex-wrap items-center justify-center gap-2 py-3">
-            {game.words.map((word) => {
+            {game.words.map((word, wordIndex) => {
               const found = foundIds.includes(word.card.id);
+              const color = sopaWordColor(wordIndex);
               return (
                 <span
                   key={word.card.id}
@@ -211,10 +226,20 @@ export function SopaPlayer({ deck, accent }: Props) {
                       ? `${word.card.spanish} — found`
                       : `Find ${word.card.spanish}`
                   }
-                  className={`inline-flex items-center gap-1 rounded-full border-2 border-ink px-3 py-1 text-lg font-extrabold ${
-                    found ? "bg-[var(--color-lime)]" : "bg-white"
-                  }`}
+                  // The chip wears its word's colour before it is found, not
+                  // only after: that is what lets the kid look at a coloured
+                  // run of letters and say which word it is. Finding it fills
+                  // the whole chip with the same colour.
+                  className="inline-flex items-center gap-1 rounded-full border-2 border-ink px-3 py-1 text-lg font-extrabold"
+                  style={{ backgroundColor: found ? color : "#fff" }}
                 >
+                  {!found && (
+                    <span
+                      aria-hidden
+                      className="h-3 w-3 rounded-full border-2 border-ink"
+                      style={{ backgroundColor: color }}
+                    />
+                  )}
                   {found && (
                     <CardFace
                       image={word.card.image}
@@ -244,8 +269,11 @@ export function SopaPlayer({ deck, accent }: Props) {
                 {game.grid.map((letter, index) => {
                   const isAnchor = anchor === index;
                   // Anchor wins over found: a shared letter re-selected to seed
-                  // the next word must show the selection, not stay lime.
-                  const isFound = foundCells.has(index) && !isAnchor;
+                  // the next word must show the selection, not its own colour.
+                  const owners = isAnchor ? [] : (cellOwners.get(index) ?? []);
+                  // One owner paints its word's colour; two paint their mix,
+                  // so a crossing letter belongs visibly to both words.
+                  const found = mixSopaColors(owners.map(sopaWordColor));
                   return (
                     <button
                       type="button"
@@ -253,12 +281,17 @@ export function SopaPlayer({ deck, accent }: Props) {
                       onClick={() => tap(index)}
                       aria-label={`Letter ${letter}${isAnchor ? " (selected)" : ""}`}
                       className={`flex aspect-square items-center justify-center rounded-lg border-2 border-ink text-xl font-extrabold sm:rounded-xl sm:text-3xl ${
-                        isFound
-                          ? "bg-[var(--color-lime)]"
-                          : isAnchor
-                            ? "bg-[var(--accent)]"
-                            : "bg-white active:translate-y-0.5"
+                        found === null && !isAnchor
+                          ? "bg-white active:translate-y-0.5"
+                          : ""
                       }`}
+                      style={
+                        found !== null
+                          ? { backgroundColor: found }
+                          : isAnchor
+                            ? { backgroundColor: "var(--accent)" }
+                            : undefined
+                      }
                     >
                       {letter}
                     </button>

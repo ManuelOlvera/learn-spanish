@@ -30,13 +30,18 @@ export {
   WALLET_SEED_BY_AVATAR,
   walletBalance,
 } from "./domain/stars";
-export type { MissionKind, MissionState } from "./domain/mission";
+export type {
+  MissionKind,
+  MissionState,
+  MissionTarget,
+} from "./domain/mission";
 export {
   activityKind,
   dailyMission,
   markMissionDone,
   MISSION_SIZE,
   missionComplete,
+  missionTarget,
 } from "./domain/mission";
 export type { StickerTier } from "./domain/sticker-tiers";
 export { stickerTier, TIER_THRESHOLDS } from "./domain/sticker-tiers";
@@ -124,7 +129,11 @@ export {
   STARTER_AVATARS,
 } from "./domain/avatars";
 export type { CountingGame, CountingRound } from "./domain/counting";
-export { COUNTING_ROUNDS, createCountingGame } from "./domain/counting";
+export {
+  COUNTING_DECK_ID,
+  COUNTING_ROUNDS,
+  createCountingGame,
+} from "./domain/counting";
 export type { SpellingGame, SpellingRound } from "./domain/spelling";
 export { createSpellingGame, SPELLING_ROUNDS, spellingWord } from "./domain/spelling";
 export type { StickerCountsStore } from "./domain/album";
@@ -175,6 +184,7 @@ export {
   categoryTier,
   categoryTierFromAlbum,
   CATEGORY_BONUS,
+  earnableActivities,
   pendingCategoryTier,
   tierRank,
 } from "./domain/category";
@@ -205,7 +215,7 @@ export {
   CHALLENGE_BONUS,
 } from "./domain/challenge";
 export type { Camino, TrailShelf, TrailStep } from "./domain/trail";
-export { buildCamino, trailActivities } from "./domain/trail";
+export { buildCamino } from "./domain/trail";
 export {
   groupsInTrailOrder,
   TRAIL_GROUP_ORDER,

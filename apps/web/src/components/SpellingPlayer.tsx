@@ -132,6 +132,7 @@ export function SpellingPlayer({ deck, accent }: Props) {
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity="spelling"
           onReplay={restart}
           noAward

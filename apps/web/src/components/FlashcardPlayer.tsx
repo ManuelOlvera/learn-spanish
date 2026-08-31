@@ -151,6 +151,7 @@ export function FlashcardPlayer({ deck, accent, noAward, backHref }: Props) {
       {done || !card ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity="learn"
           onReplay={restart}
           noAward={noAward}

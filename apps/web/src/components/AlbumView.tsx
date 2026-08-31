@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   activitiesForKid,
-  ALL_ACTIVITIES,
   categoryTier,
+  earnableActivities,
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
   STORIES_ID,
@@ -85,11 +85,17 @@ export function AlbumView({ decks }: Props) {
   // the same slots). `kid` is briefly null before mount; default the layout to
   // the pre-reader's set, which re-renders once storage is read.
   const viewKid: KidId = kid ?? "listener";
-  const deckActivities = activitiesForKid(ALL_ACTIVITIES, viewKid);
+  // Per deck, never one list for all of them: a learn-only deck (the verbs
+  // shelf) is one sticker deep, and drawing it with the full six put five
+  // slots on the page that nothing could ever fill — no medal, no chest, and
+  // a denominator the kid could not reach. Same function el camino counts by.
   const sentenceActivities = activitiesForKid(SENTENCE_ACTIVITIES, viewKid);
   const storyActivities = activitiesForKid(STORY_ACTIVITIES, viewKid);
   const total =
-    shownDecks.length * deckActivities.length +
+    shownDecks.reduce(
+      (sum, deck) => sum + earnableActivities(deck, viewKid).length,
+      0,
+    ) +
     sentenceActivities.length +
     storyActivities.length;
   const avatar = kid === null ? null : getAvatar(kid);
@@ -208,10 +214,12 @@ export function AlbumView({ decks }: Props) {
                 {deck.emoji}
               </span>
               <h2 className="text-2xl font-extrabold">{deck.nameSpanish}</h2>
-              {categoryMedal(deck.id, ALL_ACTIVITIES)}
+              {categoryMedal(deck.id, earnableActivities(deck, viewKid))}
             </div>
             <div className="flex flex-wrap gap-3">
-              {deckActivities.map((activity) => slot(deck.id, activity))}
+              {earnableActivities(deck, viewKid).map((activity) =>
+                slot(deck.id, activity),
+              )}
             </div>
           </section>
         ))}

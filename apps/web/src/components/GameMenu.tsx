@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  COUNTING_DECK_ID,
+  earnableActivities,
   globoDifficulties,
   hasConversation,
   KID_GAME_MODES,
   sopaDifficulties,
   stickerId,
   stickerTier,
-  trailActivities,
   type ActivityId,
   type Deck,
   type KidId,
@@ -135,7 +136,7 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
       modes: [{ glyph: "⏱️", href: "reto", label: "60-second challenge" }],
     },
     // Counting needs showable quantities — only the 1-10 deck hosts it.
-    ...(deckId === "numbers"
+    ...(deckId === COUNTING_DECK_ID
       ? [
           {
             emoji: "🧮",
@@ -232,7 +233,7 @@ export function GameMenu({ deck, accent }: Props) {
   const games = gamesFor(kid, deck);
   // The deck's step on el camino: how many of the activities this kid can earn
   // are done. Only meaningful once a kid is picked.
-  const stepActivities = kid === null ? [] : trailActivities(deck, kid);
+  const stepActivities = kid === null ? [] : earnableActivities(deck, kid);
   const stepDone =
     kid === null
       ? 0

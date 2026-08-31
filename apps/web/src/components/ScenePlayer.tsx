@@ -131,6 +131,7 @@ export function ScenePlayer({ deck, mode, accent }: Props) {
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity={mode === "listen" ? "scene-listen" : "scene-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}

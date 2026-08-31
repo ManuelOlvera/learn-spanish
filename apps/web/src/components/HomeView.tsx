@@ -440,7 +440,16 @@ export function HomeView({ decks, groups }: Props) {
           at midnight and no other screen can show it, so competing for one slot
           meant a kid with stuck words never saw it at all. It leaves home only
           once it is done and the chest is open (missionOnHome). */}
-      {missionOnHome(mission) && <MissionCard mission={mission} onClaim={claimBonus} />}
+      {missionOnHome(mission) && (
+        <MissionCard
+          mission={mission}
+          kid={kid}
+          decks={publicDecks}
+          groups={groups}
+          camino={camino}
+          onClaim={claimBonus}
+        />
+      )}
 
       {focus === "repaso" && (
         <Link

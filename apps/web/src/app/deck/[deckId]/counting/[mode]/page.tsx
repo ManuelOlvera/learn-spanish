@@ -1,15 +1,13 @@
 import { notFound } from "next/navigation";
-import type { QuizMode } from "@learn-spanish/core";
+import { COUNTING_DECK_ID, type QuizMode } from "@learn-spanish/core";
 import { getDeck, listDecks } from "@/lib/container";
 import { deckAccent } from "@/lib/deck-theme";
 import { CountingPlayer } from "@/components/CountingPlayer";
 
 const modes: readonly QuizMode[] = ["listen", "read"];
-/** Counting shows n copies of a picture — only 1-10 is showable. */
-const COUNTING_DECK = "numbers";
 
 export function generateStaticParams() {
-  return modes.map((mode) => ({ deckId: COUNTING_DECK, mode }));
+  return modes.map((mode) => ({ deckId: COUNTING_DECK_ID, mode }));
 }
 
 function isQuizMode(value: string): value is QuizMode {
@@ -22,12 +20,12 @@ export default async function CountingPage({
   params: Promise<{ deckId: string; mode: string }>;
 }) {
   const { deckId, mode } = await params;
-  if (deckId !== COUNTING_DECK || !isQuizMode(mode)) {
+  if (deckId !== COUNTING_DECK_ID || !isQuizMode(mode)) {
     notFound();
   }
 
   const [numbersDeck, allDecks] = await Promise.all([
-    getDeck.execute(COUNTING_DECK),
+    getDeck.execute(COUNTING_DECK_ID),
     listDecks.execute(),
   ]);
   const itemPool = allDecks
@@ -39,7 +37,7 @@ export default async function CountingPage({
       itemPool={itemPool}
       numberCards={numbersDeck.cards}
       mode={mode}
-      accent={deckAccent(COUNTING_DECK)}
+      accent={deckAccent(COUNTING_DECK_ID)}
     />
   );
 }

@@ -242,6 +242,7 @@ export function GloboPlayer({ deck, accent }: Props) {
       ) : done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity="globo"
           onReplay={restart}
           noAward

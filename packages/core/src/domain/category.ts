@@ -1,5 +1,6 @@
-import { stickerId } from "./album";
+import { ALL_ACTIVITIES, stickerId } from "./album";
 import type { ActivityId } from "./album";
+import type { Deck } from "./deck";
 import { kidForActivity } from "./kid";
 import type { KidId } from "./kid";
 import { stickerTier } from "./sticker-tiers";
@@ -23,6 +24,31 @@ export function activitiesForKid(
     const owner = kidForActivity(activity);
     return owner === null || owner === kid;
   });
+}
+
+/**
+ * Every sticker a kid can actually earn on one deck — the single answer to
+ * "how deep is this album section", used by the album page, the deck's game
+ * menu, el camino and the completion chest alike. They *must* agree: when the
+ * album counted the full list while the route counted this one, a learn-only
+ * deck showed six slots of which five could never be filled, so its medal
+ * never appeared and its chest never opened, while el camino called the same
+ * deck finished.
+ *
+ * A learn-only deck (the verbs shelf) offers flashcards and nothing else — the
+ * games build noun-shaped questions ("¿Es un…?") that no action word fits — so
+ * its section is one sticker deep. Every other deck can offer all five games:
+ * the content tests hold every deck at 10-17 cards, comfortably above what any
+ * of them needs to deal a round. Pass `null` for the pack-wide sections (las
+ * frases, los cuentos), which carry activity lists of their own.
+ */
+export function earnableActivities(
+  deck: Deck | null | undefined,
+  kid: KidId,
+): readonly ActivityId[] {
+  return deck?.learnOnly === true
+    ? ["learn"]
+    : activitiesForKid(ALL_ACTIVITIES, kid);
 }
 
 /** The completion tier of one album section for a kid, from its earnable

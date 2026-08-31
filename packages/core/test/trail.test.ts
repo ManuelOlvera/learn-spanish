@@ -4,7 +4,8 @@ import type { ActivityId } from "../src/domain/album";
 import type { Deck } from "../src/domain/deck";
 import type { DeckGroup } from "../src/domain/deck-group";
 import type { KidId } from "../src/domain/kid";
-import { buildCamino, trailActivities } from "../src/domain/trail";
+import { earnableActivities } from "../src/domain/category";
+import { buildCamino } from "../src/domain/trail";
 import { TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
 import { card } from "./helpers";
 
@@ -37,13 +38,13 @@ function countsFor(
   times: number,
 ): Record<string, number> {
   return Object.fromEntries(
-    trailActivities(deck, kid).map((a) => [stickerId(kid, deck.id, a), times]),
+    earnableActivities(deck, kid).map((a) => [stickerId(kid, deck.id, a), times]),
   );
 }
 
 /** Earn the first `n` activities this kid can actually earn on a deck. */
 function stickersFor(kid: KidId, deck: Deck, n: number): readonly string[] {
-  return trailActivities(deck, kid)
+  return earnableActivities(deck, kid)
     .slice(0, n)
     .map((activity) => stickerId(kid, deck.id, activity));
 }
@@ -53,22 +54,6 @@ const dos = testDeck("dos");
 const tres = testDeck("tres");
 const groups = [group("g1", ["uno", "dos"]), group("g2", ["tres"])];
 const decks = [uno, dos, tres];
-
-describe("trailActivities", () => {
-  it("offers a kid only their own difficulty's activities", () => {
-    const listener = trailActivities(uno, "listener");
-    expect(listener).toContain("learn");
-    expect(listener).toContain("quiz-listen");
-    expect(listener).not.toContain("quiz-read");
-    expect(listener).toHaveLength(6);
-  });
-
-  it("offers a learn-only deck nothing but flashcards", () => {
-    expect(trailActivities(testDeck("verbo", { learnOnly: true }), "reader")).toEqual([
-      "learn",
-    ]);
-  });
-});
 
 describe("buildCamino", () => {
   it("completes a step only when every activity the kid can earn is done", () => {

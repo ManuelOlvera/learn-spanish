@@ -1,5 +1,11 @@
+import { adivinaDifficulties } from "./adivina";
+import { COUNTING_DECK_ID } from "./counting";
 import { dayKey } from "./daily";
+import type { Deck } from "./deck";
+import type { DeckGroup } from "./deck-group";
+import { globoDifficulties } from "./globo";
 import type { KidId } from "./kid";
+import { sopaDifficulties } from "./sopa";
 import type { ActivityId } from "./album";
 
 /** Every misión kind there is. The type is DERIVED from this list so the two
@@ -110,4 +116,99 @@ export function missionComplete(
   mission: readonly MissionKind[],
 ): boolean {
   return state !== null && mission.every((kind) => state.done.includes(kind));
+}
+
+/**
+ * Where a misión kind is played. Most kinds are a game on a deck; adivina is
+ * played over a whole shelf; las frases and los cuentos have one fixed home
+ * each. `null` when the pack offers nowhere to send the kid, which is the
+ * only honest answer for a kind no deck can host.
+ */
+export type MissionTarget =
+  | { readonly scope: "deck"; readonly deckId: string }
+  | { readonly scope: "shelf"; readonly groupId: string }
+  | { readonly scope: "pack" }
+  | null;
+
+/** Whether a deck can host a misión kind — the same gates the deck's own game
+ *  menu uses to decide which tiles it draws. A kid sent to a deck that cannot
+ *  host the game would land on a menu with no way to do the task. */
+function deckHosts(kind: MissionKind, deck: Deck): boolean {
+  if (deck.secret === true) {
+    return false;
+  }
+  switch (kind) {
+    // Flashcards are the one game every deck offers, learn-only included.
+    case "learn":
+      return true;
+    case "counting":
+      return deck.id === COUNTING_DECK_ID;
+    case "sopa":
+      return sopaDifficulties(deck).length > 0;
+    case "globo":
+      return globoDifficulties(deck).length > 0;
+    // Habla con tu mascota runs on a curated half of the pack, and that list
+    // is content (infrastructure), not something this layer can see. It is out
+    // of every draw pool for exactly that reason — see KIND_POOLS — so it
+    // never needs a route, and saying so beats guessing a deck wrong.
+    case "hablar":
+      return false;
+    // Not played on a deck at all; `missionTarget` answers these before here.
+    case "frases":
+    case "cuento":
+    case "adivina":
+      return false;
+    // The quiz-shaped games: every deck but the learn-only ones.
+    default:
+      return deck.learnOnly !== true;
+  }
+}
+
+/** Whether a shelf holds enough deducible words for Adivina la palabra. */
+function shelfHostsAdivina(
+  group: DeckGroup,
+  decks: readonly Deck[],
+): boolean {
+  const cards = group.deckIds.flatMap((id) => {
+    const deck = decks.find((d) => d.id === id);
+    return deck === undefined || deck.secret === true ? [] : deck.cards;
+  });
+  return adivinaDifficulties(cards).length > 0;
+}
+
+/**
+ * Where to send a kid who taps one of today's misión icons: the game they are
+ * being asked to play, on the stop **el camino is already pointing them at**
+ * when that deck can host it, and otherwise the first deck in the pack that
+ * can. Preferring the route's own next stop is what makes the misión pull in
+ * the same direction as everything else on the home screen instead of
+ * scattering the kid across the pack.
+ *
+ * @param preferredDeckId el camino's next deck, or null
+ * @param preferredGroupId el camino's next shelf, or null
+ */
+export function missionTarget(
+  kind: MissionKind,
+  decks: readonly Deck[],
+  groups: readonly DeckGroup[],
+  preferredDeckId: string | null = null,
+  preferredGroupId: string | null = null,
+): MissionTarget {
+  if (kind === "frases" || kind === "cuento") {
+    return { scope: "pack" };
+  }
+  if (kind === "adivina") {
+    const preferred = groups.find((g) => g.id === preferredGroupId);
+    const group =
+      preferred !== undefined && shelfHostsAdivina(preferred, decks)
+        ? preferred
+        : groups.find((g) => shelfHostsAdivina(g, decks));
+    return group === undefined ? null : { scope: "shelf", groupId: group.id };
+  }
+  const preferred = decks.find((d) => d.id === preferredDeckId);
+  const deck =
+    preferred !== undefined && deckHosts(kind, preferred)
+      ? preferred
+      : decks.find((d) => deckHosts(kind, d));
+  return deck === undefined ? null : { scope: "deck", deckId: deck.id };
 }

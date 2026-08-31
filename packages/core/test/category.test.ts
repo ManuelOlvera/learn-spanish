@@ -3,12 +3,80 @@ import {
   activitiesForKid,
   categoryReward,
   categoryTier,
+  categoryTierFromAlbum,
   CATEGORY_BONUS,
+  earnableActivities,
   pendingCategoryTier,
   tierRank,
 } from "../src/domain/category";
-import { ALL_ACTIVITIES, SENTENCE_ACTIVITIES } from "../src/domain/album";
+import {
+  ALL_ACTIVITIES,
+  SENTENCE_ACTIVITIES,
+  stickerId,
+} from "../src/domain/album";
+import type { Deck } from "../src/domain/deck";
 import { TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
+import { card } from "./helpers";
+
+function testDeck(id: string, extra: Partial<Deck> = {}): Deck {
+  return {
+    id,
+    nameSpanish: id,
+    nameEnglish: id,
+    emoji: "🧪",
+    cards: [card(1), card(2), card(3), card(4)],
+    ...extra,
+  };
+}
+
+describe("earnableActivities", () => {
+  it("offers a kid only their own difficulty's activities", () => {
+    const listener = earnableActivities(testDeck("uno"), "listener");
+    expect(listener).toContain("learn");
+    expect(listener).toContain("quiz-listen");
+    expect(listener).not.toContain("quiz-read");
+    expect(listener).toHaveLength(6);
+  });
+
+  it("offers a learn-only deck nothing but flashcards", () => {
+    expect(
+      earnableActivities(testDeck("verbo", { learnOnly: true }), "reader"),
+    ).toEqual(["learn"]);
+  });
+
+  it("falls back to the full set with no deck (the pack-wide sections)", () => {
+    expect(earnableActivities(null, "reader")).toEqual(
+      activitiesForKid(ALL_ACTIVITIES, "reader"),
+    );
+  });
+
+  /**
+   * The bug this function exists to close: the album drew every deck with the
+   * full six activities while el camino counted a learn-only deck's one. So
+   * finishing the verbs' flashcards completed the deck on the route, and left
+   * the album showing five slots nothing could fill — no medal, and the
+   * completion chest checked the same six and paid nothing.
+   */
+  it("gives a finished learn-only deck its medal, as el camino already did", () => {
+    const verbo = testDeck("verbo", { learnOnly: true });
+    const earned = new Set([stickerId("reader", "verbo", "learn")]);
+    const activities = earnableActivities(verbo, "reader");
+
+    expect(
+      categoryTierFromAlbum("reader", "verbo", activities, {}, earned),
+    ).toBe("earned");
+    // What the album used to ask, and why the medal never came.
+    expect(
+      categoryTierFromAlbum(
+        "reader",
+        "verbo",
+        activitiesForKid(ALL_ACTIVITIES, "reader"),
+        {},
+        earned,
+      ),
+    ).toBe("none");
+  });
+});
 
 describe("activitiesForKid", () => {
   it("gives the pre-reader only listen/pictures games plus shared learn", () => {

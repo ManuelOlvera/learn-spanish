@@ -4,6 +4,11 @@ import { QuizDeckTooSmallError } from "./errors";
 import { shuffled } from "./random";
 import type { RandomSource } from "./random";
 
+/** The one deck ¿Cuántos hay? is played on. Counting shows n copies of a
+ *  picture and asks for the number, so only the 1-10 deck can host it — the
+ *  route, the deck's game menu and la misión all gate on this one constant. */
+export const COUNTING_DECK_ID = "numbers";
+
 /** ¿Cuántos hay?: n copies of a picture appear; the kid counts and taps
  *  the right number (keycap 👂 / written word 🔤 via presentation). */
 export interface CountingRound {

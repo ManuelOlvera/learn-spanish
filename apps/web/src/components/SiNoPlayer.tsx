@@ -131,6 +131,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
       {done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity={mode === "listen" ? "si-no-listen" : "si-no-read"}
           onReplay={restart}
           firstTryCount={firstTries.current}

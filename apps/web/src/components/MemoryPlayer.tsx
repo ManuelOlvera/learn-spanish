@@ -185,6 +185,7 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
       ) : done ? (
         <DoneScreen
           stickerDeckId={deck.id}
+          deck={deck}
           activity={mode === "pictures" ? "match-pictures" : "match-words"}
           onReplay={restart}
           firstTryCount={tiles.length / 2}

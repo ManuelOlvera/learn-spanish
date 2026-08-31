@@ -1,5 +1,73 @@
 # Shipped features
 
+## 2026-09-01 — 🎨 The three open bug reports: sopa colours, a tappable misión, and one album rule
+
+**For:** both kids — the 5-year-old on the sopa board, the 3-year-old on the
+home screen, and whoever finishes a verbs deck first.
+
+**La sopa gives every word its own colour.** Found words all painted the same
+lime, so a five-word hard board finished as one lime blanket and "which word
+did I just find?" had no answer. Each hidden word now takes a colour from a
+five-strong paint-box palette (`apps/web/src/lib/sopa-colors.ts`), and the word
+list above the grid wears the same colours — a dot before a word still hidden,
+the whole chip filled once it is found. The pairing is the point: the colour on
+the grid is only useful because it maps back to a chip.
+
+A letter two words cross on is painted with its owners **mixed** — the average
+of the channels, so red and yellow give orange and red and purple give the
+magenta an ARAÑA × RANA crossing now shows. That was the open question in the
+report and mixing is the honest answer: the cell really does belong to both
+words, where "last word wins" would lie about it and splitting a 40px cell
+diagonally would be geometry nobody can read. The palette is chosen so no mix
+lands near white, which is the one property the board rests on — white means
+*not found*, and a crossing must never read as unfound. A test pins that over
+every pair and triple in the palette.
+
+**La misión's icons are links.** The card asks a pre-reader for three games by
+picture, and until now the picture was the whole answer: the kid had to
+recognise 🔗, know which shelf and deck carries Conecta, and navigate there by
+hand — on a card that resets at midnight. Each icon now opens the game it
+names, at that kid's own difficulty, on **el camino's own next deck** so la
+misión pulls in the same direction as the rest of home instead of scattering
+the kid across 44 decks (`missionTarget`, in `domain/mission.ts`).
+
+The fallback is what makes it a rule rather than a lookup: when the route's next
+deck cannot host the kind, the target moves to the first deck in the pack that
+can. Los verbos is learn-only, so a quiz misión pointed there would land the kid
+on a menu with no ¿Dónde está? button on it. Kinds with homes of their own keep
+them — ¿cuántos hay? has exactly one deck (`COUNTING_DECK_ID`, now shared by the
+route, the game menu and la misión instead of three separate `"numbers"`), la
+sopa and el globo only decks that pass their own gate, adivina a whole shelf,
+las frases and los cuentos their one page. `hablar` answers null and stays a
+plain badge: its deck list is curated content the domain cannot see, which is
+the same reason it is out of every draw pool.
+
+**One rule for what an album section holds.** El camino asked
+`trailActivities(deck, kid)`, which knows a learn-only deck offers flashcards
+and nothing else. The album page and the completion chest asked
+`ALL_ACTIVITIES`, which does not. Two copies of one rule, and they drifted —
+precisely what ADR 016 exists to forbid, one level up from the tier drift it was
+written about.
+
+So each of the three verbs decks drew six album slots of which five could never
+be filled. The game menu said ⭐ 1/1 and el camino called the deck finished
+while the album showed it a third full, withheld its medal, and the chest
+measured the same six and paid nothing; the album's denominator was inflated by
+15 (308 where the reachable total is 293), so 100% was unreachable. Both now
+call `earnableActivities(deck, kid)` in `domain/category.ts` — the layer that
+owns what one album section contains — and `trail.ts` is a caller like every
+other. `DoneScreen` takes the deck so it can ask too, which is what lets
+finishing the verbs' flashcards open its completion chest for the first time.
+
+Not caused by the new content, as the report guessed: the drift shipped with the
+verbs shelf and stayed invisible until somebody finished one.
+
+**Where:** `packages/core/src/domain/category.ts` (`earnableActivities`),
+`domain/mission.ts` (`missionTarget`), `domain/counting.ts`
+(`COUNTING_DECK_ID`), `domain/trail.ts`; `apps/web/src/lib/sopa-colors.ts`,
+`components/SopaPlayer.tsx`, `MissionCard.tsx`, `AlbumView.tsx`,
+`DoneScreen.tsx`, `GameMenu.tsx`. 21 new tests.
+
 ## 2026-09-01 — 🧹 The three deferred refactors: a merge registry, a kid hook, and la mascota's shelves
 
 The last three findings from the 2026-08-31 review, each of which had been
