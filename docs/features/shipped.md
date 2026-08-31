@@ -1,5 +1,43 @@
 # Shipped features
 
+## 2026-08-31 — 🔒 Security and UX passes: a misread pairing code now connects
+
+A security pass and a UX pass over the whole app, after the quality review
+above (`docs/quality-review-2026-08-31.md` carries both in full). Most of what
+they found was that things were already right; three things were not.
+
+**A pairing code a parent misreads now connects.** `sync.ts` picked Crockford
+base32 *because* its alphabet drops the confusable glyphs I, L, O and U — then
+did only half of what that buys. The normalizer forgave case, spaces and
+missing dashes, but rejected the three substitutions the alphabet exists to
+absorb: a parent copying 20 symbols off the other device's screen who reads
+`0` as `O` or `1` as `I` got *"Ese código no es válido"*, and would retype it
+identically. I and L now fold to `1`, O to `0`, which is what Crockford
+specifies. It cannot collide — a generated code can never contain those glyphs
+— and the code space is untouched, since the fold widens what *input* maps to a
+code, not the set of codes. U stays invalid, as Crockford has it. No SQL change:
+the fold is client-side and only canonical codes ever reach the RPC (the
+server's character class was checked against the client alphabet as sets).
+
+**Two kid-facing tap targets now meet the design language's own ≥64px floor.**
+The camino's current stop (the only tappable one — the rest are inert marks)
+goes 56 → 64px; the mascota name button keeps its type size and gains padding
+with a matching negative margin, so the tap area clears 64px on an unchanged
+screen. Every game, deck, group and story screen was already clean, at phone
+and tablet both, along with zero unnamed controls, zero contrast failures and
+zero horizontal overflow.
+
+**Deliberately not changed, after looking properly:** adding the pairing-code
+regex to `get_progress`/`delete_progress`, which reads like free hardening and
+is not — it would turn a silent null into a thrown exception and tell a parent
+who mistyped a code to go check their internet, for no security gain.
+
+**Still open and needing a decision, not a patch:** a full storage quota is
+swallowed. `save()` logs a warning and returns, so a kid can play a whole
+session and have none of it persist with nothing on screen saying so. Fixing it
+means designing a parent-visible failure state — copy, placement, dismissal —
+which is a shaped piece of work rather than a rider on a review.
+
 ## 2026-08-31 — 🔧 Quality-review fixes: a leaked timer, an unguarded count, a skipped migration, a mislabelled failure
 
 The four defects from the 2026-08-31 whole-codebase review

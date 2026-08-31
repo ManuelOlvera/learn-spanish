@@ -59,6 +59,23 @@ describe("isPairingCode / normalizePairingCode", () => {
     expect(isPairingCode(messy)).toBe(true);
   });
 
+  it("absorbs the glyphs the alphabet excludes to be misread-proof", () => {
+    // Crockford base32 leaves I, L and O out of the alphabet precisely so a
+    // decoder can fold them back onto 1, 1 and 0. Generating without them is
+    // only half the job: a parent copying 20 symbols off another screen reads
+    // 0 as O and 1 as I, and rejecting that sends them to check their wifi.
+    // Never a collision — none of these can appear in a generated code.
+    const code = "A1B2C-3D4E5-F6G7H-8J9K0";
+    expect(normalizePairingCode("A1B2C-3D4E5-F6G7H-8J9KO")).toBe(code); // O -> 0
+    expect(normalizePairingCode("AIB2C-3D4E5-F6G7H-8J9K0")).toBe(code); // I -> 1
+    expect(normalizePairingCode("ALB2C-3D4E5-F6G7H-8J9K0")).toBe(code); // L -> 1
+    expect(normalizePairingCode("aib2c-3d4e5-f6g7h-8j9ko")).toBe(code); // lower
+  });
+
+  it("still rejects U, which Crockford excludes without a mapping", () => {
+    expect(isPairingCode("AUB2C-3D4E5-F6G7H-8J9K0")).toBe(false);
+  });
+
   it("rejects too-short or malformed input", () => {
     expect(isPairingCode("ABC")).toBe(false);
     expect(isPairingCode("")).toBe(false);

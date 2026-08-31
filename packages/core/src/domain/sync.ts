@@ -43,10 +43,24 @@ function group(raw: string): string {
   return parts.join("-");
 }
 
-/** Strip formatting and upper-case so any spacing/case a parent types maps to
- *  the one canonical code (also the remote row id). Returns "" if unusable. */
+/**
+ * Strip formatting and upper-case so any spacing/case a parent types maps to
+ * the one canonical code (also the remote row id). Returns "" if unusable.
+ *
+ * I, L and O fold onto 1, 1 and 0, which is the other half of choosing
+ * Crockford base32: leaving them out of the alphabet is what makes the fold
+ * unambiguous, and a generated code can never contain them, so this can never
+ * collide. Without it, excluding them only helps a parent who was already
+ * reading carefully — the one copying 20 symbols off another screen reads 0 as
+ * O and 1 as I, gets "ese código no es válido", and retypes it identically.
+ * (U stays invalid: Crockford excludes it with no mapping.)
+ */
 export function normalizePairingCode(input: string): string {
-  const bare = input.toUpperCase().replace(/[^0-9A-Z]/g, "");
+  const bare = input
+    .toUpperCase()
+    .replace(/[IL]/g, "1")
+    .replace(/O/g, "0")
+    .replace(/[^0-9A-Z]/g, "");
   if (bare.length !== LENGTH || ![...bare].every((c) => ALPHABET.includes(c))) {
     return "";
   }

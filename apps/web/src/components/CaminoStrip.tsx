@@ -90,7 +90,9 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
   { group, done, here, tier },
   ref,
 ) {
-  const size = here ? "h-14 w-14 text-3xl" : "h-11 w-11 text-xl";
+  // The current stop is the only tappable one, so it carries the design
+  // language's >=64px floor (h-16); the inert marks are read, never pressed.
+  const size = here ? "h-16 w-16 text-3xl" : "h-11 w-11 text-xl";
   // The three shades: filled = behind you, white = you, pale = ahead.
   const shade = done
     ? "border-ink bg-[var(--color-lime)]"

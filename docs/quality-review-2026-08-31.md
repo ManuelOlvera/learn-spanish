@@ -341,3 +341,138 @@ pnpm build
 pnpm audit --audit-level moderate
 cd packages/core && npx vitest run --coverage
 ```
+
+---
+
+# Security & UX passes — 2026-08-31 (second sitting)
+
+The review above was a *quality* review. Asked whether security and UX were
+also fine, the honest answer was no — security had only had its shallow checks
+run, and UX had barely been looked at. Both were then done properly. This
+section is their result.
+
+## Security
+
+Method: read the SQL migrations against the live schema contract, traced every
+untrusted input to where it is consumed, and checked the capability key's whole
+lifetime. Not a penetration test — no live probing of the Supabase project
+beyond one read of a non-existent code.
+
+**The sync model holds up.** `progress` has RLS enabled with *no policies* and
+`revoke all` from `anon`/`authenticated`, so direct table access is denied
+outright; the only way in is three `SECURITY DEFINER` RPCs that each require
+the pairing code. All three pin `search_path`. `put_progress` validates the
+code against a regex and caps snapshots at 64 KB. A weekly `pg_cron` sweep
+drops rows untouched for 12 months.
+
+**The entropy claim is accurate**, which was worth checking rather than
+believing: `ALPHABET[nextByte() & 31]` over a 32-symbol alphabet is a clean
+5-bits-per-symbol map with **no modulo bias**, 20 symbols = 100 bits, and the
+web adapter feeds it `crypto.getRandomValues`. The SQL character class
+`[0-9A-HJ-KM-NP-TV-Z]` is exactly the client alphabet — verified as sets, not
+by eye.
+
+**The capability key is handled correctly for its whole life.** It rides in the
+URL *fragment* (never the query), so it never reaches a hosting request log;
+`SyncLinkHandler` strips it with `replaceState` *before* prompting; and no
+`log.*` call in `sync.ts`, `SyncPanel`, `SyncLinkHandler` or the Supabase
+adapter passes the code — the RPC errors carry the function name only.
+
+**Untrusted input is bounded before it is parsed.** `decodeProgress` rejects
+over 256 KB *before* decoding, `fromBase64Url` is regex-guarded,
+`sanitizeSnapshot` caps counts, text and list lengths (the comment on why
+`Infinity` matters under max-merge is correct), and a remote row goes through
+the same sanitizer as a pasted code. `qr.ts` is an **encoder only** — there is
+no QR-decoding surface in this codebase. `recorder.ts` honours ADR 003: the
+clip stays a `Blob` in memory, the object URL is revoked, the mic tracks are
+stopped on `stop()`, and nothing is persisted or transmitted.
+
+**Headers are actually served**, not merely configured — checked against the
+running production server, not just `next.config.ts`.
+
+Residuals, none of them new and none of them urgent:
+
+- **`script-src 'unsafe-inline'`** weakens the CSP to roughly "no external
+  scripts". It is required by Next's inline bootstrap and there is no nonce
+  infrastructure here. There is no injection vector today (no
+  `dangerouslySetInnerHTML`, no user-supplied HTML, React escaping everywhere),
+  so this is defence-in-depth lost, not a live hole.
+- **`get_progress` and `delete_progress` skip the code-format regex that
+  `put_progress` enforces.** First called "free to close"; on closer analysis it
+  is not free, and it is **deliberately left open**. Adding the check would turn
+  a silent `null` into a raised exception, so `RemoteProgressStore.load()` would
+  *throw* where it now returns null — and a parent who mistypes a code would get
+  "No se pudo conectar" (check your internet) instead of the accurate "No
+  encontramos ese código". That is a UX regression bought for no security gain:
+  post-0002 no row can hold a malformed code, so a read with one matches nothing
+  either way. The asymmetry is correct as it stands.
+- **Anon-key quota burn** (carried from 2026-08-28): anyone with the public key
+  can mint well-formed codes and create rows. It is a billing ceiling, not
+  disclosure, and the recommendation remains a Supabase spend alert. **Whether
+  that alert was ever set up cannot be seen from this repo.**
+- **5 dev-only advisories** (`vite`/`esbuild` under vitest, `sharp` under next),
+  unchanged and deferred with reasons.
+
+## UX
+
+Method: an audit script measuring every interactive element on 16 routes at
+phone (390×844) and tablet (820×1180) — target sizes against this project's own
+`≥64px` rule, accessible names, computed text contrast against composited
+backgrounds, horizontal overflow — plus flow tests for offline, deep links and
+pairing, and reading the screenshots.
+
+**The result is strong, and specifically strong where it matters most.** Across
+both viewports: **zero** unnamed interactive elements, **zero** contrast
+failures, **zero** horizontal overflow, **zero** page errors. Every game screen
+— learn, quiz, hablar, sopa, reto — and every deck/group/story screen is
+completely clean on target size. The design language is not aspirational; it is
+actually applied.
+
+Eight undersized targets, all on chrome rather than play:
+
+| Screen | Element | Size | Read |
+| --- | --- | --- | --- |
+| `/` | camino "estás aquí" step | 56×56 | kid-facing, 8px under the rule |
+| `/mascota` | "El pollito ✏️" name button | 153×36 | kid-facing, subtle affordance |
+| `/album` | two parent links | ~20px tall | parent-facing by design |
+| `/informe` | "Ver todo →", buy-freeze | 40–56px tall | parent-facing by design |
+
+The parent-facing ones are consistent with the design doc ("text is for
+parents") and are left alone. **The two kid-facing ones are fixed**, each by the
+smallest change that satisfies the rule:
+
+- `CaminoStrip` — the current stop is the only tappable one (the rest are inert
+  `<span role="img">` marks, correctly not interactive), so it goes 56 → 64px.
+  A deliberate visual change: the "estás aquí" step now reads a little stronger,
+  which is the right direction for the one thing on the strip you can press.
+- `MascotaView` — the name button keeps its type size and gains `py-4` with a
+  matching `-my-4`, so the tap area clears 64px while the title stays on exactly
+  the same pixel. Verified by screenshot diff: the screen is unchanged.
+
+Both re-audited clean at phone and tablet; `/` and `/mascota` now report no
+undersized targets at all.
+
+**Fixed: a pairing code a parent misreads is now accepted.** `sync.ts` picked
+Crockford base32 *because* it drops the confusable glyphs I, L, O and U — then
+did only half of what that buys. `normalizePairingCode` was generously tolerant
+of formatting (case, spaces, missing dashes all normalize) but rejected the
+three substitutions the alphabet exists to absorb: a parent copying 20 symbols
+off another device's screen who reads `0` as `O` or `1` as `I` got *"Ese código
+no es válido"* and would retype it identically. I, L now fold to `1` and O to
+`0`, which is what Crockford specifies. It cannot collide — a generated code
+can never contain those glyphs — and the entropy is untouched, since the fold
+widens what *input* maps to a code, not the code space. U stays invalid, per
+Crockford. No SQL change: the fold is client-side and only canonical codes ever
+reach the RPC. Verified in the panel — the misread code is now accepted and
+looked up for real.
+
+**Verified working:** offline reload renders home (ADR 005); a deep link with no
+kid ever chosen falls back to the picker rather than crashing; a secret deck
+deep link 404s instead of revealing itself.
+
+**Still open, and the one real UX defect left:** the quota swallow carried from
+2026-08-28. If storage is full, `save()` logs a warning and returns, so a kid
+can play an entire session and have none of it persist, with nothing on screen
+saying so. Unfixed because the fix is a parent-visible failure state, which is a
+design decision rather than a patch — but it is a *silent data-loss* path, and
+of everything left across all three passes it is the one most worth deciding on.

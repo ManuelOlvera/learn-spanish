@@ -451,7 +451,9 @@ export function MascotaView() {
                 ? `${pet.name} — tap to rename`
                 : `${species.nameSpanish} — tap to give a name`
             }
-            className="flex items-center gap-2 active:opacity-70"
+            // Padding lifts the tap area to the >=64px floor; the matching
+            // negative margin keeps the title sitting exactly where it did.
+            className="-my-4 flex items-center gap-2 py-4 active:opacity-70"
           >
             <h1 className="text-3xl font-extrabold sm:text-4xl">
               {pet.name ?? species.nameSpanish}
