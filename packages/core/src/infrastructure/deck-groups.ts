@@ -7,9 +7,17 @@ import type { DeckGroup } from "../domain/deck-group";
  */
 export const DECK_GROUPS: readonly DeckGroup[] = [
   {
+    // Named for the shelf, NOT for the deck inside it (2026-09-01). A shelf and
+    // one of its own decks may never share a name: this shelf and its general
+    // deck were both "Los animales / Animals", so /album's section and home's
+    // category read as the same thing while counting different ones — the
+    // album showed the deck finished while the shelf stood at 1 of 5. Renaming
+    // the *shelf* rather than the deck is deliberate: a deck name is spoken to
+    // the kids and printed on the tile they know, a shelf name is navigation.
+    // A content test pins the rule.
     id: "animales",
-    nameSpanish: "Los animales",
-    nameEnglish: "Animals",
+    nameSpanish: "El mundo animal",
+    nameEnglish: "Animal world",
     emoji: "🐾",
     deckIds: ["animals", "zoo", "bugs", "sea", "aves"],
   },
@@ -73,9 +81,13 @@ export const DECK_GROUPS: readonly DeckGroup[] = [
     // filled out to six — the shelf cap — so the whole meal is one place:
     // the ingredients, the vegetables, the sweets, the dish, and the table
     // it is eaten at.
+    // Renamed off "La comida / Food" (2026-09-01) — the name the general deck
+    // inside it already had, which is what the parent reported: /album's "La
+    // comida" (the deck, gold) against home's "La comida" (the shelf, 1 of 6).
+    // See the note on El mundo animal for why the shelf gives way, not the deck.
     id: "comida",
-    nameSpanish: "La comida",
-    nameEnglish: "Food",
+    nameSpanish: "Para comer",
+    nameEnglish: "To eat",
     emoji: "🍽️",
     deckIds: ["food", "fruit", "verduras", "dulces", "platos", "mesa"],
   },

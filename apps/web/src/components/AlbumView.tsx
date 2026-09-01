@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   activitiesForKid,
+  buildCamino,
   categoryTier,
   earnableActivities,
+  groupsInTrailOrder,
   SENTENCE_ACTIVITIES,
   SENTENCES_ID,
   STORIES_ID,
@@ -15,6 +17,7 @@ import {
   stickerTier,
   type ActivityId,
   type Deck,
+  type DeckGroup,
   type KidId,
   type StickerTier,
 } from "@learn-spanish/core";
@@ -28,9 +31,14 @@ import { TransferPanel } from "@/components/TransferPanel";
 
 interface Props {
   decks: readonly Deck[];
+  /** The home-screen shelves, so the album can be read in the same shape home
+   *  is. Without them this page was a flat run of 50-odd deck sections with no
+   *  sign of which category each belonged to — which is how a deck called
+   *  "La comida" came to be read as the shelf of the same name. */
+  groups: readonly DeckGroup[];
 }
 
-export function AlbumView({ decks }: Props) {
+export function AlbumView({ decks, groups }: Props) {
   const [kid, setKid] = useState<KidId | null>(null);
   // Earned stickers live in browser storage — load after mount.
   const [earned, setEarned] = useState<ReadonlySet<string> | null>(null);
@@ -100,6 +108,15 @@ export function AlbumView({ decks }: Props) {
     sentenceActivities.length +
     storyActivities.length;
   const avatar = kid === null ? null : getAvatar(kid);
+
+  // Each shelf's standing, from `buildCamino` — the very call home makes for
+  // its pips, so the count printed beside a shelf here and the dots on its
+  // home tile cannot disagree. Null until the album has been read.
+  const orderedGroups = groupsInTrailOrder(groups);
+  const camino =
+    earned === null
+      ? null
+      : buildCamino(orderedGroups, decks, viewKid, [...earned], counts);
 
   // How deep this kid has gone on one slot. The domain owns the rule (a count
   // with no sticker behind it is orphaned and reads as zero), so this page's
@@ -171,6 +188,32 @@ export function AlbumView({ decks }: Props) {
     );
   }
 
+  /** One deck's album section: its slots and, once every one is filled, its
+   *  medal. Rendered under the shelf the deck belongs to. */
+  function deckSection(deck: Deck) {
+    return (
+      <section
+        key={deck.id}
+        style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
+        className="sticker relative flex flex-col gap-3 p-5"
+      >
+        <span aria-hidden className="sticker-peel" />
+        <div className="flex items-center gap-3">
+          <span aria-hidden className="text-4xl">
+            {deck.emoji}
+          </span>
+          <h3 className="text-2xl font-extrabold">{deck.nameSpanish}</h3>
+          {categoryMedal(deck.id, earnableActivities(deck, viewKid))}
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {earnableActivities(deck, viewKid).map((activity) =>
+            slot(deck.id, activity),
+          )}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-8 p-4 sm:p-6">
       <header className="flex items-center justify-between">
@@ -202,28 +245,59 @@ export function AlbumView({ decks }: Props) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-6 pb-6">
-        {shownDecks.map((deck) => (
-          <section
-            key={deck.id}
-            style={{ "--accent": deckAccent(deck.id) } as React.CSSProperties}
-            className="sticker relative flex flex-col gap-3 p-5"
-          >
-            <span aria-hidden className="sticker-peel" />
-            <div className="flex items-center gap-3">
-              <span aria-hidden className="text-4xl">
-                {deck.emoji}
-              </span>
-              <h2 className="text-2xl font-extrabold">{deck.nameSpanish}</h2>
-              {categoryMedal(deck.id, earnableActivities(deck, viewKid))}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {earnableActivities(deck, viewKid).map((activity) =>
-                slot(deck.id, activity),
-              )}
-            </div>
-          </section>
-        ))}
+      <div className="flex flex-col gap-8 pb-6">
+        {/* Under its shelf, in the shelf order home uses. A deck section and
+            the category it lives on are now visibly different things — the
+            report that started this was a deck and a shelf sharing a name. */}
+        {orderedGroups.map((group) => {
+          const shelfDecks = group.deckIds.flatMap((id) => {
+            const deck = shownDecks.find((d) => d.id === id);
+            return deck === undefined ? [] : [deck];
+          });
+          if (shelfDecks.length === 0) {
+            return null;
+          }
+          const shelf = camino?.shelves.find((s) => s.groupId === group.id);
+          return (
+            <section key={group.id} className="flex flex-col gap-3">
+              <h2 className="flex items-center gap-2 px-1 text-xl font-extrabold text-ink/70">
+                <span aria-hidden className="text-2xl">
+                  {group.emoji}
+                </span>
+                {group.nameSpanish}
+                {shelf !== undefined && (
+                  <span
+                    aria-label={`${shelf.doneSteps} de ${shelf.steps.length} mazos terminados`}
+                    className="ml-auto rounded-full border-2 border-ink bg-white px-2 py-0.5 text-sm font-extrabold"
+                  >
+                    <span aria-hidden>
+                      {shelf.doneSteps}/{shelf.steps.length}
+                    </span>
+                  </span>
+                )}
+              </h2>
+              {shelfDecks.map((deck) => deckSection(deck))}
+            </section>
+          );
+        })}
+
+        {/* Secret decks sit on no shelf (they are bought, not walked to), so
+            they follow the shelves rather than vanishing from the album. */}
+        {(() => {
+          const shelved = new Set(groups.flatMap((g) => g.deckIds));
+          const loose = shownDecks.filter((d) => !shelved.has(d.id));
+          return loose.length === 0 ? null : (
+            <section className="flex flex-col gap-3">
+              <h2 className="flex items-center gap-2 px-1 text-xl font-extrabold text-ink/70">
+                <span aria-hidden className="text-2xl">
+                  🔮
+                </span>
+                Los secretos
+              </h2>
+              {loose.map((deck) => deckSection(deck))}
+            </section>
+          );
+        })()}
 
         <section
           style={{ "--accent": deckAccent(SENTENCES_ID) } as React.CSSProperties}

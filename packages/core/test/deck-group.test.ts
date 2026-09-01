@@ -34,6 +34,40 @@ describe("deck groups content", () => {
     }
   });
 
+  /**
+   * The bug this pins (2026-09-01): the "animales" shelf and its general deck
+   * were both "Los animales / Animals", and so were "comida" and "food" ("La
+   * comida / Food"). /album lists *decks*, home lists *shelves* — so the album
+   * showed "La comida" finished in gold while the category called "La comida"
+   * stood at 1 of 6, and both numbers were right about different things. A
+   * parent cannot be expected to tell two identically-named things apart.
+   *
+   * Checked against EVERY shelf, not just the pair that collided: the same
+   * mistake is one promotion away, since a new shelf is usually named after
+   * the broad deck it grew out of.
+   */
+  it("never lets a shelf share a name with any deck", async () => {
+    const allDecks = await decks.listDecks();
+    for (const group of await groups.listGroups()) {
+      for (const deck of allDecks) {
+        expect(
+          deck.nameSpanish,
+          `deck ${deck.id} shares its Spanish name with shelf ${group.id}`,
+        ).not.toBe(group.nameSpanish);
+        expect(
+          deck.nameEnglish,
+          `deck ${deck.id} shares its English name with shelf ${group.id}`,
+        ).not.toBe(group.nameEnglish);
+      }
+    }
+  });
+
+  it("gives every shelf a name of its own", async () => {
+    const allGroups = await groups.listGroups();
+    expect(new Set(allGroups.map((g) => g.nameSpanish)).size).toBe(allGroups.length);
+    expect(new Set(allGroups.map((g) => g.nameEnglish)).size).toBe(allGroups.length);
+  });
+
   it("keeps groups shelf-sized: 3-6 decks each", async () => {
     // Raised from 5 to 6 for La cara (2026-08-12), which split out of El
     // cuerpo once drawn card art made the face words teachable. ¿Cómo soy?

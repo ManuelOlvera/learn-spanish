@@ -1,5 +1,43 @@
 # Shipped features
 
+## 2026-09-01 — 🏷️ A shelf and a deck may not share a name, and the album shows its shelves
+
+**For:** the parent, on the third attempt at one report. The first two closed
+real defects that were not the one being reported — see `docs/bugs.md`.
+
+**The cause was content, not computation.** The `animales` shelf and the general
+deck inside it were both **"Los animales / Animals"**; the `comida` shelf and its
+general deck were both **"La comida / Food"**. `/album` lists *decks*, home lists
+*shelves* — so the album showed "La comida" finished in gold while the category
+called "La comida" stood at 1 of 6, and both numbers were right about different
+things wearing the same name. The screenshots settled it in one look: the shelf
+page's own title and the first tile on it read identically.
+
+**The shelves gave way, not the decks** — "Los animales" → **El mundo animal**
+🐾, "La comida" → **Para comer** 🍽️. A deck name is spoken aloud by the app and
+printed on the tile the kids know by sight; a shelf name is navigation the
+grown-ups read. Renaming two navigation labels costs the kids nothing, where
+renaming two of the most-played decks would have moved ground under them.
+
+A content test now checks **every** shelf against **every** deck, in both
+languages, plus shelf-name uniqueness. This is one promotion away from
+recurring: a new shelf is usually named after the broad deck it grew out of,
+which is exactly how both collisions happened (La comida became a shelf on
+2026-08-29 and took its own deck's name with it).
+
+**And `/album` is grouped by shelf.** It was a flat run of 50-odd deck sections
+in pack order, with nothing to say which category any of them belonged to —
+which is what let a deck be read as a shelf in the first place. Sections now sit
+under their shelf heading, in home's own order, with that shelf's finished-deck
+count beside it. That count comes from `buildCamino` — the very call home makes
+for its pips — so the album and home cannot print different numbers for one
+shelf. Secret decks sit on no shelf, so they follow under Los secretos rather
+than disappearing.
+
+**Where:** `packages/core/src/infrastructure/deck-groups.ts` (two names),
+`packages/core/test/deck-group.test.ts` (the invariant),
+`apps/web/src/components/AlbumView.tsx` and `app/album/page.tsx` (the grouping).
+
 ## 2026-09-01 — 🥇 A medal never outruns its stickers
 
 **For:** the parent, who spotted La comida showing one filled pip on home and a

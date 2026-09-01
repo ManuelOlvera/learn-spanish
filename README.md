@@ -7,7 +7,7 @@ No reading, no accounts, no setup.
 ## Features
 
 - **Flashcards** — 51 decks / 586 words on twelve themed home-screen
-  shelves (animals · numbers & colors · my home · all about me · food ·
+  shelves (animal world · numbers & colors · my home · all about me · to eat ·
   transport · the world · play & learn · letters · verbs · shapes & places ·
   calendar), plus a star-unlocked bonus deck
   **El misterio 🔮** (52 decks / 598 words total), tap-to-hear audio via
@@ -156,7 +156,11 @@ No reading, no accounts, no setup.
 - **Device transfer** — a one-time copy-able code (album footer) moves
   progress to another device by merge; the no-connection fallback to sync.
 - **Sticker album** — finishing any activity earns a sticker; `/album`
-  shows only the games a kid can actually play (so a category is completable),
+  groups its deck sections under the shelf each one lives on, in the same order
+  home uses, with that shelf's finished-deck count beside it (the very number
+  home's pips draw), so a deck section is never mistaken for the category it
+  sits in. It shows only the games a kid can actually play (so a category is
+  completable),
   persisted on-device (no accounts). Filling a whole category — and levelling it
   to silver, then gold — stamps a 🥉/🥈/🥇 medal and opens an escalating
   completion chest (+15 / +30 / +50⭐). A medal never outruns the stickers under
