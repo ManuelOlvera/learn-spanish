@@ -10,6 +10,7 @@ import {
   SENTENCES_ID,
   STORIES_ID,
   STORY_ACTIVITIES,
+  stickerCount,
   stickerId,
   stickerTier,
   type ActivityId,
@@ -100,13 +101,13 @@ export function AlbumView({ decks }: Props) {
     storyActivities.length;
   const avatar = kid === null ? null : getAvatar(kid);
 
+  // How deep this kid has gone on one slot. The domain owns the rule (a count
+  // with no sticker behind it is orphaned and reads as zero), so this page's
+  // medals can never outrank the slots drawn right beneath them.
   function slotCount(deckId: string, activity: ActivityId): number {
-    const id = kid === null ? null : stickerId(kid, deckId, activity);
-    if (id === null) {
-      return 0;
-    }
-    // A sticker earned before the tier system has no count — treat it as one.
-    return counts[id] ?? (earned?.has(id) ? 1 : 0);
+    return kid === null
+      ? 0
+      : stickerCount(kid, deckId, activity, counts, earned ?? new Set());
   }
 
   const MEDAL: Record<StickerTier, string> = {

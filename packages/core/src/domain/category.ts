@@ -51,9 +51,38 @@ export function earnableActivities(
     : activitiesForKid(ALL_ACTIVITIES, kid);
 }
 
+/**
+ * How many times a kid has finished one activity, as the album records it.
+ *
+ * **The sticker is the proof it was ever finished; the count only says how
+ * deep.** A count with no sticker behind it is orphaned data and reads as zero
+ * — the album, the game menu, el camino and the completion chest all ask this
+ * one function, so none of them can credit an activity the album cannot show.
+ *
+ * Reading the count as proof is what let the two halves of the app disagree out
+ * loud: a ledger that had run ahead of the sticker list (a swallowed album
+ * write on a full quota, an album document salvaged per entry) put a 🥇 on a
+ * category whose slots were all still dashed, while home's pips — which only
+ * ever counted stickers — said the deck was untouched. Worse, the completion
+ * chest measured the same inflated tier and paid stars for it.
+ *
+ * A slot earned before the tier system exists in the album with no count row,
+ * and still reads as the one completion it is.
+ */
+export function stickerCount(
+  kid: KidId,
+  deckId: string,
+  activity: ActivityId,
+  counts: Readonly<Record<string, number>>,
+  earned: ReadonlySet<string>,
+): number {
+  const id = stickerId(kid, deckId, activity);
+  return earned.has(id) ? (counts[id] ?? 1) : 0;
+}
+
 /** The completion tier of one album section for a kid, from its earnable
- *  slots' counts. A slot earned before the tier system (in the album but with
- *  no count) reads as one completion, matching the album's own tier display. */
+ *  slots' counts — each read through `stickerCount`, so a section is never
+ *  stronger than the stickers actually in the album. */
 export function categoryTierFromAlbum(
   kid: KidId,
   deckId: string,
@@ -61,10 +90,9 @@ export function categoryTierFromAlbum(
   counts: Readonly<Record<string, number>>,
   earned: ReadonlySet<string>,
 ): StickerTier {
-  const slots = activitiesForKid(activities, kid).map((activity) => {
-    const id = stickerId(kid, deckId, activity);
-    return counts[id] ?? (earned.has(id) ? 1 : 0);
-  });
+  const slots = activitiesForKid(activities, kid).map((activity) =>
+    stickerCount(kid, deckId, activity, counts, earned),
+  );
   return categoryTier(slots);
 }
 

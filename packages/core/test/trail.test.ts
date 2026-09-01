@@ -4,7 +4,10 @@ import type { ActivityId } from "../src/domain/album";
 import type { Deck } from "../src/domain/deck";
 import type { DeckGroup } from "../src/domain/deck-group";
 import type { KidId } from "../src/domain/kid";
-import { earnableActivities } from "../src/domain/category";
+import {
+  categoryTierFromAlbum,
+  earnableActivities,
+} from "../src/domain/category";
 import { buildCamino } from "../src/domain/trail";
 import { TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
 import { card } from "./helpers";
@@ -238,5 +241,49 @@ describe("a shelf's tier", () => {
   it("treats a sticker with no count row as one play (pre-tier albums)", () => {
     const camino = buildCamino(groups, decks, "listener", stickersFor("listener", uno, 6), {});
     expect(camino.shelves[0]!.steps[0]!.tier).toBe("earned");
+  });
+});
+
+/**
+ * The reported symptom, pinned as one property: home's shelf pips count
+ * stickers, the album page's medal reads the counts ledger. A ledger that has
+ * run ahead of the album must not make the two say different things — La
+ * comida showed one pip filled while every one of its decks wore a 🥇.
+ */
+describe("the album medal and el camino never disagree", () => {
+  const deck = testDeck("platos");
+  const shelf = [group("comida", ["platos"])];
+  const activities = earnableActivities(deck, "listener");
+  const fullCounts = Object.fromEntries(
+    activities.map((a) => [stickerId("listener", "platos", a), 5]),
+  );
+
+  it("gives no medal to a deck the route calls untouched", () => {
+    const camino = buildCamino(shelf, [deck], "listener", [], fullCounts);
+    const step = camino.shelves[0]!.steps[0]!;
+    expect(step.complete).toBe(false);
+    expect(step.done).toBe(0);
+    // The album page asks this for its medal; it must agree with the pips.
+    expect(
+      categoryTierFromAlbum("listener", "platos", activities, fullCounts, new Set()),
+    ).toBe("none");
+    expect(step.tier).toBe("none");
+  });
+
+  it("still tiers a deck the route calls finished", () => {
+    const earned = activities.map((a) => stickerId("listener", "platos", a));
+    const camino = buildCamino(shelf, [deck], "listener", earned, fullCounts);
+    const step = camino.shelves[0]!.steps[0]!;
+    expect(step.complete).toBe(true);
+    expect(step.tier).toBe("gold");
+    expect(
+      categoryTierFromAlbum(
+        "listener",
+        "platos",
+        activities,
+        fullCounts,
+        new Set(earned),
+      ),
+    ).toBe("gold");
   });
 });

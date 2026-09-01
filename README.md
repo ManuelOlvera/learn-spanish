@@ -159,7 +159,10 @@ No reading, no accounts, no setup.
   shows only the games a kid can actually play (so a category is completable),
   persisted on-device (no accounts). Filling a whole category — and levelling it
   to silver, then gold — stamps a 🥉/🥈/🥇 medal and opens an escalating
-  completion chest (+15 / +30 / +50⭐). "The games a kid can actually play" is
+  completion chest (+15 / +30 / +50⭐). A medal never outruns the stickers under
+  it: the sticker is the record that an activity was finished, the play count
+  only how deep, so a count with no sticker behind it fills nothing
+  (`stickerCount`). "The games a kid can actually play" is
   per *deck*, not one list for all of them (`earnableActivities`): a learn-only
   verbs deck is one sticker deep, and the album, the deck's game menu, el camino
   and the chest all ask that one function, so they can never disagree.

@@ -9,6 +9,7 @@ import {
   hasConversation,
   KID_GAME_MODES,
   sopaDifficulties,
+  stickerCount,
   stickerId,
   stickerTier,
   type ActivityId,
@@ -240,14 +241,12 @@ export function GameMenu({ deck, accent }: Props) {
       : stepActivities.filter((a) => earned.has(stickerId(kid, deck.id, a)))
           .length;
 
-  /** How deep this kid has gone on one activity. A sticker earned before the
-   *  tier system has no count — the album reads that as one, so we do too. */
+  /** How deep this kid has gone on one activity — the album's own rule, so a
+   *  🥇 here and a 🥇 in the album are the same fact. */
   function tierOf(activity: ActivityId): ReturnType<typeof stickerTier> {
-    if (!kid) {
-      return "none";
-    }
-    const id = stickerId(kid, deck.id, activity);
-    return stickerTier(counts[id] ?? (earned.has(id) ? 1 : 0));
+    return kid
+      ? stickerTier(stickerCount(kid, deck.id, activity, counts, earned))
+      : "none";
   }
 
   return (

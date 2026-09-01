@@ -1,5 +1,49 @@
 # Shipped features
 
+## 2026-09-01 — 🥇 A medal never outruns its stickers
+
+**For:** the parent, who spotted La comida showing one filled pip on home and a
+gold medal on every one of its decks in the album.
+
+A second album/camino disagreement, reported the same day the first was fixed
+and **not the same bug**: that one was about *which slots* a section holds, this
+one about *what counts as filling one*.
+
+Home's shelf pips count **stickers**. The album's medal read the **counts
+ledger** — `counts[id] ?? (earned.has(id) ? 1 : 0)` — so a count with no sticker
+behind it was read as a finished activity. La comida's ledger had run ahead of
+its album, so every deck there wore a 🥇 while the pips said 1 of 6.
+
+The album was also inconsistent with itself, which is the tell: one section
+could draw six *dashed* slots under a gold medal, because a slot's border reads
+`earned` while the medal read the counts. And the completion chest measured the
+same inflated tier — an orphaned count could pay out stars for a category
+nobody had finished.
+
+**The sticker is the proof an activity was ever finished; the count only says
+how deep.** `stickerCount()` in `domain/category.ts` now says that once, and the
+album page, the deck's game menu, el camino and the chest all ask it. Three
+hand-copies of that expression existed, each carrying the same bug; they are
+gone — the same consolidation the `earnableActivities` fix made earlier today,
+one level down.
+
+Decided with the parent: **the stickers win.** The orphaned medals disappear
+rather than the counts re-minting the missing stickers. A count is only ever
+written after a sticker is, so re-minting was defensible — but a ledger that has
+demonstrably drifted is not evidence, and ADR 016 keeps the album as the one
+record of progress.
+
+What put that ledger ahead is not provable from the code. `AwardStickerUseCase`
+writes the sticker first and both fields sync additively, so the reachable
+routes are an album write swallowed under a full quota (`LocalStorageAlbumStore`
+logs and resolves) or an album document salvaged per entry after corruption.
+Either way the app must not present a count as proof.
+
+**Where:** `packages/core/src/domain/category.ts` (`stickerCount`,
+`categoryTierFromAlbum`); `apps/web/src/components/AlbumView.tsx`,
+`GameMenu.tsx`. 9 new tests, including one that pins the album medal and the
+camino step to each other.
+
 ## 2026-09-01 — 🎨 The three open bug reports: sopa colours, a tappable misión, and one album rule
 
 **For:** both kids — the 5-year-old on the sopa board, the 3-year-old on the

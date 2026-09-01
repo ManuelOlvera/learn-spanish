@@ -55,6 +55,14 @@ where it is useful and unhurried — the parent's `/informe`.
   medal and chest could then never fire. Both now call `earnableActivities(deck, kid)` in
   `domain/category.ts`, and `trail.ts` is one of its callers. When a *third* surface needs
   to know what a section holds, it calls that function too.
+- **The counts ledger is not a second record of *whether*, only of how deep**
+  (added 2026-09-01). `palabras.sticker-counts.v1` rides alongside the album, and reading
+  a count as proof of completion quietly made it the second source of truth this ADR
+  rules out: a ledger that had run ahead of the album put a 🥇 on a category whose slots
+  were all still dashed, while the pips — counting stickers — called the same deck
+  untouched, and the completion chest paid stars against the inflated tier. `stickerCount`
+  in `domain/category.ts` now returns zero for a count with no sticker behind it, and every
+  surface asks it. A count may only ever *deepen* a slot the album already holds.
 - **A step cannot express anything the album cannot.** Order-within-a-deck, time spent, a
   score threshold, or "done today" are all unrepresentable. Any of them means real storage,
   and that reopens ADR 004 (a merge rule) — do not add a camino key to dodge that.

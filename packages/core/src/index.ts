@@ -186,6 +186,7 @@ export {
   CATEGORY_BONUS,
   earnableActivities,
   pendingCategoryTier,
+  stickerCount,
   tierRank,
 } from "./domain/category";
 export type {

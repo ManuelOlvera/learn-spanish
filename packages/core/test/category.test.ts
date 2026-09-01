@@ -7,6 +7,7 @@ import {
   CATEGORY_BONUS,
   earnableActivities,
   pendingCategoryTier,
+  stickerCount,
   tierRank,
 } from "../src/domain/category";
 import {
@@ -156,5 +157,90 @@ describe("pendingCategoryTier", () => {
   it("skips straight to gold when silver was never claimed", () => {
     expect(pendingCategoryTier("gold", "none")).toBe("gold");
     expect(tierRank("gold")).toBeGreaterThan(tierRank("earned"));
+  });
+});
+
+/**
+ * The counts ledger is not a second record of *whether* an activity was
+ * finished — only of how often. When the two disagreed, the album put a 🥇 on
+ * a category whose stickers were absent while home's pips (which only ever
+ * counted stickers) showed the same deck untouched, and the completion chest
+ * paid stars against the inflated tier.
+ */
+describe("stickerCount: the sticker is the proof, the count is the depth", () => {
+  const counts = { "listener:platos:learn": 5 };
+
+  it("reads a count with no sticker behind it as zero", () => {
+    expect(
+      stickerCount("listener", "platos", "learn", counts, new Set()),
+    ).toBe(0);
+  });
+
+  it("reads the count when the sticker is there", () => {
+    expect(
+      stickerCount(
+        "listener",
+        "platos",
+        "learn",
+        counts,
+        new Set(["listener:platos:learn"]),
+      ),
+    ).toBe(5);
+  });
+
+  it("reads a pre-tier sticker with no count row as one completion", () => {
+    expect(
+      stickerCount(
+        "listener",
+        "platos",
+        "learn",
+        {},
+        new Set(["listener:platos:learn"]),
+      ),
+    ).toBe(1);
+  });
+
+  it("never credits another kid's sticker", () => {
+    expect(
+      stickerCount(
+        "reader",
+        "platos",
+        "learn",
+        counts,
+        new Set(["listener:platos:learn"]),
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("categoryTierFromAlbum", () => {
+  const deck = testDeck("platos");
+  const activities = earnableActivities(deck, "listener");
+  const fullCounts = Object.fromEntries(
+    activities.map((a) => [stickerId("listener", "platos", a), 5]),
+  );
+
+  it("awards no medal when the ledger is full but the album is empty", () => {
+    expect(
+      categoryTierFromAlbum("listener", "platos", activities, fullCounts, new Set()),
+    ).toBe("none");
+  });
+
+  it("awards gold when the stickers back every count", () => {
+    const earned = new Set(
+      activities.map((a) => stickerId("listener", "platos", a)),
+    );
+    expect(
+      categoryTierFromAlbum("listener", "platos", activities, fullCounts, earned),
+    ).toBe("gold");
+  });
+
+  it("is held down by the one slot whose sticker is missing", () => {
+    const earned = new Set(
+      activities.slice(1).map((a) => stickerId("listener", "platos", a)),
+    );
+    expect(
+      categoryTierFromAlbum("listener", "platos", activities, fullCounts, earned),
+    ).toBe("none");
   });
 });
