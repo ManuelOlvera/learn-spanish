@@ -36,8 +36,13 @@ since it was written.
 4. **Keep it ~10 lines.** Link to the code or doc that carries the deep
    rationale rather than duplicating it. A superseding insight about an
    accepted ADR gets a dated **Addendum** section, not a rewrite (see ADR-004).
-5. **Index it.** The `docs/adr/` folder is listed in `docs/README.md` with
-   per-ADR lines — add yours there in the same change.
+5. **Index it, in both places.** Add a per-ADR line to `docs/README.md`, and
+   add the file to [`docs/adr/INDEX.md`](../../../docs/adr/INDEX.md): a row in
+   the per-file table, **plus every topic/component row it belongs under**. The
+   topic table is how a future session finds this decision before touching that
+   code, so an ADR missing from it is invisible at the moment it matters. If the
+   ADR supersedes, amends or is superseded by another, say so in the status line
+   at the top of INDEX.md too.
 
 Ship the ADR in the **same change** as the decision it records — per the
 `CLAUDE.md` documentation-hygiene rule, docs don't trail the code.
