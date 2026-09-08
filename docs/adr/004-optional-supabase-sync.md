@@ -79,3 +79,34 @@ by the apply. The client now (1) serializes all sync operations per device,
 supplier), and (3) applies each push's returned union locally — every push doubles
 as a pull, so two devices playing simultaneously converge on each action. The
 cross-device last-write-wins window above still stands and still self-heals.
+
+## Addendum (2026-09-08): the snapshot has a ceiling, and it is now visible
+
+`put_progress` rejects a snapshot over 64 KB. Measured against the real pack, a
+fully-played family is **~73 KB of JSON** before the economy fields — ~38 KB of
+word stats, ~17 KB of sticker ids and ~18 KB of counts, most of the last two
+being the same two kid names and 52 deck names repeated 594 times. Since the
+snapshot is pushed in full on every game completion, this is a ceiling the
+family grows into rather than a transient error, and every push past it fails
+identically and forever.
+
+Three changes, none of which alters the merge rules:
+
+1. `stickerCounts` is **pruned on emit** (`pruneStickerCounts`): orphans, which
+   ADR 016 already rules read as zero, and counts of exactly 1, which say
+   nothing an earned sticker did not. Lossless under `stickerCount`'s own
+   definition, and a pruned entry a peer still sends is simply re-supplied by
+   the `max` merge.
+2. The refusal is raised as `SnapshotTooLargeError` and reported to the parent
+   as its own thing (ADR 019) rather than as a flaky network.
+3. `WordStat` gains an optional `seen` day stamp (ADR 018), merged by `max`
+   like every other counter — additive, so no device can move another's word
+   backwards in time.
+
+(3) grows the payload while (1) shrinks it, which is deliberate: day-resolution
+integers were chosen over ISO strings for exactly this reason. **The ceiling is
+deferred, not removed.** Compacting the wire format — the ~38 KB of word stats
+whose key names repeat per word — would roughly halve it and was left alone on
+purpose: it changes a shape this ADR governs, every reader would have to accept
+both forms forever, and it deserves its own decision rather than arriving as a
+side effect.

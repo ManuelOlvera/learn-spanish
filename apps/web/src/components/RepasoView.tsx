@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
+  dayIndex,
   KID_GAME_MODES,
   MAX_QUIZ_ROUNDS,
   pickReviewCards,
@@ -17,8 +18,9 @@ interface Props {
   decks: readonly Deck[];
 }
 
-/** El repaso: a quiz over exactly the words this kid keeps missing.
- *  No sticker — the reward is the words getting easier. */
+/** El repaso: a quiz over the words this kid keeps missing, and the ones they
+ *  had and have stopped seeing (`domain/review.ts`). No sticker — the reward
+ *  is the words getting easier. */
 export function RepasoView({ decks }: Props) {
   const kid = useSelectedKidOr("listener");
   const [reviewDeck, setReviewDeck] = useState<Deck | null | undefined>(undefined);
@@ -33,6 +35,7 @@ export function RepasoView({ decks }: Props) {
         const weak = pickReviewCards(
           decks.flatMap((d) => d.cards),
           stats,
+          dayIndex(new Date()),
           MAX_QUIZ_ROUNDS,
         );
         // A quiz round needs distractors too, so a tiny review set borrows

@@ -2,6 +2,7 @@
 
 import type { KidId, WordStat, WordStats, WordStatsStore } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { noteStorageRefused } from "./storage-health";
 
 const STORAGE_KEY = "palabras.word-stats.v1";
 
@@ -14,6 +15,16 @@ function isWordStat(value: unknown): value is WordStat {
     typeof (value as WordStat).right === "number" &&
     typeof (value as WordStat).wrong === "number"
   );
+}
+
+/** Keep the tally, drop only a `seen` stamp that is not a usable day.
+ *  Salvage per field, like every other store here: a corrupt timestamp must
+ *  cost the word its staleness, never its right/wrong history. */
+function cleanStat(stat: WordStat): WordStat {
+  const { right, wrong, seen } = stat;
+  return typeof seen === "number" && Number.isFinite(seen) && seen >= 0
+    ? { right, wrong, seen }
+    : { right, wrong };
 }
 
 /** On-device per-kid word tallies; unreadable storage means empty stats. */
@@ -42,7 +53,7 @@ export class LocalStorageWordStatsStore implements WordStatsStore {
     const clean: Record<string, WordStat> = {};
     for (const [cardId, stat] of Object.entries(stored)) {
       if (isWordStat(stat)) {
-        clean[cardId] = stat;
+        clean[cardId] = cleanStat(stat);
       }
     }
     return Promise.resolve(clean);
@@ -55,6 +66,7 @@ export class LocalStorageWordStatsStore implements WordStatsStore {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
     } catch (err) {
       log.warn("word-stats", "could not persist stats", { err });
+      noteStorageRefused("word-stats", err);
     }
     return Promise.resolve();
   }

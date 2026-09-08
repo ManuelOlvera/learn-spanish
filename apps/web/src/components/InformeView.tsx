@@ -6,7 +6,7 @@ import {
   ALL_KIDS,
   isLearnedStat,
   learnedThisWeek,
-  pickReviewCards,
+  pickShakyCards,
   type Deck,
   type KidId,
   type Streak,
@@ -24,6 +24,12 @@ import {
 import { getAvatar, KID_META } from "@/lib/kid";
 import { buyFreeze, getStars, readWeekly, type WeeklySnapshot } from "@/lib/economy";
 import { syncPush } from "@/lib/sync";
+import {
+  getStorageHealth,
+  subscribeStorageHealth,
+  type StorageHealth,
+} from "@/lib/storage-health";
+import { checkSpanishVoice, type VoiceStatus } from "@/lib/speech";
 import { feedbackRacha } from "@/lib/feedback";
 import { WeeklyCard } from "@/components/WeeklyCard";
 
@@ -106,6 +112,92 @@ function TrendBlock({ trend }: { trend: TrendHistory }) {
 
 /** Parent-facing summary (text is fine here): what each kid has earned and
  *  which words deserve five minutes of practice at dinner. */
+/**
+ * The one screen that says "this device stopped saving".
+ *
+ * Every local store swallows a failed write by design, so a full quota is
+ * invisible: the kids keep earning stickers that are never persisted, and the
+ * app looks perfectly healthy right up until a reload loses the session. This
+ * belongs on the parent's screen and nowhere else — a pre-reader can neither
+ * read it nor act on it, and putting a failure state in front of the kids
+ * would break the picture-only rule for no gain.
+ */
+function StorageWarning() {
+  // Read after mount (the record is in-memory — see lib/storage-health.ts) and
+  // then *keep listening*: this screen loads its data after it mounts, so the
+  // write that fails usually fails after the first read. Reading once left the
+  // banner permanently silent on exactly the device it exists for.
+  const [health, setHealth] = useState<StorageHealth | null>(null);
+  useEffect(() => {
+    const read = () => setHealth(getStorageHealth());
+    read();
+    return subscribeStorageHealth(read);
+  }, []);
+  if (health === null || !health.full) {
+    return null;
+  }
+  return (
+    <p
+      role="alert"
+      className="sticker flex flex-col gap-1 p-4 text-sm font-bold"
+    >
+      <span>
+        <span aria-hidden>⛔ </span>
+        El almacenamiento de este dispositivo está lleno.
+      </span>
+      <span className="font-semibold text-ink/70">
+        Lo que los niños ganen ahora mismo puede perderse al recargar. Libera
+        espacio en el navegador (o en el dispositivo) y vuelve a abrir la app.
+      </span>
+    </p>
+  );
+}
+
+/**
+ * The device cannot speak Spanish, and the kid cannot tell you.
+ *
+ * ADR 001 puts every word through the browser's own voices. Where none of them
+ * is Spanish, the platform reads the Spanish text in whatever voice it has —
+ * on Android, an English one — so a pre-reader who navigates by sound is being
+ * taught the wrong pronunciation with complete confidence, and is far too
+ * young to report it. Installing a voice is a grown-up, one-time settings
+ * task, so the message belongs on the grown-up screen.
+ *
+ * Only shown for "missing", never for "unknown": a device we could not measure
+ * must not be accused of a fault it may not have.
+ */
+function VoiceWarning() {
+  const [status, setStatus] = useState<VoiceStatus>("unknown");
+  useEffect(() => {
+    let cancelled = false;
+    void checkSpanishVoice().then((result) => {
+      if (!cancelled) {
+        setStatus(result);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  if (status !== "missing") {
+    return null;
+  }
+  return (
+    <p role="alert" className="sticker flex flex-col gap-1 p-4 text-sm font-bold">
+      <span>
+        <span aria-hidden>🔇 </span>
+        Este dispositivo no tiene una voz en español instalada.
+      </span>
+      <span className="font-semibold text-ink/70">
+        Las palabras se leen con una voz de otro idioma, así que la
+        pronunciación que oyen los niños no es la correcta. Instala una voz en
+        español en los ajustes del dispositivo (Ajustes → Accesibilidad →
+        Texto a voz) y vuelve a abrir la app.
+      </span>
+    </p>
+  );
+}
+
 export function InformeView({ decks }: Props) {
   const [reports, setReports] = useState<readonly KidReport[] | null>(null);
 
@@ -128,7 +220,7 @@ export function InformeView({ decks }: Props) {
           weekly: readWeekly(kid),
           stickers: stickers.length,
           strong: strongWords(cards, stats, 5),
-          tricky: pickReviewCards(cards, stats, 5),
+          tricky: pickShakyCards(cards, stats, 5),
           trend,
         };
       }),
@@ -182,6 +274,9 @@ export function InformeView({ decks }: Props) {
           practice together.
         </p>
       </div>
+
+      <StorageWarning />
+      <VoiceWarning />
 
       {reports === null ? (
         <p className="text-center font-semibold text-ink/50">…</p>

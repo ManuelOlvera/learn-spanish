@@ -133,7 +133,7 @@ closes, so it is not part of this inventory.
 | `palabras.avatars.v1` | `lib/kid.ts` | each kid's chosen avatar | yes |
 | `palabras.album.v1` | `lib/album-store.ts` | earned sticker ids | yes |
 | `palabras.streaks.v1` | `lib/streak-store.ts` | daily ☀️ streak per kid | yes |
-| `palabras.word-stats.v1` | `lib/word-stats-store.ts` | right/wrong tallies per word | yes |
+| `palabras.word-stats.v1` | `lib/word-stats-store.ts` | right/wrong tallies per word, plus an optional `seen` day stamp per word (ADR 018) | yes (`seen` merges by `max`, like every other counter) |
 | `palabras.stars.v1` | `lib/economy-store.ts` | ⭐ wallet per kid | yes |
 | `palabras.wallet.v1` | `lib/economy-store.ts` | the counter wallet: earned/spent per kid, balance derived (`stars.v1` is the legacy balance view) | yes (as `wallets`, which wins over `stars` on merge — ADR 008) |
 | `palabras.mission.v1` | `lib/economy-store.ts` | today's misión state | yes |
@@ -155,6 +155,7 @@ closes, so it is not part of this inventory.
 | `palabras.answer-log.v1` | `lib/answer-log-store.ts` | last 90 days of answers, each with its game and timestamp | **never** (ADR 013 — a per-answer record of a child stays on its device) |
 | `palabras.trend.v1` | superseded by v2 | samples taken under the old "learned" bar (ADR 012) — left behind, never migrated | no |
 | `palabras.sync.v1` | `lib/sync.ts` | the pairing code (capability key) | no (device pairing) |
+| `palabras.sync-health.v1` | `lib/sync-health.ts` | last successful/failed exchange, so the panel can say sync stopped working (ADR 019) | no (describes *this* device's connection) |
 | `palabras.theme.v1` / `palabras.owned-themes.v1` | `lib/theme.ts` | paper theme selection/ownership | no (per-device look) |
 | `palabras.letter-case.v1` | `lib/letter-case.ts` | which case a kid sees on letter cards (A / a / Aa), defaulting to upper | no (a display choice, not progress — ADR 004) |
 | `palabras.migrations.v1` | `lib/storage-migrations.ts` | applied migration ids | no (device bookkeeping) |

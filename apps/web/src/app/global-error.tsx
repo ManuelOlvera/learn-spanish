@@ -12,7 +12,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         style={{
           minHeight: "100dvh",

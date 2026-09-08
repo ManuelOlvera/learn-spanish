@@ -137,3 +137,35 @@ export function pendingCategoryTier(
     ? current
     : null;
 }
+
+/**
+ * The counts worth putting on the wire: drop everything that carries no
+ * information a reader could use.
+ *
+ * Two kinds go, and both are lossless by `stickerCount`'s own definition
+ * (`earned.has(id) ? counts[id] ?? 1 : 0`):
+ *
+ *  - **Orphans** — a count whose sticker is not in the album. ADR 016 already
+ *    rules these read as zero, so shipping them syncs a number nobody may act
+ *    on.
+ *  - **Ones** — a count of exactly 1 behind an earned sticker reads identically
+ *    to no count at all, because an absent count under a sticker already means
+ *    "played once".
+ *
+ * Emit-side only: the device's own ledger is untouched, and `max` merging means
+ * a peer that still sends a pruned entry simply re-supplies it. This exists
+ * because the snapshot is pushed **in full on every game completion** and a
+ * fully-played family's counts are ~18 KB of a 64 KB budget, most of it ones.
+ */
+export function pruneStickerCounts(
+  counts: Readonly<Record<string, number>>,
+  earned: ReadonlySet<string>,
+): Readonly<Record<string, number>> {
+  const kept: Record<string, number> = {};
+  for (const [id, count] of Object.entries(counts)) {
+    if (earned.has(id) && count > 1) {
+      kept[id] = count;
+    }
+  }
+  return kept;
+}

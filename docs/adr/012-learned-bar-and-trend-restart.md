@@ -64,3 +64,10 @@ in monthly read a month of progress as a week of it.
   list), not a lower threshold. That is the change this ADR exists to stop.
 - Any future change to `LEARNED_MIN_RIGHT` has the same two costs: every count
   moves, and the series has to restart again. It gets a new key and a new ADR.
+
+**2026-09-08:** ADR 018 added a decay signal to el repaso and deliberately kept
+it **out** of this bar. `isLearnedStat` is read there, never restated or
+modified, so no count on `/informe` moved and the series did not restart again.
+The "do not lower this bar" rule above is about lowering; this is the same rule
+applied to changing its *meaning*, which would have drawn exactly the deploy-day
+cliff this ADR exists to prevent.

@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   dailyCard,
+  dayIndex,
   KID_GAME_MODES,
   challengeClaimable,
   groupsInTrailOrder,
   missionOnHome,
   pickHomeFocus,
-  pickReviewCards,
+  reviewCount,
   REVIEW_MIN,
   type Deck,
   type DeckGroup,
@@ -162,8 +163,14 @@ export function HomeView({ decks, groups }: Props) {
       .execute(kid)
       .then((stats) => {
         if (!cancelled) {
+          // What a repaso session would actually offer: the missed words
+          // and the ones going quiet (domain/review.ts).
           setWeakCount(
-            pickReviewCards(publicDecks.flatMap((d) => d.cards), stats, 99).length,
+            reviewCount(
+              publicDecks.flatMap((d) => d.cards),
+              stats,
+              dayIndex(new Date()),
+            ),
           );
         }
       })

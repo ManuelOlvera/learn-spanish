@@ -2,6 +2,7 @@
 
 import type { KidId, Streak, StreakStore } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { noteStorageRefused } from "./storage-health";
 
 const STORAGE_KEY = "palabras.streaks.v1";
 
@@ -47,6 +48,7 @@ export class LocalStorageStreakStore implements StreakStore {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
     } catch (err) {
       log.warn("streak", "could not persist streak", { err });
+      noteStorageRefused("streak", err);
     }
     return Promise.resolve();
   }

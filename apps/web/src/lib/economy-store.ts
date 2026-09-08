@@ -22,6 +22,7 @@ import {
 import { isParentChallenge, type ParentChallenge } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { runStorageMigrations } from "./storage-migrations";
+import { noteStorageRefused } from "./storage-health";
 
 /**
  * localStorage adapter for the EconomyStore port — one JSON document per
@@ -87,6 +88,7 @@ export function writeDoc<T>(key: string, kid: KidId, value: T): void {
     window.localStorage.setItem(key, JSON.stringify(all));
   } catch (err) {
     log.warn("economy", `could not persist ${key}`, { err });
+    noteStorageRefused("economy", err);
   }
 }
 
@@ -212,6 +214,7 @@ export class LocalStorageEconomyStore implements EconomyStore {
       window.localStorage.setItem(COUNTS_KEY, JSON.stringify(counts));
     } catch (err) {
       log.warn("economy", "could not persist sticker counts", { err });
+      noteStorageRefused("sticker-counts", err);
     }
   }
 

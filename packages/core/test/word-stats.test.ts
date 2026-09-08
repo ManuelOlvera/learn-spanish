@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  pickReviewCards,
+  pickShakyCards,
   recordAnswer,
   recordReviewAnswer,
   REVIEW_MIN,
@@ -13,10 +13,10 @@ import { deckOf, seededRandom } from "./helpers";
 describe("recordAnswer", () => {
   it("accumulates rights and wrongs per word without mutating", () => {
     const empty = {};
-    const once = recordAnswer(empty, "gato", false);
-    const twice = recordAnswer(once, "gato", true);
+    const once = recordAnswer(empty, "gato", false, 20_340);
+    const twice = recordAnswer(once, "gato", true, 20_340);
     expect(empty).toEqual({});
-    expect(twice.gato).toEqual({ right: 1, wrong: 1 });
+    expect(twice.gato).toEqual({ right: 1, wrong: 1, seen: 20_340 });
   });
 });
 
@@ -26,29 +26,29 @@ describe("recordReviewAnswer", () => {
     // after one correct repaso answer — one right can't offset a double-weighted
     // wrong under recordAnswer, so review heals the wrong instead.
     const flagged = { gato: { right: 0, wrong: 1 } };
-    const healed = recordReviewAnswer(flagged, "gato", true);
-    expect(healed.gato).toEqual({ right: 1, wrong: 0 });
+    const healed = recordReviewAnswer(flagged, "gato", true, 20_340);
+    expect(healed.gato).toEqual({ right: 1, wrong: 0, seen: 20_340 });
     expect(weakScore(healed.gato!)).toBeLessThanOrEqual(0);
   });
 
   it("never drives the wrong tally below zero", () => {
-    const healed = recordReviewAnswer({ gato: { right: 2, wrong: 0 } }, "gato", true);
-    expect(healed.gato).toEqual({ right: 3, wrong: 0 });
+    const healed = recordReviewAnswer({ gato: { right: 2, wrong: 0 } }, "gato", true, 20_340);
+    expect(healed.gato).toEqual({ right: 3, wrong: 0, seen: 20_340 });
   });
 
   it("still counts a fumbled review answer as a miss", () => {
-    const worse = recordReviewAnswer({ gato: { right: 0, wrong: 1 } }, "gato", false);
-    expect(worse.gato).toEqual({ right: 0, wrong: 2 });
+    const worse = recordReviewAnswer({ gato: { right: 0, wrong: 1 } }, "gato", false, 20_340);
+    expect(worse.gato).toEqual({ right: 0, wrong: 2, seen: 20_340 });
   });
 
   it("does not mutate the input stats", () => {
     const before = { gato: { right: 0, wrong: 1 } };
-    recordReviewAnswer(before, "gato", true);
+    recordReviewAnswer(before, "gato", true, 20_340);
     expect(before.gato).toEqual({ right: 0, wrong: 1 });
   });
 });
 
-describe("weakScore and pickReviewCards", () => {
+describe("weakScore and pickShakyCards", () => {
   it("ranks words by how much they struggle", () => {
     expect(weakScore({ right: 0, wrong: 2 })).toBeGreaterThan(
       weakScore({ right: 3, wrong: 2 }),
@@ -63,9 +63,9 @@ describe("weakScore and pickReviewCards", () => {
       [cards[1]!.id]: { right: 5, wrong: 0 },
       [cards[2]!.id]: { right: 0, wrong: 1 },
     };
-    const picked = pickReviewCards(cards, stats, 5);
+    const picked = pickShakyCards(cards, stats, 5);
     expect(picked.map((c) => c.id)).toEqual([cards[0]!.id, cards[2]!.id]);
-    expect(pickReviewCards(cards, stats, 1)).toHaveLength(1);
+    expect(pickShakyCards(cards, stats, 1)).toHaveLength(1);
     expect(REVIEW_MIN).toBeGreaterThan(0);
   });
 });
@@ -113,6 +113,56 @@ describe("stats travel in transfer codes", () => {
     expect(merged.stats?.listener).toEqual({
       gato: { right: 4, wrong: 5 },
       perro: { right: 1, wrong: 0 },
+    });
+  });
+
+  it("keeps the LATER seen stamp, so practising on one device un-stales the other", () => {
+    // The stamp is a counter like every other field under ADR 004's max rule.
+    // Keeping the older one would let a tablet nobody has touched in a month
+    // drag every word back into el repaso on the phone that plays daily.
+    const tablet = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      stats: { listener: { gato: { right: 3, wrong: 0, seen: 20_300 } } },
+    };
+    const phone = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      stats: { listener: { gato: { right: 3, wrong: 0, seen: 20_360 } } },
+    };
+    expect(mergeProgress(tablet, phone).stats?.listener?.gato).toEqual({
+      right: 3,
+      wrong: 0,
+      seen: 20_360,
+    });
+    expect(mergeProgress(phone, tablet).stats?.listener?.gato?.seen).toBe(20_360);
+  });
+
+  it("leaves a word neither device ever stamped unstamped, not stamped zero", () => {
+    // A zero would read as "last seen in 1970" and call the word stale on the
+    // spot. Absence has to survive the merge as absence.
+    const merged = mergeProgress(
+      { stickers: [], streaks: {}, avatars: {}, stats: { listener: { gato: { right: 1, wrong: 0 } } } },
+      { stickers: [], streaks: {}, avatars: {}, stats: { listener: { gato: { right: 2, wrong: 0 } } } },
+    );
+    expect(merged.stats?.listener?.gato).toEqual({ right: 2, wrong: 0 });
+    expect("seen" in merged.stats!.listener!.gato!).toBe(false);
+  });
+
+  it("survives a transfer code with one stamped and one unstamped word", () => {
+    const decoded = decodeProgress(
+      encodeProgress({
+        stickers: [],
+        streaks: {},
+        avatars: {},
+        stats: { listener: { gato: { right: 2, wrong: 0, seen: 20_360 }, sol: { right: 1, wrong: 0 } } },
+      }),
+    );
+    expect(decoded.stats?.listener).toEqual({
+      gato: { right: 2, wrong: 0, seen: 20_360 },
+      sol: { right: 1, wrong: 0 },
     });
   });
 

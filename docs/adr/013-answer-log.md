@@ -59,3 +59,25 @@ the kids actually play on.
 - If this log is ever wanted across devices, it reopens **this ADR and
   ADR 004 together** — start from the rollup design in Context, never by
   dropping the raw log into the snapshot.
+
+## Addendum (2026-09-08): the backstop was sized wrong, and staleness did NOT come from here
+
+`MAX_LOG_EVENTS` was 20,000, which is a backstop in name only. An event
+serialises to about 80 bytes and browsers give an origin roughly 5 MB **shared
+by every key the app writes**, so two kids' logs could claim ~3 MB — over half
+of everything available — to guard a case that cannot occur. Nothing else comes
+close: a fully-played family's album, counts and word stats together are ~75 KB.
+
+That mattered because a full quota is silent (ADR 019): `setItem` throws, the
+store logs and resolves, and the write is lost — one of the two routes behind
+the orphaned-medal bug. The log crowding out the album is not a fair trade.
+Now 8,000: ~0.6 MB per kid, still more than 90 days of heavy play (it binds
+only at ~89 answers every day for three months without a gap), and it degrades
+the right way — oldest days first, so the calendar keeps its recent detail.
+**The date window is still the policy**; this is still only the backstop.
+
+Separately, and worth recording because it is the obvious thing to try: ADR 018
+wanted per-word "last seen" timestamps and **did not take them from this log**,
+even though the log already has them. Doing so would have made review silently
+per-device, since this log never syncs. The stamp went on `WordStat` instead.
+This log still powers exactly two views.

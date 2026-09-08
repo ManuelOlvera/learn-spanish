@@ -15,6 +15,7 @@ import type {
   AnswerLogStore,
 } from "../src/domain/answer-log";
 import { RecordAnswerUseCase } from "../src/application/record-answer";
+import { dayIndex } from "../src/domain/daily";
 import type { KidId } from "../src/domain/kid";
 import type { WordStats, WordStatsStore } from "../src/domain/word-stats";
 
@@ -188,7 +189,11 @@ describe("RecordAnswerUseCase", () => {
       correct: true,
       activity: "globo",
     });
-    expect(stats.stats.listener).toEqual({ perro: { right: 1, wrong: 0 } });
+    // The stamp is the same clock the log entry carries, as a local day —
+    // one answer updates both the tally and "last seen" (domain/review.ts).
+    expect(stats.stats.listener).toEqual({
+      perro: { right: 1, wrong: 0, seen: dayIndex(NOW) },
+    });
     expect(log.logs.listener).toEqual([
       { at: NOW.getTime(), activity: "globo", cardId: "perro", correct: true },
     ]);
@@ -204,7 +209,9 @@ describe("RecordAnswerUseCase", () => {
       activity: "quiz-read",
       review: true,
     });
-    expect(stats.stats.reader).toEqual({ sol: { right: 1, wrong: 1 } });
+    expect(stats.stats.reader).toEqual({
+      sol: { right: 1, wrong: 1, seen: dayIndex(NOW) },
+    });
   });
 
   it("keeps each kid's log to itself", async () => {

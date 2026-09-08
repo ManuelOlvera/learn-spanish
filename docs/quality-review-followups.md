@@ -72,6 +72,14 @@ adapters themselves. The cheapest real improvement is not Playwright — it is a
 small vitest + jsdom harness in `apps/web` for the localStorage adapters. The
 `#sync=` fragment path is the one flow `/verify` genuinely does not cover.
 
+> **Update:** that harness landed on 2026-09-01 (`apps/web/test/storage.ts` — a
+> localStorage stand-in that can be made to refuse reads or writes) and now
+> carries 61 tests across six files. It has already paid for itself twice: the
+> 2026-09-08 pass used it to pin quota handling and the sync-health classifier,
+> and the same pass's `/verify` run caught a defect it could not (a banner that
+> read its flag once on mount, before the write that fails). Playwright is
+> still deferred, and the `#sync=` fragment path is still the uncovered flow.
+
 ## Notes worth keeping from the review's second pass
 
 - No XSS sink, secret leakage, `eval`, or unbounded transfer-code parsing was
@@ -82,8 +90,16 @@ small vitest + jsdom harness in `apps/web` for the localStorage adapters. The
   `word-stats`, `answer-log`, `economy` and `streak` already salvaged per entry.
 - The remaining permissive edge is the **write** side: `save()` swallows quota
   errors and logs a warning, so a full quota means a session's progress is never
-  persisted and nothing on screen says so. Not fixed — a fix means a
-  parent-visible failure state, which is a design question, not a patch.
+  persisted and nothing on screen says so. ~~Not fixed — a fix means a
+  parent-visible failure state, which is a design question, not a patch.~~
+  **Fixed 2026-09-08** (ADR 019): the design question got an answer — the
+  failure state belongs on `/informe`, the grown-up screen, and nowhere near
+  the kids. A refused write now raises a `role="alert"` banner there. The
+  record is held in memory rather than stored, because the condition being
+  reported is "writes are failing". The same pass sized down what was most
+  likely to *cause* a full quota: `MAX_LOG_EVENTS` 20,000 → 8,000 (ADR 013's
+  addendum), since two kids' answer logs could otherwise claim ~3 MB of a ~5 MB
+  origin quota while everything else the app stores comes to ~75 KB.
 - The two `<a href="/">` lint warnings in the error boundaries are intentional:
   an error boundary must not depend on the router.
 

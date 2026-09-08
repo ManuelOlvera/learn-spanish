@@ -15,6 +15,21 @@ export function dayKey(date: Date): string {
     .slice(0, 10);
 }
 
+/**
+ * The same local calendar day as `dayKey`, as a whole number of days since the
+ * epoch — the shape arithmetic wants. `dayKey` is an identity ("which day is
+ * it?"); this is a measure ("how many days ago?"), and deriving one from the
+ * other means parsing a string back into a date on every comparison.
+ *
+ * Local, for `dayKey`'s reason: the kids play in the evening, and a UTC day
+ * would age every word a day early anywhere west of Greenwich.
+ */
+export function dayIndex(date: Date): number {
+  return Math.floor(
+    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000,
+  );
+}
+
 /** The featured card of the day: deterministic for a date, varies day to day. */
 export function dailyCard(decks: readonly Deck[], date: Date): VocabularyCard {
   const cards = decks.flatMap((deck) => deck.cards);

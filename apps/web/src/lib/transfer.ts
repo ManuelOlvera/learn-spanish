@@ -6,6 +6,7 @@ import {
   encodeProgress,
   mergeProgress,
   type MissionState,
+  pruneStickerCounts,
   type PetCollection,
   type ProgressSnapshot,
   type StickerTier,
@@ -128,7 +129,10 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     // Stamp the wallet generation so a reset/restore survives merging:
     // older-epoch snapshots (stale cloud rows, old codes) contribute no wallet.
     walletEpoch: WALLET_EPOCH,
-    stickerCounts: getStickerCounts(),
+    // Pruned, not raw: the snapshot is pushed in full on every game
+    // completion and the server caps it at 64 KB, so a count that no reader
+    // may act on has no business on the wire (domain/category.ts).
+    stickerCounts: pruneStickerCounts(getStickerCounts(), new Set(stickers)),
     pets,
     petCollections,
     freezes,

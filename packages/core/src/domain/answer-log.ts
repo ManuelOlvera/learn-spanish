@@ -28,9 +28,31 @@ export type AnswerLog = readonly AnswerEvent[];
 /** Roughly three months: long enough to see a habit, short enough to forget. */
 export const LOG_RETENTION_DAYS = 90;
 
-/** Backstop for a device that somehow outruns the date window; the window is
- *  the actual policy. ~20k answers is far more than three months of play. */
-export const MAX_LOG_EVENTS = 20000;
+/**
+ * Backstop for a device that somehow outruns the date window; the window is
+ * the actual policy.
+ *
+ * The number matters more than "a backstop" suggests, because this is the
+ * largest thing the app keeps on a device. An event serialises to about 80
+ * bytes, and browsers give an origin roughly 5 MB **shared by every key the
+ * app writes** — so the old 20,000 let two kids' logs claim ~3 MB, over half
+ * of everything available, to backstop a case that cannot occur. Nothing else
+ * the app stores comes close: a fully-played family's album, counts and word
+ * stats together are ~75 KB.
+ *
+ * That mattered because a full quota is silent here. `localStorage.setItem`
+ * throws, every store logs a warning and resolves, and the write is simply
+ * lost — which is one of the two routes that produced the orphaned-medal bug
+ * (see `docs/bugs.md`), where a sticker that a kid had earned never reached
+ * the album. The log crowding out the album is not a fair trade.
+ *
+ * 8,000 is ~0.6 MB per kid, ~1.2 MB for two, and still more than 90 days of
+ * heavy play: it only binds at ~89 answers every single day for three months
+ * without a gap, which is nine or ten full games a day from a five-year-old.
+ * If it ever does bind, it degrades the right way — the oldest days go first,
+ * so the calendar loses its far edge and keeps its recent detail.
+ */
+export const MAX_LOG_EVENTS = 8000;
 
 /** A pause longer than this ends a sitting. Kids wander off mid-game; without
  *  a gap rule, one morning and one bedtime session read as a six-hour marathon. */

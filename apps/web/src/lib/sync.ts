@@ -13,6 +13,8 @@ import {
 import { log } from "@learn-spanish/config";
 import { remoteProgress } from "./client-container";
 import { applySnapshot, currentSnapshot } from "./transfer";
+import { noteSyncFailed, noteSyncOk } from "./sync-health";
+export { getSyncHealth, syncNote, type SyncHealth, type SyncNote } from "./sync-health";
 
 /**
  * Cross-device sync orchestration (ADR 004). Local-first: reads stay on
@@ -177,9 +179,11 @@ export function syncPull(): Promise<boolean> {
         currentSnapshot,
       );
       await applySnapshot(merged);
+      noteSyncOk();
       return true;
     } catch (err) {
       log.warn("sync", "pull failed; staying on local state", { err });
+      noteSyncFailed(err);
       return false;
     }
   });
@@ -206,8 +210,10 @@ export function syncPush(): Promise<void> {
       // pre-save union verbatim would erase them. From here to the apply is
       // one microtask chain — nothing can interleave.
       await applySnapshot(mergeProgress(await currentSnapshot(), union));
+      noteSyncOk();
     } catch (err) {
       log.warn("sync", "push failed; will retry on next exchange", { err });
+      noteSyncFailed(err);
     }
   });
 }

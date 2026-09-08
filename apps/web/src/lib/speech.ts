@@ -105,6 +105,78 @@ export function speakSpanish(text: string, speaker?: Speaker): void {
   synth.speak(utterance);
 }
 
+/**
+ * Whether this device can actually speak the content.
+ *
+ * ADR 001 accepted that audio "silently degrades to nothing on browsers
+ * without an `es` voice", as acceptable for v1. Two things have changed. The
+ * 2026-08-25 addendum established what actually happens on an Android without
+ * a Spanish pack — Chrome reads the Spanish in an **English** voice, which is
+ * worse than the silence the ADR weighed, because *el murciélago* mispronounced
+ * is a wrong answer taught confidently. And the app is no longer v1: for a
+ * pre-reader, audio is not a feature of it, it is the whole of it.
+ *
+ * This does not change the adapter (the ADR's decision stands, and the
+ * recordings escape hatch is untouched) — it only lets a parent be told.
+ */
+export type VoiceStatus =
+  /** A Spanish voice is available; nothing to say. */
+  | "ready"
+  /** The device enumerates voices and none of them is Spanish. The only state
+   *  worth warning about, because it is the only one we can be sure of. */
+  | "missing"
+  /** No speech synthesis, or the list never arrived. Deliberately NOT a
+   *  warning: a device we could not measure must not be accused. */
+  | "unknown";
+
+/**
+ * How long to wait for the voice list. Chrome populates it asynchronously and
+ * fires `voiceschanged` when it lands; two seconds is far past that on every
+ * device tested, and the cost of being wrong is only a hint not shown.
+ */
+const VOICE_WAIT_MS = 2000;
+
+export function checkSpanishVoice(
+  timeoutMs: number = VOICE_WAIT_MS,
+): Promise<VoiceStatus> {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    return Promise.resolve("unknown");
+  }
+  const synth = window.speechSynthesis;
+  const classify = (): VoiceStatus => {
+    if (spanishVoices().length > 0) {
+      return "ready";
+    }
+    // An empty list means the list has not arrived, not that the device has
+    // no voices — only a populated list with no Spanish in it is evidence.
+    return synth.getVoices().length > 0 ? "missing" : "unknown";
+  };
+  const first = classify();
+  if (first === "ready") {
+    return Promise.resolve(first);
+  }
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (status: VoiceStatus) => {
+      if (settled) return;
+      settled = true;
+      synth.removeEventListener("voiceschanged", onChange);
+      clearTimeout(timer);
+      resolve(status);
+    };
+    const onChange = () => {
+      const status = classify();
+      // Keep waiting while the list is still empty — one more event may bring
+      // it. Only a decisive answer ends the wait early.
+      if (status !== "unknown") {
+        finish(status);
+      }
+    };
+    const timer = setTimeout(() => finish(classify()), timeoutMs);
+    synth.addEventListener("voiceschanged", onChange);
+  });
+}
+
 /** Chrome loads voices asynchronously; warm the list so the first tap already has one. */
 export function warmUpVoices(): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {

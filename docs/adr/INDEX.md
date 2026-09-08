@@ -11,32 +11,35 @@ full** before acting on it. Prose summaries also live in
 **proposed and its feature parked** — none of its terms have been exercised.
 [007](007-wallet-restore-seeded-balances.md) supersedes 006's epoch-1 *zero*
 outcome (the epoch mechanism itself is unchanged); [008](008-counter-wallet.md)
-fixes a spend-resurrection bug in 004's merge. ADRs 001, 004 and 005 carry dated
-addenda — read them, not just the Decision.
+fixes a spend-resurrection bug in 004's merge. ADRs 001, 004, 005, 012 and 013
+carry dated addenda — read them, not just the Decision.
 
 ## By topic / component
 
 | If you are touching… | Read |
 |---|---|
-| Audio, TTS, voices, `lib/speech.ts` | [001](001-browser-speech-synthesis.md), [010](010-runtime-llm-conversation.md) |
+| Audio, TTS, voices, `lib/speech.ts` | [001](001-browser-speech-synthesis.md), [010](010-runtime-llm-conversation.md), [019](019-failure-states-a-parent-can-see.md) |
 | Album, stickers, category tiers | [016](016-camino-derived-and-unlocked.md), [004](004-optional-supabase-sync.md) |
-| Answer recording, stats, `recordAnswer` | [013](013-answer-log.md), [012](012-learned-bar-and-trend-restart.md) |
+| Answer recording, stats, `recordAnswer` | [013](013-answer-log.md), [012](012-learned-bar-and-trend-restart.md), [018](018-staleness-beside-the-learned-bar.md) |
 | Card art, drawings, `CardFace`, emoji | [015](015-vector-card-art.md), [009](009-story-art-assets.md) |
 | El camino / the trail, `buildCamino` | [016](016-camino-derived-and-unlocked.md) |
+| El repaso, review selection, `weakScore`, decay | [018](018-staleness-beside-the-learned-bar.md), [012](012-learned-bar-and-trend-restart.md) |
 | Chests, boosts, hora doble | [014](014-timed-boost-stays-local.md), [008](008-counter-wallet.md) |
 | Deploy, hosting, Vercel, env vars | [002](002-vercel-hosting.md), [004](004-optional-supabase-sync.md) |
 | Dependencies, adding a runtime package | [011](011-pairing-qr.md), [010](010-runtime-llm-conversation.md) |
+| Failure states, quota, a warning a parent sees | [019](019-failure-states-a-parent-can-see.md), [004](004-optional-supabase-sync.md), [001](001-browser-speech-synthesis.md) |
 | Images, story art, `pnpm art` | [009](009-story-art-assets.md), [015](015-vector-card-art.md) |
 | LLM, API keys, route handlers | [010](010-runtime-llm-conversation.md) |
-| Merge rules, `mergeProgress`, `ProgressSnapshot` | [004](004-optional-supabase-sync.md), [006](006-wallet-epoch-reset.md), [008](008-counter-wallet.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md), [016](016-camino-derived-and-unlocked.md) |
+| Merge rules, `mergeProgress`, `ProgressSnapshot` | [004](004-optional-supabase-sync.md), [006](006-wallet-epoch-reset.md), [008](008-counter-wallet.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md), [016](016-camino-derived-and-unlocked.md), [018](018-staleness-beside-the-learned-bar.md) |
 | Microphone, recording, say-it-back | [003](003-ephemeral-voice-recordings.md), [010](010-runtime-llm-conversation.md) |
 | Offline, service worker, `sw.js`, caching | [005](005-hand-rolled-service-worker.md), [009](009-story-art-assets.md), [015](015-vector-card-art.md) |
 | Pairing, QR, capability codes | [011](011-pairing-qr.md), [004](004-optional-supabase-sync.md), [010](010-runtime-llm-conversation.md) |
 | Privacy, kids' data leaving the device | [003](003-ephemeral-voice-recordings.md), [010](010-runtime-llm-conversation.md), [013](013-answer-log.md) |
-| Reports, `/informe`, parent-facing screens | [012](012-learned-bar-and-trend-restart.md), [013](013-answer-log.md), [017](017-one-roller-for-the-week.md) |
+| Reports, `/informe`, parent-facing screens | [012](012-learned-bar-and-trend-restart.md), [013](013-answer-log.md), [017](017-one-roller-for-the-week.md), [018](018-staleness-beside-the-learned-bar.md), [019](019-failure-states-a-parent-can-see.md) |
+| Snapshot size, the 64 KB cap, payload pruning | [019](019-failure-states-a-parent-can-see.md), [004](004-optional-supabase-sync.md) |
 | Storage keys, localStorage, migrations | [006](006-wallet-epoch-reset.md), [012](012-learned-bar-and-trend-restart.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md) |
 | Supabase, sync, RPCs, RLS | [004](004-optional-supabase-sync.md), [002](002-vercel-hosting.md) |
-| Trend chart, "learned", mastery | [012](012-learned-bar-and-trend-restart.md), [016](016-camino-derived-and-unlocked.md) |
+| Trend chart, "learned", mastery | [012](012-learned-bar-and-trend-restart.md), [016](016-camino-derived-and-unlocked.md), [018](018-staleness-beside-the-learned-bar.md) |
 | Wallet, stars, prices, spending | [008](008-counter-wallet.md), [006](006-wallet-epoch-reset.md), [007](007-wallet-restore-seeded-balances.md), [014](014-timed-boost-stays-local.md) |
 | Weekly streak, la racha, freezes | [017](017-one-roller-for-the-week.md), [004](004-optional-supabase-sync.md) |
 
@@ -61,5 +64,8 @@ addenda — read them, not just the Decision.
 | [015](015-vector-card-art.md) | A card may carry an `image` **key** rendered by an inline SVG component (not JPEGs, not `next/image`); `emoji` stays required as a never-rendered fallback, and the deck invariant becomes "no repeated *picture*". | `src/card-art/`, `lib/card-art.ts`, `CardFace`, `cardPicture` |
 | [016](016-camino-derived-and-unlocked.md) | El camino holds **no state of its own** (every step recomputed from the album) and **never gates content**. Completion is not mastery. A step cannot express anything the album cannot. | `buildCamino`, `domain/category.ts`, `trail.ts`, Tu camino strip |
 | [017](017-one-roller-for-the-week.md) | `RolloverWeeklyUseCase` **writes** and the write is the celebration, so exactly one screen (home) may call it; every other screen calls `ReadWeeklyUseCase`. The Semana card lives on `/informe`. | `RolloverWeeklyUseCase`, `ReadWeeklyUseCase`, `WeeklyCard` |
+
+| [018](018-staleness-beside-the-learned-bar.md) | El repaso asks about words going **quiet** as well as words going **wrong**. `WordStat` gains an optional `seen` day stamp; staleness sits *beside* ADR 012's learned bar and never inside it, so no count moved and the trend did not restart. | `domain/review.ts`, `domain/word-stats.ts`, `RepasoView`, `/informe` |
+| [019](019-failure-states-a-parent-can-see.md) | The three failures the app used to only log — a failed sync exchange, a snapshot over the 64 KB cap, a refused `localStorage` write — get a parent-facing state on the grown-up screens. The storage record is held in memory, because storage is the thing that failed. | `lib/sync-health.ts`, `lib/storage-health.ts`, `SyncPanel`, `/informe` |
 
 `000-template.md` is the ~10-line template, not a decision.

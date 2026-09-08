@@ -1,7 +1,12 @@
 "use client";
 
 import type { ProgressSnapshot, RemoteProgressStore } from "@learn-spanish/core";
-import { isTimeoutError, sanitizeSnapshot, SyncTimeoutError } from "@learn-spanish/core";
+import {
+  isTimeoutError,
+  sanitizeSnapshot,
+  SnapshotTooLargeError,
+  SyncTimeoutError,
+} from "@learn-spanish/core";
 import { supabaseConfig, log } from "@learn-spanish/config";
 
 /**
@@ -73,6 +78,13 @@ export class SupabaseProgressStore implements RemoteProgressStore {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
+      // put_progress raises `snapshot too large` past the 64 KB cap. That one
+      // never fixes itself — it is a ceiling the family grows into, not a bad
+      // network — so it is named here rather than reported as a bare 4xx.
+      const detail = await res.text().catch(() => "");
+      if (detail.includes("snapshot too large")) {
+        throw new SnapshotTooLargeError();
+      }
       throw new Error(`supabase rpc ${fn} failed: ${res.status}`);
     }
     if (res.status === 204) {

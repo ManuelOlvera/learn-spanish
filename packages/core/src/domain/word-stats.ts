@@ -5,6 +5,14 @@ import type { VocabularyCard } from "./card";
 export interface WordStat {
   readonly right: number;
   readonly wrong: number;
+  /** The local day (`dayIndex`) this word was last answered — what lets
+   *  `domain/review.ts` tell a word going quiet from a word going wrong.
+   *
+   *  **Optional, and it must stay optional.** Every tally written before
+   *  staleness shipped has no stamp, and an unstamped word is treated as
+   *  never-timed rather than as last seen at the epoch: guessing would call
+   *  the entire existing pack stale on the day this ships. */
+  readonly seen?: number;
 }
 
 export type WordStats = Readonly<Record<string, WordStat>>;
@@ -15,10 +23,14 @@ export interface WordStatsStore {
   save(kid: KidId, stats: WordStats): Promise<void>;
 }
 
+/** Tally an answer and stamp the word as seen `today` (a `dayIndex`). The
+ *  stamp is not optional at the call site on purpose — a tally written without
+ *  one is invisible to el repaso's staleness pass forever after. */
 export function recordAnswer(
   stats: WordStats,
   cardId: string,
   correct: boolean,
+  today: number,
 ): WordStats {
   const current = stats[cardId] ?? { right: 0, wrong: 0 };
   return {
@@ -26,6 +38,7 @@ export function recordAnswer(
     [cardId]: {
       right: current.right + (correct ? 1 : 0),
       wrong: current.wrong + (correct ? 0 : 1),
+      seen: today,
     },
   };
 }
@@ -39,13 +52,14 @@ export function recordReviewAnswer(
   stats: WordStats,
   cardId: string,
   correct: boolean,
+  today: number,
 ): WordStats {
   const current = stats[cardId] ?? { right: 0, wrong: 0 };
   return {
     ...stats,
     [cardId]: correct
-      ? { right: current.right + 1, wrong: Math.max(0, current.wrong - 1) }
-      : { right: current.right, wrong: current.wrong + 1 },
+      ? { right: current.right + 1, wrong: Math.max(0, current.wrong - 1), seen: today }
+      : { right: current.right, wrong: current.wrong + 1, seen: today },
   };
 }
 
@@ -54,10 +68,16 @@ export function weakScore(stat: WordStat): number {
   return stat.wrong * 2 - stat.right;
 }
 
-/** How many struggling words justify offering a repaso session. */
+/** How many words justify offering a repaso session. */
 export const REVIEW_MIN = 3;
 
-export function pickReviewCards(
+/** The words a kid is currently getting wrong, worst first.
+ *
+ *  This is one of the two halves of el repaso, not the whole of it — the other
+ *  is the words going quiet (`domain/review.ts`). Keep this one shaky-only:
+ *  the parent report calls it for "las difíciles", where a word that is merely
+ *  unpractised would be a false accusation. */
+export function pickShakyCards(
   cards: readonly VocabularyCard[],
   stats: WordStats,
   max: number,

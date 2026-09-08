@@ -7,6 +7,7 @@ import {
   CATEGORY_BONUS,
   earnableActivities,
   pendingCategoryTier,
+  pruneStickerCounts,
   stickerCount,
   tierRank,
 } from "../src/domain/category";
@@ -15,7 +16,9 @@ import {
   SENTENCE_ACTIVITIES,
   stickerId,
 } from "../src/domain/album";
+import type { ActivityId } from "../src/domain/album";
 import type { Deck } from "../src/domain/deck";
+import type { KidId } from "../src/domain/kid";
 import { TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
 import { card } from "./helpers";
 
@@ -242,5 +245,54 @@ describe("categoryTierFromAlbum", () => {
     expect(
       categoryTierFromAlbum("listener", "platos", activities, fullCounts, earned),
     ).toBe("none");
+  });
+});
+
+describe("pruneStickerCounts", () => {
+  const earned = new Set(["listener:animales:learn", "listener:animales:quiz-listen"]);
+
+  it("drops a count whose sticker is not in the album", () => {
+    // ADR 016: a count with no sticker behind it reads as zero everywhere, so
+    // putting it on the wire syncs a number no screen may act on.
+    expect(
+      pruneStickerCounts({ "listener:comida:learn": 7 }, earned),
+    ).toEqual({});
+  });
+
+  it("drops a count of one, which says nothing the sticker did not", () => {
+    // stickerCount() reads an absent count under an earned sticker as 1, so
+    // shipping the 1 is pure repetition of the sticker id.
+    expect(
+      pruneStickerCounts({ "listener:animales:learn": 1 }, earned),
+    ).toEqual({});
+  });
+
+  it("keeps every count that records real depth", () => {
+    expect(
+      pruneStickerCounts(
+        { "listener:animales:learn": 5, "listener:animales:quiz-listen": 2 },
+        earned,
+      ),
+    ).toEqual({
+      "listener:animales:learn": 5,
+      "listener:animales:quiz-listen": 2,
+    });
+  });
+
+  it("never lets a pruned snapshot change what a tier reads", () => {
+    // The property that makes this safe to do on the wire: every surface asks
+    // stickerCount, and pruning may not move a single one of its answers.
+    const counts = {
+      "listener:animales:learn": 1,
+      "listener:animales:quiz-listen": 4,
+      "listener:comida:learn": 9, // orphan
+    };
+    const pruned = pruneStickerCounts(counts, earned);
+    for (const id of [...earned, "listener:comida:learn"]) {
+      const [kid, deckId, activity] = id.split(":") as [KidId, string, ActivityId];
+      expect(stickerCount(kid, deckId, activity, pruned, earned)).toBe(
+        stickerCount(kid, deckId, activity, counts, earned),
+      );
+    }
   });
 });

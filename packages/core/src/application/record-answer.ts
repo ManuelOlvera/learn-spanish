@@ -1,4 +1,5 @@
 import { appendAnswer } from "../domain/answer-log";
+import { dayIndex } from "../domain/daily";
 import type { AnswerLogStore } from "../domain/answer-log";
 import type { ActivityId } from "../domain/album";
 import { recordAnswer, recordReviewAnswer } from "../domain/word-stats";
@@ -34,13 +35,14 @@ export class RecordAnswerUseCase {
 
   async execute(input: RecordAnswerInput): Promise<WordStats> {
     const { kid, cardId, correct, activity, review = false } = input;
+    const now = this.clock();
+    const today = dayIndex(now);
     const current = await this.stats.load(kid);
     const next = review
-      ? recordReviewAnswer(current, cardId, correct)
-      : recordAnswer(current, cardId, correct);
+      ? recordReviewAnswer(current, cardId, correct, today)
+      : recordAnswer(current, cardId, correct, today);
     await this.stats.save(kid, next);
 
-    const now = this.clock();
     this.log.save(
       kid,
       appendAnswer(

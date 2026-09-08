@@ -473,7 +473,9 @@ function isWordStats(value: unknown): value is WordStats {
         typeof stat === "object" &&
         stat !== null &&
         isSaneCount((stat as WordStat).right) &&
-        isSaneCount((stat as WordStat).wrong),
+        isSaneCount((stat as WordStat).wrong) &&
+        ((stat as WordStat).seen === undefined ||
+          isSaneCount((stat as WordStat).seen)),
     )
   );
 }
@@ -543,18 +545,32 @@ function preferring<T>(better: (theirs: T, mine: T) => boolean): Combine<T> {
 }
 
 /** Per word the higher right and the higher wrong, independently, so a
- *  re-import can never inflate either. */
+ *  re-import can never inflate either — and the *later* `seen` stamp, which is
+ *  the same max rule: a word practised on the tablet has been practised, so
+ *  the phone must stop calling it stale on the next pull. Keeping the older
+ *  stamp would let a device that has not played in a month drag every word
+ *  back into el repaso for the device that has. A word neither side ever
+ *  stamped stays unstamped (`undefined`), never zero — see `daysUnseen`. */
 const mergeWordStats: Combine<WordStats> = (mine, theirs) => {
   const merged: Record<string, WordStat> = { ...(mine ?? {}) };
   for (const [cardId, stat] of Object.entries(theirs)) {
     const existing = merged[cardId];
+    const seen = latest(existing?.seen, stat.seen);
     merged[cardId] = {
       right: Math.max(existing?.right ?? 0, stat.right),
       wrong: Math.max(existing?.wrong ?? 0, stat.wrong),
+      ...(seen === undefined ? {} : { seen }),
     };
   }
   return merged;
 };
+
+/** The later of two optional day stamps; undefined only when neither has one. */
+function latest(mine: number | undefined, theirs: number | undefined) {
+  if (mine === undefined) return theirs;
+  if (theirs === undefined) return mine;
+  return Math.max(mine, theirs);
+}
 
 /** Within one week union the active days; a later week supersedes outright —
  *  it is a fresh week that reset the day set, not a smaller one. */

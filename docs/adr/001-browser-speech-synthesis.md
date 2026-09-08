@@ -47,3 +47,19 @@ none it falls back to 1.6 pitch / 0.7 rate, because pitch and rate are the
 only levers Android leaves and both are honoured everywhere. Still one
 adapter, still no audio files: the swap-for-recordings escape hatch above is
 untouched.
+
+**2026-09-08:** the "audio silently degrades to nothing" consequence above is
+now *reported* rather than accepted in silence. Two things changed since it was
+written. The 2026-08-25 addendum established what an Android without a Spanish
+pack actually does — it reads the Spanish in an **English** voice, which is
+worse than the silence weighed here, because a mispronounced *murciélago* is a
+wrong answer taught confidently. And the app is no longer v1: for a pre-reader,
+audio is not a feature of it, it is the whole of it.
+
+`checkSpanishVoice()` classifies the device once and `/informe` tells the parent
+to install a voice. Three states, and only one of them warns: `ready`,
+`missing` (the list is populated and has no `es` in it) and `unknown` (no
+synthesis, or the list never arrived) — a device we could not measure must not
+be accused of a fault it may not have. The **decision is unchanged**: still the
+Web Speech API, still no audio files, and the swap-for-recordings escape hatch
+is untouched. The detection is what tells us whether that swap is ever needed.

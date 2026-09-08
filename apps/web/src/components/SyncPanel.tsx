@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { buildSyncLink, PairingNotStoredError } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { QrCode } from "@/components/QrCode";
@@ -10,8 +10,11 @@ import {
   isPaired,
   isSyncAvailable,
   joinWithCode,
+  getSyncHealth,
   startHosting,
+  syncNote,
   unpair,
+  type SyncHealth,
 } from "@/lib/sync";
 
 interface Props {
@@ -33,6 +36,54 @@ function pairingErrorMessage(err: unknown): string {
     : "No se pudo conectar. Revisa tu internet e inténtalo otra vez.";
 }
 
+/** The connection line under "Sincronizado". Renders nothing until the record
+ *  has been read, and nothing when there is nothing worth saying. */
+function HealthNote({ health }: { health: SyncHealth | null }) {
+  if (health === null) {
+    return null;
+  }
+  const note = syncNote(health, Date.now());
+  if (note === null) {
+    return null;
+  }
+  const tone = {
+    ok: { icon: "✅", className: "text-ink/60" },
+    warn: { icon: "⚠️", className: "text-ink/80" },
+    bad: { icon: "⛔", className: "text-ink" },
+  }[note.tone];
+  const text = {
+    "too-big":
+      "El progreso de esta familia ya es más grande de lo que el servidor acepta, así que no se está guardando en la nube. Sigue todo a salvo en este dispositivo. Avísale a quien mantiene la app.",
+    "never-connected":
+      "Todavía no se ha podido conectar desde este dispositivo. Revisa el internet.",
+    failing: `Sin conectar desde ${describeAge(note.age ?? 0)}. Se reintenta solo al abrir la app y al terminar un juego.`,
+    stale: `Última sincronización ${describeAge(note.age ?? 0)}.`,
+    fresh: `Al día — última sincronización ${describeAge(note.age ?? 0)}.`,
+  }[note.kind];
+  return (
+    <p
+      // The one state a parent must not miss is announced; the healthy line is
+      // not, so a screen reader is not interrupted to say nothing is wrong.
+      aria-live={note.tone === "ok" ? "off" : "polite"}
+      className={`flex gap-2 text-sm font-bold ${tone.className}`}
+    >
+      <span aria-hidden>{tone.icon}</span>
+      {text}
+    </p>
+  );
+}
+
+/** Ages in the words a parent uses, not a timestamp they have to subtract. */
+function describeAge(ms: number): string {
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 2) return "hace un momento";
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? "hace 1 día" : `hace ${days} días`;
+}
+
 export function SyncPanel({ onSynced }: Props) {
   const [paired, setPaired] = useState(() => isPaired());
   const [code, setCode] = useState<string | null>(() => getSyncCode());
@@ -46,6 +97,11 @@ export function SyncPanel({ onSynced }: Props) {
   const [busy, setBusy] = useState(false);
   // Deleting the cloud row is destructive-ish; ask for a second tap.
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Read after mount: browser storage is not available while rendering on the
+  // server, and a health note that flashed the wrong state would be worse
+  // than none.
+  const [health, setHealth] = useState<SyncHealth | null>(null);
+  useEffect(() => setHealth(getSyncHealth()), []);
 
   // Sync is only offered when a backend is configured for this deployment.
   if (!isSyncAvailable()) {
@@ -144,6 +200,7 @@ export function SyncPanel({ onSynced }: Props) {
             un juego. Para añadir otro dispositivo, apúntale con su cámara a
             este código — abre la app y se conecta solo.
           </p>
+          <HealthNote health={health} />
           {code !== null && link !== "" && (
             <div className="flex flex-col items-center gap-2">
               <QrCode

@@ -96,8 +96,16 @@ No reading, no accounts, no setup.
   nothing extra to sync (ADR 016) — and free picture-navigation is untouched:
   nothing is dimmed, gated, or hidden.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward
-  missed words; a 🔁 "El repaso" chip appears on home when ≥3 words
-  struggle. Special avatars unlock by sticker count and streaks.
+  missed words; a 🔁 "El repaso" chip appears on home when ≥3 words need it.
+  El repaso asks about two kinds of word: the ones a kid keeps getting
+  **wrong**, and the ones they had and have stopped seeing — every answer
+  stamps its word with the day, and a learned word left 14 days without
+  practice comes back into the session (struggling words fill it first, so a
+  kid drowning in misses never has their round diluted by decay). Staleness is
+  deliberately a *second* signal and never touches what the app calls
+  "learned", so no count or chart moved when it shipped (ADR 018). The parent
+  report lists the quiet words separately as 🌙 Se van durmiendo.
+  Special avatars unlock by sticker count and streaks.
 - **Offline** — a hand-rolled service worker (ADR 005) makes the installed
   PWA work with no network after one online visit; sync simply catches up
   later.
@@ -143,7 +151,10 @@ No reading, no accounts, no setup.
   accuracy per game, a 12-week practice calendar, and every struggling word
   grouped by deck. A word counts as learned at two correct answers, not one
   (ADR 012). Answers carry their game and a timestamp in a 90-day on-device
-  log that never syncs (ADR 013). No third-party analytics, ever.
+  log that never syncs (ADR 013). It is also the one screen that admits a
+  problem: if this device's storage is full, if its sync has stopped reaching
+  the cloud, or if it has no Spanish voice installed, the parent is told there
+  rather than in a log nobody reads (ADR 019). No third-party analytics, ever.
 - **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,
   each with their own chosen avatar (16 to pick from); each game menu
   shows that kid's one right difficulty.
@@ -151,7 +162,9 @@ No reading, no accounts, no setup.
   by scanning a QR (or typing the capability code) — one scan opens the app
   and pairs it, after a confirm on the new device (ADR 011); progress pulls on
   open (and again whenever the app returns to view) and pushes on
-  game-complete, additively merged so nothing is lost. Off unless `NEXT_PUBLIC_SUPABASE_*`
+  game-complete, additively merged so nothing is lost. The sync panel says
+  whether it is actually working — a failed exchange used to be a log line
+  nobody saw, so a device could quietly stop syncing for months (ADR 019). Off unless `NEXT_PUBLIC_SUPABASE_*`
   are set, in which case the app stays pure-local.
 - **Device transfer** — a one-time copy-able code (album footer) moves
   progress to another device by merge; the no-connection fallback to sync.

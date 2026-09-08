@@ -3,6 +3,7 @@
 import type { AnswerEvent, AnswerLog, AnswerLogStore, KidId } from "@learn-spanish/core";
 import { log as logger } from "@learn-spanish/config";
 import { readDoc, writeDoc } from "./economy-store";
+import { noteStorageRefused } from "./storage-health";
 
 /** Never synced, on purpose (ADR 013) — this key is the one place the app
  *  records when a child answered and in which game, and it stays on the
@@ -42,6 +43,7 @@ export class LocalStorageAnswerLogStore implements AnswerLogStore {
       // Quota or a locked-down browser: the report loses detail, the game
       // does not lose the answer (word stats are saved separately).
       logger.warn("answer-log", "could not persist the log", { err });
+      noteStorageRefused("answer-log", err);
     }
   }
 }

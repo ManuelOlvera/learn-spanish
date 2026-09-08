@@ -6,6 +6,7 @@ import {
   accuracyByGame,
   dayKey,
   LOG_RETENTION_DAYS,
+  STALE_AFTER_DAYS,
   practiceDays,
   practiceSummary,
   type AnswerLog,
@@ -245,6 +246,7 @@ export function KidReportView({ decks, kid }: Props) {
           <AccuracyByGame log={practice} />
           <PracticeCalendar log={practice} />
           <Struggling report={report} byId={byId} kid={kid} />
+          <Fading report={report} />
         </>
       )}
     </main>
@@ -458,6 +460,45 @@ function AccuracyByGame({ log }: { log: AnswerLog }) {
         Solo los juegos que hacen preguntas — las tarjetas, las parejas y los
         cuentos no se puntúan. Últimos {LOG_RETENTION_DAYS} días.
       </p>
+    </section>
+  );
+}
+
+/**
+ * Words the kid had and has stopped seeing.
+ *
+ * Its own section, never folded into "Para practicar": a struggling word is
+ * one the kid gets wrong, a fading one is only one nobody has asked about
+ * lately, and a parent given one list of both cannot tell which they are
+ * reading. Nothing here changes the mastery figures above — decay re-ranks el
+ * repaso and fills this list, and deliberately does not touch what the app
+ * counts as learned (ADR 012).
+ */
+function Fading({ report }: { report: KidReport }) {
+  if (report.fading.length === 0) {
+    return null;
+  }
+  return (
+    <section className="sticker relative flex flex-col gap-3 p-5">
+      <span aria-hidden className="sticker-peel" />
+      <h2 className="text-2xl font-extrabold">🌙 Se van durmiendo</h2>
+      <p className="text-sm font-semibold text-ink/60">
+        Las sabía y no las ha practicado en {STALE_AFTER_DAYS} días o más. El
+        repaso 🔁 ya las está preguntando.
+      </p>
+      <ul className="flex flex-wrap gap-2">
+        {report.fading.map((card) => (
+          <li
+            key={card.id}
+            className="flex items-center gap-2 rounded-full bg-ink/5 px-3 py-1.5 text-sm font-extrabold"
+          >
+            <span aria-hidden className="text-lg">
+              {card.emoji}
+            </span>
+            {card.spanish}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

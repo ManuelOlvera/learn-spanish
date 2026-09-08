@@ -1,5 +1,101 @@
 # Shipped features
 
+## 2026-09-08 — 🌙 Words go quiet, and three silent failures learn to speak
+
+**For:** the kids, whose vocabulary was decaying with nothing watching, and the
+parent, who had no way to find out that a device had stopped saving or syncing.
+Four things from one review pass; ADRs [018](../adr/018-staleness-beside-the-learned-bar.md)
+and [019](../adr/019-failure-states-a-parent-can-see.md).
+
+### El repaso learns what time is
+
+Review selection was `weakScore = wrong × 2 − right` — a pure tally with **no
+time dimension anywhere in the codebase**. A word answered right twice in July
+was never asked again, whatever the date; a word at 3 right / 1 wrong scored −1
+and was invisible to el repaso forever. Everything else the app measures
+measures how much has been *played* — medals, counts, el camino, the tiers.
+Nothing measured what was slipping away.
+
+Every answer now stamps its word with the local day (`WordStat.seen`), and a
+word the app once called learned that has gone `STALE_AFTER_DAYS` (14) without
+practice rejoins the review set. Struggling words still fill a session first
+and stale ones take the remainder, so a kid drowning in misses never has their
+round diluted by decay, while a kid with nothing wrong finally gets a session
+of what they are quietly losing — the case that had no screen at all before.
+
+**The interesting decision was where NOT to put it.** Decay inside `weakScore`
+was the obvious implementation and is exactly what ADR 018 rules out:
+`weakScore` is half of ADR 012's definition of *learned*, so decaying it makes
+words silently un-learn — every count on `/informe` drops and the trend chart
+draws a deploy-day cliff no child experienced, which is the misreading ADR 012
+restarted the whole series to avoid. Staleness sits beside the bar and *reads*
+`isLearnedStat` rather than restating it. No count moved.
+
+The other rejected source was the answer log, which already holds per-card
+timestamps for 90 days and would have needed no new field — but it never
+syncs (ADR 013), so review would have quietly gone per-device and a word
+drilled on the tablet would still read as decayed on the phone.
+
+### The sync ceiling nobody could see
+
+Measured against the real pack, a fully-played family's snapshot is **~73 KB of
+JSON** against the **64 KB cap** in `0002_progress_hardening.sql` — and the
+snapshot is pushed in full on every game completion. Past that line every push
+fails identically and forever, and the whole handling was
+`log.warn("push failed; will retry on next exchange")`. The panel still said
+"paired", the kids kept earning stickers locally, and two devices would diverge
+until somebody noticed months missing from the phone.
+
+The sync panel now says whether sync is actually working, dated from the last
+success — "failing since Tuesday" being the number a parent can act on, not
+"failed an hour ago". The size refusal is raised as its own
+`SnapshotTooLargeError` and gets its own message, because it is the one sync
+failure that never recovers and "check your wifi" is actively wrong advice for
+it. `stickerCounts` is now pruned on emit — orphans (which ADR 016 already
+rules read as zero) and counts of exactly 1 (which say nothing an earned
+sticker did not), both lossless under `stickerCount`'s own definition.
+
+**This defers the ceiling, it does not remove it.** The remaining ~38 KB is
+word stats, whose key names repeat per word; compacting the wire format would
+roughly halve the payload and was deliberately left as a decision of its own
+rather than a side effect of adding a warning.
+
+### A full disk stops being invisible
+
+Every local store swallows a refused write by design — one bad write must never
+take a game down — which left a permanently failing device indistinguishable
+from a healthy one. That is not theoretical: a swallowed album write under a
+full quota is one of the two routes behind the orphaned-medal bug. `/informe`
+now shows a `role="alert"` banner. The record is held **in memory**, which
+looks wrong for a page and is the only thing that works: the condition being
+reported is "writes are failing", so a record needing a write to survive is
+precisely the one that would not be there.
+
+Sized the cause down too: `MAX_LOG_EVENTS` was 20,000 per kid ≈ 3 MB for two
+against a ~5 MB origin quota, to backstop a case that cannot occur, while
+everything else the app stores comes to ~75 KB. Now 8,000 — still more than 90
+days of heavy play, and the date window is still the actual policy (ADR 013).
+
+### A device with no Spanish voice
+
+ADR 001 accepted that audio "silently degrades to nothing" without an `es`
+voice. Its own 2026-08-25 addendum then established that Android without a
+Spanish pack does something worse: it reads the Spanish in an **English** voice,
+so a pre-reader who navigates by sound is taught the wrong pronunciation
+confidently, and is far too young to report it. `/informe` now tells the parent
+to install one. Only a populated voice list with no `es` in it warns — a device
+we could not measure is never accused. The adapter is unchanged.
+
+### Also
+
+`<html lang>` was `en` on an app whose visible text is Spanish; now `es`.
+
+**Not done, and worth naming:** the games still announce a right or wrong answer
+only visually and by sound — there are no `aria-live` regions in any of the
+eleven players. Adding one to a single game would be worse than none; doing it
+properly is a pass over all eleven and a decision about whether screen-reader
+support is a goal, which is a feature, not a tidy-up.
+
 ## 2026-09-01 — 🏷️ A shelf and a deck may not share a name, and the album shows its shelves
 
 **For:** the parent, on the third attempt at one report. The first two closed

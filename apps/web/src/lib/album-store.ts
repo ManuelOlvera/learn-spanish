@@ -6,6 +6,7 @@ import {
   type AlbumStore,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { noteStorageRefused } from "./storage-health";
 
 const STORAGE_KEY = "palabras.album.v1";
 
@@ -45,6 +46,9 @@ export class LocalStorageAlbumStore implements AlbumStore {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stickers));
     } catch (err) {
       log.warn("album", "could not persist album", { err });
+      // The sticker the kid just earned is gone. Nothing here can save it,
+      // but the parent's report can at least stop pretending all is well.
+      noteStorageRefused("album", err);
     }
     return Promise.resolve();
   }

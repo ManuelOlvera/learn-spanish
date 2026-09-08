@@ -9,6 +9,8 @@ export {
   QrEmptyPayloadError,
   QrPayloadTooLongError,
   QuizDeckTooSmallError,
+  isSnapshotTooLarge,
+  SnapshotTooLargeError,
   SyncTimeoutError,
 } from "./domain/errors";
 export type { RandomSource } from "./domain/random";
@@ -144,12 +146,20 @@ export type { DuelGame, DuelRound } from "./domain/duel";
 export { createDuel, rivalFor, DUEL_ROUNDS } from "./domain/duel";
 export type { WordStat, WordStats, WordStatsStore } from "./domain/word-stats";
 export {
-  pickReviewCards,
+  pickShakyCards,
   recordAnswer,
   recordReviewAnswer,
   REVIEW_MIN,
   weakScore,
 } from "./domain/word-stats";
+export {
+  daysUnseen,
+  isStaleStat,
+  pickReviewCards,
+  pickStaleCards,
+  reviewCount,
+  STALE_AFTER_DAYS,
+} from "./domain/review";
 export { RecordAnswerUseCase } from "./application/record-answer";
 export { GetWordStatsUseCase } from "./application/get-word-stats";
 export type { ConnectBoard, ConnectGame } from "./domain/connect";
@@ -185,6 +195,7 @@ export {
   categoryTierFromAlbum,
   CATEGORY_BONUS,
   earnableActivities,
+  pruneStickerCounts,
   pendingCategoryTier,
   stickerCount,
   tierRank,
@@ -254,7 +265,7 @@ export { StaticStoryRepository } from "./infrastructure/static-story-repository"
 export type { KidId } from "./domain/kid";
 export { ALL_KIDS, isKidId, KID_GAME_MODES, kidForActivity } from "./domain/kid";
 export type { Streak, StreakStore } from "./domain/daily";
-export { advanceStreak, dailyCard, dayKey } from "./domain/daily";
+export { advanceStreak, dailyCard, dayIndex, dayKey } from "./domain/daily";
 export type { ProgressSnapshot } from "./domain/transfer";
 export {
   decodeProgress,
