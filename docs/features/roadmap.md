@@ -595,6 +595,33 @@ The queue, gathered from the sub-items above so nothing hides in history:
   image · deep links into a specific deck or game · a kid-facing share tile
   (it would have to survive a 3-year-old and must not expose the key).
 
+## Chest & economy follow-ons (cut from the 2026-09-15 rebalance)
+
+Deferred when the earn side was raised (see [ADR 020](../adr/020-earn-side-rebalance.md)
+and the shipped write-up). Deferred, not dropped:
+
+- **Progress toward the next mascota** — after the chest closes, a bar fills
+  toward the cheapest pet the kid cannot yet afford ("12 more for el conejo").
+  The most Duolingo-shaped piece of the original ask and the strongest pull the
+  economy could have, but it is a second feature: it needs a home for the bar on
+  `/mascota` and the home screen, and a rule for which pet it points at once the
+  cheap end is bought out. Cut to keep the chest slice small.
+- **Whole-done-screen choreography** — staging the full ending (celebration →
+  sticker peel → chest → bonuses → exits) on one timeline. Cut because it risks
+  making a 4-year-old sit through an animation they want to skip; the chest beat
+  alone already carries the moment.
+- **Re-pricing the sinks.** `MEAL_COST` (5⭐) and `SURPRISE_COST` (100⭐) were
+  deliberately left alone, so both got relatively cheaper. Watch whether la caja
+  sorpresa stops feeling like a save-up treat; if it does, re-price *the box*,
+  never the earn rate (ADR 020).
+- **The double-dock on a missed round.** A wrong tap costs the first-try credit
+  *and* an answer's worth off the base, so 5-of-8 with 3 wrong taps pays 6⭐
+  against a perfect run's 36⭐. Long-standing and left exactly as it was — the
+  rebalance preserved the ratio rather than re-cutting the curve — but it is the
+  harshest part of the economy for a kid who is struggling, which is the opposite
+  of who needs encouraging. Softening it is a deliberate balance decision, not a
+  tweak.
+
 ## Build order
 
 **First slice: tap-the-right-picture quiz (2), no profiles** — shaped 2026-07-10:

@@ -12,8 +12,11 @@
  * snapshot. Making it cross-device is a decision, not a field.
  */
 
-/** Richer than the daily misión's bonus: this one was set by a person. */
-export const CHALLENGE_BONUS = 15;
+/** Richer than the daily misión's bonus: this one was set by a person. Kept at
+ *  ~1.6× MISSION_BONUS through the 2026-09-15 rebalance (ADR 020) — the ordering
+ *  is the rule, not the number, and a challenge that paid less than the daily
+ *  misión would have made papá's attention the cheaper prize. */
+export const CHALLENGE_BONUS = 40;
 
 export interface ParentChallenge {
   readonly deckId: string;

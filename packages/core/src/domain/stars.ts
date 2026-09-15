@@ -1,15 +1,33 @@
-/* ⭐ is the app's earned currency: one per first-try answer, less one per
- * mistake (chest at the end of each activity), +MISSION_BONUS for the daily
- * mission, spent feeding la mascota (MEAL_COST per meal). Wallet storage
- * rides the EconomyStore port (domain/economy.ts). */
+/* ⭐ is the app's earned currency: STARS_PER_CORRECT per first-try answer, less
+ * one answer's worth per mistake (chest at the end of each activity),
+ * +MISSION_BONUS for the daily mission, spent feeding la mascota (MEAL_COST per
+ * meal). Wallet storage rides the EconomyStore port (domain/economy.ts). */
 
-/** Finishing always pays at least one star — effort counts. */
+/** What one first-try answer is worth. The single knob for how fast the whole
+ *  economy runs: every chest, the streak double and the mistake penalty are all
+ *  denominated in it, so moving it rescales earning without changing any of the
+ *  ratios the game is balanced on. Raised 1 → 3 on 2026-09-15 (ADR 020) because
+ *  the cheapest mascot sat eight flawless games away and the kids stopped
+ *  believing they would ever reach one. Prices were deliberately NOT touched
+ *  (ADR 007). */
+export const STARS_PER_CORRECT = 3;
+
+/** Finishing always pays at least one answer's worth — effort counts.
+ *  Superseded by computeReward for real chests; kept for callers that only
+ *  want the base rate. */
 export function earnedStars(firstTryCorrect: number): number {
-  return Math.max(1, firstTryCorrect);
+  return STARS_PER_CORRECT * Math.max(1, firstTryCorrect);
 }
 
+/** Untouched by the 2026-09-15 rebalance on purpose: feeding is meant to get
+ *  cheaper in relative terms, so pets grow visibly faster now that chests are
+ *  richer (ADR 020). */
 export const MEAL_COST = 5;
-export const MISSION_BONUS = 10;
+
+/** La misión del día's bonus chest. Rose with the rate (10 → 25, ADR 020): three
+ *  activities had to keep out-paying the single finish that is one of them. Must
+ *  stay below CHALLENGE_BONUS — a challenge papá set outranks the daily draw. */
+export const MISSION_BONUS = 25;
 
 /** The wallet's generation. Bumping it makes the merge discard wallet fields
  *  from any older epoch (see mergeProgress) — otherwise max-merge would
@@ -49,14 +67,17 @@ export function walletBalance(wallet: Wallet): number {
   return Math.max(0, wallet.earned - wallet.spent);
 }
 
-/** Richer chest: bonuses stack on the base (one star per first-try answer). */
-export const PERFECT_BONUS = 5;
-export const FIRST_TIME_BONUS = 3;
+/** Richer chest: bonuses stack on the base (STARS_PER_CORRECT per first-try
+ *  answer). Both rose with the rate on 2026-09-15 (ADR 020) — a flat +5 beside
+ *  a 24⭐ base would have stopped reading as a prize worth playing well for. */
+export const PERFECT_BONUS = 12;
+export const FIRST_TIME_BONUS = 8;
 /** A streak this long doubles the base (an extra `base` on top). */
 export const STREAK_DOUBLE_DAYS = 7;
 
 export interface StarReward {
-  /** One per first-try answer, less one per mistake, minimum one. */
+  /** STARS_PER_CORRECT per first-try answer, less one answer's worth per
+   *  mistake, minimum one answer's worth. */
   readonly base: number;
   /** No mistakes across the whole activity. */
   readonly perfect: number;
@@ -69,15 +90,18 @@ export interface StarReward {
 
 export function computeReward(opts: {
   readonly firstTryCorrect: number;
-  /** Wrong taps across the whole activity — each one docks a star from the
-   *  base, so tapping without looking earns the floor, not a full chest. */
+  /** Wrong taps across the whole activity — each one docks a whole answer's
+   *  worth from the base, so tapping without looking earns the floor, not a
+   *  full chest. The dock is counted in answers rather than stars so the
+   *  penalty keeps its bite whatever STARS_PER_CORRECT is set to. */
   readonly mistakes?: number;
   /** Given only for round-based games, so "perfect" is meaningful. */
   readonly totalRounds?: number;
   readonly streakDays?: number;
   readonly firstTime?: boolean;
 }): StarReward {
-  const base = Math.max(1, opts.firstTryCorrect - (opts.mistakes ?? 0));
+  const base =
+    STARS_PER_CORRECT * Math.max(1, opts.firstTryCorrect - (opts.mistakes ?? 0));
   const perfect =
     opts.totalRounds !== undefined &&
     opts.totalRounds > 0 &&

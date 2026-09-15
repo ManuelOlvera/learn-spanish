@@ -27,6 +27,7 @@ import {
   type Wallet,
 } from "../src/domain/stars";
 import { SURPRISE_COST } from "../src/domain/surprise";
+import { CATEGORY_BONUS } from "../src/domain/category";
 import { dayKey } from "../src/domain/daily";
 import { EarnStarsUseCase } from "../src/application/earn-stars";
 import { SpendStarsUseCase } from "../src/application/spend-stars";
@@ -586,11 +587,11 @@ describe("ClaimCategoryRewardUseCase", () => {
   it("pays each tier once, never re-pays a lower or equal tier", () => {
     const store = new FakeEconomyStore();
     const claim = new ClaimCategoryRewardUseCase(store);
-    expect(claim.execute(KID, "animals", "earned")).toBe(15);
+    expect(claim.execute(KID, "animals", "earned")).toBe(CATEGORY_BONUS.earned);
     expect(claim.execute(KID, "animals", "earned")).toBeNull(); // same tier
-    expect(claim.execute(KID, "animals", "gold")).toBe(50); // skips silver fine
+    expect(claim.execute(KID, "animals", "gold")).toBe(CATEGORY_BONUS.gold); // skips silver fine
     expect(claim.execute(KID, "animals", "silver")).toBeNull(); // lower than claimed
-    expect(store.loadStars(KID)).toBe(65);
+    expect(store.loadStars(KID)).toBe(CATEGORY_BONUS.earned + CATEGORY_BONUS.gold);
   });
 });
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { earnedStars, MEAL_COST, MISSION_BONUS } from "../src/domain/stars";
+import {
+  earnedStars,
+  MEAL_COST,
+  MISSION_BONUS,
+  STARS_PER_CORRECT,
+} from "../src/domain/stars";
 import {
   activityKind,
   dailyMission,
@@ -22,14 +27,23 @@ import type { AlbumStore, StickerCountsStore } from "../src/domain/album";
 import { decodeProgress, encodeProgress, mergeProgress } from "../src/domain/transfer";
 
 describe("earnedStars", () => {
-  it("pays one star per first-try answer, minimum one for finishing", () => {
-    expect(earnedStars(6)).toBe(6);
-    expect(earnedStars(0)).toBe(1);
+  it("pays the per-answer rate, minimum one answer's worth for finishing", () => {
+    expect(earnedStars(6)).toBe(6 * STARS_PER_CORRECT);
+    expect(earnedStars(0)).toBe(STARS_PER_CORRECT);
   });
 
   it("prices meals and the mission bonus", () => {
+    // MEAL_COST deliberately did NOT move in the 2026-09-15 rebalance
+    // (ADR 020): feeding got cheaper in relative terms, on purpose.
     expect(MEAL_COST).toBe(5);
-    expect(MISSION_BONUS).toBe(10);
+    expect(MISSION_BONUS).toBe(25);
+  });
+
+  it("keeps the daily misión worth more than a single game's chest", () => {
+    // Three activities for less than one game would make the misión read as a
+    // chore with no prize. It is the day's headline reward, so it outranks the
+    // floor a single finish pays.
+    expect(MISSION_BONUS).toBeGreaterThan(STARS_PER_CORRECT);
   });
 });
 

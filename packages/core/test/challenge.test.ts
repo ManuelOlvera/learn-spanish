@@ -6,6 +6,7 @@ import {
   setChallenge,
   CHALLENGE_BONUS,
 } from "../src/domain/challenge";
+import { MISSION_BONUS } from "../src/domain/stars";
 
 describe("el reto de papá", () => {
   it("starts undone and unclaimed", () => {
@@ -70,6 +71,10 @@ describe("el reto de papá", () => {
   });
 
   it("is worth more than the daily misión — papá set it", () => {
-    expect(CHALLENGE_BONUS).toBeGreaterThan(10);
+    // Against the constant, not a copy of its value. Hard-coded as `> 10` this
+    // kept passing when MISSION_BONUS rose to 25 on 2026-09-15 and left the
+    // challenge (15) paying LESS than the misión — the exact thing it claims
+    // to guard.
+    expect(CHALLENGE_BONUS).toBeGreaterThan(MISSION_BONUS);
   });
 });

@@ -1,5 +1,89 @@
 # Shipped features
 
+## 2026-09-15 — Mascotas come into reach, and the chest becomes a moment
+
+**For:** both kids, who had stopped believing a second mascota was reachable, and
+who were spending the one genuinely exciting beat in the app — the chest tap — on
+a number that appeared in a single frame. [ADR 020](../adr/020-earn-side-rebalance.md).
+
+### The earn side, not the price ladder
+
+At 1⭐ per first-try answer, el conejo (100⭐) was **eight flawless games** away
+with meals draining the balance in between. Two levers could close that, and they
+are not equivalent: cutting `PET_SPECIES` prices is what
+[ADR 007](../adr/007-wallet-restore-seeded-balances.md) explicitly forbids ("Do
+not rebalance prices to them") and would retroactively devalue pets already saved
+for, while raising the rate is structurally safe —
+[ADR 008](../adr/008-counter-wallet.md)'s wallet is two monotonic counters, so
+earning only ever raises `earned`, which merges by `max`. **No wallet epoch and
+no migration:** ADR 006's machinery exists to *reduce* balances, and nothing here
+reduces anything.
+
+So `STARS_PER_CORRECT` went 1 → 3 and every bonus denominated against it moved
+with it — `PERFECT_BONUS` 5 → 12, `FIRST_TIME_BONUS` 3 → 8, `MISSION_BONUS`
+10 → 25, `CHALLENGE_BONUS` 15 → 40, `CATEGORY_BONUS` 15/30/50 → 40/80/125.
+Prices, `MEAL_COST` and `SURPRISE_COST` were left exactly as they were.
+
+| Run | before | after |
+|---|---|---|
+| Perfect 8-round quiz, replay | 13⭐ | **36⭐** |
+| …first time ever | 16⭐ | **44⭐** |
+| …on a 7-day racha | 21⭐ | **60⭐** |
+| Perfect 6-round duel | 11⭐ | **30⭐** |
+
+El conejo is now **~3 good games**, pinned as an invariant rather than a number:
+three good games must stay within reach of the cheapest paid pet, and one game
+must never buy it outright. Move either side of that and the test fails.
+
+The mistake penalty is now denominated in *answers* (`3 × max(1, correct −
+mistakes)`) rather than stars, so it scales with the rate automatically — a flat
+one-star dock beside a 3⭐ answer would have made guessing very nearly free.
+
+**Two things the rebalance flushed out.** El reto and el duelo pay their raw
+score and never went through `computeReward`, so they would have been left paying
+a third of every other game — both now pay through `earnedStars`. And
+`CHALLENGE_BONUS` carried the documented invariant "richer than the daily misión",
+guarded by a test asserting `> 10`; raising the misión to 25 broke the rule while
+the test kept passing. It now asserts `> MISSION_BONUS`. **Assert against the
+constant, never a copy of its value.**
+
+### The chest earns its tap
+
+The old chest resolved instantly, and worse, its bonus chips were rendered
+*before* the tap — giving the reward away and leaving the tap with nothing to
+reveal. The chest now owns the whole beat:
+
+- the total **counts up** frame by frame, with a tick whose pitch rises as it climbs
+- **bonus chips fly in one at a time**, each adding itself to the running total,
+  so the kid sees *why* the number got big (the counter visibly settles at 36,
+  then jumps to 44 when 🆕 Nuevo lands)
+- a **bigger burst** scaled to the haul, a short screen thud, and the app's
+  longest haptic pattern
+- **la mascota hops** in proportion to the win — 2 hops for a floor chest, up to
+  5 — tying the chest to the thing the stars are actually for
+
+The total is now the biggest thing in the chest; it was previously set smaller
+than the ✨ above it, which buried the one value the screen exists to deliver.
+
+[ADR 014](../adr/014-timed-boost-stays-local.md) is preserved throughout: the
+multiplier still locks when the chest is computed, and `onOpen` fires on the
+**tap**, not at the end of the animation — so leaving mid-count still pays, and
+the unmount safety net still banks an un-opened chest exactly once. `reward` is
+memoised because the chest now stages timers off it. Under
+`prefers-reduced-motion` the whole sequence collapses to the final number and all
+chips immediately (verified: 44⭐ shown 120ms after the tap, against a ~2s
+animated sequence).
+
+**Verified end-to-end** on a prod build: a perfect 8-round quiz showed
+`Open the treasure chest (44 stars inside)`, no chips before the tap, the counter
+climbing 0 → 12 → 24 → 36 → 44, both chips landing, the pet cheering, and the
+wallet up by exactly 44. Leaving via the in-app exit without tapping banked 44
+as well. No page errors, no console errors.
+
+**Deferred** (in `roadmap.md`): a progress bar toward the next mascota, whole-
+done-screen choreography, re-pricing the sinks, and softening the double-dock on
+a missed round.
+
 ## 2026-09-08 — 🌙 Words go quiet, and three silent failures learn to speak
 
 **For:** the kids, whose vocabulary was decaying with nothing watching, and the

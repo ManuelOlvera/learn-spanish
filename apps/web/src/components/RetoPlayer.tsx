@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createQuizRound,
+  earnedStars,
   KID_GAME_MODES,
   type Deck,
   type QuizRound,
@@ -207,10 +208,10 @@ export function RetoPlayer({ deck, accent }: Props) {
             ✅ {score}
           </p>
           <StarChest
-            amount={Math.max(1, score)}
+            amount={earnedStars(score)}
             onOpen={() => {
               if (kid !== null) {
-                addStars(kid, Math.max(1, score));
+                addStars(kid, earnedStars(score));
                 // Bank the haul to the cloud now, the way DoneScreen does —
                 // otherwise a reto run's stars sit on this device until some
                 // other activity happens to push. No-op when unpaired.

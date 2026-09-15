@@ -144,6 +144,12 @@ describe("category rewards", () => {
     expect(CATEGORY_BONUS.earned).toBeLessThan(CATEGORY_BONUS.silver);
     expect(CATEGORY_BONUS.silver).toBeLessThan(CATEGORY_BONUS.gold);
   });
+
+  it("rides the 2026-09-15 rebalance (ADR 020)", () => {
+    // Finishing a whole album section has to out-pay the games that filled it,
+    // or the medal is a worse prize than the last sticker on the way to it.
+    expect(CATEGORY_BONUS).toEqual({ earned: 40, silver: 80, gold: 125 });
+  });
 });
 
 describe("pendingCategoryTier", () => {

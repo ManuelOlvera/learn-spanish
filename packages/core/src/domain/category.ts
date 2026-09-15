@@ -115,11 +115,14 @@ export function categoryTier(counts: readonly number[]): StickerTier {
   }, "gold");
 }
 
-/** Star chest for finishing a category at each tier — richer the higher it goes. */
+/** Star chest for finishing a category at each tier — richer the higher it
+ *  goes. Rescaled with STARS_PER_CORRECT on 2026-09-15 (ADR 020): completing a
+ *  whole album section must out-pay the individual games that filled it, and at
+ *  the old 15/30/50 a gold medal had become worth less than one good quiz. */
 export const CATEGORY_BONUS: Record<Exclude<StickerTier, "none">, number> = {
-  earned: 15,
-  silver: 30,
-  gold: 50,
+  earned: 40,
+  silver: 80,
+  gold: 125,
 };
 
 export function categoryReward(tier: StickerTier): number {

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createDuel,
+  earnedStars,
   type Deck,
   type DuelGame,
   type KidId,
@@ -306,10 +307,10 @@ export function DuelPlayer({ deck, accent }: Props) {
             ))}
           </div>
           <StarChest
-            amount={Math.max(1, stars.listener) + Math.max(1, stars.reader)}
+            amount={earnedStars(stars.listener) + earnedStars(stars.reader)}
             onOpen={() => {
-              addStars("listener", Math.max(1, stars.listener));
-              addStars("reader", Math.max(1, stars.reader));
+              addStars("listener", earnedStars(stars.listener));
+              addStars("reader", earnedStars(stars.reader));
               // Both kids' hauls go up together, the way DoneScreen does —
               // otherwise a duel's stars sit on this device until some other
               // activity happens to push. No-op when unpaired.

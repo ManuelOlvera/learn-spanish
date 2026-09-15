@@ -121,13 +121,15 @@ No reading, no accounts, no setup.
   to Universal Studios Japan.
   All ten are illustrated — 68 pages of art, one picture per page. Built from pack vocabulary, and the
   only place the flashcards-only verbs shelf is seen in action.
-- **Star economy** — a treasure chest on every finish pays ⭐ per
-  first-try answer, less one per wrong tap (so guessing can't farm the
-  chest; floored at 1), with ✨ perfect / 🔥 streak / 🆕 first-time bonuses.
-  Opening it is the celebration, not the toll gate: the ways off the screen
-  dim while it is shut, and an un-opened chest still banks on the way out;
+- **Star economy** — a treasure chest on every finish pays **3⭐ per
+  first-try answer**, less one answer's worth per wrong tap (so guessing can't
+  farm the chest; floored at one answer), with ✨ perfect / 🔥 streak / 🆕
+  first-time bonuses. Opening it is the celebration, not the toll gate: the
+  ways off the screen dim while it is shut, the haul **counts up** with the
+  bonus chips landing on it one at a time, la mascota hops in proportion to the
+  win, and an un-opened chest still banks on the way out;
   the daily misión (drawn from each kid's own pool — the reader's
-  includes ✏️ Deletrea) adds a +10⭐ bonus chest, and every finish rotates a
+  includes ✏️ Deletrea) adds a +25⭐ bonus chest, and every finish rotates a
   spoken cheer with the pet cheering along. Stars feed and grow **la
   mascota** (a collection of adoptable pets, 5⭐ a meal; name it too), buy 🛍️
   wardrobe accessories and drag them anywhere on the pet (saved per pet
@@ -141,7 +143,8 @@ No reading, no accounts, no setup.
   (the one focus slot — a person set it, so it outranks the app's own
   suggestions). It speaks
   itself aloud for the pre-reader, finishing *any* activity on that deck
-  completes it, and the payout is a +15⭐ chest. One per kid at a time;
+  completes it, and the payout is a +40⭐ chest (always richer than the daily
+  misión — papá set it). One per kid at a time;
   device-local by design — a challenge is mutable state with a lifecycle, the
   one shape ADR 004's additive merge can't carry (same reason as ADR 014's ⚡).
 - **Parent report** — `/informe` summarises both kids (strong and tricky
@@ -176,7 +179,7 @@ No reading, no accounts, no setup.
   completable),
   persisted on-device (no accounts). Filling a whole category — and levelling it
   to silver, then gold — stamps a 🥉/🥈/🥇 medal and opens an escalating
-  completion chest (+15 / +30 / +50⭐). A medal never outruns the stickers under
+  completion chest (+40 / +80 / +125⭐). A medal never outruns the stickers under
   it: the sticker is the record that an activity was finished, the play count
   only how deep, so a count with no sticker behind it fills nothing
   (`stickerCount`). "The games a kid can actually play" is

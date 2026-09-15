@@ -9,6 +9,7 @@ import {
   computeReward,
   FIRST_TIME_BONUS,
   PERFECT_BONUS,
+  STARS_PER_CORRECT,
   WALLET_EPOCH,
   WALLET_SEED_BY_AVATAR,
   walletBalance,
@@ -46,9 +47,10 @@ describe("avatars as currency", () => {
 });
 
 describe("computeReward", () => {
-  it("pays one per first-try, minimum one", () => {
-    expect(computeReward({ firstTryCorrect: 6 }).base).toBe(6);
-    expect(computeReward({ firstTryCorrect: 0 }).base).toBe(1);
+  it("pays STARS_PER_CORRECT per first-try answer, with a floor of one answer's worth", () => {
+    expect(computeReward({ firstTryCorrect: 6 }).base).toBe(6 * STARS_PER_CORRECT);
+    // Finishing always pays something — effort counts, even on a wipeout.
+    expect(computeReward({ firstTryCorrect: 0 }).base).toBe(STARS_PER_CORRECT);
   });
 
   it("adds a perfect bonus only when no rounds were missed", () => {
@@ -60,24 +62,29 @@ describe("computeReward", () => {
 
   it("doubles the base for a week-long streak and adds a first-time bonus", () => {
     const r = computeReward({ firstTryCorrect: 4, totalRounds: 4, streakDays: 7, firstTime: true });
-    expect(r.streak).toBe(4);
+    expect(r.streak).toBe(4 * STARS_PER_CORRECT);
     expect(r.firstTime).toBe(FIRST_TIME_BONUS);
-    expect(r.total).toBe(4 + PERFECT_BONUS + 4 + FIRST_TIME_BONUS);
+    expect(r.total).toBe(
+      4 * STARS_PER_CORRECT + PERFECT_BONUS + 4 * STARS_PER_CORRECT + FIRST_TIME_BONUS,
+    );
     expect(computeReward({ firstTryCorrect: 4, streakDays: 6 }).streak).toBe(0);
   });
 
-  it("docks a star per mistake so random tapping can't farm the chest", () => {
-    // Six first-try answers, two wrong taps along the way → four stars.
-    expect(computeReward({ firstTryCorrect: 6, mistakes: 2 }).base).toBe(4);
-    // A run of nothing but wrong taps still floors at one — effort counts.
-    expect(computeReward({ firstTryCorrect: 0, mistakes: 5 }).base).toBe(1);
-    expect(computeReward({ firstTryCorrect: 3, mistakes: 9 }).base).toBe(1);
+  it("docks a whole answer's worth per mistake so random tapping can't farm the chest", () => {
+    // Six first-try answers, two wrong taps along the way → four answers' worth.
+    // The penalty scales WITH the rate: after the 2026-09-15 rebalance a flat
+    // one-star dock would have been noise beside a 3⭐ answer, which would have
+    // made guessing very nearly free.
+    expect(computeReward({ firstTryCorrect: 6, mistakes: 2 }).base).toBe(4 * STARS_PER_CORRECT);
+    // A run of nothing but wrong taps still floors at one answer — effort counts.
+    expect(computeReward({ firstTryCorrect: 0, mistakes: 5 }).base).toBe(STARS_PER_CORRECT);
+    expect(computeReward({ firstTryCorrect: 3, mistakes: 9 }).base).toBe(STARS_PER_CORRECT);
   });
 
   it("streak doubles the already-docked base, not the pre-penalty score", () => {
     const r = computeReward({ firstTryCorrect: 6, mistakes: 2, streakDays: 7 });
-    expect(r.base).toBe(4);
-    expect(r.streak).toBe(4);
+    expect(r.base).toBe(4 * STARS_PER_CORRECT);
+    expect(r.streak).toBe(4 * STARS_PER_CORRECT);
   });
 
   it("a mistake forfeits the perfect bonus even when every round is eventually right", () => {
@@ -87,6 +94,42 @@ describe("computeReward", () => {
     expect(
       computeReward({ firstTryCorrect: 8, totalRounds: 8, mistakes: 0 }).perfect,
     ).toBe(PERFECT_BONUS);
+  });
+
+  it("pays the 2026-09-15 rebalanced amounts for real runs", () => {
+    // The actual numbers a kid sees, pinned. These are the figures the rebalance
+    // was agreed on (ADR 020); moving a constant without meaning to move these
+    // is the mistake this test exists to catch.
+    const pays = (o: Parameters<typeof computeReward>[0]) => computeReward(o).total;
+    expect(pays({ firstTryCorrect: 8, totalRounds: 8 })).toBe(36); // perfect 8-round, replay
+    expect(pays({ firstTryCorrect: 8, totalRounds: 8, firstTime: true })).toBe(44);
+    expect(pays({ firstTryCorrect: 8, totalRounds: 8, streakDays: 7 })).toBe(60);
+    expect(pays({ firstTryCorrect: 6, totalRounds: 6 })).toBe(30); // perfect duel
+    expect(pays({ firstTryCorrect: 6, totalRounds: 8, mistakes: 2 })).toBe(12); // messy run
+    expect(pays({ firstTryCorrect: 0, mistakes: 9 })).toBe(3); // the floor
+  });
+
+  it("docks a missed round twice — once in the count, once in the penalty", () => {
+    // Long-standing behaviour, pinned here because the rebalance made it easy
+    // to misread. A wrong tap costs a kid the first-try credit for that round
+    // AND an answer's worth off the base, so 5-of-8 with 3 wrong taps pays
+    // 3 × (5 − 3) = 6, not 3 × 5 = 15. The rebalance kept the ratio to a
+    // perfect run exactly where it was (~6×) rather than re-cutting the curve.
+    expect(computeReward({ firstTryCorrect: 5, totalRounds: 8, mistakes: 3 }).total).toBe(6);
+    expect(computeReward({ firstTryCorrect: 8, totalRounds: 8 }).total / 6).toBe(6);
+  });
+
+  it("puts the cheapest mascot within about three good games", () => {
+    // The POINT of the rebalance, as an invariant rather than a number:
+    // whichever side someone later edits — the payout constants or the pet
+    // price ladder — the saving goal has to stay in sight of a young kid.
+    const goodGame = computeReward({ firstTryCorrect: 8, totalRounds: 8 }).total;
+    const cheapestPaidPet = Math.min(
+      ...PET_SPECIES.filter((s) => s.cost > 0).map((s) => s.cost),
+    );
+    expect(goodGame * 3).toBeGreaterThanOrEqual(cheapestPaidPet);
+    // …but never so rich that a single game buys one outright.
+    expect(goodGame).toBeLessThan(cheapestPaidPet);
   });
 });
 

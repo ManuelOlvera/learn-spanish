@@ -13,18 +13,20 @@ full** before acting on it. Prose summaries also live in
 outcome (the epoch mechanism itself is unchanged); [008](008-counter-wallet.md)
 fixes a spend-resurrection bug in 004's merge. ADRs 001, 004, 005, 012 and 013
 carry dated addenda — read them, not just the Decision.
+[020](020-earn-side-rebalance.md) works *within* 007 rather than superseding it: it
+moves the earn side and leaves the price ladder 007 protects untouched.
 
 ## By topic / component
 
 | If you are touching… | Read |
 |---|---|
 | Audio, TTS, voices, `lib/speech.ts` | [001](001-browser-speech-synthesis.md), [010](010-runtime-llm-conversation.md), [019](019-failure-states-a-parent-can-see.md) |
-| Album, stickers, category tiers | [016](016-camino-derived-and-unlocked.md), [004](004-optional-supabase-sync.md) |
+| Album, stickers, category tiers | [016](016-camino-derived-and-unlocked.md), [020](020-earn-side-rebalance.md), [004](004-optional-supabase-sync.md) |
 | Answer recording, stats, `recordAnswer` | [013](013-answer-log.md), [012](012-learned-bar-and-trend-restart.md), [018](018-staleness-beside-the-learned-bar.md) |
 | Card art, drawings, `CardFace`, emoji | [015](015-vector-card-art.md), [009](009-story-art-assets.md) |
 | El camino / the trail, `buildCamino` | [016](016-camino-derived-and-unlocked.md) |
 | El repaso, review selection, `weakScore`, decay | [018](018-staleness-beside-the-learned-bar.md), [012](012-learned-bar-and-trend-restart.md) |
-| Chests, boosts, hora doble | [014](014-timed-boost-stays-local.md), [008](008-counter-wallet.md) |
+| Chests, boosts, hora doble | [020](020-earn-side-rebalance.md), [014](014-timed-boost-stays-local.md), [008](008-counter-wallet.md) |
 | Deploy, hosting, Vercel, env vars | [002](002-vercel-hosting.md), [004](004-optional-supabase-sync.md) |
 | Dependencies, adding a runtime package | [011](011-pairing-qr.md), [010](010-runtime-llm-conversation.md) |
 | Failure states, quota, a warning a parent sees | [019](019-failure-states-a-parent-can-see.md), [004](004-optional-supabase-sync.md), [001](001-browser-speech-synthesis.md) |
@@ -40,7 +42,7 @@ carry dated addenda — read them, not just the Decision.
 | Storage keys, localStorage, migrations | [006](006-wallet-epoch-reset.md), [012](012-learned-bar-and-trend-restart.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md) |
 | Supabase, sync, RPCs, RLS | [004](004-optional-supabase-sync.md), [002](002-vercel-hosting.md) |
 | Trend chart, "learned", mastery | [012](012-learned-bar-and-trend-restart.md), [016](016-camino-derived-and-unlocked.md), [018](018-staleness-beside-the-learned-bar.md) |
-| Wallet, stars, prices, spending | [008](008-counter-wallet.md), [006](006-wallet-epoch-reset.md), [007](007-wallet-restore-seeded-balances.md), [014](014-timed-boost-stays-local.md) |
+| Wallet, stars, prices, spending | [020](020-earn-side-rebalance.md), [008](008-counter-wallet.md), [006](006-wallet-epoch-reset.md), [007](007-wallet-restore-seeded-balances.md), [014](014-timed-boost-stays-local.md) |
 | Weekly streak, la racha, freezes | [017](017-one-roller-for-the-week.md), [004](004-optional-supabase-sync.md) |
 
 ## Every decision
@@ -67,5 +69,7 @@ carry dated addenda — read them, not just the Decision.
 
 | [018](018-staleness-beside-the-learned-bar.md) | El repaso asks about words going **quiet** as well as words going **wrong**. `WordStat` gains an optional `seen` day stamp; staleness sits *beside* ADR 012's learned bar and never inside it, so no count moved and the trend did not restart. | `domain/review.ts`, `domain/word-stats.ts`, `RepasoView`, `/informe` |
 | [019](019-failure-states-a-parent-can-see.md) | The three failures the app used to only log — a failed sync exchange, a snapshot over the 64 KB cap, a refused `localStorage` write — get a parent-facing state on the grown-up screens. The storage record is held in memory, because storage is the thing that failed. | `lib/sync-health.ts`, `lib/storage-health.ts`, `SyncPanel`, `/informe` |
+
+| [020](020-earn-side-rebalance.md) | Mascotas are made reachable by raising the **earn side** (`STARS_PER_CORRECT` 1 → 3, every bonus with it), never by cutting `PET_SPECIES` prices (ADR 007). No wallet epoch and no migration — earning only raises `earned`, which ADR 008 already merges safely. Bonus *ordering* is the rule, pinned by tests. | `domain/stars.ts`, `domain/category.ts`, `domain/challenge.ts` |
 
 `000-template.md` is the ~10-line template, not a decision.

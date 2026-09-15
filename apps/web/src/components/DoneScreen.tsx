@@ -46,7 +46,7 @@ import { ACTIVITY_META } from "@/lib/activity-theme";
 import { feedbackFanfare, feedbackSticker } from "@/lib/feedback";
 import { Confetti } from "@/components/Confetti";
 import { CategoryBurst } from "@/components/CategoryBurst";
-import { StarChest } from "@/components/StarChest";
+import { StarChest, type ChestBonus } from "@/components/StarChest";
 
 interface Props {
   /** Which album section the sticker files under (a deck id, or "frases"). */
@@ -100,6 +100,10 @@ export function DoneScreen({
   const celebration = useMemo(() => pickCelebration(Math.random), []);
   // The kid's active pet, shown cheering alongside the celebration.
   const [pet, setPet] = useState<{ emoji: string; name?: string } | null>(null);
+  // How hard la mascota celebrates: set when the chest is opened, from the size
+  // of the haul. The pet is what the stars are FOR, so it reacting to the chest
+  // is what ties the reward to the thing being saved for. 0 = not opened yet.
+  const [petHops, setPetHops] = useState(0);
   // Set when this finish also completed (or levelled up) the whole category.
   const [categoryPrize, setCategoryPrize] = useState<{
     tier: Exclude<StickerTier, "none">;
@@ -111,18 +115,28 @@ export function DoneScreen({
   // loaded, so its amount includes every bonus and never changes after render.
   const ready =
     streakDays !== null && boostTier !== undefined && (noAward || award !== null);
-  const reward: StarReward | null = ready
-    ? boostedReward(
-        computeReward({
-          firstTryCorrect: firstTryCount,
-          mistakes: mistakeCount,
-          totalRounds,
-          streakDays: streakDays ?? 0,
-          firstTime: award?.isNew ?? false,
-        }),
-        boostTier ?? null,
-      )
-    : null;
+  // Memoised because the chest holds it: StarChest stages its reveal on timers
+  // keyed to this object, and a fresh reward on every unrelated re-render would
+  // restart the count-up mid-animation. The inputs are all settled by the time
+  // `ready` flips, so this computes once and then holds — which is also what
+  // ADR 014 requires of the multiplier.
+  const isNew = award?.isNew ?? false;
+  const reward: StarReward | null = useMemo(
+    () =>
+      ready
+        ? boostedReward(
+            computeReward({
+              firstTryCorrect: firstTryCount,
+              mistakes: mistakeCount,
+              totalRounds,
+              streakDays: streakDays ?? 0,
+              firstTime: isNew,
+            }),
+            boostTier ?? null,
+          )
+        : null,
+    [ready, firstTryCount, mistakeCount, totalRounds, streakDays, isNew, boostTier],
+  );
 
   useEffect(() => {
     feedbackFanfare();
@@ -219,6 +233,25 @@ export function DoneScreen({
     };
   }, [stickerDeckId, deck, activity, noAward]);
 
+  // The chest's breakdown, memoised so StarChest's reveal timers aren't
+  // restarted by an unrelated re-render mid-animation.
+  const bonuses = useMemo<readonly ChestBonus[]>(() => {
+    if (reward === null) {
+      return [];
+    }
+    const chips: ChestBonus[] = [];
+    if (reward.perfect > 0) {
+      chips.push({ key: "perfect", emoji: "✨", label: "¡Perfecto!", amount: reward.perfect });
+    }
+    if (reward.streak > 0) {
+      chips.push({ key: "streak", emoji: "🔥", label: "Racha", amount: reward.streak });
+    }
+    if (reward.firstTime > 0) {
+      chips.push({ key: "firstTime", emoji: "🆕", label: "Nuevo", amount: reward.firstTime });
+    }
+    return chips;
+  }, [reward]);
+
   return (
     <section className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
       {categoryPrize !== null && (
@@ -239,7 +272,14 @@ export function DoneScreen({
             aria-label={
               pet.name ? `${pet.name} is cheering` : "Your pet is cheering"
             }
-            className="chest-tease text-7xl"
+            // Idles with the same wiggle as before until the chest is opened,
+            // then hops — more hops for a fatter chest.
+            className={petHops > 0 ? "pet-cheer text-7xl" : "chest-tease text-7xl"}
+            style={
+              petHops > 0
+                ? ({ "--cheer-hops": petHops } as React.CSSProperties)
+                : undefined
+            }
           >
             {pet.emoji}
           </div>
@@ -299,8 +339,13 @@ export function DoneScreen({
               <span aria-hidden>x{boostTier}</span>
             </div>
           )}
+          {/* The chips used to sit here, visible before the chest was even
+              opened — which gave the reward away and left the tap with nothing
+              to reveal. They now belong to the chest and land one at a time on
+              top of the counting total. */}
           <StarChest
             amount={reward.total}
+            bonuses={bonuses}
             onOpen={() => {
               const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
               addStars(kid, reward.total);
@@ -308,26 +353,11 @@ export function DoneScreen({
               // when unpaired). A failed push retries on the next app open.
               void syncPush();
             }}
+            onOpened={(total) => {
+              // 2 hops for a floor chest, up to 5 for a big one.
+              setPetHops(Math.min(5, 2 + Math.floor(total / 20)));
+            }}
           />
-          {(reward.perfect > 0 || reward.streak > 0 || reward.firstTime > 0) && (
-            <div className="flex flex-wrap justify-center gap-2 text-sm font-extrabold">
-              {reward.perfect > 0 && (
-                <span className="rounded-full border-2 border-ink bg-white px-3 py-0.5">
-                  ✨ ¡Perfecto! +{reward.perfect}
-                </span>
-              )}
-              {reward.streak > 0 && (
-                <span className="rounded-full border-2 border-ink bg-white px-3 py-0.5">
-                  🔥 Racha +{reward.streak}
-                </span>
-              )}
-              {reward.firstTime > 0 && (
-                <span className="rounded-full border-2 border-ink bg-white px-3 py-0.5">
-                  🆕 +{reward.firstTime}
-                </span>
-              )}
-            </div>
-          )}
         </div>
       )}
 

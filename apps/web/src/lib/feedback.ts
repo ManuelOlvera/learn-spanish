@@ -154,3 +154,31 @@ export function feedbackPop(): void {
   tone(94, 0.14, 0, "triangle", 0.16);
   vibrate([40, 30, 60]);
 }
+
+/** The chest bursting open. The biggest sound the app makes: a low thump you
+ *  feel, the lid's noise burst, then a bright major arpeggio over the top.
+ *  Paired with the longest haptic pattern — this is the payoff moment. */
+export function feedbackChestOpen(): void {
+  tone(70, 0.28, 0, "triangle", 0.2);
+  noiseBurst(0.3, 0.16, 5200, 400);
+  [659, 831, 988, 1319].forEach((f, i) => tone(f, 0.22, 0.06 + i * 0.05));
+  tone(1976, 0.5, 0.3, "sine", 0.07);
+  vibrate([50, 40, 30, 40, 90]);
+}
+
+/** One step of the star counter ticking up. Deliberately tiny and dry: it fires
+ *  many times a second, so anything with a tail would smear into noise. Pitch
+ *  climbs with progress (0–1) so the count *sounds* like it is rising. */
+export function feedbackTick(progress: number): void {
+  tone(880 * Math.pow(1.5, Math.min(1, Math.max(0, progress))), 0.045, 0, "square", 0.045);
+}
+
+/** A bonus chip landing (¡Perfecto!, Racha, first time). Each one is a step up
+ *  the scale, so three chips in a row read as a rising phrase rather than three
+ *  identical pops. */
+export function feedbackChip(index: number): void {
+  const base = 784 * Math.pow(1.122, Math.min(index, 4));
+  tone(base, 0.09, 0);
+  tone(base * 2, 0.14, 0.05, "sine", 0.06);
+  vibrate([18, 22, 26]);
+}
