@@ -189,8 +189,9 @@ No reading, no accounts, no setup.
   words, a 📈 weekly learned-words trend sampled on every game complete);
   tapping a kid opens their own report: a mastery meter per shelf with the
   never-opened ones counted, plays per game with the untouched ones named,
-  accuracy per game, a 12-week practice calendar, and every struggling word
-  grouped by deck. A word counts as learned at two correct answers, not one
+  accuracy per game, a 12-week practice calendar, 📋 every camino checkpoint
+  with its best score and a chip per sitting (the last 8 are kept — ADR 022),
+  and every struggling word grouped by deck. A word counts as learned at two correct answers, not one
   (ADR 012). Answers carry their game and a timestamp in a 90-day on-device
   log that never syncs (ADR 013). It is also the one screen that admits a
   problem: if this device's storage is full, if its sync has stopped reaching

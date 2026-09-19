@@ -335,12 +335,23 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       the three-shelf checkpoints don't get. Cut 2026-09-19 on the principle
       that a second ceremony is worth designing only once the first has been
       watched landing; revisit after the kids have passed one.
-    - ☐ **Exam history on `/informe`** — attempts, best score and a pass/fail
-      trend per shelf, **regular and súper alike**. `palabras.exams.v1` already
-      stores `attempts` for exactly this and no rule reads it (ADR 022); a súper
-      shelf's record rides the same key, so this is all parent-facing UI. The
-      súper scores are the more interesting half: a cumulative sweep is the only
-      number in the app that says whether shelf 1 survived the trip to shelf 8.
+    - ☑ **Exam history on `/informe`** — **shipped 2026-09-19** as 📋 Los
+      exámenes: all twelve checkpoints in trail order, each with its state, its
+      best score against the bar its position implies, and a chip per sitting.
+      It was *not* all parent-facing UI, which is the interesting part: the
+      trend this item asked for could not be drawn from `bestScore` and
+      `attempts`, so the record gained an optional `history` of `{ at, score }`
+      — the first non-monotonic field on the key, taken deliberately under a new
+      ADR 022 addendum with its own merge rule (union on `at`, trim to 8) and a
+      named snapshot cost. Cut and still open: the sub-items below.
+    - ☐ **Comparing the two kids side by side** — cut from los exámenes
+      2026-09-19, and a standing deferral from ADR 013 before that: every
+      report screen is per kid, and a comparison is a screen of its own.
+    - ☐ **Per-question or per-deck breakdown of a sitting** — the record stores
+      a total and nothing else, so this needs storage the exam history
+      deliberately did not add.
+    - ☐ **A parent reset of a passed exam** — scores never go down by design
+      (ADR 022); an undo would be a different kind of lever, next to la llave.
     - ☐ **Per-súper thresholds and attention** — 20 questions is 2.5× the app's
       own `MAX_QUIZ_ROUNDS` ("kid-sized session"). Fine for the `reader`;
       for the `listener` attention rather than knowledge may be what fails.

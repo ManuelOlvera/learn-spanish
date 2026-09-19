@@ -41,6 +41,10 @@ export class SitExamUseCase {
     private readonly decks: DeckRepository,
     private readonly groups: DeckGroupRepository,
     private readonly stats: WordStatsStore,
+    /** Injected like `record-answer.ts`'s: a sitting's timestamp is also its
+     *  identity when two devices merge their histories (ADR 022), so it has to
+     *  be pinnable in a test. */
+    private readonly clock: () => Date = () => new Date(),
   ) {}
 
   async execute(
@@ -60,7 +64,10 @@ export class SitExamUseCase {
 
     const records = this.store.loadExamRecords(kid);
     const alreadyPassed = examPassed(records[groupId], kind);
-    this.store.saveExamRecords(kid, recordExamScore(records, groupId, score));
+    this.store.saveExamRecords(
+      kid,
+      recordExamScore(records, groupId, score, this.clock().getTime()),
+    );
 
     if (isExamPass(score, kind)) {
       // The gate is open, so whatever practice was outstanding is moot.

@@ -87,3 +87,55 @@ It syncs, unlike the retry gate above, and the two are not in tension. The
 retry gate is transient and device-local; an override is a durable decision a
 parent made about their child, and it would be absurd for it to hold on the
 tablet and not the phone.
+
+## Addendum — 2026-09-19 (later): the sittings get written down
+
+The Consequences above say that a non-monotonic field is "a new epoch-shaped
+problem — re-read this ADR before adding one". This is that re-read, and the
+answer is yes, with terms.
+
+**`ExamRecord` gains `history`**, an optional list of `{ at, score }` — the
+sittings themselves, oldest first. It is added for exactly one reason: the
+parent-facing exam history this ADR deferred ("`attempts` … is not read by any
+rule") cannot show a *trend* from a high-water mark and a count. Two numbers say
+how well she has ever done; they cannot say whether she is getting better.
+
+**It changes nothing about the gate.** `bestScore` is still what `locked` reads,
+passing is still derived, and there is still no `passed` flag. The history is
+inert to every rule in the app — the same standing `attempts` already had.
+
+**The merge is union-by-instant, then trim.** `at` is the entry's identity as
+well as its date, so two devices' sittings union with no duplicates. Trimming to
+`EXAM_HISTORY_LIMIT` (**8**) happens *after* the union, which is what keeps the
+result deterministic: a stale peer can resurrect a sitting a device has already
+dropped, and it is dropped again to the same answer. On the near-impossible
+collision of two sittings sharing an `at`, the higher score wins — the tie-break
+has to be commutative for the same reason max-merge does.
+
+**Why a count cap and not ADR 013's 90 days.** The binding constraint here is
+size, not privacy: this rides in every snapshot push, against the 64 KB ceiling
+ADR 019 is already watching. Eight sittings × twelve shelves × two kids is
+roughly 6 KB — about a tenth of the cap, spent knowingly. If the ceiling gets
+tight before the wire format is compacted, **the lever is this cap**, not the
+feature.
+
+### Consequences
+
+- **The key is unchanged and there is no migration.** `history` is optional and
+  omitted when empty, so a record written before this ships crosses the wire
+  byte-identical and reads back exactly as it did. An absent history means "no
+  sittings recorded", the same way an absent key means "no exams taken".
+- **Existing kids start empty**, and `/informe` says so rather than implying the
+  earlier attempts scored nothing. `attempts` stays the lifetime total, so the
+  screen can always tell the parent how many sittings it is *not* showing.
+- **The wire guard is looser than the cap, deliberately.** `isExamRecord`
+  bounds the list by `MAX_LIST`, not by `EXAM_HISTORY_LIMIT`: if a later build
+  raises the cap, an older device must not reject that peer's whole exam ledger,
+  because doing so costs a kid real passes. Trimming is `mergeExamSittings`'
+  job, and every path into storage goes through it.
+- **A sitting's timestamp is now load-bearing**, not decoration. It is the merge
+  identity, so `SitExamUseCase` takes an injected clock like `record-answer.ts`
+  does, and the domain takes `at` as an argument rather than reading a clock.
+- The retry gate is untouched and still device-local, so the "play this deck
+  first" line on `/informe` reflects *that device's* failures only. The screen
+  says so.

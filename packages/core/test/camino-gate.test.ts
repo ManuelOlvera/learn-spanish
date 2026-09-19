@@ -13,6 +13,10 @@ import { EXAM_PASS_MARK, recordExamScore } from "../src/domain/exam";
 import type { ExamRecords } from "../src/domain/exam";
 import { card } from "./helpers";
 
+/** A pinned clock — a sitting's timestamp is its merge identity (ADR 022). */
+const AT = Date.UTC(2026, 8, 19, 9, 0, 0);
+
+
 function testDeck(id: string): Deck {
   return {
     id,
@@ -40,7 +44,10 @@ function allOf(deck: Deck): readonly string[] {
 }
 
 const passed = (...ids: string[]): ExamRecords =>
-  ids.reduce<ExamRecords>((r, id) => recordExamScore(r, id, EXAM_PASS_MARK), {});
+  ids.reduce<ExamRecords>(
+    (r, id, i) => recordExamScore(r, id, EXAM_PASS_MARK, AT + i),
+    {},
+  );
 
 function shelf(camino: ReturnType<typeof buildCamino>, id: string) {
   return camino.shelves.find((s) => s.groupId === id)!;
@@ -76,7 +83,7 @@ describe("the gate", () => {
   });
 
   it("stays shut on a failing best score", () => {
-    const failed = recordExamScore({}, "g1", EXAM_PASS_MARK - 1);
+    const failed = recordExamScore({}, "g1", EXAM_PASS_MARK - 1, AT);
     const camino = buildCamino(groups, decks, KID, allOf(uno), {}, failed);
     expect(shelf(camino, "g2").locked).toBe(true);
   });

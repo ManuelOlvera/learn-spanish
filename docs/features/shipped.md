@@ -1,5 +1,69 @@
 # Shipped features
 
+## 2026-09-19 (latest) — 📋 Los exámenes on `/informe`: the sittings, not just the best
+
+**For:** the parent, on the per-kid report — the screen no kid navigates to,
+because nothing kid-facing links to it.
+
+The camino's checkpoints have been writing a record since 2026-09-16 and
+nothing read it. `/informe/[kid]` now has **📋 Los exámenes**: all twelve
+checkpoints in trail order, each showing which state it is in (*Aprobado · Le
+toca ahora · Terminando la estantería · Aún no llega*), its best score against
+the bar its **position** implies — 7/10 at a regular shelf, 14/20 at a súper —
+the lifetime attempt count, and **one chip per sitting**, dated, green with a ✓
+or amber with a ✗. Where a failed exam is waiting on practice, the shelf says
+which deck to go and play.
+
+**The part that was not UI.** This item sat on the roadmap described as "all
+parent-facing UI, the data is already there". It wasn't. ADR 022 stores two
+*monotonic counters* — a high-water mark and a count — and a trend cannot be
+drawn from those: they say how well she has ever done, never whether she is
+getting better. So the record gained an optional `history` of `{ at, score }`
+sittings: the first non-monotonic field on `palabras.exams.v1`, added under a
+new ADR 022 addendum rather than slipped in, because that ADR's Consequences
+told the next person to come back and re-read it first.
+
+The terms it was taken under:
+
+- **`at` is the merge identity, not just a date.** Two devices union their
+  sittings on it, so a re-merge can't duplicate one, and the trim to the last
+  **8** happens *after* the union — which is what keeps the result the same
+  whichever device syncs first. A stale peer can resurrect a dropped sitting;
+  it is dropped again to the same answer.
+- **The cap is a size decision.** This rides in every snapshot push against the
+  64 KB ceiling ADR 019 is already watching — eight sittings × twelve shelves ×
+  two kids is about 6 KB, a tenth of the cap, spent knowingly. If the ceiling
+  gets tight, the lever is the cap, not the feature.
+- **No migration, and the screen is honest about it.** `history` is optional and
+  omitted when empty, so every record written before today reads back
+  byte-identical. Existing kids therefore start with a count and no chips, and
+  the screen says *"Los intentos de antes no quedaron guardados uno a uno"* —
+  and once trimming starts, *"Aquí se ven 8 intentos de 11"* — rather than
+  letting a parent wonder why three attempts show one sitting.
+- **Nothing about the gate moved.** `locked` still reads `bestScore`, passing is
+  still derived, there is still no `passed` flag. The history is inert to every
+  rule in the app.
+- **The retry gate is still device-local** (ADR 022), so that line reflects this
+  device's failures only. The section says so in its footer instead of quietly
+  disagreeing between the phone and the tablet.
+
+**Where:** `domain/exam.ts` (`ExamSitting`, `EXAM_HISTORY_LIMIT`,
+`mergeExamSittings`, `recordExamScore` now taking the instant),
+`domain/transfer.ts` (the union-then-trim merge and the wire guard),
+`application/sit-exam.ts` (an injected clock, the `record-answer.ts`
+precedent), and the `ExamHistory` section in `components/KidReportView.tsx`.
+
+**One thing the pixels caught that the tests couldn't:** the failed chips were
+first drawn with the mastery meter's 45° hatch as their colour-blind second
+channel, and at 10px the hatch simply ate the text. On a chip the ✗ and the
+score already *are* the second channel — the hatch belongs on the meters, where
+there is no label to read.
+
+**Deferred (not dropped):** comparing the two kids side by side (a standing
+ADR 013 deferral) · a per-question or per-deck breakdown of a sitting (the
+record stores a total and nothing else) · a parent reset of a passed exam ·
+CSV/print/export and charts.
+
 ## 2026-09-19 (later still) — 🏅 A súper examen is a stop on the path, not a badge
 
 **Reported by the parent:** *"Shouldn't the súper exam be part of the Camino? I

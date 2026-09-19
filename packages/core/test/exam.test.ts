@@ -22,6 +22,9 @@ import { EXAM_BONUS } from "../src/domain/stars";
 import { ExamPoolTooSmallError } from "../src/domain/errors";
 import { card } from "./helpers";
 
+/** A pinned clock — a sitting's timestamp is its merge identity (ADR 022). */
+const AT = Date.UTC(2026, 8, 19, 9, 0, 0);
+
 function testDeck(id: string, size = 12): Deck {
   return {
     id,
@@ -72,21 +75,21 @@ describe("exam records", () => {
 
   it("keeps the best score and counts every attempt", () => {
     let records: ExamRecords = {};
-    records = recordExamScore(records, "g1", 4);
-    records = recordExamScore(records, "g1", 9);
-    records = recordExamScore(records, "g1", 2);
-    expect(records.g1).toEqual({ bestScore: 9, attempts: 3 });
+    records = recordExamScore(records, "g1", 4, AT);
+    records = recordExamScore(records, "g1", 9, AT + 1);
+    records = recordExamScore(records, "g1", 2, AT + 2);
+    expect(records.g1).toMatchObject({ bestScore: 9, attempts: 3 });
   });
 
   it("never lets a bad re-sit take a pass away", () => {
-    let records: ExamRecords = recordExamScore({}, "g1", 10);
-    records = recordExamScore(records, "g1", 0);
+    let records: ExamRecords = recordExamScore({}, "g1", 10, AT);
+    records = recordExamScore(records, "g1", 0, AT + 1);
     expect(examPassed(records.g1)).toBe(true);
   });
 
   it("keeps shelves independent", () => {
-    let records: ExamRecords = recordExamScore({}, "g1", 8);
-    records = recordExamScore(records, "g2", 3);
+    let records: ExamRecords = recordExamScore({}, "g1", 8, AT);
+    records = recordExamScore(records, "g2", 3, AT + 1);
     expect(examPassed(records.g1)).toBe(true);
     expect(examPassed(records.g2)).toBe(false);
   });

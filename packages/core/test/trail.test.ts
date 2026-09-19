@@ -62,7 +62,10 @@ const groups = [group("g1", ["uno", "dos"]), group("g2", ["tres"])];
 /** Shelves whose exams have been passed, so the gate is out of the way of
  *  tests that are about steps and tiers rather than about gating. */
 const passed = (...ids: string[]): ExamRecords =>
-  ids.reduce<ExamRecords>((r, id) => recordExamScore(r, id, EXAM_PASS_MARK), {});
+  ids.reduce<ExamRecords>(
+    (r, id, i) => recordExamScore(r, id, EXAM_PASS_MARK, Date.UTC(2026, 8, 19) + i),
+    {},
+  );
 const decks = [uno, dos, tres];
 
 describe("buildCamino", () => {

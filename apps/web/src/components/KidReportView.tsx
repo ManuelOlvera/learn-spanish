@@ -5,12 +5,19 @@ import Link from "next/link";
 import {
   accuracyByGame,
   dayKey,
+  EXAM_HISTORY_LIMIT,
+  examHistory,
+  passMarkFor,
+  questionsFor,
   LOG_RETENTION_DAYS,
   STALE_AFTER_DAYS,
   practiceDays,
   practiceSummary,
   type AnswerLog,
   type Deck,
+  type ExamPractice,
+  type ExamRecords,
+  type TrailShelf,
   type DeckMastery,
   type KidId,
   type ParentChallenge,
@@ -23,6 +30,8 @@ import { getAvatar, KID_META } from "@/lib/kid";
 import {
   clearKidChallenge,
   getChallenge,
+  getExamPractice,
+  getExamRecords,
   getUnlockedDecks,
   setKidChallenge,
   unlockShelf,
@@ -251,12 +260,204 @@ export function KidReportView({ decks, groups, kid }: Props) {
           <GamesPlayed report={report} />
           <AccuracyByGame log={practice} />
           <PracticeCalendar log={practice} />
+          <ExamHistory decks={decks} groups={groups} kid={kid} />
           <CaminoKey decks={decks} groups={groups} kid={kid} />
           <Struggling report={report} byId={byId} kid={kid} />
           <Fading report={report} />
         </>
       )}
     </main>
+  );
+}
+
+/** Spanish month stems for a sitting's date. A fixed table rather than
+ *  `toLocaleDateString`: the rest of this screen is Spanish whatever the
+ *  device's locale says, and a date is too small a thing to make depend on it. */
+const MONTHS = [
+  "ene", "feb", "mar", "abr", "may", "jun",
+  "jul", "ago", "sep", "oct", "nov", "dic",
+];
+
+function sittingDate(at: number): string {
+  const d = new Date(at);
+  return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ""}`;
+}
+
+/** What a shelf's checkpoint is doing right now, in the order a parent asks
+ *  about it: has she passed, is it due, is she still working, or is it out of
+ *  reach? Colour never carries this alone — every state prints its own words. */
+type ExamState = "passed" | "due" | "working" | "locked";
+
+function examState(shelf: TrailShelf): ExamState {
+  if (shelf.examPassed) return "passed";
+  if (shelf.examPending) return "due";
+  return shelf.locked ? "locked" : "working";
+}
+
+const EXAM_STATE_LABEL: Record<ExamState, string> = {
+  passed: "Aprobado",
+  due: "Le toca ahora",
+  working: "Terminando la estantería",
+  locked: "Aún no llega",
+};
+
+/**
+ * El boletín de los exámenes — every checkpoint on el camino, and how each
+ * sitting went (ADR 022's history addendum).
+ *
+ * The parent's question this answers is not "did she pass" — the padlock on
+ * the home grid already says that — but **how close, and how many tries**. So
+ * all twelve shelves are listed whatever their state: a checkpoint she has not
+ * reached is as much a part of the road as one she failed twice.
+ *
+ * Two honesty notes are printed on the screen rather than left to this comment,
+ * because a parent reading a number needs to know what it does not cover:
+ * sittings from before this shipped were never recorded, and the retry gate is
+ * device-local (ADR 022), so it reflects this device's failures only.
+ */
+function ExamHistory({
+  decks,
+  groups,
+  kid,
+}: {
+  decks: readonly Deck[];
+  groups: readonly DeckGroup[];
+  kid: KidId;
+}) {
+  const camino = useCamino(groups, decks, kid);
+  const [records, setRecords] = useState<ExamRecords>({});
+  const [practice, setPractice] = useState<ExamPractice | null>(null);
+
+  useEffect(() => {
+    setRecords(getExamRecords(kid));
+    setPractice(getExamPractice(kid));
+  }, [kid]);
+
+  if (camino === null) {
+    return null;
+  }
+  const groupById = new Map(groups.map((g) => [g.id, g]));
+  const deckById = new Map(decks.map((d) => [d.id, d]));
+  const sat = camino.shelves.filter((s) => (records[s.groupId]?.attempts ?? 0) > 0);
+
+  return (
+    <section className="sticker relative flex flex-col gap-3 p-5">
+      <span aria-hidden className="sticker-peel" />
+      <h2 className="text-2xl font-extrabold">📋 Los exámenes</h2>
+      <p className="text-sm font-semibold text-ink/60">
+        Cada estantería tiene su examen, y cada cuarta es un{" "}
+        <strong className="font-extrabold">súper examen</strong> 🏅 que repasa
+        todo lo anterior.
+      </p>
+
+      {sat.length === 0 ? (
+        <p className="text-sm font-semibold text-ink/60">
+          Todavía no ha hecho ningún examen.
+        </p>
+      ) : null}
+
+      <ul className="flex flex-col gap-3">
+        {camino.shelves.map((shelf) => {
+          const group = groupById.get(shelf.groupId);
+          const record = records[shelf.groupId];
+          const state = examState(shelf);
+          const bar = passMarkFor(shelf.examKind);
+          const total = questionsFor(shelf.examKind);
+          const history = examHistory(record);
+          const waiting = practice?.groupId === shelf.groupId ? practice : null;
+          return (
+            <li
+              key={shelf.groupId}
+              className="flex flex-col gap-1 border-t-2 border-dashed border-ink/15 pt-2 first:border-0 first:pt-0"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                <span className="text-base font-extrabold">
+                  <span aria-hidden>{group?.emoji}</span>{" "}
+                  {group?.nameSpanish ?? shelf.groupId}
+                  {shelf.examKind === "super" && (
+                    <span className="ml-1 text-sm font-semibold text-ink/50">
+                      🏅 súper
+                    </span>
+                  )}
+                </span>
+                <span
+                  className="text-sm font-extrabold"
+                  style={{ color: state === "passed" ? MASTERED : undefined }}
+                >
+                  {state === "passed" && "✅ "}
+                  {EXAM_STATE_LABEL[state]}
+                </span>
+              </div>
+
+              {record === undefined ? (
+                <p className="text-xs font-semibold text-ink/50">
+                  Sin intentos · se aprueba con {bar} de {total}
+                </p>
+              ) : (
+                <p className="text-xs font-semibold text-ink/60">
+                  Mejor nota{" "}
+                  <strong className="text-sm font-extrabold text-ink">
+                    {record.bestScore}/{total}
+                  </strong>{" "}
+                  · {plural(record.attempts, "intento", "intentos")} · se aprueba
+                  con {bar}
+                </p>
+              )}
+
+              {history.length > 0 && (
+                <ul className="flex flex-wrap gap-1.5 pt-0.5">
+                  {history.map((sitting) => {
+                    const passed = sitting.score >= bar;
+                    return (
+                      <li
+                        key={sitting.at}
+                        className="rounded-full border-2 border-ink px-2 py-0.5 text-xs font-extrabold"
+                        style={{
+                          background: passed ? MASTERED : SHAKY,
+                          color: passed ? "white" : "var(--color-ink)",
+                        }}
+                      >
+                        {/* The glyph and the score are the second channel here,
+                            not the hatch the meters use: amber's contrast on
+                            cream is below 3:1 so it may never carry a meaning
+                            alone, but a chip is directly labelled — and hatching
+                            behind 10px text made it unreadable. */}
+                        {passed ? "✓" : "✗"} {sitting.score}/{total} ·{" "}
+                        {sittingDate(sitting.at)}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              {/* Whenever the chips do not add up to the attempt count — a
+                  record from before this shipped, or one trimmed at the cap —
+                  say so, rather than leaving the parent to wonder why 3
+                  intentos shows 1 sitting. */}
+              {record !== undefined && history.length < record.attempts && (
+                <p className="text-xs font-semibold text-ink/40">
+                  {history.length === 0
+                    ? "Los intentos de antes no quedaron guardados uno a uno."
+                    : `Aquí se ven ${plural(history.length, "intento", "intentos")} de ${record.attempts}.`}
+                </p>
+              )}
+
+              {waiting !== null && !shelf.examPassed && (
+                <p className="text-xs font-extrabold text-ink/70">
+                  🔁 Antes de repetir, a jugar con{" "}
+                  {deckById.get(waiting.deckId)?.nameSpanish ?? waiting.deckId}.
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="text-xs font-semibold text-ink/40">
+        Sólo se guardan los últimos {EXAM_HISTORY_LIMIT} intentos de cada
+        estantería. El aviso de repetir es de este aparato nada más.
+      </p>
+    </section>
   );
 }
 

@@ -13,6 +13,10 @@ import {
 import type { ExamRecords } from "../src/domain/exam";
 import { card } from "./helpers";
 
+/** A pinned clock — a sitting's timestamp is its merge identity (ADR 022). */
+const AT = Date.UTC(2026, 8, 19, 9, 0, 0);
+
+
 const KID: KidId = "listener";
 
 function testDeck(id: string): Deck {
@@ -45,7 +49,7 @@ function through(n: number): { earned: string[]; records: ExamRecords } {
   for (let i = 1; i <= n; i += 1) {
     earned.push(...allOf(`d${i}`));
     const mark = i % 4 === 0 ? SUPER_EXAM_PASS_MARK : EXAM_PASS_MARK;
-    records = recordExamScore(records, `g${i}`, mark);
+    records = recordExamScore(records, `g${i}`, mark, AT + i);
   }
   return { earned, records };
 }
@@ -72,7 +76,7 @@ describe("a súper examen as a gate", () => {
   it("refuses a score that would have passed a regular exam", () => {
     const { earned } = through(4);
     let records = through(3).records;
-    records = recordExamScore(records, "g4", EXAM_PASS_MARK); // 7 — a regular pass
+    records = recordExamScore(records, "g4", EXAM_PASS_MARK, AT); // 7 — a regular pass
     const camino = buildCamino(LADDER, DECKS, KID, earned, {}, records);
     expect(shelf(camino, "g4").examPassed).toBe(false);
     expect(shelf(camino, "g5").locked).toBe(true);
@@ -111,7 +115,7 @@ describe("la llave de papá", () => {
     // Opening 7 does not open 8: the parent said "she is ready for this one",
     // not "turn the teaching off" (ADR 021 addendum).
     const earned = [...allOf("d7")];
-    const records = recordExamScore({}, "g7", EXAM_PASS_MARK);
+    const records = recordExamScore({}, "g7", EXAM_PASS_MARK, AT);
     const camino = buildCamino(LADDER, DECKS, KID, earned, {}, records, ["g7"]);
     expect(shelf(camino, "g8").locked).toBe(false);
   });

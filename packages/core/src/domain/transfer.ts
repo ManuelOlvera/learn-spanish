@@ -7,6 +7,7 @@ import type { WeekProgress, WeeklyStreak } from "./weekly";
 import { tierRank } from "./category";
 import type { StickerTier } from "./sticker-tiers";
 import type { MissionState } from "./mission";
+import { examHistory, mergeExamSittings } from "./exam";
 import type { ExamRecord, ExamRecords } from "./exam";
 import { walletBalance, type Wallet } from "./stars";
 
@@ -73,7 +74,10 @@ export interface ProgressSnapshot {
   /** Shelf → that shelf's exam record, per kid (ADR 022). Both counters are
    *  monotonic, so merge takes the higher of each independently — the same
    *  additive rule as `retoBests`, and the reason passing is derived from
-   *  `bestScore` rather than stored as a flag that could disagree with it. */
+   *  `bestScore` rather than stored as a flag that could disagree with it.
+   *  The optional sitting history is the one field here that is not a counter:
+   *  it unions by instant and trims to the most recent few, which is
+   *  idempotent and order-independent for the same reason max is. */
   readonly examRecords?: Partial<Record<KidId, ExamRecords>>;
 }
 
@@ -392,7 +396,32 @@ function isExamRecord(value: unknown): value is ExamRecord {
     return false;
   }
   const r = value as Record<string, unknown>;
-  return isSaneCount(r.bestScore) && isSaneCount(r.attempts);
+  return (
+    isSaneCount(r.bestScore) && isSaneCount(r.attempts) && isExamHistory(r.history)
+  );
+}
+
+/**
+ * The sittings, if any. Bounded by `MAX_LIST` rather than by
+ * `EXAM_HISTORY_LIMIT` **on purpose**: if a later build raises the cap, an
+ * older device must not reject that peer's whole exam ledger — dropping it
+ * would cost a kid real passes, and the wrong failure direction here is the
+ * expensive one. Trimming to the cap is `mergeExamSittings`' job, and every
+ * path into storage goes through it.
+ */
+function isExamHistory(value: unknown): boolean {
+  return (
+    value === undefined ||
+    (Array.isArray(value) && value.length <= MAX_LIST && value.every(isExamSitting))
+  );
+}
+
+function isExamSitting(value: unknown): boolean {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const s = value as Record<string, unknown>;
+  return isSaneCount(s.score) && typeof s.at === "number" && Number.isSafeInteger(s.at);
 }
 
 export function isCategoryAwards(
@@ -618,9 +647,14 @@ const mergeExamRecords: Combine<ExamRecords> = (mine, theirs) => {
   const merged: Record<string, ExamRecord> = { ...(mine ?? {}) };
   for (const [groupId, record] of Object.entries(theirs)) {
     const existing = merged[groupId];
+    // The sittings union by instant and then trim; the counters still take the
+    // higher of each independently. Omitted when empty, so a record written
+    // before the history existed crosses the wire byte-identical.
+    const history = mergeExamSittings(examHistory(existing), examHistory(record));
     merged[groupId] = {
       bestScore: Math.max(existing?.bestScore ?? 0, record.bestScore),
       attempts: Math.max(existing?.attempts ?? 0, record.attempts),
+      ...(history.length > 0 ? { history } : {}),
     };
   }
   return merged;

@@ -232,17 +232,28 @@ export {
 } from "./domain/challenge";
 export type { Camino, TrailShelf, TrailStep } from "./domain/trail";
 export { buildCamino, reachableDeckIds, reachableGroupIds } from "./domain/trail";
-export type { Exam, ExamKind, ExamPractice, ExamRecord, ExamRecords, ExamRound } from "./domain/exam";
+export type {
+  Exam,
+  ExamKind,
+  ExamPractice,
+  ExamRecord,
+  ExamRecords,
+  ExamRound,
+  ExamSitting,
+} from "./domain/exam";
 export {
   EXAM_BONUS_LABEL,
   EXAM_CHOICE_COUNT,
+  EXAM_HISTORY_LIMIT,
   EXAM_PASS_MARK,
   EXAM_QUESTIONS,
   EXAM_REVIEW_QUESTIONS,
   SUPER_EXAM_EVERY,
   SUPER_EXAM_PASS_MARK,
   SUPER_EXAM_QUESTIONS,
+  examHistory,
   examKindFor,
+  mergeExamSittings,
   passMarkFor,
   questionsFor,
   buildExam,

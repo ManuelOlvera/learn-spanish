@@ -87,15 +87,79 @@ export function passMarkFor(kind: ExamKind): number {
 export const EXAM_BONUS_LABEL = "¡El premio más grande!";
 
 /**
- * A kid's history with one shelf's exam. Both fields are monotonic, which is
- * what lets ADR 004 merge them by `max` with no new semantics (ADR 022).
+ * One sitting of one shelf's exam — what was scored, and when.
+ *
+ * `at` is epoch ms and doubles as the entry's **identity**: two devices merge
+ * their sittings by unioning on it, so a re-merge cannot duplicate one
+ * (ADR 022's history addendum).
+ */
+export interface ExamSitting {
+  readonly at: number;
+  readonly score: number;
+}
+
+/**
+ * How many sittings per shelf survive.
+ *
+ * The cap is a size decision, not a teaching one: twelve shelves × two kids
+ * of this ride in every snapshot push, against the 64 KB server cap ADR 019
+ * is already watching. Eight is enough sittings to see a shape and costs
+ * roughly 3 KB a kid. `attempts` is unaffected — it stays the lifetime total,
+ * so trimming the window never lies about how often she sat it.
+ */
+export const EXAM_HISTORY_LIMIT = 8;
+
+/**
+ * A kid's history with one shelf's exam. The two counters are monotonic, which
+ * is what lets ADR 004 merge them by `max` with no new semantics (ADR 022).
  */
 export interface ExamRecord {
   /** The best score ever achieved. Passing is derived from this. */
   readonly bestScore: number;
-  /** How many times it has been sat. Read by nothing — it exists for the
-   *  deferred exam history on /informe. */
+  /** How many times it has been sat, for all time. Read by no rule — it is
+   *  the parent's number on /informe. */
   readonly attempts: number;
+  /**
+   * The most recent sittings, oldest first — the one field here that is not a
+   * monotonic counter, added deliberately in ADR 022's history addendum so a
+   * parent can see a trend rather than a high-water mark.
+   *
+   * **Optional, and omitted when empty.** An absent history reads as "no
+   * sittings recorded", exactly as an absent key reads as "no exams taken" —
+   * which is what lets this ship with no migration and leaves every record
+   * written before it byte-identical on the wire.
+   */
+  readonly history?: readonly ExamSitting[];
+}
+
+/** A shelf's sittings, oldest first. Safe on a record from before the history
+ *  existed, and on no record at all. */
+export function examHistory(record: ExamRecord | undefined): readonly ExamSitting[] {
+  return record?.history ?? [];
+}
+
+/**
+ * Union two devices' sittings: dedupe by `at`, oldest first, then keep the
+ * most recent `EXAM_HISTORY_LIMIT`.
+ *
+ * Trimming **after** the union is what makes this deterministic — a stale peer
+ * can resurrect a sitting that one device has already dropped, and it is
+ * dropped again to the same answer. The tie-break on a shared `at` takes the
+ * higher score for the same reason max-merge takes it: it has to be
+ * commutative, or the result depends on which device synced first.
+ */
+export function mergeExamSittings(
+  mine: readonly ExamSitting[],
+  theirs: readonly ExamSitting[],
+): readonly ExamSitting[] {
+  const byInstant = new Map<number, number>();
+  for (const { at, score } of [...mine, ...theirs]) {
+    byInstant.set(at, Math.max(byInstant.get(at) ?? 0, score));
+  }
+  return [...byInstant.entries()]
+    .map(([at, score]) => ({ at, score }))
+    .sort((a, b) => a.at - b.at)
+    .slice(-EXAM_HISTORY_LIMIT);
 }
 
 /** Shelf id → that shelf's exam record. */
@@ -131,11 +195,16 @@ export function shelfExamPassed(
 /**
  * Write one sitting into the record. The best score only ever rises, so a bad
  * re-sit can never take a pass away and a re-merge can never inflate one.
+ *
+ * `at` is passed in rather than read from the clock here: this is domain, and
+ * the sitting's timestamp is also its merge identity, so a test must be able
+ * to pin it.
  */
 export function recordExamScore(
   records: ExamRecords,
   groupId: string,
   score: number,
+  at: number,
 ): ExamRecords {
   const existing = records[groupId];
   return {
@@ -143,6 +212,7 @@ export function recordExamScore(
     [groupId]: {
       bestScore: Math.max(existing?.bestScore ?? 0, score),
       attempts: (existing?.attempts ?? 0) + 1,
+      history: mergeExamSittings(examHistory(existing), [{ at, score }]),
     },
   };
 }
@@ -178,7 +248,8 @@ export function isExamPractice(value: unknown): value is ExamPractice {
 
 /** Shape guard for a stored exam ledger; drops any entry that is not a pair
  *  of finite, non-negative counters. Salvages per entry rather than discarding
- *  the whole document — one bad shelf must not cost a kid every other pass. */
+ *  the whole document — one bad shelf must not cost a kid every other pass,
+ *  and by the same rule a rubbish history never costs a shelf its counters. */
 export function sanitizeExamRecords(value: unknown): ExamRecords {
   if (typeof value !== "object" || value === null) {
     return {};
@@ -192,10 +263,36 @@ export function sanitizeExamRecords(value: unknown): ExamRecords {
     const ok = (n: unknown): n is number =>
       typeof n === "number" && Number.isSafeInteger(n) && n >= 0;
     if (ok(r.bestScore) && ok(r.attempts)) {
-      kept[groupId] = { bestScore: r.bestScore, attempts: r.attempts };
+      // Trimmed here too: a document that has somehow grown past the cap gets
+      // read back inside it, rather than being pushed on to the wire whole.
+      const history = sanitizeSittings(r.history);
+      kept[groupId] = {
+        bestScore: r.bestScore,
+        attempts: r.attempts,
+        ...(history.length > 0 ? { history } : {}),
+      };
     }
   }
   return kept;
+}
+
+function sanitizeSittings(value: unknown): readonly ExamSitting[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const kept: ExamSitting[] = [];
+  for (const sitting of value) {
+    if (typeof sitting !== "object" || sitting === null) {
+      continue;
+    }
+    const s = sitting as Record<string, unknown>;
+    const ok = (n: unknown): n is number =>
+      typeof n === "number" && Number.isSafeInteger(n) && n >= 0;
+    if (ok(s.at) && ok(s.score)) {
+      kept.push({ at: s.at, score: s.score });
+    }
+  }
+  return mergeExamSittings(kept, []);
 }
 
 /** Is the kid free to re-sit? True whenever nothing is pending. */

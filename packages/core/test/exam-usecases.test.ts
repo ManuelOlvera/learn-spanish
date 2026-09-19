@@ -64,7 +64,7 @@ describe("SitExamUseCase — passing", () => {
 
   it("records the score so the next shelf unlocks", async () => {
     await sit.execute(KID, "g1", EXAM_QUESTIONS);
-    expect(store.loadExamRecords(KID).g1).toEqual({
+    expect(store.loadExamRecords(KID).g1).toMatchObject({
       bestScore: EXAM_QUESTIONS,
       attempts: 1,
     });
@@ -108,7 +108,7 @@ describe("SitExamUseCase — failing", () => {
   it("still counts the attempt and keeps the best score", async () => {
     await sit.execute(KID, "g1", 5);
     await sit.execute(KID, "g1", 3);
-    expect(store.loadExamRecords(KID).g1).toEqual({ bestScore: 5, attempts: 2 });
+    expect(store.loadExamRecords(KID).g1).toMatchObject({ bestScore: 5, attempts: 2 });
   });
 
   it("never lets a failed re-sit close a gate that is already open", async () => {
