@@ -1,5 +1,33 @@
 # Shipped features
 
+## 2026-09-19 (later still) — 🏅 A súper examen is a stop on the path, not a badge
+
+**Reported by the parent:** *"Shouldn't the súper exam be part of the Camino? I
+can't see or know how to get there."*
+
+Correct on both counts. A súper examen had no presence on the Tu camino strip
+until `examPending` turned true — which happens only after every deck on its
+shelf is finished. The wall was in the route's logic from day one and in its
+picture only once you were standing at it. Shelves 4, 8 and 12 were drawn
+exactly like 5, 6 and 7.
+
+The three súper exámenes now have **stops of their own** on the path, between
+the shelf they examine and the next one: gold-bordered, carrying 🏅, pale while
+ahead, filled lime once passed, and white/bigger/gold-ringed — and the only
+tappable one — when due. So the answer to "how far to the next big test" is now
+something a kid can count off the picture.
+
+Making all twelve checkpoints into stops was rejected: it doubles a strip that
+already scrolls on a phone at twelve, and it would give a ten-question
+checkpoint the same weight as a twenty-question sweep. Regular exams stay a
+badge on their shelf.
+
+Worth noting for whoever touches the strip next: it is now the **only** surface
+that shows a checkpoint before it falls due. The home grid still says nothing
+about shelf 4 until then, which is fine while the strip sits directly above it
+— and is why ADR 021's addendum records the strip as load-bearing rather than
+decorative.
+
 ## 2026-09-19 (later) — 🔒 Grandfathering was a hole, and completion closed it
 
 **Reported by the parent within the hour:** on an established profile *exactly

@@ -84,7 +84,13 @@ No reading, no accounts, no setup.
   an open shelf every deck stays as free as it ever was.
   A **Tu camino** strip on home draws the whole ladder on one line — a finished
   shelf filled lime wearing its medal, the current one white, bigger and
-  ringed, a 🎓 where the exam is due, a 🔒 on what is still shut. Shelf tiles and deck tiles carry the same story up
+  ringed, a 🎓 where the exam is due, a 🔒 on what is still shut. **The three
+  súper exámenes get stops of their own** on that path, gold-bordered and
+  carrying 🏅, sitting between the shelf they examine and the next one: a
+  regular exam is a badge on its shelf, but a súper is a wall, and a wall you
+  only see once you are standing at it is not on the map. They are visible
+  from the first day, pale and ahead, so "how far to the next big one" is
+  something a kid can count. Shelf tiles and deck tiles carry the same story up
   close: pips for how far in a kid is, 👉 on the one next thing, and the album's
   own medal on what's done — ⭐ played, 🥈 replayed three times, 🥇 five. A deck
   is only as gold as its least-played game and a shelf only as gold as its

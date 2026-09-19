@@ -194,3 +194,37 @@ last shelf is learn-only and asserts it opens nothing before it.
   makes it self-limiting. And when a rule ranks shelves, check it against the
   **cheapest** shelf, not the typical one; the pack's outlier is at the end of
   the ladder, where a "furthest" rule is most exposed.
+
+## Addendum — 2026-09-19 (later still): a súper examen is a stop, not a badge
+
+The parent, looking at the strip: *"Shouldn't the súper exam be part of the
+Camino? I can't see or know how to get there."*
+
+They were right, and the cause was that a súper examen had no existence on the
+strip until `examPending` turned true — which happens only after every deck on
+its shelf is finished. So the wall was in the route's *logic* from day one and
+in its *picture* only at the moment it was already due. On the strip, shelves
+4, 8 and 12 were drawn exactly like 5, 6 and 7.
+
+**Los súper exámenes now have stops of their own**, drawn on the path between
+the shelf they examine and the next one, gold-bordered and carrying 🏅. Three
+states, readable without reading like every other stop: passed is filled lime,
+due is white, bigger, gold-ringed and the only tappable one, ahead is pale.
+
+Regular exams stay a badge on their shelf. Making all twelve checkpoints into
+stops was considered and rejected: it doubles a strip that already overflows and
+scrolls on a phone at twelve, and it would give the same visual weight to a
+ten-question checkpoint and to a twenty-question sweep across the whole pack.
+Three extra stops is the smallest change that makes the walls countable.
+
+**Consequences**
+
+- "You are here" moves to the exam stop when a súper is the next move, because
+  the shelf behind it is finished — two stops must never both claim it.
+- The strip is now **the only surface that shows a checkpoint before it is
+  due**. The home grid still says nothing about shelf 4 until its exam falls
+  due, which is acceptable while the strip sits directly above that grid; if
+  the strip is ever removed or collapsed, this becomes invisible again.
+- ADR 016's retired test stays retired, but its replacement holds: every stop
+  ahead is still inert, and the súper stop is tappable only when it is actually
+  sittable, so tapping never lands on the refusal screen.
