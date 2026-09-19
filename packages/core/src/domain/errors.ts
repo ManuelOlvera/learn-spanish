@@ -50,6 +50,24 @@ export class QuizDeckTooSmallError extends Error {
   }
 }
 
+/** A shelf's exam draws across every deck on it plus the ones behind it, so it
+ *  has far more to work with than any single game — hitting this means a shelf
+ *  was put on the ladder holding almost nothing playable (every deck
+ *  learn-only or secret). The content tests keep shelves at 3+ real decks, so
+ *  this is a build-time mistake surfacing at runtime, not a kid's problem. */
+export class ExamPoolTooSmallError extends Error {
+  constructor(
+    public readonly groupId: string,
+    public readonly cardCount: number,
+    public readonly requiredCount: number,
+  ) {
+    super(
+      `Shelf ${groupId} offers ${cardCount} exam cards but an exam needs ${requiredCount}`,
+    );
+    this.name = "ExamPoolTooSmallError";
+  }
+}
+
 /** Habla con tu mascota needs enough words to fill five turns without asking
  *  about the same one twice. Eligible decks are a curated list held well above
  *  this, so hitting it means the list let through a deck that shrank. */

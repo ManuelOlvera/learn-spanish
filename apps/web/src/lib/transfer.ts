@@ -19,6 +19,7 @@ import {
 } from "@learn-spanish/core";
 import type { KidId } from "@learn-spanish/core";
 import type { PetState } from "@learn-spanish/core";
+import type { ExamRecords } from "@learn-spanish/core";
 import { albumStore, streakStore, wordStatsStore } from "./client-container";
 import { getAvatars, setAvatar } from "./kid";
 import {
@@ -26,6 +27,8 @@ import {
   getCategoryAwards,
   getRetoBests,
   saveRetoBests,
+  getExamRecords,
+  saveExamRecords,
   getFreezes,
   getOwnedAccessories,
   getOwnedAvatars,
@@ -69,6 +72,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
   const categoryAwards: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>> = {};
   const retoBests: Partial<Record<KidId, Readonly<Record<string, number>>>> = {};
   const missions: Partial<Record<KidId, MissionState>> = {};
+  const examRecords: Partial<Record<KidId, ExamRecords>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
     if (streak !== null) {
@@ -118,6 +122,12 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (mission !== null) {
       missions[kid] = mission;
     }
+    // The retry gate is deliberately absent here: it is device-local
+    // transient state and must never reach the snapshot (ADR 022).
+    const exams = getExamRecords(kid);
+    if (Object.keys(exams).length > 0) {
+      examRecords[kid] = exams;
+    }
   }
   return {
     stickers,
@@ -143,6 +153,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     ...(Object.keys(unlockedDecks).length > 0 ? { unlockedDecks } : {}),
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
+    ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
 }
@@ -221,6 +232,10 @@ export async function applySnapshot(merged: ProgressSnapshot): Promise<void> {
     const kidMission = merged.missions?.[kid];
     if (kidMission !== undefined) {
       saveStoredMission(kid, kidMission);
+    }
+    const kidExams = merged.examRecords?.[kid];
+    if (kidExams !== undefined) {
+      saveExamRecords(kid, kidExams);
     }
   }
   if (merged.stickerCounts !== undefined) {

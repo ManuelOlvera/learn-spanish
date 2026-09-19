@@ -73,13 +73,17 @@ No reading, no accounts, no setup.
 - **Game feel** — synthesized sounds (tones *and* filtered noise, so El globo
   can inflate, hiss and pop without a single audio file), haptics, confetti,
   and a ⚡ racha burst at 3/5/10 correct in a row.
-- **El camino** — a guided route through the pack that never locks anything:
-  the shelves in learning order, and inside each one its decks in order. A
-  **Tu camino** strip on home draws the whole ladder on one line in three
-  shades — a finished shelf filled lime wearing its medal, the current one
-  white, bigger and ringed, the ones ahead pale. Only the current stop is tappable ("take me
-  back to where I left off"); the others are inert marks, which gates nothing
-  because the shelf grid directly below still reaches all twelve in one tap. Shelf tiles and deck tiles carry the same story up
+- **El camino** — a guided route through the pack that **gates**: a shelf stays
+  locked until the one before it is complete *and* that shelf's **examen** is
+  passed (ADR 021, which supersedes ADR 016 on this). The lock is real — a
+  locked shelf's tile is padlocked and untappable on the home grid, not merely
+  pale on the strip — but it is never a dead end: tapping one shakes it, a
+  shelf a kid has already played is never taken away, and a failed exam always
+  names a deck to go and play. Gating is **per shelf, never per deck**: inside
+  an open shelf every deck stays as free as it ever was.
+  A **Tu camino** strip on home draws the whole ladder on one line — a finished
+  shelf filled lime wearing its medal, the current one white, bigger and
+  ringed, a 🎓 where the exam is due, a 🔒 on what is still shut. Shelf tiles and deck tiles carry the same story up
   close: pips for how far in a kid is, 👉 on the one next thing, and the album's
   own medal on what's done — ⭐ played, 🥈 replayed three times, 🥇 five. A deck
   is only as gold as its least-played game and a shelf only as gold as its
@@ -92,9 +96,21 @@ No reading, no accounts, no setup.
   without slowing the route down. A deck's step is complete only when **every** activity that kid can earn
   on it is done (6 of 6 — flashcards-only verb decks at 1), the same bar as the
   album's category medal. The daily misión says which *activity*; el camino says
-  which *content*. Progress is derived from the sticker album — no new storage,
-  nothing extra to sync (ADR 016) — and free picture-navigation is untouched:
-  nothing is dimmed, gated, or hidden.
+  which *content*. Shelf progress is still derived from the sticker album —
+  nothing new to store there (ADR 016's surviving half); the exam score is the
+  single fact the app writes down, because it provably cannot be derived.
+- **Los exámenes** — the checkpoint between two shelves. Ten questions drawn
+  across the shelf just finished plus a few from everything earlier on the
+  ladder (so it tests what a kid *still* remembers), **four picture choices for
+  both profiles** — a two-choice gate is cleared by guessing about one try in
+  six, and pictures need no reading, so the harder format costs the pre-reader
+  nothing. Seven of ten passes. Passing pays `EXAM_BONUS` (200⭐) — the largest
+  single payout in the app, above a gold album medal — and opens the next
+  shelf, celebrated with the app's one sequenced ceremony: the grade stamps
+  down, a trophy drops in on turning gold rays, the stars count up, and the
+  padlock on the next shelf breaks open. Failing pays nothing, costs nothing,
+  and sends the kid to the weakest deck on the shelf; the exam reopens once
+  they have played it again.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward
   missed words; a 🔁 "El repaso" chip appears on home when ≥3 words need it.
   El repaso asks about two kinds of word: the ones a kid keeps getting

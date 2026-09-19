@@ -27,6 +27,8 @@ import {
   RolloverWeeklyUseCase,
   SampleTrendUseCase,
   SaveRetoBestUseCase,
+  SitExamUseCase,
+  StartExamUseCase,
   SetActiveSpeciesUseCase,
   SpendStarsUseCase,
   ToggleAccessoryUseCase,
@@ -43,6 +45,7 @@ import { LocalStorageTrendStore } from "./trend-store";
 import { LocalStorageAnswerLogStore } from "./answer-log-store";
 import { pruneLog, type AnswerLog, type KidId } from "@learn-spanish/core";
 import { SupabaseProgressStore } from "./supabase-progress-store";
+import { deckGroupRepository, deckRepository } from "./container";
 
 /**
  * The client-side composition root — the only place browser-storage adapters
@@ -109,3 +112,19 @@ export const buyAvatar = new BuyAvatarUseCase(economyStore);
 export const unlockDeck = new UnlockDeckUseCase(economyStore);
 export const claimCategoryReward = new ClaimCategoryRewardUseCase(economyStore);
 export const saveRetoBest = new SaveRetoBestUseCase(economyStore);
+
+// Los exámenes del camino (ADR 021). They need the pack and the kid's stats as
+// well as the economy: the exam draws across a whole shelf and the ones behind
+// it, and a failure nominates the weakest deck to go and practise.
+export const startExam = new StartExamUseCase(
+  deckRepository,
+  deckGroupRepository,
+  wordStatsStore,
+  Math.random,
+);
+export const sitExam = new SitExamUseCase(
+  economyStore,
+  deckRepository,
+  deckGroupRepository,
+  wordStatsStore,
+);

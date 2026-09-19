@@ -299,15 +299,43 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       new evidence; the strip is what "see the path" asked for.
     - ☐ **A step per game, not per deck** — finer progress, but 44 decks × 12
       games is a spreadsheet, not a trail.
-    - ☐ **Mastery or an end-of-step check as the completion rule** — more
-      meaningful than "played every one of them", and the reason it was cut is
-      in ADR 016: mastery can stall a kid mid-route, which is the failure the
-      never-locks rule exists to avoid. (The 3-of-6 threshold the first cut
-      shipped with became 6-of-6 the same day on the parent's ask, which is a
-      higher bar but still a *plays* bar, not a *knows-it* bar.)
-    - ☐ **A reward for finishing a shelf's path or the whole camino** — album
-      medals already pay for category completion; a second economy on top of
-      the same act needs its own thinking.
+    - ☑ **Mastery or an end-of-step check as the completion rule** — **done
+      2026-09-16** as los exámenes del camino, on the parent's direct ask, and
+      with it the gating this item and ADR 016 both ruled out. The stall worry
+      below was the right objection and was answered rather than waved off: a
+      failed exam always names a deck to go and play. See ADR 021 (which
+      supersedes 016) and ADR 022. Original reasoning kept:
+    - ✗ ~~Mastery or an end-of-step check~~ — cut 2026-08-22 because mastery can
+      stall a kid mid-route, which is the failure the never-locks rule existed
+      to avoid. (The 3-of-6 threshold the first cut shipped with became 6-of-6
+      the same day on the parent's ask, which is a higher bar but still a
+      *plays* bar, not a *knows-it* bar.)
+    - ☑ **A reward for finishing a shelf's path** — **done 2026-09-16**: passing
+      a shelf's exam pays `EXAM_BONUS` (200⭐), the largest single payout in the
+      app, above `CATEGORY_BONUS.gold`. The "second economy" worry below was
+      settled by not building one — it is a new top rung on the existing ladder
+      (ADR 020's addendum), not a parallel currency. A reward for the *whole*
+      camino is still open, and belongs with los súper exámenes.
+    - ☐ **Los súper exámenes** — at milestone points on the route, a much longer
+      exam drawn evenly across **every** step completed so far, not just the
+      shelf behind it. The regular exam's three review questions are the small
+      version of this; the súper is the real cumulative sweep. Wants a reward
+      tier above `EXAM_BONUS` and a decision on spacing (every fourth shelf? at
+      the ladder's thirds?). Asked for by the parent 2026-09-16, alongside the
+      gating it was deferred out of.
+    - ☐ **Exam history on `/informe`** — attempts, best score and a pass/fail
+      trend per shelf. `palabras.exams.v1` already stores `attempts` for exactly
+      this and no rule reads it (ADR 022); the work is all parent-facing UI.
+    - ☐ **A parent unlock key** — a grown-up gesture that opens any locked shelf
+      on demand. Deliberately cut from the first gated cut so the gate ships
+      honest, and named in ADR 021 as **the first thing to add if a kid gets
+      genuinely stuck**. Check this before loosening the 7-of-10 threshold.
+    - ☐ **Per-profile exam thresholds** — the listener and the reader currently
+      sit the same 10 questions at the same 4 choices and the same 7-to-pass.
+      Equal-bar was chosen so one threshold means one thing; revisit if the
+      pre-reader finds it punishing in practice.
+    - ☐ **Re-examining a section that has gone stale** — ADR 018 already knows
+      which words have gone quiet; a passed exam currently stays passed forever.
     - ☐ **A dedicated `/camino` map screen** — the thing kids like about
       Duolingo is looking at the map. Only worth it if the pips and badges
       prove too quiet.

@@ -9,6 +9,8 @@ import {
   earnableActivities,
 } from "../src/domain/category";
 import { buildCamino } from "../src/domain/trail";
+import { EXAM_PASS_MARK, recordExamScore } from "../src/domain/exam";
+import type { ExamRecords } from "../src/domain/exam";
 import { TIER_THRESHOLDS } from "../src/domain/sticker-tiers";
 import { card } from "./helpers";
 
@@ -56,6 +58,11 @@ const uno = testDeck("uno");
 const dos = testDeck("dos");
 const tres = testDeck("tres");
 const groups = [group("g1", ["uno", "dos"]), group("g2", ["tres"])];
+
+/** Shelves whose exams have been passed, so the gate is out of the way of
+ *  tests that are about steps and tiers rather than about gating. */
+const passed = (...ids: string[]): ExamRecords =>
+  ids.reduce<ExamRecords>((r, id) => recordExamScore(r, id, EXAM_PASS_MARK), {});
 const decks = [uno, dos, tres];
 
 describe("buildCamino", () => {
@@ -104,18 +111,45 @@ describe("buildCamino", () => {
       ...stickersFor("listener", uno, 6),
       ...stickersFor("listener", dos, 6),
     ];
-    const camino = buildCamino(groups, decks, "listener", earned);
+    // A shelf is only finished with once its exam is passed too (ADR 021),
+    // so the route moves on only when g1's exam is in the record.
+    const camino = buildCamino(groups, decks, "listener", earned, {}, passed("g1"));
     expect(camino.shelves[0]!.complete).toBe(true);
     expect(camino.nextGroupId).toBe("g2");
     expect(camino.nextDeckId).toBe("tres");
   });
 
-  it("has no next step once every shelf is done", () => {
-    const earned = [uno, dos, tres].flatMap((d) => stickersFor("listener", d, 6));
+  it("stops at the exam rather than skipping a content-complete shelf", () => {
+    const earned = [
+      ...stickersFor("listener", uno, 6),
+      ...stickersFor("listener", dos, 6),
+    ];
     const camino = buildCamino(groups, decks, "listener", earned);
+    expect(camino.nextGroupId).toBe("g1");
+    expect(camino.nextExamGroupId).toBe("g1");
+    expect(camino.nextDeckId).toBeNull();
+  });
+
+  it("has no next step once every shelf is done and examined", () => {
+    const earned = [uno, dos, tres].flatMap((d) => stickersFor("listener", d, 6));
+    const camino = buildCamino(
+      groups,
+      decks,
+      "listener",
+      earned,
+      {},
+      passed("g1", "g2"),
+    );
     expect(camino.nextGroupId).toBeNull();
     expect(camino.nextDeckId).toBeNull();
     expect(camino.complete).toBe(true);
+  });
+
+  it("is not complete while the last exam is outstanding", () => {
+    const earned = [uno, dos, tres].flatMap((d) => stickersFor("listener", d, 6));
+    const camino = buildCamino(groups, decks, "listener", earned, {}, passed("g1"));
+    expect(camino.complete).toBe(false);
+    expect(camino.nextExamGroupId).toBe("g2");
   });
 
   it("counts a shelf's finished steps", () => {

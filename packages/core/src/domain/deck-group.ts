@@ -10,4 +10,9 @@ export interface DeckGroup {
 
 export interface DeckGroupRepository {
   listGroups(): Promise<readonly DeckGroup[]>;
+  /** The same shelves in **camino order**, which is not the home screen's
+   *  browsing order. The ladder itself is content curation and lives with the
+   *  shelves in `infrastructure` (ADR 016); exposing it here is what keeps the
+   *  use cases that need it from reaching across the layering to fetch it. */
+  listGroupsInTrailOrder(): Promise<readonly DeckGroup[]>;
 }

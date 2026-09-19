@@ -114,6 +114,44 @@ Concurrent pushes are last-write-wins on the row and self-heal on the next
 exchange — recorded, with the options for changing it, in the ADR 004
 addendum.
 
+## A shelf's gate on el camino (ADR 021)
+
+When a shelf is reachable, and what stands between it and the next one. Only
+two facts feed this: the album (shelf completion, derived) and
+`palabras.exams.v1` (the exam score, the single stored fact). Every surface
+that can send a kid somewhere — the home grid, the shelf page, `/deck/<id>`,
+la misión — asks the same `buildCamino` result, so none of them can disagree
+about what is open.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Locked
+
+  Locked --> Open: previous shelf complete<br/>AND its exam passed
+  Locked --> Open: holds any earned sticker<br/>(grandfathered — only ever<br/>true of play predating the gate)
+
+  Open --> ExamDue: every deck on the shelf complete<br/>(earnableActivities, the album's own bar)
+  ExamDue --> Open: fails — best score unchanged,<br/>weakest deck nominated
+
+  ExamDue --> Cleared: scores >= EXAM_PASS_MARK<br/>pays EXAM_BONUS (once)
+  Cleared --> [*]: the NEXT shelf's gate opens
+
+  note right of Locked
+    Tile is padlocked and untappable,
+    but never dead: a tap shakes it.
+  end note
+
+  note right of ExamDue
+    A failure writes the device-local
+    retry gate; the exam reopens once
+    that deck's play count rises.
+  end note
+```
+
+**Passing is derived, never stored** — `bestScore >= EXAM_PASS_MARK` (ADR 022)
+— so `Cleared` is a reading of the ledger rather than a state written into it,
+and a bad re-sit cannot move a shelf backwards.
+
 ## localStorage key inventory
 
 Everything the app persists on a device. "Synced" means the value rides the
@@ -151,6 +189,8 @@ closes, so it is not part of this inventory.
 | `palabras.reto.v1` | `lib/economy-store.ts` | best reto scores | no (per-device) |
 | `palabras.challenge.v1` | `lib/economy-store.ts` | el reto de papá: the challenge set for a kid | no (per-device — a challenge is set on the device it is played from) |
 | `palabras.boost.v1` | `lib/economy-store.ts` | the ⚡ hora doble window | **never** (ADR 014 — an expiring timestamp is the one shape the additive merge cannot carry; expiry is decided on read) |
+| `palabras.exams.v1` | `lib/economy-store.ts` | per shelf, `{ bestScore, attempts }` for its camino exam — **passing is derived** (`bestScore >= EXAM_PASS_MARK`), never stored | yes (per-counter `max`, like `retoBests` — ADR 022) |
+| `palabras.exam-practice.v1` | `lib/economy-store.ts` | the deck a failed exam is waiting on before a re-sit | **never** (ADR 022 — transient state, ADR 014's rule; an unsynced gate only ever lets a kid retry sooner, which is the safe direction) |
 | `palabras.trend.v2` | `lib/trend-store.ts` | weekly learned-words samples | no (derived from synced stats) |
 | `palabras.answer-log.v1` | `lib/answer-log-store.ts` | last 90 days of answers, each with its game and timestamp | **never** (ADR 013 — a per-answer record of a child stays on its device) |
 | `palabras.trend.v1` | superseded by v2 | samples taken under the old "learned" bar (ADR 012) — left behind, never migrated | no |

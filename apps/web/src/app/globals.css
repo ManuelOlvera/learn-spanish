@@ -261,6 +261,87 @@ body:has([data-chest="closed"]) [data-chest-exit] .sticker {
   animation: pet-cheer 0.6s ease-out var(--cheer-hops, 2);
 }
 
+/* ---- Los exámenes (ADR 021) ----------------------------------------------
+   The exam pass is the biggest moment in the app and its motion has to say so.
+   Everything else here is a single gesture; this is the one sequenced set, so
+   it reads as a ceremony rather than another burst. */
+
+/* Golden rays turning slowly behind the trophy. Deliberately slow: the speed
+   of everything else is "springy", and this one is "grand". */
+@keyframes exam-rays {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.exam-rays {
+  animation: exam-rays 12s linear infinite;
+}
+
+/* The trophy arriving: overshoots high, drops, settles. Bigger travel than
+   .pop-in, because it must not read as the same event. */
+@keyframes exam-trophy {
+  0% { transform: translateY(-120%) scale(0.3) rotate(-18deg); opacity: 0; }
+  55% { transform: translateY(8%) scale(1.25) rotate(6deg); opacity: 1; }
+  75% { transform: translateY(-4%) scale(0.94) rotate(-3deg); }
+  100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+}
+
+.exam-trophy {
+  animation: exam-trophy 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* The grade stamping down onto the page, like a teacher's rubber stamp. */
+@keyframes exam-stamp {
+  0% { transform: scale(2.6) rotate(-14deg); opacity: 0; }
+  60% { transform: scale(0.92) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+}
+
+.exam-stamp {
+  animation: exam-stamp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* The padlock on the shelf that just opened, breaking apart. */
+@keyframes exam-unlock {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  30% { transform: scale(1.3) rotate(-12deg); }
+  60% { transform: scale(1.15) rotate(14deg); opacity: 1; }
+  100% { transform: scale(0.2) rotate(40deg) translateY(40px); opacity: 0; }
+}
+
+.exam-unlock {
+  animation: exam-unlock 0.8s ease-in both;
+}
+
+/* A locked tile answering a tap. The audience constraint forbids dead zones,
+   so a locked shelf must still respond physically — it just says "no". */
+@keyframes locked-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px) rotate(-1.5deg); }
+  40% { transform: translateX(6px) rotate(1.5deg); }
+  60% { transform: translateX(-4px) rotate(-1deg); }
+  80% { transform: translateX(3px) rotate(0.5deg); }
+}
+
+.locked-shake {
+  animation: locked-shake 0.4s ease-in-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exam-rays,
+  .exam-trophy,
+  .exam-stamp,
+  .exam-unlock,
+  .locked-shake {
+    animation: none;
+  }
+  /* The lock still has to vanish when it opens — losing the animation must not
+     leave a padlock sitting on an unlocked shelf. */
+  .exam-unlock {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wobble,
   .pop-in,

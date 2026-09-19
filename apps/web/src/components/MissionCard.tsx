@@ -5,6 +5,8 @@ import {
   KID_GAME_MODES,
   MISSION_BONUS,
   missionTarget,
+  reachableDeckIds,
+  reachableGroupIds,
   type Camino,
   type Deck,
   type DeckGroup,
@@ -124,6 +126,16 @@ export function MissionCard({
   camino,
   onClaim,
 }: Props) {
+  // Only content the route has opened. `null` means the camino is not known
+  // yet (home renders before the album is read), and then nothing is filtered
+  // — the same behaviour as before the gate existed.
+  const openDecks = reachableDeckIds(camino);
+  const openGroups = reachableGroupIds(camino);
+  const reachableDecks =
+    openDecks === null ? decks : decks.filter((d) => openDecks.has(d.id));
+  const reachableGroups =
+    openGroups === null ? groups : groups.filter((g) => openGroups.has(g.id));
+
   return (
     <div
       className="sticker relative flex w-full max-w-md items-center justify-between gap-3 px-5 py-3"
@@ -138,13 +150,17 @@ export function MissionCard({
       </span>
       <span className="flex items-center gap-2">
         {mission.kinds.map((kind) => {
+          // La misión chooses content on the kid's behalf, and missionTarget
+          // falls back to scanning the whole pack when the camino's own deck
+          // cannot host this game — which, once shelves lock, would hand out a
+          // link straight past the gate. Filter first (ADR 021).
           const done = mission.state.done.includes(kind);
           const href = hrefFor(
             kind,
             missionTarget(
               kind,
-              decks,
-              groups,
+              reachableDecks,
+              reachableGroups,
               camino?.nextDeckId ?? null,
               camino?.nextGroupId ?? null,
             ),

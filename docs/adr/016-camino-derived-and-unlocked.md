@@ -1,7 +1,12 @@
 # ADR 016: El camino is derived from the album, and never locks anything
 
 - **Date:** 2026-08-22
-- **Status:** accepted (reads ADR 004's merge rules and ADR 012's "learned"; settles roadmap #22)
+- **Status:** **superseded in part by [ADR 021](021-camino-gates-and-exams.md)**
+  (2026-09-16) — the *never gates content* rule and the "a step cannot express
+  anything the album cannot" rule are both overturned there; the **derivation**
+  rule below still stands and 021 extends it. Read 021 first, then this for the
+  reasoning it argues against. Originally accepted 2026-08-22 (reads ADR 004's
+  merge rules and ADR 012's "learned"; settles roadmap #22).
 
 ## Decision
 

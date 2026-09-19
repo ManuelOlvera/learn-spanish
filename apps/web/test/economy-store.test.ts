@@ -122,3 +122,77 @@ describe("the migration gate", () => {
     expect(fake.data.get("palabras.migrations.v1")).toBeDefined();
   });
 });
+
+const EXAMS = "palabras.exams.v1";
+const PRACTICE = "palabras.exam-practice.v1";
+
+describe("exam records (ADR 022)", () => {
+  it("round-trips a shelf's record", async () => {
+    const store = await freshStore();
+    store.saveExamRecords("listener", { animales: { bestScore: 8, attempts: 2 } });
+    expect(store.loadExamRecords("listener")).toEqual({
+      animales: { bestScore: 8, attempts: 2 },
+    });
+  });
+
+  it("reads an absent document as no exams ever sat", async () => {
+    const store = await freshStore();
+    expect(store.loadExamRecords("listener")).toEqual({});
+  });
+
+  it("salvages per shelf, so one bad entry does not cost every other pass", async () => {
+    fake.data.set(
+      EXAMS,
+      JSON.stringify({
+        listener: {
+          animales: { bestScore: 9, attempts: 1 },
+          casa: { bestScore: "lots", attempts: 1 },
+          comida: { bestScore: -3, attempts: 1 },
+        },
+      }),
+    );
+    const store = await freshStore();
+    expect(store.loadExamRecords("listener")).toEqual({
+      animales: { bestScore: 9, attempts: 1 },
+    });
+  });
+
+  it("drops a corrupt document rather than throwing at a component", async () => {
+    fake.data.set(EXAMS, "{not json");
+    const store = await freshStore();
+    expect(() => store.loadExamRecords("listener")).not.toThrow();
+    expect(store.loadExamRecords("listener")).toEqual({});
+  });
+
+  it("keeps each kid's exams apart", async () => {
+    const store = await freshStore();
+    store.saveExamRecords("listener", { animales: { bestScore: 7, attempts: 1 } });
+    store.saveExamRecords("reader", { animales: { bestScore: 10, attempts: 1 } });
+    expect(store.loadExamRecords("listener").animales?.bestScore).toBe(7);
+    expect(store.loadExamRecords("reader").animales?.bestScore).toBe(10);
+  });
+});
+
+describe("the retry gate (device-local, ADR 022)", () => {
+  it("round-trips and clears", async () => {
+    const store = await freshStore();
+    store.saveExamPractice("listener", {
+      groupId: "animales",
+      deckId: "zoo",
+      mark: 12,
+    });
+    expect(store.loadExamPractice("listener")).toEqual({
+      groupId: "animales",
+      deckId: "zoo",
+      mark: 12,
+    });
+    store.saveExamPractice("listener", null);
+    expect(store.loadExamPractice("listener")).toBeNull();
+  });
+
+  it("rejects a malformed gate rather than locking a kid out on garbage", async () => {
+    fake.data.set(PRACTICE, JSON.stringify({ listener: { deckId: "zoo" } }));
+    const store = await freshStore();
+    expect(store.loadExamPractice("listener")).toBeNull();
+  });
+});

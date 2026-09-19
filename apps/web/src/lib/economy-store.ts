@@ -3,6 +3,10 @@
 import {
   EMPTY_WALLET,
   isBoost,
+  isExamPractice,
+  sanitizeExamRecords,
+  type ExamPractice,
+  type ExamRecords,
   isCategoryAwards,
   isMissionState,
   isPetCollection,
@@ -47,6 +51,12 @@ const RETO_KEY = "palabras.reto.v1";
 const CHALLENGE_KEY = "palabras.challenge.v1";
 const DAILY_GIFT_KEY = "palabras.daily-gift.v1"; // dayKey of the last claim; not synced
 const BOOST_KEY = "palabras.boost.v1"; // the ⚡ hora doble window; not synced
+// Exam scores per shelf (ADR 022). A new key, so nothing to migrate — an
+// absent doc reads as "no exam ever sat", which is the correct starting state.
+const EXAMS_KEY = "palabras.exams.v1";
+// The post-failure retry gate. Deliberately NOT synced and NOT in the
+// snapshot: transient state cannot ride ADR 004's additive merge (ADR 014).
+const EXAM_PRACTICE_KEY = "palabras.exam-practice.v1";
 
 /** Schema migrations run once, on the first storage access of a session —
  *  after this, every reader can assume the current key layout. */
@@ -260,6 +270,21 @@ export class LocalStorageEconomyStore implements EconomyStore {
   }
   saveDailyGiftDay(kid: KidId, day: string): void {
     writeDoc(DAILY_GIFT_KEY, kid, day);
+  }
+
+  loadExamRecords(kid: KidId): ExamRecords {
+    return sanitizeExamRecords(readDoc<ExamRecords>(EXAMS_KEY)[kid]);
+  }
+  saveExamRecords(kid: KidId, records: ExamRecords): void {
+    writeDoc(EXAMS_KEY, kid, records);
+  }
+
+  loadExamPractice(kid: KidId): ExamPractice | null {
+    const stored: unknown = readDoc<ExamPractice>(EXAM_PRACTICE_KEY)[kid];
+    return isExamPractice(stored) ? stored : null;
+  }
+  saveExamPractice(kid: KidId, practice: ExamPractice | null): void {
+    writeDoc(EXAM_PRACTICE_KEY, kid, practice);
   }
 
   loadBoost(kid: KidId): Boost | null {

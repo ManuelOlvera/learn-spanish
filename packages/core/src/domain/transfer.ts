@@ -7,6 +7,7 @@ import type { WeekProgress, WeeklyStreak } from "./weekly";
 import { tierRank } from "./category";
 import type { StickerTier } from "./sticker-tiers";
 import type { MissionState } from "./mission";
+import type { ExamRecord, ExamRecords } from "./exam";
 import { walletBalance, type Wallet } from "./stars";
 
 /**
@@ -64,6 +65,11 @@ export interface ProgressSnapshot {
    *  day (later day supersedes) and keeps `claimed` once set, so a completed
    *  mission shows complete on every device and the bonus can't be re-claimed. */
   readonly missions?: Partial<Record<KidId, MissionState>>;
+  /** Shelf → that shelf's exam record, per kid (ADR 022). Both counters are
+   *  monotonic, so merge takes the higher of each independently — the same
+   *  additive rule as `retoBests`, and the reason passing is derived from
+   *  `bestScore` rather than stored as a flag that could disagree with it. */
+  readonly examRecords?: Partial<Record<KidId, ExamRecords>>;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -293,6 +299,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   );
   const retoBests = sanitizeKidRecord(candidate.retoBests, isRetoBests);
   const missions = sanitizeKidRecord(candidate.missions, isMissionState);
+  const examRecords = sanitizeKidRecord(candidate.examRecords, isExamRecords);
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -316,6 +323,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
+    ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
   };
 }
 
@@ -355,6 +363,29 @@ export function isRetoBests(
     entries.length <= MAX_LIST &&
     entries.every(([deckId, score]) => isSaneText(deckId) && isSaneCount(score))
   );
+}
+
+/** A shelf→record ledger: keys shelf-like, values a pair of sane counters.
+ *  A hostile score can only ever unlock content, never corrupt the album —
+ *  but an `Infinity` would pass `typeof === "number"` and then stick forever
+ *  under max-merge, so the counter check is the one that matters here. */
+export function isExamRecords(value: unknown): value is ExamRecords {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const entries = Object.entries(value);
+  return (
+    entries.length <= MAX_LIST &&
+    entries.every(([groupId, record]) => isSaneText(groupId) && isExamRecord(record))
+  );
+}
+
+function isExamRecord(value: unknown): value is ExamRecord {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const r = value as Record<string, unknown>;
+  return isSaneCount(r.bestScore) && isSaneCount(r.attempts);
 }
 
 export function isCategoryAwards(
@@ -572,6 +603,22 @@ function latest(mine: number | undefined, theirs: number | undefined) {
   return Math.max(mine, theirs);
 }
 
+/** Per shelf the higher of each counter, independently. `bestScore` and
+ *  `attempts` move for different reasons — a device may hold the better score
+ *  while another has sat it more often — so taking whole records by the better
+ *  score would quietly discard attempts (ADR 022). */
+const mergeExamRecords: Combine<ExamRecords> = (mine, theirs) => {
+  const merged: Record<string, ExamRecord> = { ...(mine ?? {}) };
+  for (const [groupId, record] of Object.entries(theirs)) {
+    const existing = merged[groupId];
+    merged[groupId] = {
+      bestScore: Math.max(existing?.bestScore ?? 0, record.bestScore),
+      attempts: Math.max(existing?.attempts ?? 0, record.attempts),
+    };
+  }
+  return merged;
+};
+
 /** Within one week union the active days; a later week supersedes outright —
  *  it is a fresh week that reset the day set, not a smaller one. */
 const mergeWeekProgress: Combine<WeekProgress> = (mine, theirs) => {
@@ -687,6 +734,14 @@ export function mergeProgress(
     bestPerKey<number>((score) => score),
   );
   const missions = mergeKidField(current.missions, incoming.missions, mergeMission);
+  // Per shelf the higher of each counter, independently: a best score only
+  // ever rises, so no device can take another's pass away, and re-merging can
+  // never inflate one (ADR 022).
+  const examRecords = mergeKidField(
+    current.examRecords,
+    incoming.examRecords,
+    mergeExamRecords,
+  );
 
   // ---- the irregular fields ----
 
@@ -755,6 +810,7 @@ export function mergeProgress(
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
+    ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
   };
 }
 

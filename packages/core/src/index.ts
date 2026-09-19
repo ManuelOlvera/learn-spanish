@@ -8,6 +8,7 @@ export {
   PairingNotStoredError,
   QrEmptyPayloadError,
   QrPayloadTooLongError,
+  ExamPoolTooSmallError,
   QuizDeckTooSmallError,
   isSnapshotTooLarge,
   SnapshotTooLargeError,
@@ -23,6 +24,7 @@ export {
   computeReward,
   earnedStars,
   EMPTY_WALLET,
+  EXAM_BONUS,
   FIRST_TIME_BONUS,
   MEAL_COST,
   MISSION_BONUS,
@@ -228,7 +230,24 @@ export {
   CHALLENGE_BONUS,
 } from "./domain/challenge";
 export type { Camino, TrailShelf, TrailStep } from "./domain/trail";
-export { buildCamino } from "./domain/trail";
+export { buildCamino, reachableDeckIds, reachableGroupIds } from "./domain/trail";
+export type { Exam, ExamPractice, ExamRecord, ExamRecords, ExamRound } from "./domain/exam";
+export {
+  EXAM_BONUS_LABEL,
+  EXAM_CHOICE_COUNT,
+  EXAM_PASS_MARK,
+  EXAM_QUESTIONS,
+  EXAM_REVIEW_QUESTIONS,
+  buildExam,
+  clearedPractice,
+  examPassed,
+  isExamPass,
+  isExamPractice,
+  sanitizeExamRecords,
+  nominatePracticeDeck,
+  recordExamScore,
+  shelfExamPassed,
+} from "./domain/exam";
 export {
   groupsInTrailOrder,
   TRAIL_GROUP_ORDER,
@@ -432,3 +451,5 @@ export {
   LETTER_CASES,
   LETTER_DECK_IDS,
 } from "./domain/letters";
+export { StartExamUseCase } from "./application/start-exam";
+export { SitExamUseCase, type ExamOutcome } from "./application/sit-exam";

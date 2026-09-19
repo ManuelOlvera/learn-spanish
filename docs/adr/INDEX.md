@@ -15,16 +15,20 @@ fixes a spend-resurrection bug in 004's merge. ADRs 001, 004, 005, 012 and 013
 carry dated addenda — read them, not just the Decision.
 [020](020-earn-side-rebalance.md) works *within* 007 rather than superseding it: it
 moves the earn side and leaves the price ladder 007 protects untouched.
+[021](021-camino-gates-and-exams.md) **supersedes [016](016-camino-derived-and-unlocked.md)**
+on gating (016's derivation rule survives); [022](022-exam-record.md) is its storage
+half. ADR 020 carries a 2026-09-16 addendum adding `EXAM_BONUS` to the ladder.
 
 ## By topic / component
 
 | If you are touching… | Read |
 |---|---|
 | Audio, TTS, voices, `lib/speech.ts` | [001](001-browser-speech-synthesis.md), [010](010-runtime-llm-conversation.md), [019](019-failure-states-a-parent-can-see.md) |
-| Album, stickers, category tiers | [016](016-camino-derived-and-unlocked.md), [020](020-earn-side-rebalance.md), [004](004-optional-supabase-sync.md) |
+| Album, stickers, category tiers | [016](016-camino-derived-and-unlocked.md), [020](020-earn-side-rebalance.md), [004](004-optional-supabase-sync.md), [021](021-camino-gates-and-exams.md) |
 | Answer recording, stats, `recordAnswer` | [013](013-answer-log.md), [012](012-learned-bar-and-trend-restart.md), [018](018-staleness-beside-the-learned-bar.md) |
 | Card art, drawings, `CardFace`, emoji | [015](015-vector-card-art.md), [009](009-story-art-assets.md) |
-| El camino / the trail, `buildCamino` | [016](016-camino-derived-and-unlocked.md) |
+| El camino / the trail, `buildCamino` | [021](021-camino-gates-and-exams.md), [022](022-exam-record.md), [016](016-camino-derived-and-unlocked.md) |
+| Exams, gating a shelf, `EXAM_PASS_MARK` | [021](021-camino-gates-and-exams.md), [022](022-exam-record.md), [020](020-earn-side-rebalance.md) |
 | El repaso, review selection, `weakScore`, decay | [018](018-staleness-beside-the-learned-bar.md), [012](012-learned-bar-and-trend-restart.md) |
 | Chests, boosts, hora doble | [020](020-earn-side-rebalance.md), [014](014-timed-boost-stays-local.md), [008](008-counter-wallet.md) |
 | Deploy, hosting, Vercel, env vars | [002](002-vercel-hosting.md), [004](004-optional-supabase-sync.md) |
@@ -32,17 +36,17 @@ moves the earn side and leaves the price ladder 007 protects untouched.
 | Failure states, quota, a warning a parent sees | [019](019-failure-states-a-parent-can-see.md), [004](004-optional-supabase-sync.md), [001](001-browser-speech-synthesis.md) |
 | Images, story art, `pnpm art` | [009](009-story-art-assets.md), [015](015-vector-card-art.md) |
 | LLM, API keys, route handlers | [010](010-runtime-llm-conversation.md) |
-| Merge rules, `mergeProgress`, `ProgressSnapshot` | [004](004-optional-supabase-sync.md), [006](006-wallet-epoch-reset.md), [008](008-counter-wallet.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md), [016](016-camino-derived-and-unlocked.md), [018](018-staleness-beside-the-learned-bar.md) |
+| Merge rules, `mergeProgress`, `ProgressSnapshot` | [022](022-exam-record.md), [004](004-optional-supabase-sync.md), [006](006-wallet-epoch-reset.md), [008](008-counter-wallet.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md), [016](016-camino-derived-and-unlocked.md), [018](018-staleness-beside-the-learned-bar.md) |
 | Microphone, recording, say-it-back | [003](003-ephemeral-voice-recordings.md), [010](010-runtime-llm-conversation.md) |
 | Offline, service worker, `sw.js`, caching | [005](005-hand-rolled-service-worker.md), [009](009-story-art-assets.md), [015](015-vector-card-art.md) |
 | Pairing, QR, capability codes | [011](011-pairing-qr.md), [004](004-optional-supabase-sync.md), [010](010-runtime-llm-conversation.md) |
 | Privacy, kids' data leaving the device | [003](003-ephemeral-voice-recordings.md), [010](010-runtime-llm-conversation.md), [013](013-answer-log.md) |
 | Reports, `/informe`, parent-facing screens | [012](012-learned-bar-and-trend-restart.md), [013](013-answer-log.md), [017](017-one-roller-for-the-week.md), [018](018-staleness-beside-the-learned-bar.md), [019](019-failure-states-a-parent-can-see.md) |
 | Snapshot size, the 64 KB cap, payload pruning | [019](019-failure-states-a-parent-can-see.md), [004](004-optional-supabase-sync.md) |
-| Storage keys, localStorage, migrations | [006](006-wallet-epoch-reset.md), [012](012-learned-bar-and-trend-restart.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md) |
+| Storage keys, localStorage, migrations | [022](022-exam-record.md), [006](006-wallet-epoch-reset.md), [012](012-learned-bar-and-trend-restart.md), [013](013-answer-log.md), [014](014-timed-boost-stays-local.md) |
 | Supabase, sync, RPCs, RLS | [004](004-optional-supabase-sync.md), [002](002-vercel-hosting.md) |
 | Trend chart, "learned", mastery | [012](012-learned-bar-and-trend-restart.md), [016](016-camino-derived-and-unlocked.md), [018](018-staleness-beside-the-learned-bar.md) |
-| Wallet, stars, prices, spending | [020](020-earn-side-rebalance.md), [008](008-counter-wallet.md), [006](006-wallet-epoch-reset.md), [007](007-wallet-restore-seeded-balances.md), [014](014-timed-boost-stays-local.md) |
+| Wallet, stars, prices, spending | [020](020-earn-side-rebalance.md), [021](021-camino-gates-and-exams.md), [008](008-counter-wallet.md), [006](006-wallet-epoch-reset.md), [007](007-wallet-restore-seeded-balances.md), [014](014-timed-boost-stays-local.md) |
 | Weekly streak, la racha, freezes | [017](017-one-roller-for-the-week.md), [004](004-optional-supabase-sync.md) |
 
 ## Every decision
@@ -64,12 +68,15 @@ moves the earn side and leaves the price ladder 007 protects untouched.
 | [013](013-answer-log.md) | Answers carry their game and a timestamp; the log **never leaves the device** and forgets after 90 days. It powers accuracy-per-game and the practice calendar only. Syncing it reopens this ADR *and* 004. | `domain/answer-log.ts`, `RecordAnswerUseCase` |
 | [014](014-timed-boost-stays-local.md) | The ⚡ hora doble window does not sync — an expiring timestamp is the one shape 004's additive merge cannot carry. Expiry is decided on read; a chest's multiplier locks when the chest is computed. | `palabras.boost.v1`, `activeBoost` |
 | [015](015-vector-card-art.md) | A card may carry an `image` **key** rendered by an inline SVG component (not JPEGs, not `next/image`); `emoji` stays required as a never-rendered fallback, and the deck invariant becomes "no repeated *picture*". | `src/card-art/`, `lib/card-art.ts`, `CardFace`, `cardPicture` |
-| [016](016-camino-derived-and-unlocked.md) | El camino holds **no state of its own** (every step recomputed from the album) and **never gates content**. Completion is not mastery. A step cannot express anything the album cannot. | `buildCamino`, `domain/category.ts`, `trail.ts`, Tu camino strip |
+| [016](016-camino-derived-and-unlocked.md) | **Superseded in part by 021.** El camino holds **no state of its own** (every step recomputed from the album) and **never gates content**. Completion is not mastery. A step cannot express anything the album cannot. | `buildCamino`, `domain/category.ts`, `trail.ts`, Tu camino strip |
 | [017](017-one-roller-for-the-week.md) | `RolloverWeeklyUseCase` **writes** and the write is the celebration, so exactly one screen (home) may call it; every other screen calls `ReadWeeklyUseCase`. The Semana card lives on `/informe`. | `RolloverWeeklyUseCase`, `ReadWeeklyUseCase`, `WeeklyCard` |
 
 | [018](018-staleness-beside-the-learned-bar.md) | El repaso asks about words going **quiet** as well as words going **wrong**. `WordStat` gains an optional `seen` day stamp; staleness sits *beside* ADR 012's learned bar and never inside it, so no count moved and the trend did not restart. | `domain/review.ts`, `domain/word-stats.ts`, `RepasoView`, `/informe` |
 | [019](019-failure-states-a-parent-can-see.md) | The three failures the app used to only log — a failed sync exchange, a snapshot over the 64 KB cap, a refused `localStorage` write — get a parent-facing state on the grown-up screens. The storage record is held in memory, because storage is the thing that failed. | `lib/sync-health.ts`, `lib/storage-health.ts`, `SyncPanel`, `/informe` |
 
 | [020](020-earn-side-rebalance.md) | Mascotas are made reachable by raising the **earn side** (`STARS_PER_CORRECT` 1 → 3, every bonus with it), never by cutting `PET_SPECIES` prices (ADR 007). No wallet epoch and no migration — earning only raises `earned`, which ADR 008 already merges safely. Bonus *ordering* is the rule, pinned by tests. | `domain/stars.ts`, `domain/category.ts`, `domain/challenge.ts` |
+
+| [021](021-camino-gates-and-exams.md) | **Supersedes 016 on gating.** A shelf is locked until the previous shelf is complete *and* its **exam** passed (10 questions, 4 picture choices for both profiles, 7 to pass). Locks the home grid, not just the strip. Per shelf, never per deck; a shelf with any sticker is grandfathered. | `domain/exam.ts`, `trail.ts`, `HomeView`, `ShelfDeckGrid` |
+| [022](022-exam-record.md) | `palabras.exams.v1` stores `{ bestScore, attempts }` per kid per shelf, merged by per-counter `max` like `retoBests`. **Passing is derived** (`bestScore >= EXAM_PASS_MARK`) — no `passed` flag. The post-fail retry gate stays device-local (ADR 014's rule). | `ProgressSnapshot.examRecords`, `exam-store.ts` |
 
 `000-template.md` is the ~10-line template, not a decision.

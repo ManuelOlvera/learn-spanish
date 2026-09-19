@@ -12,6 +12,9 @@ import {
   boostRemaining,
   canClaimDailyGift as coreCanClaimDailyGift,
   categoryTierFromAlbum,
+  clearedPractice,
+  type ExamPractice,
+  type ExamRecords,
   dayKey,
   defaultCollection,
   freezesOrStarting,
@@ -423,6 +426,37 @@ export function claimChallengeBonus(kid: KidId): number | null {
 }
 
 /** Every deck's record for a kid — the sync snapshot carries the whole map. */
+/** The kid's exam ledger — read by the camino to decide what is locked, and by
+ *  the snapshot. Passing is derived from it, never stored (ADR 022). */
+export function getExamRecords(kid: KidId): ExamRecords {
+  return store.loadExamRecords(kid);
+}
+
+/** Merge-side write, for a pull that brought another device's exams in. */
+export function saveExamRecords(kid: KidId, records: ExamRecords): void {
+  store.saveExamRecords(kid, records);
+}
+
+/** The retry gate after a failed exam; null when nothing is pending. Local
+ *  only — this deliberately never reaches the snapshot (ADR 022). */
+export function getExamPractice(kid: KidId): ExamPractice | null {
+  return store.loadExamPractice(kid);
+}
+
+/** Has the kid done the practice a failed exam asked for? */
+export function canResitExam(kid: KidId, groupId: string): boolean {
+  const practice = store.loadExamPractice(kid);
+  if (practice === null || practice.groupId !== groupId) {
+    return true;
+  }
+  const prefix = `${kid}:${practice.deckId}:`;
+  const played = Object.entries(store.loadStickerCounts()).reduce(
+    (total, [id, count]) => (id.startsWith(prefix) ? total + count : total),
+    0,
+  );
+  return clearedPractice(practice, played);
+}
+
 export function getRetoBests(kid: KidId): Readonly<Record<string, number>> {
   return store.loadRetoBest(kid);
 }

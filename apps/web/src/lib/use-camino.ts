@@ -11,13 +11,16 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
-import { getStickerCounts } from "@/lib/economy";
+import { getExamRecords, getStickerCounts } from "@/lib/economy";
 
 /**
  * El camino for the selected kid, or null while it's unknown (storage not read
- * yet, or no kid picked). Derived from the album on every read — there is no
- * trail state on disk — so it re-reads when the tab comes back, which is also
- * when a sync pull may have brought another device's stickers in.
+ * yet, or no kid picked). Shelf progress is derived from the album on every
+ * read, so it re-reads when the tab comes back — which is also when a sync
+ * pull may have brought another device's stickers, or another device's exam
+ * passes, in. A pass landing from the tablet must open the phone's next shelf
+ * on the same pass, so the exam ledger is read here too and never cached
+ * separately.
  */
 export function useCamino(
   groups: readonly DeckGroup[],
@@ -47,6 +50,9 @@ export function useCamino(
                 kid,
                 earned,
                 getStickerCounts(),
+                // The gate: which shelves are open is decided here, so this
+                // must be read on the same pass as the album (ADR 021).
+                getExamRecords(kid),
               ),
             );
           }

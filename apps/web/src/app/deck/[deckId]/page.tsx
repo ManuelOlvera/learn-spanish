@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { DeckNotFoundError } from "@learn-spanish/core";
-import { getDeck, listDecks } from "@/lib/container";
+import { getDeck, listDeckGroups, listDecks } from "@/lib/container";
 import { deckAccent } from "@/lib/deck-theme";
 import { GameMenu } from "@/components/GameMenu";
 
@@ -26,5 +26,17 @@ export default async function DeckPage({
     throw err;
   }
 
-  return <GameMenu deck={deck} accent={deckAccent(deck.id)} />;
+  const [allDecks, allGroups] = await Promise.all([
+    listDecks.execute(),
+    listDeckGroups.execute(),
+  ]);
+
+  return (
+    <GameMenu
+      deck={deck}
+      accent={deckAccent(deck.id)}
+      allGroups={allGroups}
+      allDecks={allDecks}
+    />
+  );
 }

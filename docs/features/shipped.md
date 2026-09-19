@@ -1,5 +1,116 @@
 # Shipped features
 
+## 2026-09-16 — 🎓 El camino learns to say no, and los exámenes are the gate
+
+**For:** the `reader` (the eight-year-old), for whom a route that only ever
+suggested was decoration — and, by consequence, for the pre-readers too.
+[ADR 021](../adr/021-camino-gates-and-exams.md) (which **supersedes**
+[ADR 016](../adr/016-camino-derived-and-unlocked.md) on gating),
+[ADR 022](../adr/022-exam-record.md), and a dated addendum to
+[ADR 020](../adr/020-earn-side-rebalance.md).
+
+### The decision that had to be made first
+
+ADR 016 forbade both halves of this by name: *"the route **never gates
+content**"*, and *"a score threshold … [is] unrepresentable"*. Neither was an
+oversight — 016 was written about an app for three-year-olds who navigate by
+picture, where a tile that stops responding for a reason a child cannot read is
+the worst failure available. **What changed is the audience**, not the
+reasoning: the pack now serves an eight-year-old whose "babyish" verdict already
+reshaped los cuentos, and for that kid the camino carried nothing. The conflict
+was put to the parent with 016's own words in front of them, and they chose to
+supersede it.
+
+Three of 016's specific worries were answered rather than waved off, and each
+became a rule:
+
+- *"The kid who loves the animals deck gets shut out."* `animales` is the first
+  shelf on the ladder and is never locked. More generally, **a shelf holding any
+  earned sticker stays open** — and since a locked shelf can never accrue one,
+  that can only ever be true of play that predates the gate. Grandfathering is
+  therefore **derived, not migrated**: no flag, no migration entry, and nobody
+  sent back to shelf 1 on the day this shipped.
+- *"Mastery can stall a kid mid-route."* Now a real cost, so a stall must have
+  an exit: a failed exam always names a specific deck to go and play, and
+  retrying is otherwise unlimited. The route never says "no" without saying "do
+  this instead" — that sentence replaced 016's own retired test as the thing to
+  check any future change against.
+- *"A score threshold is unrepresentable."* Correct, so it is no longer derived.
+
+### The gate is on the home grid, not the strip
+
+The Tu camino strip already only linked the current stop, so gating *it* would
+have gated nothing: kids reach shelves from the grid below. The lock therefore
+had to land on the tiles themselves — and it holds at every entrance, because a
+gate with one open door is not a gate. Home padlocks the tile, the shelf page
+refuses its decks, `/deck/<id>` refuses when its shelf is shut (a bookmark or
+the back stack reaches it without passing the shelf), and **la misión filters
+its targets through `reachableDeckIds`** — it picks content on the kid's behalf
+and fell back to scanning the whole pack, which would have handed out a link
+straight past the gate.
+
+A locked tile is a **button, not a dead tile**. The audience constraint forbids
+dead zones, so tapping one shakes it and its padlock: the answer is "not yet",
+delivered physically, with nothing to read. It keeps its emoji and name at
+reduced contrast so a kid can still see what is coming.
+
+Gating is **per shelf, never per deck**. Deck order inside a shelf is the pack's
+own order — curation, not a teaching sequence — so gating it would enforce an
+order nobody designed, and combined with a locked grid it would have left a
+pre-reader exactly one tappable tile out of forty-four.
+
+### The exam
+
+Ten questions across the shelf just finished plus three from everything earlier
+on the ladder, which is what makes it a memory check rather than a second quiz.
+**Four picture choices for both profiles** — the listener's quiz gives two, and
+at two choices pure guessing clears 7-of-10 about **17% of the time**, which
+with unlimited retries is not a gate at all. Pictures need no reading, so the
+harder format costs the pre-reader nothing it cannot pay. Seven of ten passes.
+
+A failure pays nothing and costs nothing, and hands back the weakest deck on the
+shelf (by ADR 018's `weakScore`); the exam reopens once that deck has been
+played again. That waiting-on-practice record is **device-local and never
+synced** — it is transient state, ADR 014's rule, and the fail direction is what
+makes it safe: an unsynced gate lets a kid retry sooner somewhere else, while
+syncing it wrong would lock them out on a device they never failed on.
+
+### Passing is the biggest thing in the app
+
+`EXAM_BONUS = 200`, above `CATEGORY_BONUS.gold` (125) — the parent asked for it
+in those words. This works *within* ADR 020 rather than against it: that ADR's
+rule is that **ordering is the rule, not the numbers**, so a new rung is a new
+assertion against the constant, and it moves the earn side only, leaving the
+price ladder ADR 007 protects untouched. One pass buys the cheapest mascota
+outright, which is intended.
+
+The celebration is the app's **one sequenced ceremony** — everything else that
+celebrates here is a single gesture, and that is precisely what makes this read
+as a bigger occasion. The grade stamps down like a teacher's rubber stamp, a
+trophy drops in on slowly turning gold rays (the one piece of slow motion in an
+app whose vocabulary is "springy"), the stars **count up** rather than
+appearing, and last — because it is the real prize — the padlock on the next
+shelf breaks open over its emoji. The stars are a number; the opened shelf is
+what the exam was *for*.
+
+### What the exam ledger stores
+
+`palabras.exams.v1` holds `{ bestScore, attempts }` per kid per shelf. Both are
+monotonic, so ADR 004 merges them by per-counter `max` with no new semantics —
+the same rule as `retoBests`. **Passing is derived** (`bestScore >=
+EXAM_PASS_MARK`); there is no `passed` flag anywhere, because a flag beside the
+score is a second record of one fact and the two can disagree after a merge —
+exactly the drift ADR 016 catalogued and ADR 008 fixed for the wallet. A bad
+re-sit can therefore never take a pass away. A new key, so nothing to migrate.
+
+### Deferred
+
+Los **súper exámenes** (a longer cumulative sweep at milestone points), exam
+history on `/informe` (`attempts` is already stored for it and read by no rule),
+a **parent unlock key** — named in ADR 021 as the first thing to add if a kid
+gets genuinely stuck — per-profile thresholds, and re-examining a section that
+has gone quiet. All in `roadmap.md` under #22.
+
 ## 2026-09-15 — Mascotas come into reach, and the chest becomes a moment
 
 **For:** both kids, who had stopped believing a second mascota was reachable, and

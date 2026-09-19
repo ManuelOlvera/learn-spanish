@@ -1,31 +1,20 @@
 import { describe, expect, it } from "vitest";
-import type { EconomyStore } from "../src/domain/economy";
+import { FakeEconomyStore } from "./fakes";
 import type { KidId } from "../src/domain/kid";
-import type { MissionState } from "../src/domain/mission";
-import type { PetCollection } from "../src/domain/mascota";
-import type { ParentChallenge } from "../src/domain/challenge";
-import type { StickerTier } from "../src/domain/sticker-tiers";
-import type { WeekProgress, WeeklyStreak } from "../src/domain/weekly";
 import { ACCESSORIES } from "../src/domain/wardrobe";
 import { defaultCollection, namePet, PET_SPECIES, STARTER_SPECIES } from "../src/domain/mascota";
 import {
   DAILY_GIFT_BOOST_CHANCE,
   DAILY_GIFT_FREEZE_CHANCE,
 } from "../src/domain/daily-gift";
-import { BOOST_MINUTES, startBoost, type Boost } from "../src/domain/boost";
+import { BOOST_MINUTES, startBoost } from "../src/domain/boost";
 import { GetBoostUseCase } from "../src/application/get-boost";
 import { AVATAR_CATALOG } from "../src/domain/avatars";
 import {
   FREEZE_COST,
   STARTING_FREEZES,
 } from "../src/domain/weekly";
-import {
-  EMPTY_WALLET,
-  MEAL_COST,
-  MISSION_BONUS,
-  walletBalance,
-  type Wallet,
-} from "../src/domain/stars";
+import { MEAL_COST, MISSION_BONUS } from "../src/domain/stars";
 import { SURPRISE_COST } from "../src/domain/surprise";
 import { CATEGORY_BONUS } from "../src/domain/category";
 import { dayKey } from "../src/domain/daily";
@@ -52,58 +41,6 @@ import { ClaimCategoryRewardUseCase } from "../src/application/claim-category-re
 import { SaveRetoBestUseCase } from "../src/application/save-reto-best";
 
 /** In-memory EconomyStore: the port contract with none of the storage. */
-class FakeEconomyStore implements EconomyStore {
-  walletsByKid: Partial<Record<KidId, Wallet>> = {};
-  freezesByKid: Partial<Record<KidId, number>> = {};
-  missions: Partial<Record<KidId, MissionState>> = {};
-  weeklyByKid: Partial<Record<KidId, WeeklyStreak>> = {};
-  progressByKid: Partial<Record<KidId, WeekProgress>> = {};
-  collections: Partial<Record<KidId, PetCollection>> = {};
-  accessoriesByKid: Partial<Record<KidId, readonly string[]>> = {};
-  avatarsByKid: Partial<Record<KidId, readonly string[]>> = {};
-  decksByKid: Partial<Record<KidId, readonly string[]>> = {};
-  counts: Readonly<Record<string, number>> = {};
-  awardsByKid: Partial<Record<KidId, Readonly<Record<string, StickerTier>>>> = {};
-  retoByKid: Partial<Record<KidId, Readonly<Record<string, number>>>> = {};
-
-  loadWallet(kid: KidId) { return this.walletsByKid[kid] ?? EMPTY_WALLET; }
-  saveWallet(kid: KidId, wallet: Wallet) { this.walletsByKid[kid] = wallet; }
-  // Test conveniences over the counter wallet (the port speaks Wallet only).
-  loadStars(kid: KidId) { return walletBalance(this.loadWallet(kid)); }
-  saveStars(kid: KidId, stars: number) { this.saveWallet(kid, { earned: stars, spent: 0 }); }
-  loadFreezes(kid: KidId) { return this.freezesByKid[kid] ?? null; }
-  saveFreezes(kid: KidId, count: number) { this.freezesByKid[kid] = count; }
-  loadMission(kid: KidId) { return this.missions[kid] ?? null; }
-  saveMission(kid: KidId, state: MissionState) { this.missions[kid] = state; }
-  loadWeekly(kid: KidId) { return this.weeklyByKid[kid] ?? null; }
-  saveWeekly(kid: KidId, streak: WeeklyStreak) { this.weeklyByKid[kid] = streak; }
-  loadWeekProgress(kid: KidId) { return this.progressByKid[kid] ?? null; }
-  saveWeekProgress(kid: KidId, progress: WeekProgress) { this.progressByKid[kid] = progress; }
-  loadPetCollection(kid: KidId) { return this.collections[kid] ?? null; }
-  savePetCollection(kid: KidId, collection: PetCollection) { this.collections[kid] = collection; }
-  loadOwnedAccessories(kid: KidId) { return this.accessoriesByKid[kid] ?? []; }
-  saveOwnedAccessories(kid: KidId, owned: readonly string[]) { this.accessoriesByKid[kid] = owned; }
-  loadOwnedAvatars(kid: KidId) { return this.avatarsByKid[kid] ?? []; }
-  saveOwnedAvatars(kid: KidId, owned: readonly string[]) { this.avatarsByKid[kid] = owned; }
-  loadUnlockedDecks(kid: KidId) { return this.decksByKid[kid] ?? []; }
-  saveUnlockedDecks(kid: KidId, decks: readonly string[]) { this.decksByKid[kid] = decks; }
-  loadStickerCounts() { return this.counts; }
-  saveStickerCounts(counts: Readonly<Record<string, number>>) { this.counts = counts; }
-  loadCategoryAwards(kid: KidId) { return this.awardsByKid[kid] ?? {}; }
-  saveCategoryAwards(kid: KidId, awards: Readonly<Record<string, StickerTier>>) { this.awardsByKid[kid] = awards; }
-  challengeByKid: Partial<Record<KidId, ParentChallenge | null>> = {};
-  loadChallenge(kid: KidId) { return this.challengeByKid[kid] ?? null; }
-  saveChallenge(kid: KidId, challenge: ParentChallenge | null) { this.challengeByKid[kid] = challenge; }
-  loadRetoBest(kid: KidId) { return this.retoByKid[kid] ?? {}; }
-  saveRetoBest(kid: KidId, best: Readonly<Record<string, number>>) { this.retoByKid[kid] = best; }
-  dailyGiftByKid: Partial<Record<KidId, string>> = {};
-  loadDailyGiftDay(kid: KidId) { return this.dailyGiftByKid[kid] ?? null; }
-  saveDailyGiftDay(kid: KidId, day: string) { this.dailyGiftByKid[kid] = day; }
-  boostByKid: Partial<Record<KidId, Boost>> = {};
-  loadBoost(kid: KidId) { return this.boostByKid[kid] ?? null; }
-  saveBoost(kid: KidId, boost: Boost) { this.boostByKid[kid] = boost; }
-}
-
 const KID: KidId = "listener";
 const NOW = new Date("2026-07-15T10:00:00"); // a Wednesday, local time
 

@@ -1,9 +1,11 @@
 import type { Deck } from "../src/domain/deck";
 import type { VocabularyCard } from "../src/domain/card";
 
-export function card(n: number): VocabularyCard {
+/** `id` overrides the default `word-N`, for tests that need card ids to be
+ *  unique across several decks at once (los exámenes draw from many). */
+export function card(n: number, id = `word-${n}`): VocabularyCard {
   return {
-    id: `word-${n}`,
+    id,
     spanish: `palabra ${n}`,
     english: `word ${n}`,
     emoji: String.fromCodePoint(0x1f400 + n),

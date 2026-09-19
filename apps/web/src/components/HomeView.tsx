@@ -58,7 +58,7 @@ import { SecretDeckTile } from "@/components/SecretDeckTile";
 import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
-import { TrailBadge, TrailPips } from "@/components/TrailMarks";
+import { LockedTile, TrailBadge, TrailPips } from "@/components/TrailMarks";
 import { CaminoStrip } from "@/components/CaminoStrip";
 import { useCamino } from "@/lib/use-camino";
 
@@ -489,21 +489,8 @@ export function HomeView({ decks, groups }: Props) {
             return deck ? [deck] : [];
           });
           const shelf = camino?.shelves.find((s) => s.groupId === group.id);
-          return (
-            <Link
-              key={group.id}
-              href={`/group/${group.id}`}
-              style={{ "--accent": deckAccent(group.id) } as React.CSSProperties}
-              className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
-            >
-              <span aria-hidden className="sticker-peel" />
-              {/* El camino: this shelf is the next stop, or it's finished. */}
-              {camino !== null && group.id === camino.nextGroupId && (
-                <TrailBadge state="next" />
-              )}
-              {shelf?.complete === true && (
-                <TrailBadge state="done" tier={shelf.tier} />
-              )}
+          const face = (
+            <>
               <span
                 aria-hidden
                 className="text-5xl sm:text-6xl"
@@ -527,6 +514,48 @@ export function HomeView({ decks, groups }: Props) {
                   label={`${group.nameSpanish}, mazos terminados`}
                 />
               )}
+            </>
+          );
+
+          // The gate is real on the home grid, not only on the strip: this is
+          // the surface a kid actually navigates by, so gating anywhere else
+          // would gate nothing at all (ADR 021).
+          if (shelf?.locked === true) {
+            return (
+              <LockedTile
+                key={group.id}
+                label={group.nameSpanish}
+                className="min-h-40"
+              >
+                {face}
+              </LockedTile>
+            );
+          }
+
+          // A finished shelf whose exam is due sends the kid to the exam
+          // rather than back into decks they have already completed.
+          const href = shelf?.examPending === true
+            ? `/examen/${group.id}`
+            : `/group/${group.id}`;
+          return (
+            <Link
+              key={group.id}
+              href={href}
+              style={{ "--accent": deckAccent(group.id) } as React.CSSProperties}
+              className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+            >
+              <span aria-hidden className="sticker-peel" />
+              {/* El camino: the exam is waiting, this is the next stop, or
+                  it's finished. The exam outranks the pointer — it IS the
+                  next thing. */}
+              {shelf?.examPending === true ? (
+                <TrailBadge state="exam" />
+              ) : camino !== null && group.id === camino.nextGroupId ? (
+                <TrailBadge state="next" />
+              ) : shelf?.complete === true ? (
+                <TrailBadge state="done" tier={shelf.tier} />
+              ) : null}
+              {face}
             </Link>
           );
         })}

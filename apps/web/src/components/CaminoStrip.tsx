@@ -23,8 +23,12 @@ interface Props {
  *
  * Only the current stop is tappable, because the one thing you want from here
  * is "take me to where I left off"; the other nine would just be a second, less
- * legible copy of the shelf grid. This gates nothing: that grid sits directly
- * below with every shelf on it, one tap, exactly as before el camino existed.
+ * legible copy of the shelf grid directly below.
+ *
+ * Since ADR 021 that grid gates too, so the strip is no longer merely a quieter
+ * view of it: a 🔒 here and a padlocked tile below say the same thing, and a 🎓
+ * marks the shelf whose exam is the next move. When the current stop is an
+ * exam, tapping it goes to the exam rather than back into finished decks.
  */
 export function CaminoStrip({ camino, groups }: Props) {
   const hereRef = useRef<HTMLAnchorElement>(null);
@@ -51,6 +55,8 @@ export function CaminoStrip({ camino, groups }: Props) {
           const done = shelf?.complete === true;
           const tier: StickerTier = shelf?.tier ?? "none";
           const here = group.id === camino.nextGroupId;
+          const examPending = shelf?.examPending === true;
+          const locked = shelf?.locked === true;
           return (
             <div key={group.id} className="flex shrink-0 items-center">
               {i > 0 && (
@@ -65,6 +71,8 @@ export function CaminoStrip({ camino, groups }: Props) {
                 done={done}
                 here={here}
                 tier={tier}
+                examPending={examPending}
+                locked={locked}
               />
             </div>
           );
@@ -79,6 +87,10 @@ interface StopProps {
   done: boolean;
   here: boolean;
   tier: StickerTier;
+  /** Its decks are all finished and the exam is what stands in the way. */
+  examPending: boolean;
+  /** The route has not opened this shelf yet (ADR 021). */
+  locked: boolean;
 }
 
 /**
@@ -87,7 +99,7 @@ interface StopProps {
  * where shelf navigation has always lived.
  */
 const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
-  { group, done, here, tier },
+  { group, done, here, tier, examPending, locked },
   ref,
 ) {
   // The current stop is the only tappable one, so it carries the design
@@ -104,9 +116,21 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
       <span aria-hidden className={here || done ? undefined : "opacity-40"}>
         {group.emoji}
       </span>
-      {done && (
+      {done && !examPending && (
         <span aria-hidden className="absolute -right-1 -top-1 text-sm leading-none">
           {TIER_GLYPH[tier]}
+        </span>
+      )}
+      {/* The checkpoint reads as its own kind of stop, not as a finished one:
+          the decks are done but the shelf is not cleared until the exam is. */}
+      {examPending && (
+        <span aria-hidden className="absolute -right-1 -top-1 text-sm leading-none">
+          🎓
+        </span>
+      )}
+      {locked && (
+        <span aria-hidden className="absolute -right-1 -top-1 text-sm leading-none">
+          🔒
         </span>
       )}
       {here && (
@@ -118,7 +142,15 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
     </>
   );
   const shared = `relative flex shrink-0 items-center justify-center rounded-full border-4 ${size} ${shade}`;
-  const state = done ? TIER_LABEL[tier] : here ? "estás aquí" : "pendiente";
+  const state = examPending
+    ? "examen"
+    : locked
+      ? "todavía no"
+      : done
+        ? TIER_LABEL[tier]
+        : here
+          ? "estás aquí"
+          : "pendiente";
 
   if (!here) {
     return (
@@ -130,7 +162,7 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
   return (
     <Link
       ref={ref}
-      href={`/group/${group.id}`}
+      href={examPending ? `/examen/${group.id}` : `/group/${group.id}`}
       aria-label={`${group.nameSpanish} — ${state}`}
       className={`${shared} active:translate-y-0.5`}
     >

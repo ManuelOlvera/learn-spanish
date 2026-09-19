@@ -14,6 +14,7 @@ import {
   stickerTier,
   type ActivityId,
   type Deck,
+  type DeckGroup,
   type KidId,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
@@ -22,10 +23,16 @@ import { getStickerCounts } from "@/lib/economy";
 import { TIER_GLYPH, TIER_LABEL } from "@/components/TrailMarks";
 import { getAvatar, KID_META } from "@/lib/kid";
 import { useSelectedKid } from "@/lib/use-selected-kid";
+import { useCamino } from "@/lib/use-camino";
+import { LockedTile } from "@/components/TrailMarks";
 
 interface Props {
   deck: Deck;
   accent: string;
+  /** The whole pack, so this page can tell whether its shelf is still locked
+   *  (ADR 021) — /deck/<id> is reachable without passing through the shelf. */
+  allGroups: readonly DeckGroup[];
+  allDecks: readonly Deck[];
 }
 
 interface ModeLink {
@@ -197,7 +204,7 @@ function activityForHref(href: string): ActivityId {
   return href.replace("/", "-") as ActivityId;
 }
 
-export function GameMenu({ deck, accent }: Props) {
+export function GameMenu({ deck, accent, allGroups, allDecks }: Props) {
   const selected = useSelectedKid();
   // `gamesFor` wants a real kid or nothing; "still reading" is handled below.
   const kid = selected.status === "picked" ? selected.kid : null;
@@ -207,6 +214,14 @@ export function GameMenu({ deck, accent }: Props) {
   // Completion counts behind those stickers — the same ledger the album tiers
   // from, so a 🥇 here and a 🥇 in the album are the same fact.
   const [counts, setCounts] = useState<Readonly<Record<string, number>>>({});
+  // Whether this deck's shelf is still shut. Null camino (album not read yet)
+  // means "not known", and an unknown gate must never refuse — the loading
+  // branch below catches that frame anyway.
+  const camino = useCamino(allGroups, allDecks, kid);
+  const lockedShelf =
+    camino?.shelves.some(
+      (shelf) => shelf.locked && shelf.steps.some((s) => s.deckId === deck.id),
+    ) === true;
 
   useEffect(() => {
     if (!kid) {
@@ -229,6 +244,34 @@ export function GameMenu({ deck, accent }: Props) {
 
   if (selected.status === "loading") {
     return <main className="min-h-dvh" aria-hidden />;
+  }
+
+  // The last entrance to gated content. Home padlocks the shelf and the shelf
+  // page refuses its decks, but /deck/<id> is a static route a bookmark, the
+  // back stack or a stale link still reaches directly — and a gate with one
+  // open door is not a gate (ADR 021). Per shelf, never per deck: this refuses
+  // only because the deck's *shelf* is locked.
+  if (lockedShelf) {
+    return (
+      <main
+        style={{ "--accent": accent } as React.CSSProperties}
+        className="mx-auto flex min-h-dvh max-w-2xl flex-col items-center justify-center gap-6 p-4 sm:p-6"
+      >
+        <LockedTile label={deck.nameSpanish} className="min-h-44 w-full max-w-sm">
+          <span aria-hidden className="text-7xl">
+            {deck.emoji}
+          </span>
+          <span className="text-center text-lg font-bold">{deck.nameSpanish}</span>
+        </LockedTile>
+        <Link
+          href="/"
+          aria-label="Back home"
+          className="sticker flex min-h-24 items-center px-8 py-4 text-4xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+        >
+          <span aria-hidden>🏠</span>
+        </Link>
+      </main>
+    );
   }
 
   const games = gamesFor(kid, deck);

@@ -66,3 +66,28 @@ are unchanged.
   outright. Move either side and that test is what fails.
 - Rebalancing *down* later is a different and much harder operation — that one
   does need ADR 006's epoch plus a migration.
+
+## Addendum — 2026-09-16: `EXAM_BONUS` takes the top of the ladder
+
+El camino's exams (ADR 021) add `EXAM_BONUS = 200`, above `CATEGORY_BONUS.gold`
+(125), making a passed exam the largest single payout in the app. The parent
+asked for it in those words: passing must beat opening any chest.
+
+This works *within* this ADR rather than against it. The rule above is that
+**ordering is the rule, not the numbers**, so a new rung is a new pinned
+assertion (`EXAM_BONUS > CATEGORY_BONUS.gold`), asserted against the constant
+and never a copy of its value. And it moves the earn side only — `PET_SPECIES`,
+`MEAL_COST` and `SURPRISE_COST` are untouched, so ADR 007 holds and no wallet
+epoch is needed (earning only raises `earned`, which ADR 008 merges by max).
+
+**One exam pass buys the cheapest mascota outright (200⭐ against el conejo's
+100⭐), and that is intended, not an oversight.** The neighbouring invariant —
+"one game must never buy one outright" (`economy2.test.ts`) — is about a chest
+from a single activity through `computeReward`; an exam sits behind a whole
+completed shelf and a 7-of-10 threshold, which is the opposite of the
+grind-free shortcut that test protects against. Both invariants now stand, and
+both are asserted.
+
+If exams ever start feeling routine enough that 200⭐ distorts saving, raise the
+threshold or space the exams — do not cut the bonus, which is the one thing the
+kids are told is the biggest prize in the app.

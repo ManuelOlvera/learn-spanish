@@ -29,6 +29,20 @@ export const MEAL_COST = 5;
  *  stay below CHALLENGE_BONUS — a challenge papá set outranks the daily draw. */
 export const MISSION_BONUS = 25;
 
+/**
+ * Passing a shelf's exam on el camino — **the largest single payout in the
+ * app**, deliberately above `CATEGORY_BONUS.gold` (125) so that passing beats
+ * opening any chest, which is what the parent asked for in those words
+ * (ADR 020's 2026-09-16 addendum, ADR 021).
+ *
+ * The *ordering* is the rule, not the number: a test asserts this against
+ * `CATEGORY_BONUS.gold` itself, never a copy of its value. Raising the earn
+ * side needs no wallet epoch — earning only ever raises `earned`, which ADR
+ * 008 merges by max — and `PET_SPECIES` prices stay untouched (ADR 007), so
+ * one pass does buy the cheapest mascota outright. That is intended.
+ */
+export const EXAM_BONUS = 200;
+
 /** The wallet's generation. Bumping it makes the merge discard wallet fields
  *  from any older epoch (see mergeProgress) — otherwise max-merge would
  *  resurrect pre-bump values from cloud rows and old transfer codes. Each

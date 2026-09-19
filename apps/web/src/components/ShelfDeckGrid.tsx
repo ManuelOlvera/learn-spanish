@@ -5,7 +5,7 @@ import type { Deck, DeckGroup } from "@learn-spanish/core";
 import { deckAccent } from "@/lib/deck-theme";
 import { useSelectedKid } from "@/lib/use-selected-kid";
 import { useCamino } from "@/lib/use-camino";
-import { TrailBadge, TrailPips } from "@/components/TrailMarks";
+import { LockedTile, TrailBadge, TrailPips } from "@/components/TrailMarks";
 
 interface Props {
   /** This shelf's decks, in the order the pack lists them — the camino's order. */
@@ -20,14 +20,35 @@ interface Props {
  * The deck tiles of one shelf, with el camino drawn on them: pips for how many
  * of this deck's activities are done, a 👉 on the next one, a ⭐ on the
  * finished ones. Client-side because the route is derived from the album,
- * which lives in the browser — the tiles themselves are unchanged otherwise,
- * and nothing is ever locked.
+ * which lives in the browser.
+ *
+ * Gating is **per shelf, never per deck** (ADR 021): inside a shelf the route
+ * has opened, every deck stays as free as it ever was, because deck order
+ * within a shelf is the pack's own order rather than a teaching sequence. The
+ * one thing this file enforces is the shelf's own lock — a kid who reaches a
+ * locked shelf's URL directly gets the padlock rather than its decks.
  */
 export function ShelfDeckGrid({ decks, groupId, allGroups, allDecks }: Props) {
   const selected = useSelectedKid();
   const kid = selected.status === "picked" ? selected.kid : null;
   const camino = useCamino(allGroups, allDecks, kid);
   const shelf = camino?.shelves.find((s) => s.groupId === groupId);
+
+  // Deep-link guard. Home already hides this shelf behind a padlock, but a
+  // bookmark, a back-button or a shared URL reaches here directly, and a gate
+  // with a way around it is not a gate.
+  if (shelf?.locked === true) {
+    return (
+      <LockedTile label="Esta estantería" className="col-span-2 min-h-44">
+        <span aria-hidden className="text-7xl">
+          🔒
+        </span>
+        <span className="text-center text-lg font-bold">
+          Termina el examen anterior
+        </span>
+      </LockedTile>
+    );
+  }
 
   return (
     <>

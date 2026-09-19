@@ -1,5 +1,6 @@
 import { stickerId } from "./album";
 import { categoryTierFromAlbum, earnableActivities, tierRank } from "./category";
+import { shelfExamPassed, type ExamRecords } from "./exam";
 import type { Deck } from "./deck";
 import type { DeckGroup } from "./deck-group";
 import type { KidId } from "./kid";
@@ -9,14 +10,19 @@ import type { StickerTier } from "./sticker-tiers";
  * El camino — the guided route through the pack, at two zoom levels: the
  * shelves in learning order, and inside each one its decks in pack order.
  *
- * It **never locks anything**. The route is a suggestion drawn on top of the
- * free picture-navigation the app is built on: every deck stays as reachable
- * as it was, and the camino only says how far a kid has come and which single
- * thing is next. That is the condition roadmap #22 set for building it at all.
+ * It **gates** (ADR 021, which supersedes ADR 016 on exactly this point): a
+ * shelf stays locked until the one before it is complete *and* that shelf's
+ * exam is passed. The lock is real — `apps/web` makes a locked shelf's tiles
+ * untappable on the home grid, not merely pale on the strip.
  *
- * Progress is *derived* from the album, never stored — so there is no new
- * storage key, no migration, and nothing extra for sync to merge. Replaying a
- * deck cannot lose a step, because the sticker that proves it stays earned.
+ * Two rules keep the gate from becoming the wall ADR 016 feared. **Nothing a
+ * kid has already played ever locks** (see `grandfathered` below), and a
+ * failed exam always names a deck to go and play, so the route never says
+ * "no" without saying "do this instead".
+ *
+ * Shelf *progress* is still derived from the album, never stored — that half
+ * of ADR 016 survives intact. Exactly one fact is stored, the exam score,
+ * because it provably cannot be derived (ADR 022).
  */
 
 /** One stop on a shelf's path: a deck, and how far into it the kid is. */
@@ -39,13 +45,25 @@ export interface TrailShelf {
   /** The weakest tier among its decks — a shelf is only as gold as its least
    *  played deck, the same "weakest slot" rule the album uses within a deck. */
   readonly tier: StickerTier;
+  /** Unreachable: the shelf before it is unfinished or unexamined, and this
+   *  kid has never played anything here. `apps/web` must honour this on the
+   *  home grid, not only on the strip. */
+  readonly locked: boolean;
+  /** Every deck done, exam not yet passed — the exam is the thing to do. */
+  readonly examPending: boolean;
+  /** This shelf's exam has been passed at some point. */
+  readonly examPassed: boolean;
 }
 
 /** The whole route, plus the one thing to do next. */
 export interface Camino {
   readonly shelves: readonly TrailShelf[];
   readonly nextGroupId: string | null;
+  /** The deck to play next, or null when an exam is what stands in the way. */
   readonly nextDeckId: string | null;
+  /** The shelf whose exam is due now, or null. Exactly one of this and
+   *  `nextDeckId` is set while the route is unfinished. */
+  readonly nextExamGroupId: string | null;
   readonly complete: boolean;
 }
 
@@ -93,8 +111,8 @@ function weakestTier(tiers: readonly StickerTier[]): StickerTier {
  * is content curation and lives beside the shelves in `infrastructure`.
  *
  * Secret decks (El misterio) are left out: a star-gated bonus is not a rung on
- * the learning ladder, and a route that pointed at a locked deck would break
- * the never-locks promise from the other side.
+ * the learning ladder, and its own star lock is a different mechanism from
+ * this one.
  */
 export function buildCamino(
   groups: readonly DeckGroup[],
@@ -104,8 +122,17 @@ export function buildCamino(
   /** Completion counts behind the stickers — the tier ledger. A sticker with no
    *  row reads as one play, matching what the album shows. */
   counts: Readonly<Record<string, number>> = {},
+  /** Exam scores per shelf. Absent means no exam has ever been sat, which
+   *  locks everything past the first shelf unless it is grandfathered. */
+  examRecords: ExamRecords = {},
 ): Camino {
   const owned = new Set(earned);
+
+  // The gate walks the ladder in order: each shelf decides whether the next
+  // one opens. The first shelf is always open — there is nothing behind it to
+  // finish, and it is the deck a three-year-old already loves (ADR 021).
+  let gateOpen = true;
+
   const shelves = groups.map((group): TrailShelf => {
     const steps = group.deckIds.flatMap((deckId) => {
       const deck = decks.find((d) => d.id === deckId);
@@ -115,27 +142,105 @@ export function buildCamino(
     });
     const doneSteps = steps.filter((step) => step.complete).length;
     const complete = steps.length > 0 && doneSteps === steps.length;
+
+    // Grandfathering, derived rather than stored: a shelf this kid has already
+    // touched stays open however far ahead it sits. Because a locked shelf can
+    // never accrue a sticker, this can only ever be true of play that predates
+    // the gate — so it self-limits, and nobody is sent back to shelf 1 on the
+    // day this ships. Deleting it silently demotes every existing kid.
+    const grandfathered = steps.some((step) => step.done > 0);
+    const locked = !gateOpen && !grandfathered;
+
+    const examPassed = shelfExamPassed(examRecords, group.id);
+    // A shelf with no steps at all (every deck secret, or a shelf mid-edit)
+    // must not strand the route behind an exam it can never offer.
+    const examPending = complete && !examPassed;
+
+    gateOpen = complete && examPassed;
+
     return {
       groupId: group.id,
       steps,
       doneSteps,
       complete,
       tier: complete ? weakestTier(steps.map((s) => s.tier)) : "none",
+      locked,
+      examPending,
+      examPassed,
     };
   });
 
-  // The first unfinished stop, reading the route in order: finished shelves
-  // and any that hold no steps at all are simply passed over.
+  // The one thing to do next, reading the route in order. A shelf is only
+  // finished with once its exam is passed too, so a completed-but-unexamined
+  // shelf answers "the exam", not "the next shelf's first deck" — which is
+  // locked anyway.
   let nextGroupId: string | null = null;
   let nextDeckId: string | null = null;
+  let nextExamGroupId: string | null = null;
   for (const shelf of shelves) {
-    const step = shelf.steps.find((s) => !s.complete);
-    if (step !== undefined) {
-      nextGroupId = shelf.groupId;
-      nextDeckId = step.deckId;
-      break;
+    if (shelf.complete && shelf.examPassed) {
+      continue;
     }
+    // Shelves holding nothing playable are passed over rather than becoming a
+    // dead end the kid cannot clear.
+    if (shelf.steps.length === 0) {
+      continue;
+    }
+    nextGroupId = shelf.groupId;
+    const step = shelf.steps.find((s) => !s.complete);
+    if (step === undefined) {
+      nextExamGroupId = shelf.groupId;
+    } else {
+      nextDeckId = step.deckId;
+    }
+    break;
   }
 
-  return { shelves, nextGroupId, nextDeckId, complete: nextDeckId === null };
+  return {
+    shelves,
+    nextGroupId,
+    nextDeckId,
+    nextExamGroupId,
+    complete: nextGroupId === null,
+  };
+}
+
+/**
+ * The shelves this kid may actually open, or `null` when the route is not
+ * known yet.
+ *
+ * This exists because the gate has to hold everywhere, not just on the tiles
+ * that draw it. La misión picks a deck to send a kid to and falls back to
+ * scanning the whole pack when its preferred one does not host the game it
+ * wants — which, once shelves lock, could hand a three-year-old a link
+ * straight past the gate. Anything that *chooses content on the kid's behalf*
+ * filters through here first.
+ *
+ * `null` rather than an empty set while the camino is unknown: home renders
+ * before the album has been read, and filtering against an empty set would
+ * blank those surfaces for a frame on every single load.
+ */
+export function reachableGroupIds(
+  camino: Camino | null,
+): ReadonlySet<string> | null {
+  if (camino === null) {
+    return null;
+  }
+  return new Set(
+    camino.shelves.filter((shelf) => !shelf.locked).map((shelf) => shelf.groupId),
+  );
+}
+
+/** The decks on those shelves — the deck-level counterpart of the above. */
+export function reachableDeckIds(
+  camino: Camino | null,
+): ReadonlySet<string> | null {
+  if (camino === null) {
+    return null;
+  }
+  return new Set(
+    camino.shelves
+      .filter((shelf) => !shelf.locked)
+      .flatMap((shelf) => shelf.steps.map((step) => step.deckId)),
+  );
 }

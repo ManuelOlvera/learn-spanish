@@ -16,9 +16,13 @@ import {
  * (Ports backed by browser storage are wired in album.ts, the client-side
  * counterpart — this module is imported by server components too.)
  */
-const deckRepository = new StaticDeckRepository();
+/** Exported for client-container.ts, which wires the browser-storage use cases
+ *  that also need the pack (los exámenes draw across whole shelves). Exported
+ *  rather than re-constructed there so the pack still has exactly one
+ *  composition site. */
+export const deckRepository = new StaticDeckRepository();
 const sentenceRepository = new StaticSentenceRepository();
-const deckGroupRepository = new StaticDeckGroupRepository();
+export const deckGroupRepository = new StaticDeckGroupRepository();
 const storyRepository = new StaticStoryRepository();
 
 export const listDecks = new ListDecksUseCase(deckRepository);

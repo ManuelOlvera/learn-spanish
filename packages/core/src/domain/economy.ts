@@ -1,4 +1,5 @@
 import type { ParentChallenge } from "./challenge";
+import type { ExamPractice, ExamRecords } from "./exam";
 import type { Boost } from "./boost";
 import type { KidId } from "./kid";
 import type { MissionState } from "./mission";
@@ -73,6 +74,21 @@ export interface EconomyStore {
    *  so the stars/freeze it pays out ride the wallet/freeze fields that do. */
   loadDailyGiftDay(kid: KidId): string | null;
   saveDailyGiftDay(kid: KidId, day: string): void;
+
+  /** Shelf → that shelf's exam record (best score + attempts), per kid.
+   *  Synced: both counters are monotonic, so ADR 004's additive merge carries
+   *  them unchanged (ADR 022). Empty when no exam has ever been sat. */
+  loadExamRecords(kid: KidId): ExamRecords;
+  saveExamRecords(kid: KidId, records: ExamRecords): void;
+
+  /** The deck a failed exam is waiting on before it may be re-sat; null when
+   *  nothing is pending. **Device-local and never synced** — it is transient
+   *  state, which ADR 014 already established cannot ride an additive merge.
+   *  An unsynced gate means a kid might retry sooner elsewhere; syncing it
+   *  wrong would lock them out on a device they never failed on, and only the
+   *  first of those is recoverable by a five-year-old (ADR 022). */
+  loadExamPractice(kid: KidId): ExamPractice | null;
+  saveExamPractice(kid: KidId, practice: ExamPractice | null): void;
 
   /** The kid's ⚡ hora doble window; null when none was ever won. Also NOT
    *  synced, and for a sharper reason than the gift: an expiring timestamp
