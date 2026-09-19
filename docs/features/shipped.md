@@ -1,5 +1,39 @@
 # Shipped features
 
+## 2026-09-19 (later) — 🔒 Grandfathering was a hole, and completion closed it
+
+**Reported by the parent within the hour:** on an established profile *exactly
+one shelf was locked* — El transporte, the only one that child had never opened
+a card in. Everything past it was open, so the gate shipped the day before
+enforced nothing for the children it was built for.
+
+Not a bug. The rule was "a shelf holding **any** earned sticker is unlocked",
+it was deliberate, and it was tested. The reasoning that justified it —
+*a locked shelf cannot accumulate stickers, so this can only ever describe play
+that predates the gate* — is true and beside the point: these kids **had
+already dabbled everywhere**, so "predates the gate" described nearly the whole
+pack. A rule that self-limits going forward can still be a hole on day one.
+
+The bar is now **the furthest shelf the kid actually completed**. Everything up
+to and including it stays open; everything past it gates normally. The status
+reaches *backwards* from that frontier rather than being decided per shelf, so
+a gap is harmless — finish shelf 10 and never finish 5, and 5 stays reachable,
+because the promise is "nothing you could reach yesterday disappears", not
+"your history was tidy".
+
+Measured on the real ladder: a profile that had dabbled in eleven of twelve
+shelves goes from **1 locked shelf to 11**. One that genuinely completed the
+first three goes to **9**, with the next gate being comida's súper examen.
+
+**This demotes real children**, which is precisely what the original rule
+existed to prevent. The trade was made deliberately, with those numbers in
+front of the parent, and it is defensible only because **la llave de papá
+shipped first**: any shelf that turns out to matter can be handed back in one
+tap from `/informe`. See [ADR 021](../adr/021-camino-gates-and-exams.md)'s
+second addendum for the reasoning, and the lesson worth keeping: when a derived
+rule stands in for a migration, check it against the data that **actually
+exists**, not against the invariant that makes it self-limiting.
+
 ## 2026-09-19 — 🏅 Los súper exámenes, and the key that makes them survivable
 
 **For:** the `reader` again — the regular exam only ever looks one shelf back,

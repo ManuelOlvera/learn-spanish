@@ -144,7 +144,10 @@ export function buildCamino(
   // finish, and it is the deck a three-year-old already loves (ADR 021).
   let gateOpen = true;
 
-  const shelves = groups.map((group, index): TrailShelf => {
+  // Completion has to be known for the whole ladder before any lock can be
+  // decided, because grandfathering reaches *backwards* from the furthest
+  // shelf a kid finished. Hence two passes rather than one.
+  const progress = groups.map((group) => {
     const steps = group.deckIds.flatMap((deckId) => {
       const deck = decks.find((d) => d.id === deckId);
       return deck === undefined || deck.secret === true
@@ -152,14 +155,41 @@ export function buildCamino(
         : [stepFor(deck, kid, owned, counts)];
     });
     const doneSteps = steps.filter((step) => step.complete).length;
-    const complete = steps.length > 0 && doneSteps === steps.length;
+    return {
+      steps,
+      doneSteps,
+      complete: steps.length > 0 && doneSteps === steps.length,
+    };
+  });
 
-    // Grandfathering, derived rather than stored: a shelf this kid has already
-    // touched stays open however far ahead it sits. Because a locked shelf can
-    // never accrue a sticker, this can only ever be true of play that predates
-    // the gate — so it self-limits, and nobody is sent back to shelf 1 on the
-    // day this ships. Deleting it silently demotes every existing kid.
-    const grandfathered = steps.some((step) => step.done > 0);
+  /**
+   * Grandfathering, derived rather than stored: everything up to and including
+   * the furthest shelf this kid actually **completed** stays open.
+   *
+   * The bar is completion, not a single sticker. The first cut used "has any
+   * sticker", which read as generous and was in practice a hole: a kid who had
+   * dabbled one card in eleven of twelve shelves had eleven shelves
+   * permanently grandfathered, so the route gated exactly nothing for the very
+   * children it was built for. Completion is the honest frontier — it is the
+   * same bar the route uses everywhere else, and it still guarantees that
+   * nobody loses a shelf they genuinely finished.
+   *
+   * Reaching backwards from the furthest one (rather than per shelf) is what
+   * keeps a gap harmless: a kid who finished shelf 10 but never finished 5
+   * keeps 5, because the promise is "nothing you could reach yesterday
+   * disappears", not "your history was tidy".
+   */
+  let frontier = -1;
+  progress.forEach((p, i) => {
+    if (p.complete) {
+      frontier = i;
+    }
+  });
+
+  const shelves = groups.map((group, index): TrailShelf => {
+    const { steps, doneSteps, complete } = progress[index]!;
+
+    const grandfathered = index <= frontier;
     // A grown-up's key opens exactly this shelf and nothing else: normal
     // gating resumes from here, because the parent said "she is ready for
     // this one", not "turn the teaching off" (ADR 021's addendum).

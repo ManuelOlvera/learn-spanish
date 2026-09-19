@@ -128,7 +128,7 @@ stateDiagram-v2
   [*] --> Locked
 
   Locked --> Open: previous shelf complete<br/>AND its exam passed
-  Locked --> Open: holds any earned sticker<br/>(grandfathered — only ever<br/>true of play predating the gate)
+  Locked --> Open: at or before the furthest shelf<br/>the kid actually COMPLETED<br/>(grandfathered — reaches backwards<br/>from that frontier, so gaps are kept)
   Locked --> Open: la llave de papá<br/>(a grown-up, on /informe)
 
   Open --> ExamDue: every deck on the shelf complete<br/>(earnableActivities, the album's own bar)

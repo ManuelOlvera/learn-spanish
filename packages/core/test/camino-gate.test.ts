@@ -109,24 +109,44 @@ describe("the gate", () => {
 });
 
 describe("grandfathering", () => {
-  it("leaves a shelf a kid already played unlocked, however far ahead", () => {
-    // The day the gate ships, nobody may be sent back to shelf 1 (ADR 021).
-    const oneSticker = [stickerId(KID, "tres", "learn")];
-    const camino = buildCamino(groups, decks, KID, oneSticker, {}, {});
+  it("keeps every shelf up to the furthest one they COMPLETED", () => {
+    // The day the gate ships, nobody loses a shelf they genuinely finished
+    // (ADR 021). The frontier is completion, not a single sticker: one sticker
+    // anywhere used to hold a shelf open forever, which left an established
+    // kid with almost nothing gated at all.
+    const camino = buildCamino(groups, decks, KID, allOf(tres), {}, {});
+    expect(shelf(camino, "g1").locked).toBe(false);
+    expect(shelf(camino, "g2").locked).toBe(false);
     expect(shelf(camino, "g3").locked).toBe(false);
   });
 
-  it("still locks the shelves they never touched", () => {
-    const oneSticker = [stickerId(KID, "tres", "learn")];
-    const camino = buildCamino(groups, decks, KID, oneSticker, {}, {});
-    expect(shelf(camino, "g2").locked).toBe(true);
+  it("does not open a shelf past that frontier", () => {
+    const camino = buildCamino(groups, decks, KID, allOf(dos), {}, {});
+    expect(shelf(camino, "g2").locked).toBe(false);
+    expect(shelf(camino, "g3").locked).toBe(true);
   });
 
-  it("cannot be earned from behind a lock, so it only ever means old play", () => {
-    // A locked shelf accrues no stickers, so "has a sticker" can only be true
-    // of play that predates the gate. Nothing stored, nothing migrated.
+  it("no longer holds a shelf open on a single sticker", () => {
+    // The old rule. A kid who merely dabbled in a far shelf is asked to reach
+    // it in order — that is the whole point of the route.
+    const dabbled = [stickerId(KID, "tres", "learn")];
+    const camino = buildCamino(groups, decks, KID, dabbled, {}, {});
+    expect(shelf(camino, "g3").locked).toBe(true);
+  });
+
+  it("opens everything before a completed shelf, gaps included", () => {
+    // Completed shelf 3 but never finished 2: 2 stays reachable, because the
+    // promise is "nothing you could reach yesterday disappears", not "your
+    // history was tidy".
+    const camino = buildCamino(groups, decks, KID, allOf(tres), {}, {});
+    expect(shelf(camino, "g2").complete).toBe(false);
+    expect(shelf(camino, "g2").locked).toBe(false);
+  });
+
+  it("locks everything for a kid who has completed nothing", () => {
     const camino = buildCamino(groups, decks, KID, [], {}, {});
-    expect(shelf(camino, "g2").steps.every((s) => s.done === 0)).toBe(true);
+    expect(shelf(camino, "g2").locked).toBe(true);
+    expect(shelf(camino, "g3").locked).toBe(true);
   });
 });
 
@@ -152,14 +172,7 @@ describe("what to do next", () => {
   });
 
   it("sends a grandfathered kid back to the earliest unfinished shelf", () => {
-    const camino = buildCamino(
-      groups,
-      decks,
-      KID,
-      [stickerId(KID, "tres", "learn")],
-      {},
-      {},
-    );
+    const camino = buildCamino(groups, decks, KID, allOf(tres), {}, {});
     expect(camino.nextGroupId).toBe("g1");
   });
 });
@@ -192,6 +205,11 @@ describe("what the rest of the app may point at", () => {
   });
 
   it("includes a grandfathered shelf, which is reachable by definition", () => {
+    const camino = buildCamino(groups, decks, KID, allOf(tres), {}, {});
+    expect(reachableDeckIds(camino)!.has("tres")).toBe(true);
+  });
+
+  it("excludes a shelf the kid merely dabbled in", () => {
     const camino = buildCamino(
       groups,
       decks,
@@ -200,7 +218,7 @@ describe("what the rest of the app may point at", () => {
       {},
       {},
     );
-    expect(reachableDeckIds(camino)!.has("tres")).toBe(true);
+    expect(reachableDeckIds(camino)!.has("tres")).toBe(false);
   });
 
   it("returns null while the route is unknown, so nothing is filtered away", () => {

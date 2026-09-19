@@ -136,3 +136,44 @@ this one", not "turn the teaching off".
   by a person rather than holes in the rule.
 - The failure contract is unchanged and now matters more: a failed súper still
   names a deck to go and play, drawn from **all** prior shelves rather than one.
+
+## Addendum — 2026-09-19 (later): grandfathering is completion, not a sticker
+
+The Consequences above say *"a shelf holding **any** earned sticker is
+unlocked"*. That was the rule as shipped, it was tested, and it was wrong — not
+in its behaviour but in its bar.
+
+The parent reported that on an established profile **exactly one shelf was
+locked**: El transporte, the only one that child had never opened a single card
+in. Everything past it was grandfathered by old play, so the route gated
+nothing. Reproduced exactly: with one sticker in eleven of twelve shelves, the
+locked set is `["transporte"]`.
+
+The reasoning had a hole in it. "A locked shelf cannot accumulate stickers, so
+this can only ever be true of play that predates the gate" is true, and it is
+beside the point: the children this was built for **had already dabbled
+everywhere**, so predating the gate described nearly the whole pack. A rule
+that self-limits going forward can still be a hole on the day it ships.
+
+**The bar is now the furthest shelf the kid actually completed.** Everything up
+to and including it stays open; everything past it gates normally. Grandfather
+status reaches *backwards* from that frontier rather than being decided per
+shelf, so a gap is harmless — a kid who finished shelf 10 but never finished 5
+keeps 5, because the promise is "nothing you could reach yesterday disappears",
+not "your history was tidy".
+
+**Consequences**
+
+- **This demotes real kids, which the original rule existed to prevent.** That
+  trade was made deliberately by the parent, with the numbers in front of them:
+  an established profile goes from one locked shelf to eleven. It is defensible
+  only because la llave de papá shipped first — a grown-up can hand back any
+  shelf that turns out to matter, in one tap.
+- Completion is now the frontier for *everything*: it is the same bar the route
+  already used for "is this shelf finished", so there is no second definition
+  of progress to drift.
+- A kid who has completed nothing is gated from shelf 2 onward, exactly as a
+  brand-new profile is. That is the intended reading of "learn in order".
+- The lesson generalises past this feature: when a derived rule stands in for a
+  migration, check it against the **data that actually exists**, not against
+  the invariant that makes it self-limiting.

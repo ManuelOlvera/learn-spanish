@@ -78,8 +78,9 @@ No reading, no accounts, no setup.
   passed (ADR 021, which supersedes ADR 016 on this). The lock is real — a
   locked shelf's tile is padlocked and untappable on the home grid, not merely
   pale on the strip — but it is never a dead end: tapping one shakes it, a
-  shelf a kid has already played is never taken away, and a failed exam always
-  names a deck to go and play. Gating is **per shelf, never per deck**: inside
+  every shelf up to the furthest one a kid has actually *completed* stays open,
+  a grown-up can hand back any shelf with la llave de papá, and a failed exam
+  always names a deck to go and play. Gating is **per shelf, never per deck**: inside
   an open shelf every deck stays as free as it ever was.
   A **Tu camino** strip on home draws the whole ladder on one line — a finished
   shelf filled lime wearing its medal, the current one white, bigger and
