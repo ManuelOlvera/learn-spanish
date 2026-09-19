@@ -132,3 +132,55 @@ describe("exam records crossing a trust boundary", () => {
     expect(sanitizeSnapshot(raw).examRecords).toBeUndefined();
   });
 });
+
+describe("la llave de papá on the wire (ADR 022 addendum)", () => {
+  it("unions the shelves both devices have open", () => {
+    const merged = mergeProgress(
+      { ...base, unlockedShelves: { listener: ["g4"] } },
+      { ...base, unlockedShelves: { listener: ["g7"] } },
+    );
+    expect([...(merged.unlockedShelves?.listener ?? [])].sort()).toEqual(["g4", "g7"]);
+  });
+
+  it("can never re-lock a shelf a parent opened", () => {
+    // The failure direction of an override must be "stays open": a peer that
+    // has never heard of the key must not undo it.
+    const opened = { ...base, unlockedShelves: { listener: ["g7"] } };
+    expect(mergeProgress(opened, base).unlockedShelves?.listener).toEqual(["g7"]);
+    expect(mergeProgress(base, opened).unlockedShelves?.listener).toEqual(["g7"]);
+  });
+
+  it("does not duplicate on a re-merge", () => {
+    const opened = { ...base, unlockedShelves: { listener: ["g7"] } };
+    expect(mergeProgress(opened, opened).unlockedShelves?.listener).toEqual(["g7"]);
+  });
+
+  it("keeps each kid's keys apart", () => {
+    const merged = mergeProgress(
+      { ...base, unlockedShelves: { listener: ["g4"] } },
+      { ...base, unlockedShelves: { reader: ["g9"] } },
+    );
+    expect(merged.unlockedShelves?.listener).toEqual(["g4"]);
+    expect(merged.unlockedShelves?.reader).toEqual(["g9"]);
+  });
+
+  it("survives a transfer code round trip", () => {
+    const snapshot: ProgressSnapshot = {
+      ...base,
+      unlockedShelves: { reader: ["comida", "letras"] },
+    };
+    expect(decodeProgress(encodeProgress(snapshot)).unlockedShelves).toEqual(
+      snapshot.unlockedShelves,
+    );
+  });
+
+  it("drops a hostile non-string list rather than trusting it", () => {
+    const raw = {
+      stickers: [],
+      streaks: {},
+      avatars: {},
+      unlockedShelves: { listener: [1, 2, 3] },
+    };
+    expect(sanitizeSnapshot(raw).unlockedShelves?.listener).toBeUndefined();
+  });
+});

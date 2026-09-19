@@ -54,6 +54,9 @@ const BOOST_KEY = "palabras.boost.v1"; // the ⚡ hora doble window; not synced
 // Exam scores per shelf (ADR 022). A new key, so nothing to migrate — an
 // absent doc reads as "no exam ever sat", which is the correct starting state.
 const EXAMS_KEY = "palabras.exams.v1";
+// Shelves a grown-up opened with la llave de papá. A set that only grows, so
+// the merge is a union and no peer can re-lock one (ADR 022's addendum).
+const UNLOCKED_SHELVES_KEY = "palabras.unlocked-shelves.v1";
 // The post-failure retry gate. Deliberately NOT synced and NOT in the
 // snapshot: transient state cannot ride ADR 004's additive merge (ADR 014).
 const EXAM_PRACTICE_KEY = "palabras.exam-practice.v1";
@@ -277,6 +280,16 @@ export class LocalStorageEconomyStore implements EconomyStore {
   }
   saveExamRecords(kid: KidId, records: ExamRecords): void {
     writeDoc(EXAMS_KEY, kid, records);
+  }
+
+  loadUnlockedShelves(kid: KidId): readonly string[] {
+    const stored: unknown = readDoc<readonly string[]>(UNLOCKED_SHELVES_KEY)[kid];
+    return Array.isArray(stored)
+      ? stored.filter((id): id is string => typeof id === "string" && id !== "")
+      : [];
+  }
+  saveUnlockedShelves(kid: KidId, shelves: readonly string[]): void {
+    writeDoc(UNLOCKED_SHELVES_KEY, kid, shelves);
   }
 
   loadExamPractice(kid: KidId): ExamPractice | null {

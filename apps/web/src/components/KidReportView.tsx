@@ -16,6 +16,7 @@ import {
   type ParentChallenge,
   type KidReport,
 } from "@learn-spanish/core";
+import type { DeckGroup } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getKidReport, getPracticeLog } from "@/lib/client-container";
 import { getAvatar, KID_META } from "@/lib/kid";
@@ -24,12 +25,17 @@ import {
   getChallenge,
   getUnlockedDecks,
   setKidChallenge,
+  unlockShelf,
 } from "@/lib/economy";
 import { deckAccent } from "@/lib/deck-theme";
+import { useCamino } from "@/lib/use-camino";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 
 interface Props {
   decks: readonly Deck[];
+  /** The shelves, for la llave de papá — this screen is where a grown-up can
+   *  open a locked stop on el camino (ADR 021's addendum). */
+  groups: readonly DeckGroup[];
   kid: KidId;
 }
 
@@ -107,7 +113,7 @@ function ShelfSlot({ deck, mastery }: { deck: Deck; mastery: DeckMastery }) {
   );
 }
 
-export function KidReportView({ decks, kid }: Props) {
+export function KidReportView({ decks, groups, kid }: Props) {
   const [report, setReport] = useState<KidReport | null>(null);
   const [shown, setShown] = useState<readonly Deck[]>([]);
   // Avatars live in browser storage, so they are read after mount — reading
@@ -245,11 +251,111 @@ export function KidReportView({ decks, kid }: Props) {
           <GamesPlayed report={report} />
           <AccuracyByGame log={practice} />
           <PracticeCalendar log={practice} />
+          <CaminoKey decks={decks} groups={groups} kid={kid} />
           <Struggling report={report} byId={byId} kid={kid} />
           <Fading report={report} />
         </>
       )}
     </main>
+  );
+}
+
+/**
+ * La llave de papá — the grown-up's override on el camino (ADR 021's
+ * 2026-09-19 addendum).
+ *
+ * It lives here rather than anywhere a kid can reach because nothing on a
+ * kid-facing screen links to `/informe`: a parent arrives by typing the URL
+ * and a pre-reader cannot. That is the same reason el reto de papá is set from
+ * this screen, and it is why no PIN or long-press gesture was invented — an
+ * adult gate that already exists beats a new one.
+ *
+ * Opening a shelf is **one-way and one-shelf**. The set only grows, which is
+ * what makes it safe to sync (a stale peer can never re-lock a shelf a parent
+ * opened), and normal gating resumes from the opened shelf onward — the parent
+ * said "she is ready for this one", not "turn the teaching off".
+ */
+function CaminoKey({
+  decks,
+  groups,
+  kid,
+}: {
+  decks: readonly Deck[];
+  groups: readonly DeckGroup[];
+  kid: KidId;
+}) {
+  // Bumped on every unlock: useCamino reads on mount and on tab focus, so
+  // without this the shelf just opened would sit in the locked list until the
+  // parent navigated away and back.
+  const [nonce, setNonce] = useState(0);
+  const camino = useCamino(groups, decks, kid, nonce);
+
+  if (camino === null) {
+    return null;
+  }
+  const byId = new Map(groups.map((g) => [g.id, g]));
+  const locked = camino.shelves.filter((s) => s.locked);
+  const keyed = camino.shelves.filter((s) => s.unlockedByParent);
+
+  return (
+    <section className="sticker relative flex flex-col gap-3 p-5">
+      <span aria-hidden className="sticker-peel" />
+      <h2 className="text-2xl font-extrabold">🔑 La llave del camino</h2>
+      <p className="text-sm font-semibold text-ink/60">
+        El camino se abre por orden. Si una estantería debería estar abierta ya,
+        ábrela aquí — se queda abierta para siempre.
+      </p>
+
+      {locked.length === 0 ? (
+        <p className="text-sm font-semibold text-ink/60">
+          Nada cerrado ahora mismo. 🎉
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {locked.map((shelf) => {
+            const group = byId.get(shelf.groupId);
+            return (
+              <li
+                key={shelf.groupId}
+                className="flex items-center justify-between gap-3"
+              >
+                <span className="text-base font-extrabold text-ink/70">
+                  {group?.emoji} {group?.nameSpanish}
+                  {shelf.examKind === "super" && (
+                    <span className="ml-1 text-sm font-semibold text-ink/50">
+                      🏅 súper
+                    </span>
+                  )}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    unlockShelf(kid, shelf.groupId);
+                    setNonce((n) => n + 1);
+                  }}
+                  aria-label={`Unlock ${group?.nameEnglish ?? shelf.groupId} for this child`}
+                  className="shrink-0 rounded-full border-2 border-ink bg-white px-3 py-1 text-sm font-extrabold"
+                >
+                  🔑 Abrir
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {keyed.length > 0 && (
+        <p className="text-sm font-semibold text-ink/60">
+          Abiertas con llave:{" "}
+          {keyed
+            .map(
+              (s) =>
+                `${byId.get(s.groupId)?.emoji ?? ""} ${byId.get(s.groupId)?.nameSpanish ?? s.groupId}`,
+            )
+            .join(" · ")}
+        </p>
+      )}
+    </section>
   );
 }
 

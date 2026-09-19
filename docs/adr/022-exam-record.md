@@ -60,3 +60,30 @@ two, only the first is recoverable by a five-year-old.
   them: the album is gone too, so there are no stickers to grandfather from.
 - Scores never go down. Re-sitting a passed exam and doing badly changes
   nothing — which is the point, and matches `retoBests`.
+
+## Addendum — 2026-09-19: the súper needs no new storage; the override gets a set
+
+**Los súper exámenes add nothing to this key.** A shelf has one checkpoint
+whatever kind it is, so `palabras.exams.v1` still holds one
+`{ bestScore, attempts }` per shelf. What differs is only the bar the score is
+read against — `SUPER_EXAM_PASS_MARK` at a milestone position,
+`EXAM_PASS_MARK` elsewhere — which is derived from the ladder, not stored.
+That keeps this ADR's central rule intact: passing is still computed from the
+score, and there is still no `passed` flag anywhere.
+
+The cost is named in ADR 021's addendum: because the bar comes from position,
+moving a shelf across a milestone re-scales its existing record.
+
+**La llave de papá gets its own key**, `palabras.unlocked-shelves.v1`: a per-kid
+**set of shelf ids** a grown-up has opened. It rides
+`ProgressSnapshot.unlockedShelves` and merges by **union** — the same rule as
+`unlockedDecks`, and additive for the same reason. A set that only ever grows
+is monotonic, so ADR 004 carries it with no new semantics, re-merging cannot
+duplicate anything, and **a stale peer can never re-lock a shelf a parent
+opened**. That last property is the whole reason for choosing a set over, say,
+a per-shelf boolean: the failure direction of an override must be "stays open".
+
+It syncs, unlike the retry gate above, and the two are not in tension. The
+retry gate is transient and device-local; an override is a durable decision a
+parent made about their child, and it would be absurd for it to hold on the
+tablet and not the phone.

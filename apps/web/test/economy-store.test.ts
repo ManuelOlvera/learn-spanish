@@ -196,3 +196,42 @@ describe("the retry gate (device-local, ADR 022)", () => {
     expect(store.loadExamPractice("listener")).toBeNull();
   });
 });
+
+const UNLOCKED_SHELVES = "palabras.unlocked-shelves.v1";
+
+describe("la llave de papá (ADR 022 addendum)", () => {
+  it("round-trips the shelves a grown-up opened", async () => {
+    const store = await freshStore();
+    store.saveUnlockedShelves("listener", ["comida", "transporte"]);
+    expect(store.loadUnlockedShelves("listener")).toEqual(["comida", "transporte"]);
+  });
+
+  it("reads an absent document as no keys used", async () => {
+    const store = await freshStore();
+    expect(store.loadUnlockedShelves("listener")).toEqual([]);
+  });
+
+  it("drops non-string entries rather than trusting the document", async () => {
+    fake.data.set(
+      UNLOCKED_SHELVES,
+      JSON.stringify({ listener: ["comida", 7, null, "", "verbos"] }),
+    );
+    const store = await freshStore();
+    expect(store.loadUnlockedShelves("listener")).toEqual(["comida", "verbos"]);
+  });
+
+  it("survives a corrupt document without throwing at a component", async () => {
+    fake.data.set(UNLOCKED_SHELVES, "{not json");
+    const store = await freshStore();
+    expect(() => store.loadUnlockedShelves("listener")).not.toThrow();
+    expect(store.loadUnlockedShelves("listener")).toEqual([]);
+  });
+
+  it("keeps each kid's keys apart", async () => {
+    const store = await freshStore();
+    store.saveUnlockedShelves("listener", ["comida"]);
+    store.saveUnlockedShelves("reader", ["verbos"]);
+    expect(store.loadUnlockedShelves("listener")).toEqual(["comida"]);
+    expect(store.loadUnlockedShelves("reader")).toEqual(["verbos"]);
+  });
+});

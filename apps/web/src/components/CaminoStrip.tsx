@@ -2,7 +2,12 @@
 
 import { forwardRef, useEffect, useRef } from "react";
 import Link from "next/link";
-import type { Camino, DeckGroup, StickerTier } from "@learn-spanish/core";
+import type {
+  Camino,
+  DeckGroup,
+  ExamKind,
+  StickerTier,
+} from "@learn-spanish/core";
 import { groupsInTrailOrder } from "@learn-spanish/core";
 import { TIER_GLYPH, TIER_LABEL } from "@/components/TrailMarks";
 
@@ -73,6 +78,7 @@ export function CaminoStrip({ camino, groups }: Props) {
                 tier={tier}
                 examPending={examPending}
                 locked={locked}
+                examKind={shelf?.examKind ?? "regular"}
               />
             </div>
           );
@@ -91,6 +97,8 @@ interface StopProps {
   examPending: boolean;
   /** The route has not opened this shelf yet (ADR 021). */
   locked: boolean;
+  /** A súper examen sits at the ladder's thirds and reads differently. */
+  examKind: ExamKind;
 }
 
 /**
@@ -99,7 +107,7 @@ interface StopProps {
  * where shelf navigation has always lived.
  */
 const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
-  { group, done, here, tier, examPending, locked },
+  { group, done, here, tier, examPending, locked, examKind },
   ref,
 ) {
   // The current stop is the only tappable one, so it carries the design
@@ -125,7 +133,7 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
           the decks are done but the shelf is not cleared until the exam is. */}
       {examPending && (
         <span aria-hidden className="absolute -right-1 -top-1 text-sm leading-none">
-          🎓
+          {examKind === "super" ? "🏅" : "🎓"}
         </span>
       )}
       {locked && (
@@ -143,7 +151,9 @@ const Stop = forwardRef<HTMLAnchorElement, StopProps>(function Stop(
   );
   const shared = `relative flex shrink-0 items-center justify-center rounded-full border-4 ${size} ${shade}`;
   const state = examPending
-    ? "examen"
+    ? examKind === "super"
+      ? "súper examen"
+      : "examen"
     : locked
       ? "todavía no"
       : done

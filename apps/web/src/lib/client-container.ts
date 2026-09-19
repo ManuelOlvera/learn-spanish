@@ -28,6 +28,7 @@ import {
   SampleTrendUseCase,
   SaveRetoBestUseCase,
   SitExamUseCase,
+  UnlockShelfUseCase,
   StartExamUseCase,
   SetActiveSpeciesUseCase,
   SpendStarsUseCase,
@@ -122,6 +123,7 @@ export const startExam = new StartExamUseCase(
   wordStatsStore,
   Math.random,
 );
+export const unlockShelf = new UnlockShelfUseCase(economyStore);
 export const sitExam = new SitExamUseCase(
   economyStore,
   deckRepository,

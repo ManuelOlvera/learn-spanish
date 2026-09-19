@@ -29,6 +29,8 @@ import {
   saveRetoBests,
   getExamRecords,
   saveExamRecords,
+  getUnlockedShelves,
+  saveUnlockedShelves,
   getFreezes,
   getOwnedAccessories,
   getOwnedAvatars,
@@ -73,6 +75,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
   const retoBests: Partial<Record<KidId, Readonly<Record<string, number>>>> = {};
   const missions: Partial<Record<KidId, MissionState>> = {};
   const examRecords: Partial<Record<KidId, ExamRecords>> = {};
+  const unlockedShelves: Partial<Record<KidId, readonly string[]>> = {};
   for (const kid of ALL_KIDS) {
     const streak = await streakStore.load(kid);
     if (streak !== null) {
@@ -128,6 +131,10 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     if (Object.keys(exams).length > 0) {
       examRecords[kid] = exams;
     }
+    const keys = getUnlockedShelves(kid);
+    if (keys.length > 0) {
+      unlockedShelves[kid] = keys;
+    }
   }
   return {
     stickers,
@@ -154,6 +161,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
+    ...(Object.keys(unlockedShelves).length > 0 ? { unlockedShelves } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
 }
@@ -236,6 +244,10 @@ export async function applySnapshot(merged: ProgressSnapshot): Promise<void> {
     const kidExams = merged.examRecords?.[kid];
     if (kidExams !== undefined) {
       saveExamRecords(kid, kidExams);
+    }
+    const kidKeys = merged.unlockedShelves?.[kid];
+    if (kidKeys !== undefined) {
+      saveUnlockedShelves(kid, kidKeys);
     }
   }
   if (merged.stickerCounts !== undefined) {

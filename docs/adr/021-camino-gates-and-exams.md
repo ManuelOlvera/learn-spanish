@@ -86,3 +86,53 @@ narrowing it.
 - **A parent unlock key is deliberately not in the first cut** and is the first
   thing to add if a kid gets genuinely stuck (roadmap #22).
 - Passing pays the biggest star reward in the app — see ADR 020's addendum.
+
+## Addendum — 2026-09-19: los súper exámenes gate, and la llave de papá opens
+
+Two changes the Consequences above anticipated, decided together because the
+first is why the second could no longer wait.
+
+**Los súper exámenes.** At the ladder's thirds — shelves 4, 8 and 12 — the
+checkpoint is a **20-question exam drawn evenly across every shelf completed so
+far**, passed at **14/20** (the same 70% bar). It **replaces** that shelf's
+regular exam rather than following it: 30 questions back to back is not a
+kid-sized sit, and the súper already covers that shelf's own content. So the
+route still has exactly one checkpoint per shelf — nine regular, three súper.
+
+It **gates**, like the regular exam. That was the parent's call against a
+recommendation to make it an optional trophy, and the objection stands on the
+record: a cumulative sweep is a much harder wall than a one-shelf exam, and a
+kid stuck at it is stuck behind everything they have ever learned. What makes
+it acceptable is that the valve shipped in the same change rather than being
+promised.
+
+Shelf 12's súper is the **capstone**: passing it is what makes the camino
+`complete`, which also settles roadmap #22's open "a reward for finishing the
+whole camino".
+
+**La llave de papá.** A grown-up opens any one locked shelf from `/informe`,
+permanently. `/informe` needs no new adult gate: nothing on a kid-facing screen
+links to it, so a parent arrives by typing the URL and a pre-reader cannot.
+El reto de papá already uses it as the parent's lever, so the key sits beside
+a control of exactly the same kind.
+
+The override opens **one shelf**, not everything before it and not the gate as
+a whole. Normal gating resumes from the opened shelf onward, so the route keeps
+its shape and the parent's action stays legible: they said "she is ready for
+this one", not "turn the teaching off".
+
+**Consequences**
+
+- **A shelf's exam kind is a function of its position on the ladder**, so a
+  shelf's stored `bestScore` is read against whichever bar its position
+  implies. Reordering `TRAIL_GROUP_ORDER` therefore re-scales an existing
+  record — a 9/10 regular pass sitting at a position that is now a súper shelf
+  reads as a fail. The ladder is content curation and has moved before; if it
+  moves again across a milestone, expect kids to be asked to re-sit, and say so
+  rather than silently widening the gate.
+- **The override is the one way past a lock that a kid can trigger nothing of**
+  — it requires an adult on a screen kids never reach. El reto de papá remains
+  the other adult path (see above); both are deliberate, and both are actions
+  by a person rather than holes in the rule.
+- The failure contract is unchanged and now matters more: a failed súper still
+  names a deck to go and play, drawn from **all** prior shelves rather than one.

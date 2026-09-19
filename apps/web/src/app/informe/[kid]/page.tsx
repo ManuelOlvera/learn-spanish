@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ALL_KIDS, isKidId } from "@learn-spanish/core";
-import { listDecks } from "@/lib/container";
+import { listDeckGroups, listDecks } from "@/lib/container";
 import { KidReportView } from "@/components/KidReportView";
 
 /** Both kids are known at build time, so each report is a static page. */
@@ -17,6 +17,9 @@ export default async function KidReportPage({
   if (!isKidId(kid)) {
     notFound();
   }
-  const decks = await listDecks.execute();
-  return <KidReportView decks={decks} kid={kid} />;
+  const [decks, groups] = await Promise.all([
+    listDecks.execute(),
+    listDeckGroups.execute(),
+  ]);
+  return <KidReportView decks={decks} groups={groups} kid={kid} />;
 }

@@ -61,6 +61,9 @@ export class FakeEconomyStore implements EconomyStore {
   examsByKid: Partial<Record<KidId, ExamRecords>> = {};
   loadExamRecords(kid: KidId) { return this.examsByKid[kid] ?? {}; }
   saveExamRecords(kid: KidId, records: ExamRecords) { this.examsByKid[kid] = records; }
+  unlockedShelvesByKid: Partial<Record<KidId, readonly string[]>> = {};
+  loadUnlockedShelves(kid: KidId) { return this.unlockedShelvesByKid[kid] ?? []; }
+  saveUnlockedShelves(kid: KidId, shelves: readonly string[]) { this.unlockedShelvesByKid[kid] = shelves; }
   practiceByKid: Partial<Record<KidId, ExamPractice | null>> = {};
   loadExamPractice(kid: KidId) { return this.practiceByKid[kid] ?? null; }
   saveExamPractice(kid: KidId, practice: ExamPractice | null) { this.practiceByKid[kid] = practice; }

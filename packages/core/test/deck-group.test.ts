@@ -1,3 +1,4 @@
+import { examKindFor } from "../src/domain/exam";
 import { describe, expect, it } from "vitest";
 import { StaticDeckGroupRepository } from "../src/infrastructure/static-deck-group-repository";
 import { StaticDeckRepository } from "../src/infrastructure/static-deck-repository";
@@ -193,5 +194,20 @@ describe("el camino's shelf order", () => {
       { ...stray, id: "animales" },
     ]);
     expect(ordered.map((g) => g.id)).toEqual(["animales", "letras", "sin-ladera"]);
+  });
+});
+
+describe("where the súper exámenes land on the real ladder", () => {
+  it("puts one at each third, and the last one at the very end", () => {
+    // Content, not logic: a shelf added to or removed from TRAIL_GROUP_ORDER
+    // silently moves every milestone after it, and a shelf that changes kind
+    // re-scales its stored exam record (ADR 021's addendum). This test is what
+    // makes that a build failure rather than a surprise for a kid mid-route.
+    const supers = TRAIL_GROUP_ORDER.filter((_, i) => examKindFor(i) === "super");
+    expect(supers).toEqual(["comida", "transporte", "verbos"]);
+  });
+
+  it("ends the ladder on a súper, so the camino has a capstone", () => {
+    expect(examKindFor(TRAIL_GROUP_ORDER.length - 1)).toBe("super");
   });
 });

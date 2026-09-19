@@ -81,6 +81,15 @@ export interface EconomyStore {
   loadExamRecords(kid: KidId): ExamRecords;
   saveExamRecords(kid: KidId, records: ExamRecords): void;
 
+  /** Shelves a grown-up has opened with la llave de papá (ADR 021's addendum).
+   *  A set that only ever grows, so ADR 004 merges it by union and **a stale
+   *  peer can never re-lock a shelf a parent opened** — the failure direction
+   *  of an override must be "stays open". Synced, unlike the retry gate below:
+   *  an override is a durable decision a parent made about their child, and it
+   *  would be absurd for it to hold on the tablet but not the phone. */
+  loadUnlockedShelves(kid: KidId): readonly string[];
+  saveUnlockedShelves(kid: KidId, shelves: readonly string[]): void;
+
   /** The deck a failed exam is waiting on before it may be re-sat; null when
    *  nothing is pending. **Device-local and never synced** — it is transient
    *  state, which ADR 014 already established cannot ride an additive merge.

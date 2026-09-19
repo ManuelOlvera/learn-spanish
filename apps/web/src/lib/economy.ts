@@ -437,6 +437,24 @@ export function saveExamRecords(kid: KidId, records: ExamRecords): void {
   store.saveExamRecords(kid, records);
 }
 
+/** Shelves a grown-up has opened for this kid (la llave de papá). */
+export function getUnlockedShelves(kid: KidId): readonly string[] {
+  return store.loadUnlockedShelves(kid);
+}
+
+/** Open one locked shelf. Returns the full set, for the parent screen. */
+export function unlockShelf(kid: KidId, groupId: string): readonly string[] {
+  return container.unlockShelf.execute(kid, groupId);
+}
+
+/** Merge-side write, for a pull that brought another device's keys in. */
+export function saveUnlockedShelves(
+  kid: KidId,
+  shelves: readonly string[],
+): void {
+  store.saveUnlockedShelves(kid, shelves);
+}
+
 /** The retry gate after a failed exam; null when nothing is pending. Local
  *  only — this deliberately never reaches the snapshot (ADR 022). */
 export function getExamPractice(kid: KidId): ExamPractice | null {

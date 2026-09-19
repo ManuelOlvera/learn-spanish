@@ -65,6 +65,11 @@ export interface ProgressSnapshot {
    *  day (later day supersedes) and keeps `claimed` once set, so a completed
    *  mission shows complete on every device and the bonus can't be re-claimed. */
   readonly missions?: Partial<Record<KidId, MissionState>>;
+  /** Shelves a grown-up opened with la llave de papá, per kid. Merged by
+   *  **union** — the same additive rule as `unlockedDecks`, and chosen for the
+   *  same reason a set beats a per-shelf boolean: a set only grows, so a stale
+   *  peer can never re-lock a shelf a parent deliberately opened. */
+  readonly unlockedShelves?: Partial<Record<KidId, readonly string[]>>;
   /** Shelf → that shelf's exam record, per kid (ADR 022). Both counters are
    *  monotonic, so merge takes the higher of each independently — the same
    *  additive rule as `retoBests`, and the reason passing is derived from
@@ -300,6 +305,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   const retoBests = sanitizeKidRecord(candidate.retoBests, isRetoBests);
   const missions = sanitizeKidRecord(candidate.missions, isMissionState);
   const examRecords = sanitizeKidRecord(candidate.examRecords, isExamRecords);
+  const unlockedShelves = sanitizeKidRecord(candidate.unlockedShelves, isStringArray);
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -324,6 +330,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
     ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
+    ...(Object.keys(unlockedShelves).length > 0 ? { unlockedShelves } : {}),
   };
 }
 
@@ -742,6 +749,13 @@ export function mergeProgress(
     incoming.examRecords,
     mergeExamRecords,
   );
+  // A parent's key is additive: opening a shelf is a decision, and no peer
+  // that has not heard of it may undo it (ADR 022's addendum).
+  const unlockedShelves = mergeKidField(
+    current.unlockedShelves,
+    incoming.unlockedShelves,
+    union,
+  );
 
   // ---- the irregular fields ----
 
@@ -811,6 +825,7 @@ export function mergeProgress(
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
     ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
+    ...(Object.keys(unlockedShelves).length > 0 ? { unlockedShelves } : {}),
   };
 }
 

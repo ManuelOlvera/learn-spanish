@@ -43,6 +43,19 @@ export const MISSION_BONUS = 25;
  */
 export const EXAM_BONUS = 200;
 
+/**
+ * Passing a **súper examen** — the cumulative sweep at the ladder's thirds
+ * (ADR 021's 2026-09-19 addendum). The rung above `EXAM_BONUS`, which is
+ * itself above `CATEGORY_BONUS.gold`: three rungs, each pinned by a test
+ * asserting against the constant below it rather than a copy of its value.
+ *
+ * It is the largest single thing a kid can do in the app, and it arrives three
+ * times in a route of twelve. If exams ever prove to flatten saving as a
+ * motivation, the lever is the threshold or the spacing — never this number,
+ * which is the one the kids are told.
+ */
+export const SUPER_EXAM_BONUS = 500;
+
 /** The wallet's generation. Bumping it makes the merge discard wallet fields
  *  from any older epoch (see mergeProgress) — otherwise max-merge would
  *  resurrect pre-bump values from cloud rows and old transfer codes. Each

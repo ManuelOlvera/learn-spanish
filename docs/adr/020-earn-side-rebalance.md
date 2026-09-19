@@ -91,3 +91,22 @@ both are asserted.
 If exams ever start feeling routine enough that 200⭐ distorts saving, raise the
 threshold or space the exams — do not cut the bonus, which is the one thing the
 kids are told is the biggest prize in the app.
+
+## Addendum — 2026-09-19: `SUPER_EXAM_BONUS` takes the rung above
+
+Los súper exámenes (ADR 021's addendum) add `SUPER_EXAM_BONUS = 500`, above
+`EXAM_BONUS` (200), which is itself above `CATEGORY_BONUS.gold` (125). Three
+rungs, each pinned by an assertion against the constant below it rather than
+against a copy of its value — the rule this ADR set.
+
+Same reasoning as the 2026-09-16 addendum and the same safety: it moves the
+earn side only, so ADR 007's price ladder is untouched, no wallet epoch is
+needed, and ADR 008's monotonic `earned` merges it. A súper pass buys a
+mid-tier mascota outright, which is the intent — it is the largest single thing
+a kid can do in the app, and it arrives three times in a route of twelve.
+
+Exams are now the spine of the economy: nine regular at 200 plus three súper at
+500 is 3,300⭐ across a completed camino, against a 100⭐ cheapest pet. If that
+proves to flatten saving as a motivation, the lever is the **threshold or the
+spacing**, not the bonus — the size of the prize is the thing the kids are
+told, and cutting it is the one move that reads as a takeaway.

@@ -39,10 +39,49 @@ export const EXAM_PASS_MARK = 7;
  */
 export const EXAM_CHOICE_COUNT = 4;
 
-/** How many of the questions look further back than the shelf just finished —
- *  the "do they still remember?" half of the ask. The full cumulative sweep is
- *  los súper exámenes, still on the roadmap. */
+/** How many of a *regular* exam's questions look further back than the shelf
+ *  just finished — the small "do they still remember?" half. The full
+ *  cumulative sweep is the súper examen below. */
 export const EXAM_REVIEW_QUESTIONS = 3;
+
+/**
+ * Every fourth shelf is a **súper examen** — the ladder's thirds, so shelves
+ * 4, 8 and 12 (ADR 021's 2026-09-19 addendum).
+ *
+ * A milestone's súper **replaces** that shelf's regular exam rather than
+ * following it: the súper already draws from that shelf's own content, and
+ * thirty questions back to back is not a kid-sized sit. So the route keeps
+ * exactly one checkpoint per shelf — nine regular, three súper.
+ */
+export const SUPER_EXAM_EVERY = 4;
+
+/** A cumulative sweep is twice the exam, at the same 70% bar. */
+export const SUPER_EXAM_QUESTIONS = 20;
+export const SUPER_EXAM_PASS_MARK = 14;
+
+/** Which kind of checkpoint a shelf carries. */
+export type ExamKind = "regular" | "super";
+
+/**
+ * A shelf's exam kind, from its **position on the ladder** — not from
+ * anything stored.
+ *
+ * That is deliberate (it keeps ADR 022's storage untouched: one record per
+ * shelf whatever its kind) and it has one real cost, recorded in ADR 021's
+ * addendum: moving a shelf across a milestone re-scales its existing record,
+ * because a 9/10 regular pass sitting at a súper position reads as a fail.
+ */
+export function examKindFor(shelfIndex: number): ExamKind {
+  return (shelfIndex + 1) % SUPER_EXAM_EVERY === 0 ? "super" : "regular";
+}
+
+export function questionsFor(kind: ExamKind): number {
+  return kind === "super" ? SUPER_EXAM_QUESTIONS : EXAM_QUESTIONS;
+}
+
+export function passMarkFor(kind: ExamKind): number {
+  return kind === "super" ? SUPER_EXAM_PASS_MARK : EXAM_PASS_MARK;
+}
 
 /** What the kids are told the prize is. */
 export const EXAM_BONUS_LABEL = "¡El premio más grande!";
@@ -62,9 +101,9 @@ export interface ExamRecord {
 /** Shelf id → that shelf's exam record. */
 export type ExamRecords = Readonly<Record<string, ExamRecord>>;
 
-/** Did this sitting pass? */
-export function isExamPass(score: number): boolean {
-  return score >= EXAM_PASS_MARK;
+/** Did this sitting pass? The bar is the one this shelf's kind implies. */
+export function isExamPass(score: number, kind: ExamKind = "regular"): boolean {
+  return score >= passMarkFor(kind);
 }
 
 /**
@@ -74,15 +113,19 @@ export function isExamPass(score: number): boolean {
  * second record of one fact, and the two can disagree after a merge — the
  * drift ADR 016 catalogued and ADR 008 fixed for the wallet.
  */
-export function examPassed(record: ExamRecord | undefined): boolean {
-  return isExamPass(record?.bestScore ?? 0);
+export function examPassed(
+  record: ExamRecord | undefined,
+  kind: ExamKind = "regular",
+): boolean {
+  return isExamPass(record?.bestScore ?? 0, kind);
 }
 
 export function shelfExamPassed(
   records: ExamRecords,
   groupId: string,
+  kind: ExamKind = "regular",
 ): boolean {
-  return examPassed(records[groupId]);
+  return examPassed(records[groupId], kind);
 }
 
 /**
@@ -196,8 +239,19 @@ export function nominatePracticeDeck(opts: {
   readonly groups: readonly DeckGroup[];
   readonly decks: readonly Deck[];
   readonly stats: WordStats;
+  /** A súper examen tested every shelf up to this one, so it must send the kid
+   *  back across the same range. Nominating from the milestone shelf alone
+   *  would point at a fraction of what was actually examined. */
+  readonly kind?: ExamKind;
 }): string | null {
-  const playable = playableDecks(opts.groupId, opts.groups, opts.decks);
+  const at = opts.groups.findIndex((g) => g.id === opts.groupId);
+  const scope =
+    opts.kind === "super" && at >= 0
+      ? opts.groups.slice(0, at + 1).map((g) => g.id)
+      : [opts.groupId];
+  const playable = scope.flatMap((id) =>
+    playableDecks(id, opts.groups, opts.decks),
+  );
   if (playable.length === 0) {
     return null;
   }
@@ -222,6 +276,7 @@ export interface ExamRound {
 
 export interface Exam {
   readonly groupId: string;
+  readonly kind: ExamKind;
   readonly rounds: readonly ExamRound[];
 }
 
@@ -270,15 +325,53 @@ function drawWeighted(
 }
 
 /**
- * Build one shelf's exam.
+ * Draw `count` cards spread **evenly** across several shelves' pools, taking
+ * one from each in turn.
  *
- * Most questions come from the shelf just completed; `EXAM_REVIEW_QUESTIONS`
- * come from everything earlier on the ladder, which is what makes this a
- * memory check rather than a second quiz. The first shelf has nothing behind
- * it, so its exam is drawn entirely from itself.
+ * Round-robin rather than proportional: with 20 questions over 12 shelves the
+ * shares are not whole numbers, and what matters for a cumulative sweep is
+ * that **shelf 1 is still represented at shelf 12** — not that the arithmetic
+ * is exact. No shelf ever ends more than one question ahead of another.
+ */
+function drawEvenly(
+  pools: readonly (readonly Sourced[])[],
+  count: number,
+  random: RandomSource,
+  stats: WordStats | undefined,
+): readonly Sourced[] {
+  // Shuffle each shelf's own pool once, then deal off the top in rotation.
+  const queues = pools.map((pool) => [...drawWeighted(pool, pool.length, random, stats)]);
+  const picked: Sourced[] = [];
+  let progressed = true;
+  while (picked.length < count && progressed) {
+    progressed = false;
+    for (const queue of queues) {
+      if (picked.length >= count) {
+        break;
+      }
+      const next = queue.shift();
+      if (next !== undefined) {
+        picked.push(next);
+        progressed = true;
+      }
+    }
+  }
+  return picked;
+}
+
+/**
+ * Build one shelf's exam — a regular checkpoint, or a súper examen at the
+ * ladder's thirds (ADR 021).
  *
- * Distractors are drawn from the whole pool rather than the answer's own deck:
- * an exam spanning a shelf should not quietly tell a kid which deck the answer
+ * A **regular** exam is mostly the shelf just completed, with
+ * `EXAM_REVIEW_QUESTIONS` drawn from everything earlier. A **súper** exam
+ * ignores that split entirely and sweeps evenly across every shelf completed
+ * so far, itself included — that even spread is the whole point, since a
+ * cumulative exam that quietly over-weighted the most recent shelf would be a
+ * regular exam wearing a bigger number.
+ *
+ * Distractors come from the whole pool rather than the answer's own deck: an
+ * exam spanning shelves should not quietly tell a kid which deck the answer
  * came from.
  */
 export function buildExam(opts: {
@@ -292,34 +385,42 @@ export function buildExam(opts: {
 }): Exam {
   const { groupId, groups, decks, random, stats } = opts;
   const at = groups.findIndex((g) => g.id === groupId);
-  const own = sourcedCards(playableDecks(groupId, groups, decks));
-  const earlier = groups
-    .slice(0, Math.max(0, at))
-    .flatMap((g) => sourcedCards(playableDecks(g.id, groups, decks)));
+  const kind = examKindFor(at);
+  const wanted = questionsFor(kind);
 
-  // Distractors need EXAM_CHOICE_COUNT - 1 cards that are not the answer, and
-  // a picture must never appear twice in one round, so the pool has a floor.
+  const own = sourcedCards(playableDecks(groupId, groups, decks));
+  const earlierPools = groups
+    .slice(0, Math.max(0, at))
+    .map((g) => sourcedCards(playableDecks(g.id, groups, decks)))
+    .filter((pool) => pool.length > 0);
+  const earlier = earlierPools.flat();
+
   const pool = [...own, ...earlier];
   if (own.length < 1 || pool.length < EXAM_CHOICE_COUNT) {
     throw new ExamPoolTooSmallError(groupId, pool.length, EXAM_CHOICE_COUNT);
   }
 
-  const reviewWanted = Math.min(EXAM_REVIEW_QUESTIONS, earlier.length);
-  const review = drawWeighted(earlier, reviewWanted, random, stats);
-  const ownWanted = Math.min(EXAM_QUESTIONS - review.length, own.length);
-  const fromOwn = drawWeighted(own, ownWanted, random, stats);
+  let chosen: Sourced[];
+  if (kind === "super") {
+    // Every shelf up to and including this one, one question each in rotation.
+    chosen = [...drawEvenly([...earlierPools, own], wanted, random, stats)];
+  } else {
+    const reviewWanted = Math.min(EXAM_REVIEW_QUESTIONS, earlier.length);
+    const review = drawWeighted(earlier, reviewWanted, random, stats);
+    const ownWanted = Math.min(wanted - review.length, own.length);
+    chosen = [...drawWeighted(own, ownWanted, random, stats), ...review];
+  }
 
-  // A short shelf tops up from whatever is left rather than asking fewer
-  // questions: the pass mark is a fraction of EXAM_QUESTIONS, so a short exam
-  // would quietly be an easier one.
-  const chosen = [...fromOwn, ...review];
-  if (chosen.length < EXAM_QUESTIONS) {
+  // A short pool tops up from whatever is left rather than asking fewer
+  // questions: the pass mark is a fraction of the question count, so a short
+  // exam would quietly be an easier one.
+  if (chosen.length < wanted) {
     const taken = new Set(chosen.map((s) => s.card.id));
     const spare = pool.filter((s) => !taken.has(s.card.id));
-    chosen.push(...drawWeighted(spare, EXAM_QUESTIONS - chosen.length, random, stats));
+    chosen.push(...drawWeighted(spare, wanted - chosen.length, random, stats));
   }
-  if (chosen.length < EXAM_QUESTIONS) {
-    throw new ExamPoolTooSmallError(groupId, pool.length, EXAM_QUESTIONS);
+  if (chosen.length < wanted) {
+    throw new ExamPoolTooSmallError(groupId, pool.length, wanted);
   }
 
   const rounds = shuffled(chosen, random).map((source): ExamRound => {
@@ -334,5 +435,5 @@ export function buildExam(opts: {
     };
   });
 
-  return { groupId, rounds };
+  return { groupId, kind, rounds };
 }

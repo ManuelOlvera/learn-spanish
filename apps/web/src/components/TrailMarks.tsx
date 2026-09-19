@@ -66,6 +66,7 @@ export function TrailBadge(
   props:
     | { state: "next" }
     | { state: "exam" }
+    | { state: "super" }
     | { state: "locked" }
     | { state: "done"; tier: StickerTier },
 ) {
@@ -73,12 +74,14 @@ export function TrailBadge(
   const GLYPH: Record<string, string> = {
     next: "👉",
     exam: "🎓",
+    super: "🏅",
     locked: "🔒",
     done: TIER_GLYPH[tier],
   };
   const LABEL: Record<string, string> = {
     next: "Sigue aquí",
     exam: "Examen",
+    super: "Súper examen",
     locked: "Todavía no",
     done: TIER_LABEL[tier],
   };

@@ -17,7 +17,9 @@ carry dated addenda — read them, not just the Decision.
 moves the earn side and leaves the price ladder 007 protects untouched.
 [021](021-camino-gates-and-exams.md) **supersedes [016](016-camino-derived-and-unlocked.md)**
 on gating (016's derivation rule survives); [022](022-exam-record.md) is its storage
-half. ADR 020 carries a 2026-09-16 addendum adding `EXAM_BONUS` to the ladder.
+half. ADRs 020, 021 and 022 each carry **two** dated addenda (2026-09-16 and
+2026-09-19) — the second round adds los súper exámenes, la llave de papá and
+`SUPER_EXAM_BONUS`. Read them, not just the Decision.
 
 ## By topic / component
 
@@ -28,7 +30,7 @@ half. ADR 020 carries a 2026-09-16 addendum adding `EXAM_BONUS` to the ladder.
 | Answer recording, stats, `recordAnswer` | [013](013-answer-log.md), [012](012-learned-bar-and-trend-restart.md), [018](018-staleness-beside-the-learned-bar.md) |
 | Card art, drawings, `CardFace`, emoji | [015](015-vector-card-art.md), [009](009-story-art-assets.md) |
 | El camino / the trail, `buildCamino` | [021](021-camino-gates-and-exams.md), [022](022-exam-record.md), [016](016-camino-derived-and-unlocked.md) |
-| Exams, gating a shelf, `EXAM_PASS_MARK` | [021](021-camino-gates-and-exams.md), [022](022-exam-record.md), [020](020-earn-side-rebalance.md) |
+| Exams, súper exámenes, gating a shelf | [021](021-camino-gates-and-exams.md), [022](022-exam-record.md), [020](020-earn-side-rebalance.md) |
 | El repaso, review selection, `weakScore`, decay | [018](018-staleness-beside-the-learned-bar.md), [012](012-learned-bar-and-trend-restart.md) |
 | Chests, boosts, hora doble | [020](020-earn-side-rebalance.md), [014](014-timed-boost-stays-local.md), [008](008-counter-wallet.md) |
 | Deploy, hosting, Vercel, env vars | [002](002-vercel-hosting.md), [004](004-optional-supabase-sync.md) |
@@ -76,7 +78,7 @@ half. ADR 020 carries a 2026-09-16 addendum adding `EXAM_BONUS` to the ladder.
 
 | [020](020-earn-side-rebalance.md) | Mascotas are made reachable by raising the **earn side** (`STARS_PER_CORRECT` 1 → 3, every bonus with it), never by cutting `PET_SPECIES` prices (ADR 007). No wallet epoch and no migration — earning only raises `earned`, which ADR 008 already merges safely. Bonus *ordering* is the rule, pinned by tests. | `domain/stars.ts`, `domain/category.ts`, `domain/challenge.ts` |
 
-| [021](021-camino-gates-and-exams.md) | **Supersedes 016 on gating.** A shelf is locked until the previous shelf is complete *and* its **exam** passed (10 questions, 4 picture choices for both profiles, 7 to pass). Locks the home grid, not just the strip. Per shelf, never per deck; a shelf with any sticker is grandfathered. | `domain/exam.ts`, `trail.ts`, `HomeView`, `ShelfDeckGrid` |
-| [022](022-exam-record.md) | `palabras.exams.v1` stores `{ bestScore, attempts }` per kid per shelf, merged by per-counter `max` like `retoBests`. **Passing is derived** (`bestScore >= EXAM_PASS_MARK`) — no `passed` flag. The post-fail retry gate stays device-local (ADR 014's rule). | `ProgressSnapshot.examRecords`, `exam-store.ts` |
+| [021](021-camino-gates-and-exams.md) | **Supersedes 016 on gating.** A shelf is locked until the previous shelf is complete *and* its **exam** passed (10 questions, 4 picture choices for both profiles, 7 to pass). Locks the home grid, not just the strip. Per shelf, never per deck; a shelf with any sticker is grandfathered. **Addendum 2026-09-19:** every 4th shelf is a 20-question **súper examen** across everything so far (14 to pass), which *replaces* that shelf's regular exam and gates like it; **la llave de papá** on `/informe` opens any one locked shelf. | `domain/exam.ts`, `trail.ts`, `HomeView`, `ShelfDeckGrid`, `KidReportView` |
+| [022](022-exam-record.md) | `palabras.exams.v1` stores `{ bestScore, attempts }` per kid per shelf, merged by per-counter `max` like `retoBests`. **Passing is derived** (`bestScore >= passMarkFor(kind)`) — no `passed` flag. The post-fail retry gate stays device-local (ADR 014's rule). **Addendum 2026-09-19:** a súper examen adds *nothing* to this key (the bar comes from ladder position, not storage); la llave de papá gets `palabras.unlocked-shelves.v1`, a per-kid set merged by **union**. | `ProgressSnapshot.examRecords`, `.unlockedShelves`, `economy-store.ts` |
 
 `000-template.md` is the ~10-line template, not a decision.

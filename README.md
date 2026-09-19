@@ -104,13 +104,28 @@ No reading, no accounts, no setup.
   ladder (so it tests what a kid *still* remembers), **four picture choices for
   both profiles** — a two-choice gate is cleared by guessing about one try in
   six, and pictures need no reading, so the harder format costs the pre-reader
-  nothing. Seven of ten passes. Passing pays `EXAM_BONUS` (200⭐) — the largest
-  single payout in the app, above a gold album medal — and opens the next
-  shelf, celebrated with the app's one sequenced ceremony: the grade stamps
-  down, a trophy drops in on turning gold rays, the stars count up, and the
-  padlock on the next shelf breaks open. Failing pays nothing, costs nothing,
-  and sends the kid to the weakest deck on the shelf; the exam reopens once
-  they have played it again.
+  nothing. Seven of ten passes. Passing pays `EXAM_BONUS` (200⭐) and opens the
+  next shelf, celebrated with the app's one sequenced ceremony: the grade
+  stamps down, a trophy drops in on turning gold rays, the stars count up, and
+  the padlock on the next shelf breaks open. Failing pays nothing, costs
+  nothing, and sends the kid to the weakest deck on the shelf; the exam reopens
+  once they have played it again.
+- **Los súper exámenes 🏅** — at the ladder's thirds (shelves 4, 8 and 12) the
+  checkpoint is **twenty** questions spread *evenly across every shelf finished
+  so far*, passed at 14/20. It **replaces** that shelf's regular exam rather
+  than following it — thirty questions back to back is not a kid-sized sit — so
+  the route keeps one checkpoint per shelf: nine regular, three súper. Passing
+  pays `SUPER_EXAM_BONUS` (500⭐), the largest single payout in the app, and
+  shelf 12's súper is the camino's capstone: passing it is what finishes the
+  route. A failed súper sends the kid back across *all* the shelves it tested,
+  not just the last one.
+- **La llave de papá 🔑** — a grown-up can open any one locked shelf from
+  `/informe`, permanently. It lives there because nothing on a kid-facing
+  screen links to `/informe` — a parent arrives by typing the URL and a
+  pre-reader cannot — which is the same reason el reto de papá is set from that
+  screen. It opens **one** shelf: normal gating resumes from there, so the key
+  says "she is ready for this one", not "turn the teaching off". The set of
+  opened shelves only ever grows, so syncing can never re-lock one.
 - **Smart review** — per-word tallies (on-device) bias quizzes toward
   missed words; a 🔁 "El repaso" chip appears on home when ≥3 words need it.
   El repaso asks about two kinds of word: the ones a kid keeps getting

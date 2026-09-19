@@ -1,6 +1,6 @@
 import { stickerId } from "./album";
 import { categoryTierFromAlbum, earnableActivities, tierRank } from "./category";
-import { shelfExamPassed, type ExamRecords } from "./exam";
+import { examKindFor, shelfExamPassed, type ExamKind, type ExamRecords } from "./exam";
 import type { Deck } from "./deck";
 import type { DeckGroup } from "./deck-group";
 import type { KidId } from "./kid";
@@ -53,6 +53,13 @@ export interface TrailShelf {
   readonly examPending: boolean;
   /** This shelf's exam has been passed at some point. */
   readonly examPassed: boolean;
+  /** Which checkpoint this shelf carries — the ladder's thirds are súper
+   *  exámenes, twice as long and drawn across everything before them. */
+  readonly examKind: ExamKind;
+  /** Open only because a grown-up opened it (la llave de papá), rather than
+   *  because the route reached it. Kept distinct from `locked` so a parent can
+   *  see what their own key is holding open. */
+  readonly unlockedByParent: boolean;
 }
 
 /** The whole route, plus the one thing to do next. */
@@ -125,15 +132,19 @@ export function buildCamino(
   /** Exam scores per shelf. Absent means no exam has ever been sat, which
    *  locks everything past the first shelf unless it is grandfathered. */
   examRecords: ExamRecords = {},
+  /** Shelves a grown-up has opened with la llave de papá (ADR 021's addendum).
+   *  A set that only grows, so syncing can never re-lock one. */
+  unlockedShelves: readonly string[] = [],
 ): Camino {
   const owned = new Set(earned);
+  const parentOpened = new Set(unlockedShelves);
 
   // The gate walks the ladder in order: each shelf decides whether the next
   // one opens. The first shelf is always open — there is nothing behind it to
   // finish, and it is the deck a three-year-old already loves (ADR 021).
   let gateOpen = true;
 
-  const shelves = groups.map((group): TrailShelf => {
+  const shelves = groups.map((group, index): TrailShelf => {
     const steps = group.deckIds.flatMap((deckId) => {
       const deck = decks.find((d) => d.id === deckId);
       return deck === undefined || deck.secret === true
@@ -149,9 +160,16 @@ export function buildCamino(
     // the gate — so it self-limits, and nobody is sent back to shelf 1 on the
     // day this ships. Deleting it silently demotes every existing kid.
     const grandfathered = steps.some((step) => step.done > 0);
-    const locked = !gateOpen && !grandfathered;
+    // A grown-up's key opens exactly this shelf and nothing else: normal
+    // gating resumes from here, because the parent said "she is ready for
+    // this one", not "turn the teaching off" (ADR 021's addendum).
+    const unlockedByParent = parentOpened.has(group.id);
+    const locked = !gateOpen && !grandfathered && !unlockedByParent;
 
-    const examPassed = shelfExamPassed(examRecords, group.id);
+    // The bar comes from the shelf's position on the ladder, never from
+    // storage — see examKindFor for the one cost that buys.
+    const examKind = examKindFor(index);
+    const examPassed = shelfExamPassed(examRecords, group.id, examKind);
     // A shelf with no steps at all (every deck secret, or a shelf mid-edit)
     // must not strand the route behind an exam it can never offer.
     const examPending = complete && !examPassed;
@@ -167,6 +185,8 @@ export function buildCamino(
       locked,
       examPending,
       examPassed,
+      examKind,
+      unlockedByParent,
     };
   });
 

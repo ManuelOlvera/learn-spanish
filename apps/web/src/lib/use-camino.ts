@@ -11,7 +11,7 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
-import { getExamRecords, getStickerCounts } from "@/lib/economy";
+import { getExamRecords, getStickerCounts, getUnlockedShelves } from "@/lib/economy";
 
 /**
  * El camino for the selected kid, or null while it's unknown (storage not read
@@ -53,6 +53,7 @@ export function useCamino(
                 // The gate: which shelves are open is decided here, so this
                 // must be read on the same pass as the album (ADR 021).
                 getExamRecords(kid),
+                getUnlockedShelves(kid),
               ),
             );
           }

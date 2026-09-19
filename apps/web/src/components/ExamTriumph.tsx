@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ExamKind } from "@learn-spanish/core";
 import { Confetti } from "@/components/Confetti";
 
 interface Props {
   /** What they scored, out of `total`. */
   score: number;
   total: number;
+  /** A súper examen gets the louder copy and its own glyph — the ceremony
+   *  itself is shared until the bespoke one on the roadmap is built. */
+  kind: ExamKind;
   /** Stars banked. Zero on a re-sit, which changes the copy, not the ceremony. */
   bonus: number;
   /** The shelf just passed, and the one it opened (null at the end of the route). */
@@ -47,11 +51,13 @@ export function ExamTriumph({
   score,
   total,
   bonus,
+  kind,
   passedEmoji,
   unlockedEmoji,
   unlockedName,
   onDone,
 }: Props) {
+  const isSuper = kind === "super";
   const [phase, setPhase] = useState<Phase>("grade");
   const at = PHASE_ORDER.indexOf(phase);
 
@@ -73,7 +79,7 @@ export function ExamTriumph({
     <button
       type="button"
       onClick={onDone}
-      aria-label={`¡Aprobado! ${score} de ${total}. Ganaste ${bonus} estrellas. Toca para seguir.`}
+      aria-label={`${isSuper ? "¡Súper aprobado!" : "¡Aprobado!"} ${score} de ${total}. Ganaste ${bonus} estrellas. Toca para seguir.`}
       className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 overflow-hidden bg-[color-mix(in_srgb,var(--color-ink)_30%,transparent)] p-6"
     >
       <Confetti />
@@ -105,12 +111,12 @@ export function ExamTriumph({
           aria-hidden
           className="exam-trophy relative z-10 text-[8rem] leading-none drop-shadow-[6px_6px_0_var(--color-ink)] sm:text-[10rem]"
         >
-          🏆
+          {isSuper ? "🏅" : "🏆"}
         </span>
       )}
 
       <span className="pop-in relative z-10 rounded-3xl border-4 border-ink bg-[var(--color-lime)] px-8 py-3 text-4xl font-extrabold">
-        ¡Aprobado!
+        {isSuper ? "¡SÚPER APROBADO!" : "¡Aprobado!"}
       </span>
 
       {/* 3. The stars, counting up rather than simply appearing. */}

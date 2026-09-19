@@ -315,21 +315,37 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       app, above `CATEGORY_BONUS.gold`. The "second economy" worry below was
       settled by not building one — it is a new top rung on the existing ladder
       (ADR 020's addendum), not a parallel currency. A reward for the *whole*
-      camino is still open, and belongs with los súper exámenes.
-    - ☐ **Los súper exámenes** — at milestone points on the route, a much longer
-      exam drawn evenly across **every** step completed so far, not just the
-      shelf behind it. The regular exam's three review questions are the small
-      version of this; the súper is the real cumulative sweep. Wants a reward
-      tier above `EXAM_BONUS` and a decision on spacing (every fourth shelf? at
-      the ladder's thirds?). Asked for by the parent 2026-09-16, alongside the
-      gating it was deferred out of.
+      camino is **done 2026-09-19**: shelf 12's súper examen is the capstone,
+      and passing it is what makes the route `complete`.
+    - ☑ **Los súper exámenes** — **done 2026-09-19**, shaped the same day. At the
+      ladder's thirds (shelves 4, 8 and 12) a 20-question exam drawn evenly
+      across **every** shelf completed so far, passed at 14/20, paying
+      `SUPER_EXAM_BONUS` (500⭐). It **replaces** that shelf's regular exam
+      rather than following it — 30 questions back to back is not a kid-sized
+      sit — and it **gates**, on the parent's call, with la llave de papá as
+      the valve. Shelf 12's súper is the camino's capstone.
+    - ☑ **A parent unlock key** — **done 2026-09-19** as **la llave de papá** on
+      `/informe`: a list of locked shelves, one tap opens one, permanently.
+      Stored as a per-kid set merged by union, so it syncs for free and can
+      never un-unlock. Shipped alongside the blocking súper exámenes
+      deliberately: a cumulative wall needed its valve in the same change.
+    - ☐ **A bespoke súper ceremony** — los súper exámenes currently reuse
+      `ExamTriumph` with bigger numbers and their own glyph. The capstone at
+      shelf 12 in particular — finishing the entire camino — deserves something
+      the three-shelf checkpoints don't get. Cut 2026-09-19 on the principle
+      that a second ceremony is worth designing only once the first has been
+      watched landing; revisit after the kids have passed one.
     - ☐ **Exam history on `/informe`** — attempts, best score and a pass/fail
-      trend per shelf. `palabras.exams.v1` already stores `attempts` for exactly
-      this and no rule reads it (ADR 022); the work is all parent-facing UI.
-    - ☐ **A parent unlock key** — a grown-up gesture that opens any locked shelf
-      on demand. Deliberately cut from the first gated cut so the gate ships
-      honest, and named in ADR 021 as **the first thing to add if a kid gets
-      genuinely stuck**. Check this before loosening the 7-of-10 threshold.
+      trend per shelf, **regular and súper alike**. `palabras.exams.v1` already
+      stores `attempts` for exactly this and no rule reads it (ADR 022); a súper
+      shelf's record rides the same key, so this is all parent-facing UI. The
+      súper scores are the more interesting half: a cumulative sweep is the only
+      number in the app that says whether shelf 1 survived the trip to shelf 8.
+    - ☐ **Per-súper thresholds and attention** — 20 questions is 2.5× the app's
+      own `MAX_QUIZ_ROUNDS` ("kid-sized session"). Fine for the `reader`;
+      for the `listener` attention rather than knowledge may be what fails.
+      Watch this before loosening any bar — and note la llave de papá already
+      covers the stuck case.
     - ☐ **Per-profile exam thresholds** — the listener and the reader currently
       sit the same 10 questions at the same 4 choices and the same 7-to-pass.
       Equal-bar was chosen so one threshold means one thing; revisit if the

@@ -549,7 +549,9 @@ export function HomeView({ decks, groups }: Props) {
                   it's finished. The exam outranks the pointer — it IS the
                   next thing. */}
               {shelf?.examPending === true ? (
-                <TrailBadge state="exam" />
+                <TrailBadge
+                  state={shelf.examKind === "super" ? "super" : "exam"}
+                />
               ) : camino !== null && group.id === camino.nextGroupId ? (
                 <TrailBadge state="next" />
               ) : shelf?.complete === true ? (

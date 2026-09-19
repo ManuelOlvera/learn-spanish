@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  EXAM_PASS_MARK,
+  examKindFor,
   groupsInTrailOrder,
+  passMarkFor,
   type Deck,
   type DeckGroup,
   type Exam,
+  type ExamKind,
   type ExamOutcome,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
@@ -105,6 +107,12 @@ export function ExamPlayer({
 
   const rounds = exam?.rounds ?? [];
   const round = rounds[index];
+  // The shelf's own kind, known before the exam is dealt so the refusal and
+  // the error fallback can speak in the right units.
+  const kind: ExamKind = examKindFor(
+    groupsInTrailOrder(allGroups).findIndex((g) => g.id === group.id),
+  );
+  const isSuper = kind === "super";
 
   function finish(score: number) {
     sitExam
@@ -117,7 +125,12 @@ export function ExamPlayer({
         log.error("exam", "failed to record", { err });
         // Never strand a kid on a blank screen because a write failed: show
         // the result they earned, and let the record catch up next time.
-        setOutcome({ passed: score >= EXAM_PASS_MARK, stars: 0, practiceDeckId: null });
+        setOutcome({
+          passed: score >= passMarkFor(kind),
+          stars: 0,
+          practiceDeckId: null,
+          kind,
+        });
       });
   }
 
@@ -204,6 +217,7 @@ export function ExamPlayer({
         score={correct.current}
         total={rounds.length}
         bonus={outcome.stars}
+        kind={outcome.kind}
         passedEmoji={group.emoji}
         unlockedEmoji={nextShelf?.emoji ?? null}
         unlockedName={nextShelf?.nameSpanish ?? null}
@@ -226,7 +240,7 @@ export function ExamPlayer({
           🏠
         </Link>
         <span aria-hidden className="text-4xl">
-          🎓 {group.emoji}
+          {isSuper ? "🏅" : "🎓"} {group.emoji}
         </span>
       </header>
 

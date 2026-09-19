@@ -1,5 +1,97 @@
 # Shipped features
 
+## 2026-09-19 — 🏅 Los súper exámenes, and the key that makes them survivable
+
+**For:** the `reader` again — the regular exam only ever looks one shelf back,
+so nothing checked whether shelf 1 survived the trip to shelf 8. And for the
+parent, who until now had no way past a gate their child was stuck behind.
+Dated addenda to [ADR 021](../adr/021-camino-gates-and-exams.md),
+[ADR 022](../adr/022-exam-record.md) and
+[ADR 020](../adr/020-earn-side-rebalance.md) — no new ADR, because 021 already
+named the unlock key as the first thing to add.
+
+### The cumulative sweep
+
+At the ladder's thirds — **comida, transporte, verbos**, which is shelves 4, 8
+and 12 — the checkpoint is **20 questions spread evenly across every shelf
+finished so far**, passed at **14/20** (the same 70%). Round-robin rather than
+proportional, because what matters for a cumulative exam is that *shelf 1 is
+still represented at shelf 12*, not that the arithmetic divides: no shelf ever
+ends more than one question ahead of another.
+
+It **replaces** that shelf's regular exam rather than following it. Sitting a
+10-question exam and then a 20-question one back to back is thirty questions,
+which is not a kid-sized sit — and the súper already covers that shelf's own
+content. So the route still has exactly one checkpoint per shelf: nine regular,
+three súper.
+
+**It gates**, on the parent's call and against a recommendation to make it an
+optional trophy. The objection is on the record in ADR 021's addendum: a
+cumulative wall is much harder than a one-shelf one, and a kid stuck at it is
+stuck behind everything they have ever learned. What makes that acceptable is
+that the valve shipped in the same change instead of being promised.
+
+Shelf 12's súper is the **capstone** — passing it is what makes the camino
+`complete`, which also closes roadmap #22's long-open "a reward for finishing
+the whole camino".
+
+### It needed no new storage
+
+A shelf has one checkpoint whatever kind it is, so `palabras.exams.v1` still
+holds one `{ bestScore, attempts }` per shelf. What differs is only the bar the
+score is read against, and **that comes from the shelf's position on the
+ladder** — `examKindFor(index)` — not from anything written down. ADR 022's
+central rule survives untouched: passing is still derived, and there is still
+no `passed` flag anywhere.
+
+The cost is real and recorded: moving a shelf across a milestone re-scales its
+existing record, because a 9/10 regular pass sitting at a súper position reads
+as a fail. A content test now pins the three milestones to the actual ladder,
+so reordering `TRAIL_GROUP_ORDER` fails the build rather than quietly asking a
+kid to re-sit.
+
+### La llave de papá
+
+A grown-up opens any one locked shelf from `/informe`, permanently. **No new
+adult gate was invented**, because one already existed by construction: nothing
+on a kid-facing screen links to `/informe`, so a parent arrives by typing the
+URL and a pre-reader cannot. That is exactly why el reto de papá is set from
+that screen, and the key now sits beside a control of the same kind.
+
+It opens **one shelf**, not everything before it and not the gate as a whole.
+Normal gating resumes from there, so the parent's action stays legible: they
+said "she is ready for this one", not "turn the teaching off".
+
+The set of opened shelves rides `palabras.unlocked-shelves.v1` and merges by
+**union** — a set that only grows, chosen over a per-shelf boolean precisely
+because of the failure direction: **a stale peer can never re-lock a shelf a
+parent opened**. It syncs, unlike the retry gate, and the two are not in
+tension: a retry gate is transient and device-local, while an override is a
+durable decision a parent made about their child, and it would be absurd for it
+to hold on the tablet and not the phone.
+
+### The reward, and the shape of the economy
+
+`SUPER_EXAM_BONUS = 500`, above `EXAM_BONUS` (200), above
+`CATEGORY_BONUS.gold` (125) — three rungs, each pinned by an assertion against
+the constant below it rather than a copy of its value, which is the rule ADR
+020 set. The ceremony is shared with the regular exam for now, wearing 🏅 and
+"¡SÚPER APROBADO!"; a bespoke one is on the roadmap, deliberately cut on the
+principle that a second ceremony is worth designing only once the first has
+been watched landing.
+
+Exams are now the spine of the economy: nine regular at 200 plus three súper at
+500 is 3,300⭐ across a completed camino, against a 100⭐ cheapest pet. If that
+flattens saving as a motivation, the lever is the threshold or the spacing —
+never the bonus, which is the number the kids are told.
+
+### Deferred
+
+A bespoke súper ceremony, exam history on `/informe` (both kinds — the súper
+scores are the more interesting half, being the only number that says whether
+shelf 1 survived), and per-súper thresholds if 20 questions turns out to test
+the listener's attention rather than their Spanish. All in `roadmap.md` #22.
+
 ## 2026-09-16 — 🎓 El camino learns to say no, and los exámenes are the gate
 
 **For:** the `reader` (the eight-year-old), for whom a route that only ever

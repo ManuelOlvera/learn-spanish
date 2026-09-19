@@ -129,11 +129,12 @@ stateDiagram-v2
 
   Locked --> Open: previous shelf complete<br/>AND its exam passed
   Locked --> Open: holds any earned sticker<br/>(grandfathered — only ever<br/>true of play predating the gate)
+  Locked --> Open: la llave de papá<br/>(a grown-up, on /informe)
 
   Open --> ExamDue: every deck on the shelf complete<br/>(earnableActivities, the album's own bar)
   ExamDue --> Open: fails — best score unchanged,<br/>weakest deck nominated
 
-  ExamDue --> Cleared: scores >= EXAM_PASS_MARK<br/>pays EXAM_BONUS (once)
+  ExamDue --> Cleared: scores >= the bar its KIND implies<br/>regular 7/10 → EXAM_BONUS<br/>súper 14/20 → SUPER_EXAM_BONUS
   Cleared --> [*]: the NEXT shelf's gate opens
 
   note right of Locked
@@ -145,12 +146,20 @@ stateDiagram-v2
     A failure writes the device-local
     retry gate; the exam reopens once
     that deck's play count rises.
+    Every 4th shelf (the ladder's
+    thirds) is a SÚPER examen: 20
+    questions spread evenly over every
+    shelf so far. It replaces that
+    shelf's regular exam, never follows
+    it — one checkpoint per shelf.
   end note
 ```
 
-**Passing is derived, never stored** — `bestScore >= EXAM_PASS_MARK` (ADR 022)
-— so `Cleared` is a reading of the ledger rather than a state written into it,
-and a bad re-sit cannot move a shelf backwards.
+**Passing is derived, never stored** — `bestScore >= passMarkFor(kind)`
+(ADR 022) — so `Cleared` is a reading of the ledger rather than a state written
+into it, and a bad re-sit cannot move a shelf backwards. A shelf's *kind* is
+derived too, from its position on the ladder, which is what lets a súper
+checkpoint reuse the same one-record-per-shelf storage.
 
 ## localStorage key inventory
 
@@ -190,6 +199,7 @@ closes, so it is not part of this inventory.
 | `palabras.challenge.v1` | `lib/economy-store.ts` | el reto de papá: the challenge set for a kid | no (per-device — a challenge is set on the device it is played from) |
 | `palabras.boost.v1` | `lib/economy-store.ts` | the ⚡ hora doble window | **never** (ADR 014 — an expiring timestamp is the one shape the additive merge cannot carry; expiry is decided on read) |
 | `palabras.exams.v1` | `lib/economy-store.ts` | per shelf, `{ bestScore, attempts }` for its camino exam — **passing is derived** (`bestScore >= EXAM_PASS_MARK`), never stored | yes (per-counter `max`, like `retoBests` — ADR 022) |
+| `palabras.unlocked-shelves.v1` | `lib/economy-store.ts` | shelves a grown-up opened with **la llave de papá** | yes (**union** — a set that only grows, so a stale peer can never re-lock a shelf a parent opened; ADR 022's addendum) |
 | `palabras.exam-practice.v1` | `lib/economy-store.ts` | the deck a failed exam is waiting on before a re-sit | **never** (ADR 022 — transient state, ADR 014's rule; an unsynced gate only ever lets a kid retry sooner, which is the safe direction) |
 | `palabras.trend.v2` | `lib/trend-store.ts` | weekly learned-words samples | no (derived from synced stats) |
 | `palabras.answer-log.v1` | `lib/answer-log-store.ts` | last 90 days of answers, each with its game and timestamp | **never** (ADR 013 — a per-answer record of a child stays on its device) |

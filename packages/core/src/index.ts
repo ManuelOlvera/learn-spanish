@@ -25,6 +25,7 @@ export {
   earnedStars,
   EMPTY_WALLET,
   EXAM_BONUS,
+  SUPER_EXAM_BONUS,
   FIRST_TIME_BONUS,
   MEAL_COST,
   MISSION_BONUS,
@@ -231,13 +232,19 @@ export {
 } from "./domain/challenge";
 export type { Camino, TrailShelf, TrailStep } from "./domain/trail";
 export { buildCamino, reachableDeckIds, reachableGroupIds } from "./domain/trail";
-export type { Exam, ExamPractice, ExamRecord, ExamRecords, ExamRound } from "./domain/exam";
+export type { Exam, ExamKind, ExamPractice, ExamRecord, ExamRecords, ExamRound } from "./domain/exam";
 export {
   EXAM_BONUS_LABEL,
   EXAM_CHOICE_COUNT,
   EXAM_PASS_MARK,
   EXAM_QUESTIONS,
   EXAM_REVIEW_QUESTIONS,
+  SUPER_EXAM_EVERY,
+  SUPER_EXAM_PASS_MARK,
+  SUPER_EXAM_QUESTIONS,
+  examKindFor,
+  passMarkFor,
+  questionsFor,
   buildExam,
   clearedPractice,
   examPassed,
@@ -453,3 +460,4 @@ export {
 } from "./domain/letters";
 export { StartExamUseCase } from "./application/start-exam";
 export { SitExamUseCase, type ExamOutcome } from "./application/sit-exam";
+export { UnlockShelfUseCase } from "./application/unlock-shelf";
