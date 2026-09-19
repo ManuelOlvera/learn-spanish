@@ -155,14 +155,28 @@ beside the point: the children this was built for **had already dabbled
 everywhere**, so predating the gate described nearly the whole pack. A rule
 that self-limits going forward can still be a hole on the day it ships.
 
-**The bar is now the furthest shelf the kid actually completed.** Everything up
-to and including it stays open; everything past it gates normally. Grandfather
-status reaches *backwards* from that frontier rather than being decided per
-shelf, so a gap is harmless — a kid who finished shelf 10 but never finished 5
-keeps 5, because the promise is "nothing you could reach yesterday disappears",
-not "your history was tidy".
+**The bar is now: a shelf the kid actually completed stays open, and nothing
+else.** Everything not completed gates normally.
 
-**Consequences**
+**It took two attempts, and the failed one is the useful part of this record.**
+The first fix opened everything *up to* the furthest completed shelf, reaching
+backwards from that frontier so a gap could not demote anyone. It shipped, and
+it unlocked the entire route:
+
+> **Completion cost is not monotonic along the ladder.** Los verbos sits
+> **last** and costs **3 stickers** — its decks are `learnOnly`, so
+> `earnableActivities` yields only `["learn"]` — against 18–36 for every other
+> shelf. A kid who flipped three flashcards completed the final shelf, which
+> pushed the frontier to the end and opened all twelve.
+
+So the grant is per shelf and **never reaches backwards**. A kid who finished
+shelf 10 but not shelf 5 keeps 10 and must still earn 5, which means an open
+tile can sit past a locked one. That is the honest reading of a route that
+enforces order, and it is the only shape that cannot be levered open by
+whichever shelf happens to be cheapest. A regression test builds a ladder whose
+last shelf is learn-only and asserts it opens nothing before it.
+
+## Consequences
 
 - **This demotes real kids, which the original rule existed to prevent.** That
   trade was made deliberately by the parent, with the numbers in front of them:
@@ -174,6 +188,9 @@ not "your history was tidy".
   of progress to drift.
 - A kid who has completed nothing is gated from shelf 2 onward, exactly as a
   brand-new profile is. That is the intended reading of "learn in order".
-- The lesson generalises past this feature: when a derived rule stands in for a
-  migration, check it against the **data that actually exists**, not against
-  the invariant that makes it self-limiting.
+- **Two lessons, both about checking a rule against reality rather than against
+  its own logic.** When a derived rule stands in for a migration, check it
+  against the data that **actually exists** — not against the invariant that
+  makes it self-limiting. And when a rule ranks shelves, check it against the
+  **cheapest** shelf, not the typical one; the pack's outlier is at the end of
+  the ladder, where a "furthest" rule is most exposed.

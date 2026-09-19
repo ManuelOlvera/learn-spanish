@@ -14,25 +14,36 @@ that predates the gate* — is true and beside the point: these kids **had
 already dabbled everywhere**, so "predates the gate" described nearly the whole
 pack. A rule that self-limits going forward can still be a hole on day one.
 
-The bar is now **the furthest shelf the kid actually completed**. Everything up
-to and including it stays open; everything past it gates normally. The status
-reaches *backwards* from that frontier rather than being decided per shelf, so
-a gap is harmless — finish shelf 10 and never finish 5, and 5 stays reachable,
-because the promise is "nothing you could reach yesterday disappears", not
-"your history was tidy".
+The bar is now **a shelf the kid actually completed stays open, and nothing
+else**.
 
-Measured on the real ladder: a profile that had dabbled in eleven of twelve
-shelves goes from **1 locked shelf to 11**. One that genuinely completed the
-first three goes to **9**, with the next gate being comida's súper examen.
+That took two attempts, and the failed one is worth recording. The first fix
+opened everything *up to* the furthest completed shelf, reaching backwards so a
+gap could not demote anyone. It shipped — and unlocked the whole route, because
+**completion cost is not monotonic along the ladder**: Los verbos sits *last*
+and costs **3 stickers** (its decks are learn-only, so only `learn` is
+earnable) against 18–36 everywhere else. Flip three flashcards, complete the
+final shelf, and the frontier jumped to the end. The parent saw it in minutes:
+*"Nothing is locked now."*
+
+So the grant is per shelf and never reaches backwards. A kid who finished shelf
+10 but not 5 keeps 10 and must still earn 5 — an open tile can sit past a
+locked one, which is the honest reading of a route that enforces order.
+
+Measured on the real ladder: fresh **11** locked · dabbled in eleven of twelve
+shelves **11** · verb flashcards only **10** (was **0**) · genuinely completed
+the first three **9**.
 
 **This demotes real children**, which is precisely what the original rule
 existed to prevent. The trade was made deliberately, with those numbers in
 front of the parent, and it is defensible only because **la llave de papá
 shipped first**: any shelf that turns out to matter can be handed back in one
 tap from `/informe`. See [ADR 021](../adr/021-camino-gates-and-exams.md)'s
-second addendum for the reasoning, and the lesson worth keeping: when a derived
-rule stands in for a migration, check it against the data that **actually
-exists**, not against the invariant that makes it self-limiting.
+second addendum for the reasoning, and the two lessons worth keeping: when a
+derived rule stands in for a migration, check it against the data that
+**actually exists**, not against the invariant that makes it self-limiting —
+and when a rule ranks shelves, check it against the **cheapest** one, not the
+typical one.
 
 ## 2026-09-19 — 🏅 Los súper exámenes, and the key that makes them survivable
 

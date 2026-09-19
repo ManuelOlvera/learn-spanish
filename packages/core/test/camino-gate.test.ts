@@ -109,14 +109,13 @@ describe("the gate", () => {
 });
 
 describe("grandfathering", () => {
-  it("keeps every shelf up to the furthest one they COMPLETED", () => {
+  it("keeps a shelf the kid actually COMPLETED, however far ahead", () => {
     // The day the gate ships, nobody loses a shelf they genuinely finished
-    // (ADR 021). The frontier is completion, not a single sticker: one sticker
+    // (ADR 021). The bar is completion, not a single sticker: one sticker
     // anywhere used to hold a shelf open forever, which left an established
     // kid with almost nothing gated at all.
     const camino = buildCamino(groups, decks, KID, allOf(tres), {}, {});
-    expect(shelf(camino, "g1").locked).toBe(false);
-    expect(shelf(camino, "g2").locked).toBe(false);
+    expect(shelf(camino, "g3").complete).toBe(true);
     expect(shelf(camino, "g3").locked).toBe(false);
   });
 
@@ -134,13 +133,14 @@ describe("grandfathering", () => {
     expect(shelf(camino, "g3").locked).toBe(true);
   });
 
-  it("opens everything before a completed shelf, gaps included", () => {
-    // Completed shelf 3 but never finished 2: 2 stays reachable, because the
-    // promise is "nothing you could reach yesterday disappears", not "your
-    // history was tidy".
+  it("does NOT open the shelves before it — the grant never reaches back", () => {
+    // Completed shelf 3 but never finished 2: 3 is kept, 2 must still be
+    // earned. An open tile can therefore sit past a locked one. That is the
+    // price of a rule no cheap shelf can lever open — see the verbos
+    // regression below for what the backwards version cost.
     const camino = buildCamino(groups, decks, KID, allOf(tres), {}, {});
     expect(shelf(camino, "g2").complete).toBe(false);
-    expect(shelf(camino, "g2").locked).toBe(false);
+    expect(shelf(camino, "g2").locked).toBe(true);
   });
 
   it("locks everything for a kid who has completed nothing", () => {
@@ -226,5 +226,43 @@ describe("what the rest of the app may point at", () => {
     // set there would blank la misión for a frame on every load.
     expect(reachableDeckIds(null)).toBeNull();
     expect(reachableGroupIds(null)).toBeNull();
+  });
+});
+
+describe("a cheap shelf late on the ladder cannot unlock the pack", () => {
+  /**
+   * The regression that mattered: Los verbos is the LAST shelf and costs 3
+   * stickers (its decks are learn-only, so `earnableActivities` is just
+   * ["learn"]), against 18-36 for every other shelf. A rule that opened
+   * everything up to the furthest *completed* shelf therefore unlocked the
+   * entire route for a kid who flipped three flashcards.
+   *
+   * So grandfathering grants **each completed shelf individually** and never
+   * reaches backwards. Completion cost is not monotonic along the ladder, and
+   * any future rule that assumes it is will break here again.
+   */
+  const cheapLast = [
+    group("g1", ["uno"]),
+    group("g2", ["dos"]),
+    group("g3", ["cheap"]),
+  ];
+  const cheap: Deck = { ...testDeck("cheap"), learnOnly: true };
+  const cheapDecks = [uno, dos, cheap];
+
+  it("keeps the cheap shelf open without opening the ones before it", () => {
+    const earned = [stickerId(KID, "cheap", "learn")]; // the whole shelf
+    const camino = buildCamino(cheapLast, cheapDecks, KID, earned, {}, {});
+    expect(shelf(camino, "g3").complete).toBe(true);
+    expect(shelf(camino, "g3").locked).toBe(false);
+    expect(shelf(camino, "g2").locked).toBe(true);
+  });
+
+  it("does not open the whole route off one cheap completion", () => {
+    const earned = [stickerId(KID, "cheap", "learn")];
+    const camino = buildCamino(cheapLast, cheapDecks, KID, earned, {}, {});
+    // g1 is open because it is first; g2 must still be earned.
+    expect(camino.shelves.filter((s) => s.locked).map((s) => s.groupId)).toEqual([
+      "g2",
+    ]);
   });
 });

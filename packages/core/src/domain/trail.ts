@@ -144,9 +144,8 @@ export function buildCamino(
   // finish, and it is the deck a three-year-old already loves (ADR 021).
   let gateOpen = true;
 
-  // Completion has to be known for the whole ladder before any lock can be
-  // decided, because grandfathering reaches *backwards* from the furthest
-  // shelf a kid finished. Hence two passes rather than one.
+  // Completion is computed for the whole ladder first so the lock pass reads
+  // one settled view of progress rather than recomputing it per shelf.
   const progress = groups.map((group) => {
     const steps = group.deckIds.flatMap((deckId) => {
       const deck = decks.find((d) => d.id === deckId);
@@ -163,33 +162,32 @@ export function buildCamino(
   });
 
   /**
-   * Grandfathering, derived rather than stored: everything up to and including
-   * the furthest shelf this kid actually **completed** stays open.
+   * Grandfathering, derived rather than stored: **a shelf this kid has
+   * actually completed stays open**, and nothing else.
    *
-   * The bar is completion, not a single sticker. The first cut used "has any
-   * sticker", which read as generous and was in practice a hole: a kid who had
-   * dabbled one card in eleven of twelve shelves had eleven shelves
-   * permanently grandfathered, so the route gated exactly nothing for the very
-   * children it was built for. Completion is the honest frontier — it is the
-   * same bar the route uses everywhere else, and it still guarantees that
-   * nobody loses a shelf they genuinely finished.
+   * Two earlier bars were wrong, in opposite directions, and both are worth
+   * remembering because the next idea here will be tempted by one of them.
    *
-   * Reaching backwards from the furthest one (rather than per shelf) is what
-   * keeps a gap harmless: a kid who finished shelf 10 but never finished 5
-   * keeps 5, because the promise is "nothing you could reach yesterday
-   * disappears", not "your history was tidy".
+   * *"Any earned sticker"* was a hole: the children this was built for had
+   * already dabbled one card in nearly every shelf, so nearly every shelf was
+   * grandfathered and the route gated nothing at all.
+   *
+   * *"Everything up to the furthest completed shelf"* was worse. **Completion
+   * cost is not monotonic along the ladder**: Los verbos sits last and costs
+   * three stickers, because its decks are learn-only, against 18-36 for every
+   * other shelf. Flipping three flashcards completed the final shelf, which
+   * pushed the frontier to the end and unlocked the entire route.
+   *
+   * So the grant is per shelf and **never reaches backwards**. The cost is
+   * that a kid who finished shelf 10 but not shelf 5 keeps 10 and must still
+   * earn 5 — an open tile can sit past a locked one. That is the honest
+   * reading of a route that enforces order, and it is the only shape that
+   * cannot be levered open by whichever shelf happens to be cheapest.
    */
-  let frontier = -1;
-  progress.forEach((p, i) => {
-    if (p.complete) {
-      frontier = i;
-    }
-  });
-
   const shelves = groups.map((group, index): TrailShelf => {
     const { steps, doneSteps, complete } = progress[index]!;
 
-    const grandfathered = index <= frontier;
+    const grandfathered = complete;
     // A grown-up's key opens exactly this shelf and nothing else: normal
     // gating resumes from here, because the parent said "she is ready for
     // this one", not "turn the teaching off" (ADR 021's addendum).
