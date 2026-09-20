@@ -1,3 +1,4 @@
+import { cardPicture } from "./card";
 import type { VocabularyCard } from "./card";
 import type { Deck } from "./deck";
 import type { DeckGroup } from "./deck-group";
@@ -521,10 +522,26 @@ export function buildExam(opts: {
   }
 
   const rounds = shuffled(chosen, random).map((source): ExamRound => {
-    const distractors = shuffled(
-      pool.filter((s) => s.card.id !== source.card.id),
-      random,
-    ).slice(0, EXAM_CHOICE_COUNT - 1);
+    // Distractors are excluded **by picture, not by id**. An exam draws across
+    // a whole shelf, and a shelf can teach one thing in several forms — los
+    // verbos teach the same fifteen verbs as infinitive, gerund and
+    // imperative, so `comer` and `comiendo` are different cards carrying the
+    // same 🍽️. Filtering on id alone would deal that picture as the answer
+    // *and* as a wrong choice: unanswerable, and marked wrong either way. The
+    // pack's per-deck "no repeated picture" rule cannot catch this, because
+    // the two cards are in different decks.
+    const taken = new Set([cardPicture(source.card)]);
+    const distractors: Sourced[] = [];
+    for (const candidate of shuffled(pool, random)) {
+      if (distractors.length === EXAM_CHOICE_COUNT - 1) {
+        break;
+      }
+      const picture = cardPicture(candidate.card);
+      if (!taken.has(picture)) {
+        taken.add(picture);
+        distractors.push(candidate);
+      }
+    }
     return {
       answer: source.card,
       deckId: source.deckId,

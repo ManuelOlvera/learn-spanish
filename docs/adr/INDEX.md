@@ -17,9 +17,10 @@ carry dated addenda — read them, not just the Decision.
 moves the earn side and leaves the price ladder 007 protects untouched.
 [021](021-camino-gates-and-exams.md) **supersedes [016](016-camino-derived-and-unlocked.md)**
 on gating (016's derivation rule survives); [022](022-exam-record.md) is its storage
-half. ADRs 020, 021 and 022 each carry **two** dated addenda (2026-09-16 and
-2026-09-19) — the second round adds los súper exámenes, la llave de papá and
-`SUPER_EXAM_BONUS`. Read them, not just the Decision.
+half. ADRs 020, 021 and 022 each carry several dated addenda (2026-09-16
+onward) — los súper exámenes, la llave de papá, `SUPER_EXAM_BONUS`, the exam
+sitting history, and los verbos joining the games. Read them, not just the
+Decision.
 
 ## By topic / component
 
@@ -78,7 +79,7 @@ half. ADRs 020, 021 and 022 each carry **two** dated addenda (2026-09-16 and
 
 | [020](020-earn-side-rebalance.md) | Mascotas are made reachable by raising the **earn side** (`STARS_PER_CORRECT` 1 → 3, every bonus with it), never by cutting `PET_SPECIES` prices (ADR 007). No wallet epoch and no migration — earning only raises `earned`, which ADR 008 already merges safely. Bonus *ordering* is the rule, pinned by tests. | `domain/stars.ts`, `domain/category.ts`, `domain/challenge.ts` |
 
-| [021](021-camino-gates-and-exams.md) | **Supersedes 016 on gating.** A shelf is locked until the previous shelf is complete *and* its **exam** passed (10 questions, 4 picture choices for both profiles, 7 to pass). Locks the home grid, not just the strip. Per shelf, never per deck; a shelf with any sticker is grandfathered. **Addendum 2026-09-19:** every 4th shelf is a 20-question **súper examen** across everything so far (14 to pass), which *replaces* that shelf's regular exam and gates like it; **la llave de papá** on `/informe` opens any one locked shelf. | `domain/exam.ts`, `trail.ts`, `HomeView`, `ShelfDeckGrid`, `KidReportView` |
+| [021](021-camino-gates-and-exams.md) | **Supersedes 016 on gating.** A shelf is locked until the previous shelf is complete *and* its **exam** passed (10 questions, 4 picture choices for both profiles, 7 to pass). Locks the home grid, not just the strip. Per shelf, never per deck; a shelf with any sticker is grandfathered. **Addendum 2026-09-19:** every 4th shelf is a 20-question **súper examen** across everything so far (14 to pass), which *replaces* that shelf's regular exam and gates like it; **la llave de papá** on `/informe` opens any one locked shelf. **Addendum 2026-09-20:** los verbos join the games, so shelf 12 costs 14 not 3 — the cheapest-shelf outlier is gone, and completed profiles are demoted again; "one open door is none" now covers a *game* as well as a shelf (`deckSkipsGame` guards the routes and la misión); exam distractors are chosen by **picture**, not card id. | `domain/exam.ts`, `trail.ts`, `category.ts`, `mission.ts`, `HomeView`, `ShelfDeckGrid`, `KidReportView`, `GameMenu` |
 | [022](022-exam-record.md) | `palabras.exams.v1` stores `{ bestScore, attempts }` per kid per shelf, merged by per-counter `max` like `retoBests`. **Passing is derived** (`bestScore >= passMarkFor(kind)`) — no `passed` flag. The post-fail retry gate stays device-local (ADR 014's rule). **Addendum 2026-09-19:** a súper examen adds *nothing* to this key (the bar comes from ladder position, not storage); la llave de papá gets `palabras.unlocked-shelves.v1`, a per-kid set merged by **union**. **Addendum 2026-09-19 (later):** the record gains an optional `history` of `{ at, score }` sittings — the one non-monotonic field, merged by **union on `at` then trim to 8**, inert to every rule, added for the parent-facing exam history. | `ProgressSnapshot.examRecords`, `.unlockedShelves`, `economy-store.ts` |
 
 `000-template.md` is the ~10-line template, not a decision.

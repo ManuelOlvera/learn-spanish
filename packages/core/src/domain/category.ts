@@ -35,9 +35,11 @@ export function activitiesForKid(
  * never appeared and its chest never opened, while el camino called the same
  * deck finished.
  *
- * A learn-only deck (the verbs shelf) offers flashcards and nothing else — the
- * games build noun-shaped questions ("¿Es un…?") that no action word fits — so
- * its section is one sticker deep. Every other deck can offer all five games:
+ * A learn-only deck offers flashcards and nothing else, and a deck may instead
+ * skip *individual* games it has no natural question for (`skipActivities` —
+ * el infinitivo and el imperativo skip the two that build a claim). Either way
+ * the section is exactly as deep as what can be earned in it. Every other deck
+ * can offer all five games:
  * the content tests hold every deck at 10-17 cards, comfortably above what any
  * of them needs to deal a round. Pass `null` for the pack-wide sections (las
  * frases, los cuentos), which carry activity lists of their own.
@@ -46,9 +48,11 @@ export function earnableActivities(
   deck: Deck | null | undefined,
   kid: KidId,
 ): readonly ActivityId[] {
-  return deck?.learnOnly === true
-    ? ["learn"]
-    : activitiesForKid(ALL_ACTIVITIES, kid);
+  if (deck?.learnOnly === true) {
+    return ["learn"];
+  }
+  const skip = deck?.skipActivities ?? [];
+  return activitiesForKid(ALL_ACTIVITIES, kid).filter((a) => !skip.includes(a));
 }
 
 /**
@@ -171,4 +175,23 @@ export function pruneStickerCounts(
     }
   }
   return kept;
+}
+
+/**
+ * Does this deck opt out of a whole game? `kind` is the game's route/misión
+ * name ("si-no", "scene"), which maps onto its activity ids by prefix — the
+ * same naming the album, the game menu and la misión already share.
+ *
+ * Every surface that can *reach* a game has to ask this, not just the menu
+ * that lists them: a route served by URL would otherwise build a question the
+ * deck has no natural phrasing for, for a sticker that can never be earned.
+ */
+export function deckSkipsGame(
+  deck: Deck | null | undefined,
+  kind: string,
+): boolean {
+  if (deck?.learnOnly === true && kind !== "learn") {
+    return true;
+  }
+  return (deck?.skipActivities ?? []).some((a) => a.startsWith(`${kind}-`));
 }

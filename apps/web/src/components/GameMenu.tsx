@@ -55,11 +55,18 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
     english: "Flashcards",
     modes: [{ glyph: "📖", href: "learn", label: "Flashcards" }],
   };
-  // Learn-only decks (verbs) never generate quiz-style questions — the games
-  // assume nouns ("¿Es un…?"), so only flashcards are offered.
+  // A learn-only deck never generates quiz-style questions at all, so only
+  // flashcards are offered.
   if (deck.learnOnly) {
     return [flashcards];
   }
+  // A deck may instead skip *individual* games it has no natural question for
+  // — el infinitivo and el imperativo play everything but the two that build
+  // a claim about the picture. The tile has to go with the activity, or the
+  // kid taps into a game whose sticker they can never earn.
+  const skipped = deck.skipActivities ?? [];
+  const skips = (kind: string) =>
+    skipped.some((activity) => activity.startsWith(`${kind}-`));
   const deckId = deck.id;
   const modes = kid === null ? null : KID_GAME_MODES[kid];
   const pick = (listen: ModeLink, read: ModeLink): readonly ModeLink[] =>
@@ -83,15 +90,19 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
         { glyph: "🔤", href: "quiz/read", label: "Find it by word" },
       ),
     },
-    {
-      emoji: "✅",
-      spanish: "¿Sí o no?",
-      english: "Yes or no",
-      modes: pick(
-        { glyph: "👂", href: "si-no/listen", label: "Yes or no by ear" },
-        { glyph: "🔤", href: "si-no/read", label: "Yes or no by word" },
-      ),
-    },
+    ...(skips("si-no")
+      ? []
+      : [
+          {
+            emoji: "✅",
+            spanish: "¿Sí o no?",
+            english: "Yes or no",
+            modes: pick(
+              { glyph: "👂", href: "si-no/listen", label: "Yes or no by ear" },
+              { glyph: "🔤", href: "si-no/read", label: "Yes or no by word" },
+            ),
+          },
+        ]),
     {
       emoji: "🧩",
       spanish: "Las parejas",
@@ -110,15 +121,19 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
         { glyph: "🔤", href: "connect/read", label: "Connect by word" },
       ),
     },
-    {
-      emoji: "👀",
-      spanish: "Busca y toca",
-      english: "Seek and find",
-      modes: pick(
-        { glyph: "👂", href: "scene/listen", label: "Seek by ear" },
-        { glyph: "🔤", href: "scene/read", label: "Seek by word" },
-      ),
-    },
+    ...(skips("scene")
+      ? []
+      : [
+          {
+            emoji: "👀",
+            spanish: "Busca y toca",
+            english: "Seek and find",
+            modes: pick(
+              { glyph: "👂", href: "scene/listen", label: "Seek by ear" },
+              { glyph: "🔤", href: "scene/read", label: "Seek by word" },
+            ),
+          },
+        ]),
     // Only on decks whose words are things a person can like — "¿Te gusta el
     // codo?" is grammatical and absurd, so the tile is simply absent elsewhere.
     ...(hasConversation(deckId)

@@ -495,14 +495,14 @@ describe("starter pack content", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("ships the verb forms as one learn-only shelf over the same 12 verbs", async () => {
+  it("ships the verb forms as one playable shelf over the same 12 verbs", async () => {
     const forms = ["verbs-infinitive", "verbs-gerund", "verbs-imperative"];
     const decks = await Promise.all(forms.map((id) => repo.getDeck(id)));
     for (const deck of decks) {
       expect(deck, "verb-form deck must exist").not.toBeNull();
-      // Learn-only: verbs break the games' noun-shaped "¿Es un…?" question,
-      // so they are flashcards-only until verb-native phrasing exists.
-      expect(deck!.learnOnly).toBe(true);
+      // No longer learn-only: el gerundio carries Mi día's verb-native
+      // phrasing, and the other two skip only the games that build a claim.
+      expect(deck!.learnOnly).toBeUndefined();
       expect(deck!.cards).toHaveLength(15);
     }
     // The three forms teach the same verbs in the same order (same pictures).
@@ -511,13 +511,14 @@ describe("starter pack content", () => {
     expect(imp!.cards.map((c) => c.emoji)).toEqual(inf!.cards.map((c) => c.emoji));
   });
 
-  it("keeps learn-only off any deck outside the verbs shelf", async () => {
+  it("uses learn-only on no deck at all (the shape stays supported)", async () => {
+    // Los verbos were the only learn-only shelf and now play the games, so
+    // nothing in the pack sets the flag. It stays a legitimate deck shape for
+    // content that genuinely cannot host a question — but reach for
+    // `skipActivities` first: shutting a deck out of *every* game is almost
+    // never what the content needs.
     const decks = await repo.listDecks();
-    for (const deck of decks) {
-      if (deck.learnOnly) {
-        expect(deck.id.startsWith("verbs-")).toBe(true);
-      }
-    }
+    expect(decks.filter((d) => d.learnOnly === true)).toEqual([]);
   });
 
   it("finds a deck by id and returns null for unknown ids", async () => {

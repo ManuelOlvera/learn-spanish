@@ -228,3 +228,43 @@ Three extra stops is the smallest change that makes the walls countable.
 - ADR 016's retired test stays retired, but its replacement holds: every stop
   ahead is still inert, and the súper stop is tappable only when it is actually
   sittable, so tapping never lands on the refusal screen.
+
+## Addendum — 2026-09-20: los verbos stop being cheap, and a game gets the same rule as a shelf
+
+Two consequences of the verbs shelf joining the games (roadmap 11), both of
+which land on decisions this ADR made.
+
+**The cheapest-shelf outlier is gone.** The addendum above records why it
+mattered: *"Completion cost is not monotonic along the ladder. Los verbos sits
+**last** and costs **3 stickers** … against 18–36 for every other shelf,"* and
+that is what let a kid who flipped three flashcards complete the final shelf.
+With all three decks playing, shelf 12 now costs **14** per kid (el gerundio 6,
+el infinitivo and el imperativo 4 each). It is still the cheapest shelf, but it
+is no longer trivially completable, so the specific hole the earlier fix had to
+close cannot reopen by that route.
+
+**This demotes anyone who had completed it**, exactly as the grandfathering fix
+did: shelf 12 goes incomplete, its súper examen becomes un-sittable, and the
+camino's `complete` state — the capstone — is revoked. Taken deliberately and
+for the same reason as before: honest progress beats a preserved-but-wrong
+state, and **la llave de papá** hands the shelf back in one tap. Shelf 12 is
+also where it costs least: reaching it at all means the kid has done everything
+else.
+
+**"One open door is none" now applies to a game, not just a shelf.** A deck may
+skip individual games it has no natural question for (`skipActivities`; el
+infinitivo and el imperativo skip the two that build a claim). Hiding the tile
+is not enough — `/deck/<id>/si-no/<mode>` is reachable by URL and by the back
+stack, so those routes refuse a skipped game the same way a locked shelf's
+decks do, and la misión filters on it too so it never sets a task a deck cannot
+host. `deckSkipsGame` is the single place that decides, and every new surface
+that can reach a game calls it.
+
+**The exam's distractors are now chosen by picture, not by card id.** A shelf
+can teach one thing in several forms — los verbos teach the same fifteen verbs
+three ways, so `comer` and `comiendo` carry the same 🍽️ — and an exam draws
+across a whole shelf. Filtering on id alone dealt one picture as both the
+answer and a wrong choice: unanswerable, and marked wrong either way. The
+pack's per-deck "no repeated picture" invariant cannot catch this, because the
+two cards are in different decks. This was latent before today only because the
+verbs shelf was excluded from the exam pool.

@@ -56,17 +56,27 @@ describe("missionTarget", () => {
   });
 
   it("falls back off the route rather than sending a kid nowhere", () => {
-    // Los verbos is learn-only: it cannot host a quiz, so the route's own
-    // next stop has to be overruled — otherwise the kid lands on a menu with
-    // no ¿Dónde está? button on it.
+    // El infinitivo plays the quiz now, but still has no claim shape, so it
+    // skips ¿Sí o no? — and the route's own next stop has to be overruled
+    // there, or the kid lands on a menu with no ✅/❌ button on it. This is
+    // the per-game version of the gap learn-only used to cover wholesale.
     const target = missionTarget(
-      "quiz",
+      "si-no",
       decks,
       DECK_GROUPS,
       "verbs-infinitive",
     );
     expect(target).toMatchObject({ scope: "deck" });
     expect(target).not.toEqual({ scope: "deck", deckId: "verbs-infinitive" });
+  });
+
+  it("does send a kid to a verb deck for the games it does host", () => {
+    // The other half of the same rule: now that los verbos play, the misión
+    // must stop routing around them.
+    expect(missionTarget("quiz", decks, DECK_GROUPS, "verbs-infinitive")).toEqual({
+      scope: "deck",
+      deckId: "verbs-infinitive",
+    });
   });
 
   it("still sends flashcards to a learn-only deck — it is all they offer", () => {

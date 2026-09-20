@@ -132,13 +132,18 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     - ☐ **Futuro / condicional decks** — sibling decks on the same shelf (comeré,
       comería). Deferred: conjugations can't be navigated by a single picture and
       read as advanced for ages 3–5; revisit if the app grows an older-kid mode.
-    - ◐ **Verbs in the games** — verb-native question phrasing (e.g. "¿Está
-      comiendo?") so the verbs shelf can drop `learnOnly` and join the quiz-style
-      games. The real lift the learn-only cut deferred. *(Half done 2026-07-29:
-      **Mi día** ships the phrasing as per-card `question` / `sceneQuestion`
-      overrides and plays every game. What's left is this shelf — its three
-      decks teach one verb in three forms, so the gerund and imperative decks
-      need their own claim shapes before the flag can come off.)*
+    - ☑ **Verbs in the games** — **done 2026-09-20.** All three decks dropped
+      `learnOnly`; el gerundio carries Mi día's phrasing and hosts every game,
+      while el infinitivo and el imperativo skip only ¿Sí o no? and Busca y
+      toca via a new per-deck `skipActivities` — an infinitive and a command
+      have no natural claim about a picture, and inventing one ("¿Dice
+      «come»?") would put stilted Spanish in front of a child. No deck in the
+      pack is learn-only any more. Shelf 12's completion cost went 3 → 14, so
+      the cheapest-shelf outlier ADR 021's addendum named as a bug's root
+      cause is gone. See `shipped.md` and ADR 021's 2026-09-20 addendum.
+      - ☐ **A claim shape for the infinitive and the imperative** — revisit
+        only with phrasing that reads naturally; the two decks play everything
+        else in the meantime.
 
 23. ☑ **La comida y El transporte — two shelves from a parent ask** — food was
     two tiles buried in Mi casa with exactly one vegetable, and transport was

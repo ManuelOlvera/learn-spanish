@@ -211,6 +211,7 @@ export {
   categoryTier,
   categoryTierFromAlbum,
   CATEGORY_BONUS,
+  deckSkipsGame,
   earnableActivities,
   pruneStickerCounts,
   pendingCategoryTier,

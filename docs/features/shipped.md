@@ -1,5 +1,65 @@
 # Shipped features
 
+## 2026-09-20 (later still) — Los verbos stop being a shelf you can only look at
+
+**For:** both kids. `Los verbos` was three decks and 45 words that **no game
+could touch** — the pack's only `learnOnly` shelf, flashcards and nothing else.
+It is also shelf 12, so el camino ended on the one shelf a kid could only flip
+through. The roadmap called this "the real lift the learn-only cut deferred".
+
+**What shipped.** All three decks dropped `learnOnly`:
+
+- **El gerundio** carries Mi día's verb-native phrasing — `¿Está comiendo?`,
+  `¿Quién está saltando?`, and reflexives keeping their pronoun
+  (`¿Se está riendo?`) — so it hosts **every** game.
+- **El infinitivo** and **el imperativo** play everything **except** ¿Sí o no?
+  and Busca y toca, the two that build a *claim* about the picture. There is no
+  natural claim for an infinitive or a command; inventing one ("¿Dice «come»?")
+  would put stilted Spanish in front of a child, so they skip those two rather
+  than fake them. El imperativo also stays out of the letter games for free —
+  `bareWord` already returns null for `¡come!`.
+- **Nothing in the pack is learn-only any more.** The flag stays a supported
+  deck shape; the finer `skipActivities` is what content should reach for,
+  because shutting a deck out of *every* game is almost never what it needs.
+
+**Two bugs this found, both the kind only building it surfaces.**
+
+**The exam could deal the same picture twice.** `buildExam` picked distractors
+by `card.id` and never looked at the picture. The three verb decks teach the
+same fifteen verbs in three forms, so they **share all fifteen pictures** — the
+moment they entered the exam pool, shelf 12's exam could deal 🍽️ as the answer
+(*comer*) and 🍽️ again as a distractor (*comiendo*): unanswerable, and marked
+wrong either way. The pack's "never repeats a picture within a deck" invariant
+cannot catch it, because the two cards are in different decks. Distractors are
+now deduped by `cardPicture`, pinned by a regression test built on this shelf.
+
+**A skipped game was still reachable by URL.** Hiding the tile in the game menu
+is not enough: `/deck/verbs-infinitive/si-no/listen` returned 200 and would
+have built "¿Es un comer?" claims for a sticker that can never be earned. This
+is ADR 021's "one open door is none" applied to a game rather than a shelf, so
+`deckSkipsGame` is now the single place that decides and the routes, the game
+menu and la misión all ask it. (La misión's own fallback had the same gap — its
+test caught it.)
+
+**The camino demotion, taken deliberately.** Shelf 12's completion cost goes
+from **3 stickers to 14** per kid. That removes the outlier ADR 021's addendum
+named as a bug's root cause — *"Los verbos sits last and costs 3 stickers …
+which pushed the frontier to the end and opened all twelve"* — but it also
+demotes anyone who had finished it: the shelf goes incomplete, its súper examen
+becomes un-sittable, and the camino's `complete` state is revoked. The same
+trade as the 2026-09-19 grandfathering fix, and **la llave de papá** hands the
+shelf back in one tap. Shelf 12 is where it costs least, too: reaching it at
+all means the kid has done everything else.
+
+**Where:** `domain/deck.ts` (`skipActivities`), `domain/category.ts`
+(`deckSkipsGame`, `earnableActivities`), `domain/exam.ts` (picture-deduped
+distractors), `domain/mission.ts`, the three decks in
+`infrastructure/starter-pack.ts`, `GameMenu`, and the sí-o-no and scene routes.
+ADR 021 gained a 2026-09-20 addendum.
+
+**Deferred (not dropped):** a claim shape for the infinitive and the imperative,
+if phrasing that reads naturally ever turns up · futuro / condicional decks.
+
 ## 2026-09-20 (later) — ⭐ Faltan 29 para el conejo
 
 **For:** both kids, on the earn side — the piece ADR 020 left undone.

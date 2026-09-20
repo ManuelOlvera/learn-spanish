@@ -294,13 +294,14 @@ export const STARTER_PACK: readonly Deck[] = [
     ],
   },
   {
-    // The day a kid actually lives, in infinitives — and the pack's first
-    // verb deck that PLAYS. The verbs shelf is learnOnly because the built
-    // claim ("¿Es un desayunar?") is nonsense; here every card overrides both
-    // questions to the progressive ("¿Está desayunando?", "¿Quién se está
-    // peinando?"), which is how you'd talk about a picture of someone
-    // mid-action. Reflexives keep their pronoun in every phrasing — dropping
-    // the "se" is the mistake this deck exists to prevent.
+    // The day a kid actually lives, in infinitives — and the deck that proved
+    // a verb deck could PLAY. The built claim ("¿Es un desayunar?") is
+    // nonsense, so every card overrides both questions to the progressive
+    // ("¿Está desayunando?", "¿Quién se está peinando?"), which is how you'd
+    // talk about a picture of someone mid-action. Reflexives keep their
+    // pronoun in every phrasing — dropping the "se" is the mistake this deck
+    // exists to prevent. El gerundio now carries the same overrides, which is
+    // what let the verbs shelf stop being learn-only.
     id: "rutina",
     nameSpanish: "Mi día",
     nameEnglish: "My day",
@@ -694,7 +695,10 @@ export const STARTER_PACK: readonly Deck[] = [
     nameSpanish: "El infinitivo",
     nameEnglish: "Verbs: infinitive",
     emoji: "🔤",
-    learnOnly: true,
+    // Plays every game but the two that build a claim about the picture:
+    // "¿Esto es comer?" reads as a translation exercise, not as a question a
+    // child asks. El gerundio below carries the claim games for this shelf.
+    skipActivities: ["si-no-listen", "si-no-read", "scene-listen", "scene-read"],
     cards: [
       { id: "comer", spanish: "comer", english: "to eat", emoji: "🍽️" },
       { id: "dormir", spanish: "dormir", english: "to sleep", emoji: "😴" },
@@ -718,23 +722,22 @@ export const STARTER_PACK: readonly Deck[] = [
     nameSpanish: "El gerundio",
     nameEnglish: "Verbs: -ing",
     emoji: "⏳",
-    learnOnly: true,
     cards: [
-      { id: "comiendo", spanish: "comiendo", english: "eating", emoji: "🍽️" },
-      { id: "durmiendo", spanish: "durmiendo", english: "sleeping", emoji: "😴" },
-      { id: "corriendo", spanish: "corriendo", english: "running", emoji: "🏃" },
-      { id: "saltando", spanish: "saltando", english: "jumping", emoji: "🦘" },
-      { id: "jugando", spanish: "jugando", english: "playing", emoji: "⚽" },
-      { id: "cantando", spanish: "cantando", english: "singing", emoji: "🎤" },
-      { id: "leyendo", spanish: "leyendo", english: "reading", emoji: "📖" },
-      { id: "bebiendo", spanish: "bebiendo", english: "drinking", emoji: "🥤" },
-      { id: "llorando", spanish: "llorando", english: "crying", emoji: "😭" },
-      { id: "riendo", spanish: "riendo", english: "laughing", emoji: "😂" },
-      { id: "caminando", spanish: "caminando", english: "walking", emoji: "🚶" },
-      { id: "bailando", spanish: "bailando", english: "dancing", emoji: "💃" },
-      { id: "nadando", spanish: "nadando", english: "swimming", emoji: "🏊" },
-      { id: "pintando", spanish: "pintando", english: "painting", emoji: "🎨" },
-      { id: "abrazando", spanish: "abrazando", english: "hugging", emoji: "🤗" },
+      { id: "comiendo", spanish: "comiendo", english: "eating", emoji: "🍽️", question: "¿Está comiendo?", sceneQuestion: "¿Quién está comiendo?" },
+      { id: "durmiendo", spanish: "durmiendo", english: "sleeping", emoji: "😴", question: "¿Está durmiendo?", sceneQuestion: "¿Quién está durmiendo?" },
+      { id: "corriendo", spanish: "corriendo", english: "running", emoji: "🏃", question: "¿Está corriendo?", sceneQuestion: "¿Quién está corriendo?" },
+      { id: "saltando", spanish: "saltando", english: "jumping", emoji: "🦘", question: "¿Está saltando?", sceneQuestion: "¿Quién está saltando?" },
+      { id: "jugando", spanish: "jugando", english: "playing", emoji: "⚽", question: "¿Está jugando?", sceneQuestion: "¿Quién está jugando?" },
+      { id: "cantando", spanish: "cantando", english: "singing", emoji: "🎤", question: "¿Está cantando?", sceneQuestion: "¿Quién está cantando?" },
+      { id: "leyendo", spanish: "leyendo", english: "reading", emoji: "📖", question: "¿Está leyendo?", sceneQuestion: "¿Quién está leyendo?" },
+      { id: "bebiendo", spanish: "bebiendo", english: "drinking", emoji: "🥤", question: "¿Está bebiendo?", sceneQuestion: "¿Quién está bebiendo?" },
+      { id: "llorando", spanish: "llorando", english: "crying", emoji: "😭", question: "¿Está llorando?", sceneQuestion: "¿Quién está llorando?" },
+      { id: "riendo", spanish: "riendo", english: "laughing", emoji: "😂", question: "¿Se está riendo?", sceneQuestion: "¿Quién se está riendo?" },
+      { id: "caminando", spanish: "caminando", english: "walking", emoji: "🚶", question: "¿Está caminando?", sceneQuestion: "¿Quién está caminando?" },
+      { id: "bailando", spanish: "bailando", english: "dancing", emoji: "💃", question: "¿Está bailando?", sceneQuestion: "¿Quién está bailando?" },
+      { id: "nadando", spanish: "nadando", english: "swimming", emoji: "🏊", question: "¿Está nadando?", sceneQuestion: "¿Quién está nadando?" },
+      { id: "pintando", spanish: "pintando", english: "painting", emoji: "🎨", question: "¿Está pintando?", sceneQuestion: "¿Quién está pintando?" },
+      { id: "abrazando", spanish: "abrazando", english: "hugging", emoji: "🤗", question: "¿Está abrazando?", sceneQuestion: "¿Quién está abrazando?" },
     ],
   },
   {
@@ -742,7 +745,10 @@ export const STARTER_PACK: readonly Deck[] = [
     nameSpanish: "El imperativo",
     nameEnglish: "Verbs: commands",
     emoji: "📣",
-    learnOnly: true,
+    // A command has no claim shape either — "¿Dice «come»?" is nobody's
+    // Spanish. The ¡ ! also keeps these words out of the letter games, which
+    // `bareWord` already handles.
+    skipActivities: ["si-no-listen", "si-no-read", "scene-listen", "scene-read"],
     cards: [
       { id: "come", spanish: "¡come!", english: "eat!", emoji: "🍽️" },
       { id: "duerme", spanish: "¡duerme!", english: "sleep!", emoji: "😴" },

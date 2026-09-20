@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { DeckNotFoundError, type QuizMode } from "@learn-spanish/core";
+import { deckSkipsGame, DeckNotFoundError, type QuizMode } from "@learn-spanish/core";
 import { getDeck, listDecks } from "@/lib/container";
 import { deckAccent } from "@/lib/deck-theme";
 import { ScenePlayer } from "@/components/ScenePlayer";
@@ -35,6 +35,12 @@ export default async function ScenePage({
       notFound();
     }
     throw err;
+  }
+
+  if (deckSkipsGame(deck, "scene")) {
+    // A deck with no natural question for this game must not serve it by URL
+    // either: the round would be unanswerable and its sticker unearnable.
+    notFound();
   }
 
   return <ScenePlayer deck={deck} mode={mode} accent={deckAccent(deck.id)} />;

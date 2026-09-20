@@ -1,4 +1,5 @@
 import { adivinaDifficulties } from "./adivina";
+import { deckSkipsGame } from "./category";
 import { COUNTING_DECK_ID } from "./counting";
 import { dayKey } from "./daily";
 import type { Deck } from "./deck";
@@ -158,9 +159,13 @@ function deckHosts(kind: MissionKind, deck: Deck): boolean {
     case "cuento":
     case "adivina":
       return false;
-    // The quiz-shaped games: every deck but the learn-only ones.
+    // The quiz-shaped games: every deck that has not opted out of this one.
+    // `skipActivities` is per game rather than per deck (el infinitivo plays
+    // the quiz but not sí-o-no), so checking `learnOnly` alone would send a
+    // kid to a menu with no button for the task — the exact failure this
+    // function exists to prevent.
     default:
-      return deck.learnOnly !== true;
+      return !deckSkipsGame(deck, kind);
   }
 }
 

@@ -12,8 +12,12 @@ No reading, no accounts, no setup.
   calendar), plus a star-unlocked bonus deck
   **El misterio 🔮** (52 decks / 598 words total), tap-to-hear audio via
   browser speech synthesis — **Spain Spanish** (es-ES voice; coche,
-  ordenador, hierba). **Los verbos 🏃** is a flashcards-only shelf:
-  15 action words in three forms (infinitivo · gerundio · imperativo).
+  ordenador, hierba). **Los verbos 🏃** teaches 15 action words in
+  three forms (infinitivo · gerundio · imperativo) and plays the games:
+  el gerundio carries Mi día's verb-native phrasing ("¿Está comiendo?") so it
+  hosts every game, while el infinitivo and el imperativo skip only ¿Sí o no?
+  and Busca y toca — the two that build a claim about the picture, which no
+  infinitive or command phrases naturally.
   **Las letras 🔤** is a game-enabled alphabet shelf: an A/a/Aa switch
   picks which case a kid sees (uppercase by default — one case at a time
   while learning), tapping speaks the letter's name ("la be"; Las
@@ -30,8 +34,8 @@ No reading, no accounts, no setup.
   (rubio, moreno, canoso, calvo, la piel clara · morena · oscura),
   las emociones, and **Mi día 🪥** — the
   daily routine in reflexive verbs (despertarse, lavarse los dientes,
-  peinarse, acostarse), the first verb deck that plays the games rather than
-  sitting flashcards-only.
+  peinarse, acostarse) — the deck that proved a verb deck could play the
+  games, and whose phrasing Los verbos now borrows.
   **Formas y lugares 🔺** is the spatial shelf, and the first two decks drawn
   whole rather than set in emoji (ADR 015): **Las formas** (círculo, cuadrado,
   triángulo, rectángulo, óvalo, rombo, hexágono, estrella, corazón, cruz,
@@ -44,8 +48,8 @@ No reading, no accounts, no setup.
   the household in gender pairs (hermano · hermana, abuelo · abuela, tío ·
   tía), plus mamá, papá, el primo, el bebé and la mascota. Adjectives borrow the creature that *is* the word
   (alto 🦒, pequeño 🐭) and skin tone rides on a hand, not a face.
-- **Games** — per deck (except the flashcards-only verbs shelf), each
-  with 👂 listen / 🔤 read difficulties:
+- **Games** — per deck (a deck may skip a game it has no natural question
+  for — see Los verbos), each with 👂 listen / 🔤 read difficulties:
   "¿Dónde está…?" (tap the right picture — the reader is also asked for a
   *property*, "toca el que es verde"), "¿Sí o no?" (judge a claim — an
   identity for the listener, and for the reader a sentence about the picture,
@@ -104,7 +108,8 @@ No reading, no accounts, no setup.
   reto, the letter games), so a badge never promises progress it can't deliver.
   A step still completes on the first play-through: the medals show depth
   without slowing the route down. A deck's step is complete only when **every** activity that kid can earn
-  on it is done (6 of 6 — flashcards-only verb decks at 1), the same bar as the
+  on it is done (6 of 6, or 4 of 4 for a deck that skips the two claim
+  games), the same bar as the
   album's category medal. The daily misión says which *activity*; el camino says
   which *content*. Shelf progress is still derived from the sticker album —
   nothing new to store there (ADR 016's surviving half); the exam score is the
@@ -160,8 +165,7 @@ No reading, no accounts, no setup.
   reader-level — eight pages, longer sentences, the simple past — including
   the three World Cups Spain won (2010, 2023, 2026) and a Halloween trip
   to Universal Studios Japan.
-  All ten are illustrated — 68 pages of art, one picture per page. Built from pack vocabulary, and the
-  only place the flashcards-only verbs shelf is seen in action.
+  All ten are illustrated — 68 pages of art, one picture per page. Built from pack vocabulary.
 - **Star economy** — a treasure chest on every finish pays **3⭐ per
   first-try answer**, less one answer's worth per wrong tap (so guessing can't
   farm the chest; floored at one answer), with ✨ perfect / 🔥 streak / 🆕
