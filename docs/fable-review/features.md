@@ -3,7 +3,8 @@
 > **Status update (2026-07-13):** #1 (service worker, ADR 005), #4 (per-kid
 > misión pools), #5 (parent trend report), and all of #6 (delete RPC, local
 > dayKey, visibilitychange pull, maskable icon) are shipped — see
-> `docs/features/shipped.md`. Still open: #2 (CI on GitHub) and #3 (no-Spanish-
+> `docs/features/shipped.md`. #2 (CI on GitHub) is **out of scope by decision**
+> (2026-09-20). Still open: #3 (no-Spanish-
 > voice fallback).
 
 The roadmap (`docs/features/roadmap.md`) is healthy — shipped items get moved
@@ -24,6 +25,10 @@ taste better than `next-pwa`. Pairs with an ADR: cache strategy and update
 semantics are load-bearing.
 
 ## 2. CI on GitHub — the missing safety net for auto-deploy
+
+> **✗ Out of scope, decided 2026-09-20.** Offered twice and declined; `/ship`
+> stays the only gate by choice. The rest of this section is kept as the
+> original review text, not as a live recommendation.
 
 Not kid-visible, but the highest-risk gap in the delivery pipeline: pushing
 `main` deploys prod, and there is no `.github/workflows/` — the 80% coverage

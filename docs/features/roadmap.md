@@ -708,8 +708,11 @@ The queue, gathered from the sub-items above so nothing hides in history:
   and bonus words (20) · hora doble follow-ons — multiply more than the chest,
   a parent-triggered or scheduled window, a session-starting boost tile, a
   per-chest ceiling (10d).
-- **Infra & platform:** CI on GitHub (fable-review features #2 — the one
-  gap between a bad commit and prod) · no-Spanish-voice fallback
+- **Infra & platform:** ✗ **CI on GitHub — out of scope, decided 2026-09-20.**
+  The parent was offered it twice and declined; `/ship` stays the only gate,
+  deliberately. Do **not** re-propose it, and do not append it to advice as a
+  caveat — the risk it covers is known and accepted. (fable-review features #2
+  is answered by this line.) · no-Spanish-voice fallback
   (fable-review features #3) · listener→reader upgrade path (18) ·
   the first route handler + server-side rate limiting, which arrives with
   Habla conmigo (25) — parked, terms already set in ADR 010.
