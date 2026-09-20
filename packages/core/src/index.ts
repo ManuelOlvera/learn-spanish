@@ -277,6 +277,7 @@ export {
   SUPER_EXAM_QUESTIONS,
   examHistory,
   examKindFor,
+  isCapstoneShelf,
   mergeExamSittings,
   passMarkFor,
   questionsFor,

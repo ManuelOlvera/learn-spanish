@@ -371,12 +371,20 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       Stored as a per-kid set merged by union, so it syncs for free and can
       never un-unlock. Shipped alongside the blocking súper exámenes
       deliberately: a cumulative wall needed its valve in the same change.
-    - ☐ **A bespoke súper ceremony** — los súper exámenes currently reuse
-      `ExamTriumph` with bigger numbers and their own glyph. The capstone at
-      shelf 12 in particular — finishing the entire camino — deserves something
-      the three-shelf checkpoints don't get. Cut 2026-09-19 on the principle
-      that a second ceremony is worth designing only once the first has been
-      watched landing; revisit after the kids have passed one.
+    - ☑ **A bespoke súper ceremony** — **shipped 2026-09-20.** A súper earns
+      one more beat than a regular exam: **el camino, lighting up** — the
+      shelves it swept pop in along the route, four at shelf 4, eight at 8,
+      twelve at the capstone. At shelf 12 it *replaces* the unlock beat rather
+      than adding one, and ends on ¡EL CAMINO COMPLETO!
+      **The 2026-09-19 cut said to wait until a kid had passed one, and that
+      condition was waived** by the parent asking for it. What made it
+      defensible anyway is that it was anchored on a defect rather than on
+      taste: the capstone's payoff beat — the one the component calls "the real
+      prize" — had nothing to show at the end of the route and fell through to
+      re-displaying a picture already on screen.
+      - ☐ **Watch it land.** Still unobserved, like the súper itself. If the
+        extra beat proves to be length a kid wants to skip, it is one entry in
+        `phasesFor` — the ceremony stays tappable-to-skip throughout.
     - ☑ **Exam history on `/informe`** — **shipped 2026-09-19** as 📋 Los
       exámenes: all twelve checkpoints in trail order, each with its state, its
       best score against the bar its position implies, and a chip per sitting.
@@ -664,11 +672,12 @@ Each says what to look for and what it unblocks.
   that used to start instantly. *Look at:* whether she picks, hesitates, or
   taps whatever is nearest. *Unblocks:* the "remember the last pick" variant,
   which was considered and deliberately not built.
-- **Los súper exámenes actually landing.** The bespoke ceremony was cut on the
-  principle that a second celebration is worth designing only once the first
-  has been watched; per-súper and per-profile thresholds both say "watch this
-  before loosening any bar". *Look at:* a kid sitting one. *Unblocks:* three
-  camino follow-ons at once.
+- **Los súper exámenes actually landing.** Per-súper and per-profile
+  thresholds both say "watch this before loosening any bar", and the bespoke
+  ceremony shipped 2026-09-20 *without* the observation the cut asked for —
+  so its extra beat is unwatched too. *Look at:* a kid sitting one, and
+  whether the sweep beat is something they enjoy or something they tap past.
+  *Unblocks:* two camino follow-ons, and confirms or undoes one shipped beat.
 - **Whether exam history tells a parent anything.** It has no data yet — nobody
   has sat an exam since it shipped. *Unblocks:* the side-by-side kid
   comparison, and per-question breakdowns.

@@ -123,7 +123,10 @@ No reading, no accounts, no setup.
   nothing. Seven of ten passes. Passing pays `EXAM_BONUS` (200⭐) and opens the
   next shelf, celebrated with the app's one sequenced ceremony: the grade
   stamps down, a trophy drops in on turning gold rays, the stars count up, and
-  the padlock on the next shelf breaks open. Failing pays nothing, costs
+  the padlock on the next shelf breaks open. A **súper examen** earns one more
+  beat: the shelves it swept light up along the route, and at shelf 12 — where
+  there is no next shelf to unlock — the finished camino *is* the payoff
+  ("¡EL CAMINO COMPLETO!"). Failing pays nothing, costs
   nothing, and sends the kid to the weakest deck on the shelf; the exam reopens
   once they have played it again.
 - **Los súper exámenes 🏅** — at the ladder's thirds (shelves 4, 8 and 12) the

@@ -1,5 +1,53 @@
 # Shipped features
 
+## 2026-09-20 (last) — 🧭 El camino, lighting up: the súper gets its own beat
+
+**For:** both kids, at the three biggest moments on the route.
+
+**The defect this started from.** `ExamTriumph`'s last beat is the payoff — the
+component's own docstring calls it *"the real prize"* — a padlock breaking off
+the next shelf. At shelf 12 there is no next shelf, so it fell through to
+re-showing a picture already on screen, with no label:
+
+> `{showUnlock && unlockedEmoji === null && <span className="...text-8xl">{passedEmoji}</span>}`
+
+The biggest moment in the app — finishing the entire camino — ended on a
+repeat.
+
+**What a súper actually is** was already in the data and said nowhere on
+screen: a cumulative sweep across every shelf finished so far. The achievement
+is *"you still remember all of it"*, not *"you finished this one"*.
+
+So the bespoke beat is **el camino, lighting up**: the swept shelves pop in
+along the route, left to right, in the same picture language the Tu camino
+strip already uses. Four shelves at the first milestone, eight at the second,
+**twelve at the capstone** — where it replaces the unlock beat rather than
+adding one, and ends on **¡EL CAMINO COMPLETO!**
+
+**It extends the ceremony the kids already like** rather than replacing it —
+the parent's note was that "the kids quite like the latest one", and
+`ExamTriumph` (2026-09-19) is the latest. A regular exam is byte-for-byte
+unchanged: `phasesFor` only adds the beat when there is something swept, and a
+regular exam sweeps nothing.
+
+**Length was the risk, and it is why the capstone trades rather than adds.**
+The roadmap's "whole-done-screen choreography" was cut because it *"risks
+making a 4-year-old sit through an animation they want to skip"*. This stays
+inside that rule: one timer per beat, a tap ends the whole thing at any point,
+and the longest ceremony in the app gains one beat at shelves 4 and 8 and none
+at 12.
+
+**The cut said to wait, and we did not.** The 2026-09-19 decision was *"a
+second ceremony is worth designing only once the first has been watched
+landing; revisit after the kids have passed one"*, and no kid has. The parent
+asked for it, so the condition was waived — and what makes that defensible is
+that the design was anchored on the empty beat above rather than on taste. The
+watch list now carries it: if the sweep is something a kid taps past, it is one
+entry in `phasesFor`.
+
+**Where:** `domain/exam.ts` (`isCapstoneShelf`), `ExamTriumph` (the `sweep`
+phase and `phasesFor`), `ExamPlayer` (the swept shelves).
+
 ## 2026-09-20 (later) — The mascota bar comes off home
 
 **Reported by the parent, hours after it shipped:** *"My kid don't like having

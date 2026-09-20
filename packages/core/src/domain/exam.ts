@@ -76,6 +76,17 @@ export function examKindFor(shelfIndex: number): ExamKind {
   return (shelfIndex + 1) % SUPER_EXAM_EVERY === 0 ? "super" : "regular";
 }
 
+/**
+ * Is this shelf the camino's **capstone** — the last stop on the route?
+ *
+ * Passing it is what makes the whole camino `complete` (ADR 021's addendum),
+ * and it is the one checkpoint with nothing behind the gate: there is no next
+ * shelf to unlock, so the ceremony has to find its payoff somewhere else.
+ */
+export function isCapstoneShelf(shelfIndex: number, shelfCount: number): boolean {
+  return shelfCount > 0 && shelfIndex === shelfCount - 1;
+}
+
 export function questionsFor(kind: ExamKind): number {
   return kind === "super" ? SUPER_EXAM_QUESTIONS : EXAM_QUESTIONS;
 }

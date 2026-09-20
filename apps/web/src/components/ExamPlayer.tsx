@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   examKindFor,
   groupsInTrailOrder,
+  isCapstoneShelf,
   passMarkFor,
   type Deck,
   type DeckGroup,
@@ -109,10 +110,17 @@ export function ExamPlayer({
   const round = rounds[index];
   // The shelf's own kind, known before the exam is dealt so the refusal and
   // the error fallback can speak in the right units.
-  const kind: ExamKind = examKindFor(
-    groupsInTrailOrder(allGroups).findIndex((g) => g.id === group.id),
-  );
+  const ladder = groupsInTrailOrder(allGroups);
+  const shelfAt = ladder.findIndex((g) => g.id === group.id);
+  const kind: ExamKind = examKindFor(shelfAt);
   const isSuper = kind === "super";
+  // What a súper actually swept: every shelf up to and including this one, in
+  // route order. It is the ceremony's own beat — see ExamTriumph. A regular
+  // exam sweeps nothing and passes an empty list.
+  const sweptEmoji = isSuper
+    ? ladder.slice(0, shelfAt + 1).map((g) => g.emoji)
+    : [];
+  const capstone = isCapstoneShelf(shelfAt, ladder.length);
 
   function finish(score: number) {
     sitExam
@@ -221,6 +229,8 @@ export function ExamPlayer({
         passedEmoji={group.emoji}
         unlockedEmoji={nextShelf?.emoji ?? null}
         unlockedName={nextShelf?.nameSpanish ?? null}
+        sweptEmoji={sweptEmoji}
+        capstone={capstone}
         onDone={() => setCelebrating(false)}
       />
     );

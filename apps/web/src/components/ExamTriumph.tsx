@@ -17,6 +17,12 @@ interface Props {
   passedEmoji: string;
   unlockedEmoji: string | null;
   unlockedName: string | null;
+  /** Every shelf this súper swept, in route order — what the 20 questions were
+   *  actually drawn from. Empty for a regular exam, which sweeps nothing. */
+  sweptEmoji?: readonly string[];
+  /** The last stop on the route: nothing left to unlock, so the sweep is the
+   *  payoff rather than a beat on the way to one. */
+  capstone?: boolean;
   onDone: () => void;
 }
 
@@ -34,18 +40,56 @@ interface Props {
  *
  * Picture-first throughout: a pre-reader gets trophy → stars → a lock breaking
  * off a shelf they recognise by its emoji. The words are for the parent.
+ *
+ * **A súper examen earns one more beat: el camino, lighting up.** What makes a
+ * súper different is already in the data — it is a cumulative sweep across
+ * every shelf finished so far, so the achievement is "you still remember all
+ * of it" rather than "you finished this one", and nothing on screen said that.
+ * The swept shelves now pop in along the route, left to right, in the same
+ * picture language the Tu camino strip already uses.
+ *
+ * At the **capstone** it is not an extra beat but a replacement: shelf 12 has
+ * no next shelf, so the payoff beat used to fall through to re-showing a
+ * picture already on screen. The finished route is the thing that moment is
+ * actually about.
  */
-type Phase = "grade" | "trophy" | "stars" | "unlock";
-
-const PHASE_ORDER: readonly Phase[] = ["grade", "trophy", "stars", "unlock"];
+type Phase = "grade" | "trophy" | "stars" | "sweep" | "unlock";
 
 /** How long each beat holds before the next begins. */
 const PHASE_MS: Record<Phase, number> = {
   grade: 1100,
   trophy: 1400,
   stars: 1800,
+  sweep: 2200,
   unlock: 3200,
 };
+
+/** How long between two shelves lighting up. Twelve of them have to fit
+ *  inside the sweep beat with room to land. */
+const SHELF_STAGGER_MS = 120;
+
+/**
+ * The beats this pass actually plays.
+ *
+ * A regular exam is unchanged. A súper gains the sweep. The capstone trades
+ * the unlock beat for it rather than adding one — there is nothing to unlock,
+ * and a fifth beat is exactly the length the roadmap's choreography cut warned
+ * about.
+ */
+function phasesFor(opts: {
+  swept: number;
+  capstone: boolean;
+  hasUnlock: boolean;
+}): readonly Phase[] {
+  const beats: Phase[] = ["grade", "trophy", "stars"];
+  if (opts.swept > 0) {
+    beats.push("sweep");
+  }
+  if (opts.hasUnlock && !opts.capstone) {
+    beats.push("unlock");
+  }
+  return beats;
+}
 
 export function ExamTriumph({
   score,
@@ -55,25 +99,35 @@ export function ExamTriumph({
   passedEmoji,
   unlockedEmoji,
   unlockedName,
+  sweptEmoji = [],
+  capstone = false,
   onDone,
 }: Props) {
   const isSuper = kind === "super";
+  const order = phasesFor({
+    swept: sweptEmoji.length,
+    capstone,
+    hasUnlock: unlockedEmoji !== null,
+  });
   const [phase, setPhase] = useState<Phase>("grade");
-  const at = PHASE_ORDER.indexOf(phase);
+  const at = order.indexOf(phase);
 
   // One timer per beat rather than one long timeline: a tap can end the whole
   // thing at any point, and a kid who taps early must not be left mid-sequence.
   useEffect(() => {
-    const next = PHASE_ORDER[at + 1];
+    const next = order[at + 1];
     const timer = setTimeout(
       () => (next === undefined ? onDone() : setPhase(next)),
       PHASE_MS[phase],
     );
     return () => clearTimeout(timer);
+    // `order` is derived from props that cannot change mid-ceremony.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, at, onDone]);
 
-  const showStars = at >= PHASE_ORDER.indexOf("stars");
-  const showUnlock = at >= PHASE_ORDER.indexOf("unlock");
+  const showStars = at >= order.indexOf("stars");
+  const showSweep = order.includes("sweep") && at >= order.indexOf("sweep");
+  const showUnlock = order.includes("unlock") && at >= order.indexOf("unlock");
 
   return (
     <button
@@ -106,7 +160,7 @@ export function ExamTriumph({
       </span>
 
       {/* 2. The trophy. */}
-      {at >= PHASE_ORDER.indexOf("trophy") && (
+      {at >= order.indexOf("trophy") && (
         <span
           aria-hidden
           className="exam-trophy relative z-10 text-[8rem] leading-none drop-shadow-[6px_6px_0_var(--color-ink)] sm:text-[10rem]"
@@ -132,7 +186,32 @@ export function ExamTriumph({
         </span>
       )}
 
-      {/* 4. The payoff: the next shelf's lock breaking off. */}
+      {/* 4. A súper's own beat: the road it just swept, lighting up. */}
+      {showSweep && (
+        <span className="relative z-10 flex flex-col items-center gap-2">
+          <span className="flex max-w-[22rem] flex-wrap justify-center gap-1.5">
+            {sweptEmoji.map((emoji, i) => (
+              <span
+                key={`${emoji}-${i}`}
+                aria-hidden
+                className="pop-in flex h-12 w-12 items-center justify-center rounded-2xl border-4 border-ink bg-[var(--color-lime)] text-2xl"
+                style={{ animationDelay: `${i * SHELF_STAGGER_MS}ms` }}
+              >
+                {emoji}
+              </span>
+            ))}
+          </span>
+          {capstone && (
+            <span className="pop-in rounded-3xl border-4 border-ink bg-white px-6 py-2 text-2xl font-extrabold"
+              style={{ animationDelay: `${sweptEmoji.length * SHELF_STAGGER_MS}ms` }}
+            >
+              ¡EL CAMINO COMPLETO!
+            </span>
+          )}
+        </span>
+      )}
+
+      {/* 5. The payoff: the next shelf's lock breaking off. */}
       {showUnlock && unlockedEmoji !== null && (
         <span className="pop-in relative z-10 flex flex-col items-center gap-1">
           <span className="relative">
@@ -151,8 +230,10 @@ export function ExamTriumph({
         </span>
       )}
 
-      {/* The route's end has no next shelf — say so with the shelf just cleared. */}
-      {showUnlock && unlockedEmoji === null && (
+      {/* The route's end has no next shelf. Before the sweep beat existed this
+          fell through to re-showing a picture already on screen; it is now only
+          reachable by a shelf with neither an unlock nor a sweep. */}
+      {!showSweep && showUnlock && unlockedEmoji === null && (
         <span aria-hidden className="pop-in relative z-10 text-8xl">
           {passedEmoji}
         </span>

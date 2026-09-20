@@ -9,6 +9,7 @@ import {
   SUPER_EXAM_QUESTIONS,
   buildExam,
   examKindFor,
+  isCapstoneShelf,
   examPassed,
   isExamPass,
   passMarkFor,
@@ -176,5 +177,24 @@ describe("building a súper exam", () => {
     });
     expect(exam.kind).toBe("regular");
     expect(exam.rounds).toHaveLength(EXAM_QUESTIONS);
+  });
+});
+
+describe("the capstone", () => {
+  it("is the last shelf on the route, and only that one", () => {
+    expect(isCapstoneShelf(11, 12)).toBe(true);
+    expect(isCapstoneShelf(7, 12)).toBe(false);
+    expect(isCapstoneShelf(3, 12)).toBe(false);
+  });
+
+  it("is a súper too — the ladder's last third ends on one", () => {
+    // If these ever disagree the ceremony would give the route's final moment
+    // a regular exam's trophy.
+    expect(examKindFor(11)).toBe("super");
+    expect(isCapstoneShelf(11, 12)).toBe(true);
+  });
+
+  it("says no when there is no route at all", () => {
+    expect(isCapstoneShelf(0, 0)).toBe(false);
   });
 });
