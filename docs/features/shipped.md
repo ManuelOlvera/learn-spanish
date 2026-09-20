@@ -1,5 +1,45 @@
 # Shipped features
 
+## 2026-09-21 — 🥺🙂😋⭐ La mascota says how it feels
+
+**For:** both kids, on the pet's own screen.
+
+The companion had exactly one expression: hungry, drawn as `opacity-70
+grayscale-[30%]`. Roadmap 10b asked for *"a happy/sad face driven by feeding &
+streak state"*, and the obstacle is that **a pet is an emoji** — 🐰, 🐣, 🐉 —
+so its face cannot change.
+
+So the mood is a **badge at the pet's shoulder**, in the same overlay layer the
+wardrobe accessories already use. It works identically on a 🥚 and a 🦄, needs
+no art, and reads at a glance:
+
+| | |
+|---|---|
+| 🥺 | not fed for two days |
+| 🙂 | fed, but not today |
+| 😋 | fed today |
+| ⭐ | fed today **and** the kid is on a 7-day streak |
+
+**Two rules make it a companion rather than a tamagotchi.** It reads the
+*kid's* streak, not just the pet's feeding — the pet reacts to how its owner is
+doing. And **hunger outranks pride**: a 30-day streak never hides a hungry pet,
+because hunger is the one mood that asks the kid to do something. A streak also
+only counts while it is *current* — a long run that stopped days ago says
+nothing about today, and falls back to 😋.
+
+**`/mascota` only.** Home shows a pet face too, but home is full: the mascota
+goal bar came off it the day before for exactly that reason, and home already
+nudges when any pet is hungry, which is the one case that needs reach.
+
+**A bug in the verification, not the app, worth recording:** the first drive
+reported every state wrong because the driver built `lastFed` from
+`toISOString()` — UTC — while the app's `dayKey` is the *local* calendar day.
+Every date landed one out. If a future driver tests anything dated, compute the
+day key in page context.
+
+**Where:** `domain/mascota.ts` (`petMood`, `PET_MOODS`, `STREAK_PROUD_DAYS`),
+`MascotaView`.
+
 ## 2026-09-20 (last) — The ceremony had no sound
 
 **For:** both kids. The parent's read was that the kids love the exam ceremony;

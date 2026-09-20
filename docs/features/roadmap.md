@@ -91,8 +91,18 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     companion. *(Shipped 2026-07-18.)*
 10c. ☑ **Varied win cheers** — the done screen rotates eight gender-neutral
     Spanish exclamations instead of a fixed *¡Muy bien!*. *(Shipped 2026-07-18.)*
-    - ☐ **Pet moods** — a happy/sad face driven by feeding & streak state (today
-      only the existing hungry droop). The next step for the companion idea.
+    - ☑ **Pet moods** — **shipped 2026-09-21.** Four moods on `/mascota`, as a
+      badge at the pet's shoulder rather than a face: an emoji pet has no
+      expression to change, so the feeling sits beside it in the same overlay
+      layer the accessories use. 🥺 hungry · 🙂 content · 😋 fed today · ⭐
+      proud while the kid is on a 7-day streak. **Hunger outranks a streak** —
+      it is the one mood that asks the kid to *do* something, so a good week
+      must never hide it, and a streak only counts while it is current.
+      Driven by the kid's streak as well as the pet's feeding, which is what
+      makes it a companion rather than a tamagotchi.
+      - ☐ **Moods elsewhere** — home shows a pet face too, but home is full
+        (the mascota goal bar came off it 2026-09-20). Only worth revisiting if
+        the badge proves popular on `/mascota` first.
     - ◐ **Sibling head-to-head hooks** — **half shipped 2026-08-22** as the
       reto record chase: El reto shows the other kid's best on that deck and
       celebrates passing it (see `shipped.md`), and `retoBests` joined the sync

@@ -191,6 +191,45 @@ export function isPetHungry(pet: PetState | null, today: string): boolean {
   return now - last >= HUNGRY_AFTER_DAYS * 24 * 60 * 60 * 1000;
 }
 
+/**
+ * How la mascota is feeling — the companion's one expression (roadmap 10b).
+ *
+ * Driven by two things the app already tracks: when the pet was last fed, and
+ * whether the **kid** is on a streak. The second is the point of a companion
+ * rather than a tamagotchi — the pet reacts to how its owner is doing, not
+ * only to how well it has been looked after.
+ *
+ * **Hunger outranks everything**, including a long streak. It is the one mood
+ * that asks the kid to *do* something, so a good week must never hide it.
+ */
+export type PetMood = "hungry" | "content" | "happy" | "proud";
+
+export const PET_MOODS: readonly PetMood[] = ["hungry", "content", "happy", "proud"];
+
+/** Days of streak before the pet is *proud* rather than merely happy. Matches
+ *  `STREAK_DOUBLE_DAYS` in spirit: a week is what the app already treats as a
+ *  real run rather than a couple of good days. */
+export const STREAK_PROUD_DAYS = 7;
+
+export function petMood(
+  pet: PetState | null,
+  today: string,
+  streak: { readonly day: string; readonly count: number } | null,
+): PetMood {
+  if (isPetHungry(pet, today)) {
+    return "hungry";
+  }
+  const fedToday = pet !== null && pet.lastFed === today;
+  // A streak only counts while it is *current*: a long run that stopped days
+  // ago says nothing about how today went.
+  const onStreak =
+    streak !== null && streak.day === today && streak.count >= STREAK_PROUD_DAYS;
+  if (fedToday && onStreak) {
+    return "proud";
+  }
+  return fedToday ? "happy" : "content";
+}
+
 /** True when any owned pet is hungry — lets the home screen nudge the kid to
  *  feed even when the hungry pet isn't the one currently on screen. */
 export function anyPetHungry(collection: PetCollection, today: string): boolean {

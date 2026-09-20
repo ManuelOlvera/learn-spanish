@@ -7,6 +7,7 @@ import {
   accessoryPlacement,
   dayKey,
   isPetHungry,
+  petMood,
   MAX_PET_NAME,
   MEAL_COST,
   nextPetGoal,
@@ -20,6 +21,8 @@ import {
   wornAccessories,
   type KidId,
   type PetCollection,
+  type PetMood,
+  type Streak,
 } from "@learn-spanish/core";
 import { getSelectedKid, getAvatar } from "@/lib/kid";
 import { useSelectedKidOr } from "@/lib/use-selected-kid";
@@ -60,6 +63,8 @@ import {
   ThemePicker,
   Wardrobe,
 } from "@/components/MascotaShelves";
+import { getStreak } from "@/lib/client-container";
+import { log } from "@learn-spanish/config";
 
 /** Where each accessory's *centre* sits on the pet, as a percent of the emoji
  *  box (0% = top/left edge). Both axes are centred (see the -translate below),
@@ -161,12 +166,27 @@ function pendingDetails(
   }
 }
 
+/**
+ * How each mood reads. The emoji is what the kid sees — a badge at the pet's
+ * shoulder, since an emoji pet has no face to change — and the Spanish line
+ * is for whoever is reading over their shoulder.
+ */
+const MOOD_META: Record<PetMood, { emoji: string; spanish: string; english: string }> = {
+  hungry: { emoji: "🥺", spanish: "Tiene hambre", english: "hungry" },
+  content: { emoji: "🙂", spanish: "Está bien", english: "content" },
+  happy: { emoji: "😋", spanish: "¡Está feliz!", english: "happy" },
+  proud: { emoji: "⭐", spanish: "¡Está orgulloso!", english: "proud" },
+};
+
 /** La mascota: a menagerie fed with the stars won in games. Feeding grows
  *  the active pet; stars also adopt new pets, dress them, open surprise
  *  boxes, and buy themes — a renewable star sink. */
 export function MascotaView() {
   const kid = useSelectedKidOr("listener");
   const [collection, setCollection] = useState<PetCollection | null>(null);
+  // The kid's streak, for the pet's mood: a companion reacts to how its owner
+  // is doing, not only to how well it has been fed.
+  const [streak, setStreak] = useState<Streak | null>(null);
   const [stars, setStars] = useState(0);
   const [munch, setMunch] = useState(0);
   const [evolved, setEvolved] = useState(false);
@@ -195,6 +215,10 @@ export function MascotaView() {
 
   function refresh(k: KidId) {
     setCollection(getPetCollection(k));
+    getStreak
+      .execute(k)
+      .then(setStreak)
+      .catch((err: unknown) => log.error("streak", "failed to load", { err }));
     setStars(getStars(k));
     setOwnedAccessories(getOwnedAccessories(k));
     setOwnedThemes(getOwnedThemes(k));
@@ -254,6 +278,7 @@ export function MascotaView() {
   const stage = petStage(pet.meals);
   const today = dayKey(new Date());
   const hungry = isPetHungry(pet, today);
+  const mood = petMood(pet, today, streak);
   const nextStageAt = PET_STAGE_MEALS[stage + 1];
   const species = PET_SPECIES.find((s) => s.id === activeId) ?? PET_SPECIES[0]!;
   // Which form to show: the kid may pin an earlier one, capped at the newest
@@ -427,9 +452,19 @@ export function MascotaView() {
           className={`relative text-[8rem] leading-none ${munch > 0 ? "pop-in" : ""} ${
             hungry ? "opacity-70 grayscale-[30%]" : ""
           }`}
-          aria-label={`Your pet: ${species.nameSpanish}, ${pet.meals} meals`}
+          aria-label={`Your pet: ${species.nameSpanish}, ${pet.meals} meals, ${MOOD_META[mood].english}`}
         >
           {petFormEmoji(activeId, chosenForm)}
+          {/* The mood, as a badge rather than a face: a pet is an emoji and
+              its expression cannot change, so the feeling sits beside it — the
+              same trick the accessories use, in the same overlay layer. */}
+          <span
+            key={mood}
+            aria-hidden
+            className="pop-in absolute -bottom-1 -right-2 text-5xl drop-shadow-[3px_3px_0_var(--color-ink)]"
+          >
+            {MOOD_META[mood].emoji}
+          </span>
           {wornAccessories(pet, chosenForm).map((id) => {
             const item = ACCESSORIES.find((a) => a.id === id);
             if (!item) return null;

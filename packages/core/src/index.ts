@@ -70,6 +70,7 @@ export { stickerTier, TIER_THRESHOLDS } from "./domain/sticker-tiers";
 export type {
   FormOutfit,
   PetGoal,
+  PetMood,
   PetState,
   PetSpecies,
   PetCollection,
@@ -83,6 +84,9 @@ export {
   namePet,
   nextPetGoal,
   petEmoji,
+  petMood,
+  PET_MOODS,
+  STREAK_PROUD_DAYS,
   petFormEmoji,
   petMaxForm,
   petShownForm,

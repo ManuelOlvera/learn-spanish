@@ -187,7 +187,11 @@ No reading, no accounts, no setup.
   the daily misión (drawn from each kid's own pool — the reader's
   includes ✏️ Deletrea) adds a +25⭐ bonus chest, and every finish rotates a
   spoken cheer with the pet cheering along. Stars feed and grow **la
-  mascota** (a collection of adoptable pets, 5⭐ a meal; name it too — and
+  mascota** (a collection of adoptable pets, 5⭐ a meal; name it too. It shows
+  how it feels with a badge at its shoulder — 🥺 hungry, 🙂 content, 😋 fed
+  today, ⭐ proud while the kid is on a week-long streak; hunger outranks
+  everything, because it is the one mood that asks the kid to do something —
+  and
   `/mascota` carries a bar showing how close they are to **the cheapest pet
   they don't own yet**, "⭐ Faltan 29 para el conejo"), buy 🛍️
   wardrobe accessories and drag them anywhere on the pet (saved per pet
