@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { RolloverOutcome } from "@learn-spanish/core";
 import { Confetti } from "@/components/Confetti";
 import { feedbackRacha } from "@/lib/feedback";
@@ -50,10 +50,18 @@ export function WeeklyBurst({ outcome, count, onDone }: Props) {
     feedbackRacha();
   }, []);
 
+  // The callback is held in a ref rather than named as a dependency: every
+  // call site passes an inline arrow, so a dependency on it restarts this
+  // timer on each parent render — and a parent that re-renders faster than
+  // the delay means it never fires at all. Reproduced 2026-09-21 by firing
+  // `visibilitychange` (which `useCamino` listens for) during the ceremony.
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
+
   useEffect(() => {
-    const timer = setTimeout(onDone, 4500);
+    const timer = setTimeout(() => onDoneRef.current(), 4500);
     return () => clearTimeout(timer);
-  }, [onDone]);
+  }, []);
 
   return (
     <button

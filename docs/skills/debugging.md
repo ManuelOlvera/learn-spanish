@@ -86,6 +86,22 @@ Find the *true* cause and fix it once, at the right layer.
   real backend with two contexts — the unit layer can't see a push that
   never fires.
 
+- **2026-09-21 — the exam ceremony stalls on a beat**: found while adding
+  sound, not reported. Every celebration keyed its `setTimeout` on the
+  `onDone` prop, and **every call site passes an inline arrow**, so the effect
+  re-ran on each parent render and restarted the timer. For the four bursts
+  that meant a 4.5s auto-dismiss that might never fire; for `ExamTriumph`,
+  whose timer drives the *beats*, it meant the ceremony froze on whichever
+  beat was showing. Reproduced by firing `visibilitychange` every 700ms — a
+  real mechanism, since `useCamino` listens for it and re-renders
+  `ExamPlayer`: `trophy → trophy → trophy → …` forever, against a calm run's
+  `trophy → stars → unlock → ENDED`. Fix: hold the callback in a ref and give
+  the timer effect a stable dependency list, in the component rather than at
+  the five call sites — the component owns its own dismissal. Lesson: a
+  callback prop in a timer's dependency array is a stall, not a style nit, and
+  an inline arrow at the call site is the normal case, not the exceptional
+  one. No automatable test — this repo has no React renderer — so the
+  reproduction lives here.
 - **2026-07-14 — accessories missing on the tablet**: reported as "sync
   doesn't sync". The snapshot pipeline (encode → sanitize → merge) was
   *innocent* — a pipeline test proved it and became the regression lock. Root

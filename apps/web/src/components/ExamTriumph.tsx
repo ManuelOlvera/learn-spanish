@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ExamKind } from "@learn-spanish/core";
 import { Confetti } from "@/components/Confetti";
 import {
@@ -111,6 +111,8 @@ export function ExamTriumph({
   onDone,
 }: Props) {
   const isSuper = kind === "super";
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
   const order = phasesFor({
     swept: sweptEmoji.length,
     capstone,
@@ -131,16 +133,22 @@ export function ExamTriumph({
 
   // One timer per beat rather than one long timeline: a tap can end the whole
   // thing at any point, and a kid who taps early must not be left mid-sequence.
+  //
+  // `onDone` is reached through a ref, not named as a dependency. ExamPlayer
+  // passes an inline arrow and re-renders whenever `useCamino` re-reads — which
+  // it does on every `visibilitychange` — so naming it restarted the *current
+  // beat's* timer on each re-render and the ceremony stalled on that beat
+  // indefinitely. Reproduced and fixed 2026-09-21.
   useEffect(() => {
     const next = order[at + 1];
     const timer = setTimeout(
-      () => (next === undefined ? onDone() : setPhase(next)),
+      () => (next === undefined ? onDoneRef.current() : setPhase(next)),
       PHASE_MS[phase],
     );
     return () => clearTimeout(timer);
     // `order` is derived from props that cannot change mid-ceremony.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, at, onDone]);
+  }, [phase, at]);
 
   // The sweep's run, on the same stagger the shelves pop in on, so each note
   // lands with its own picture.
