@@ -9,6 +9,7 @@ import {
   isPetHungry,
   MAX_PET_NAME,
   MEAL_COST,
+  nextPetGoal,
   petFormEmoji,
   petMaxForm,
   petShownForm,
@@ -51,6 +52,7 @@ import {
 } from "@/lib/feedback";
 import { useDeniedWobble } from "@/lib/use-denied-wobble";
 import { syncPush } from "@/lib/sync";
+import { PetGoalBar } from "@/components/PetGoalBar";
 import { BuyConfirm } from "@/components/BuyConfirm";
 import { Confetti } from "@/components/Confetti";
 import {
@@ -398,6 +400,13 @@ export function MascotaView() {
           {getAvatar(kid)}
         </span>
       </header>
+
+      {/* What the stars are FOR, on the screen that spends them. Derived from
+          the wallet and the pets already owned, so it re-reads for free every
+          time a purchase changes either. */}
+      {collection !== null && nextPetGoal(collection, stars) !== null && (
+        <PetGoalBar goal={nextPetGoal(collection, stars)!} />
+      )}
 
       {evolved && <Confetti />}
 

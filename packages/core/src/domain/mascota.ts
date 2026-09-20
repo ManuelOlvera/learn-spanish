@@ -198,3 +198,46 @@ export function anyPetHungry(collection: PetCollection, today: string): boolean 
     isPetHungry(collection.pets[id] ?? null, today),
   );
 }
+
+/**
+ * The next mascota worth saving for, and how close the kid is.
+ *
+ * **The cheapest pet they do not own** — `PET_SPECIES` is in ascending cost
+ * order, so that is simply the next rung on the ladder with a gap in it. Pets
+ * are bought from a shop rather than in order, so a kid who saved up for the
+ * dragon first is still pointed back at el conejo: the goal is the nearest
+ * one, never the next one along from their last purchase.
+ *
+ * Derived, never stored. This is a *view* of two facts that already exist and
+ * already sync (`owned` and the wallet balance), which is what keeps it clear
+ * of ADR 007's price ladder and ADR 020's earn rate — it makes the economy
+ * visible without moving either side of it.
+ *
+ * Null when every pet is owned: there is then nothing to save for, and a bar
+ * promising otherwise would be a lie.
+ */
+export interface PetGoal {
+  readonly species: PetSpecies;
+  /** Stars still needed. Never negative — an affordable pet reads as 0. */
+  readonly remaining: number;
+  /** 0–1, clamped. Affordable-but-unbought is a real state (the shop needs a
+   *  tap), and the bar must read full there rather than overflow. */
+  readonly progress: number;
+}
+
+export function nextPetGoal(
+  collection: PetCollection,
+  balance: number,
+): PetGoal | null {
+  const species = PET_SPECIES.find(
+    (s) => s.cost > 0 && !collection.owned.includes(s.id),
+  );
+  if (species === undefined) {
+    return null;
+  }
+  return {
+    species,
+    remaining: Math.max(0, species.cost - balance),
+    progress: Math.min(1, Math.max(0, balance / species.cost)),
+  };
+}

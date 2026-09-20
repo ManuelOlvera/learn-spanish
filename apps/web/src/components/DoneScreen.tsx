@@ -8,6 +8,7 @@ import {
   computeReward,
   earnableActivities,
   kidForActivity,
+  nextPetGoal,
   petFormEmoji,
   petMaxForm,
   pickCelebration,
@@ -19,6 +20,7 @@ import {
   type AwardResult,
   type BoostTier,
   type Deck,
+  type PetGoal,
   type StarReward,
   type StickerTier,
 } from "@learn-spanish/core";
@@ -32,6 +34,7 @@ import {
 import { getSelectedKid } from "@/lib/kid";
 import {
   addStars,
+  getStars,
   claimCategoryReward,
   noteChallengeActivity,
   getActiveBoost,
@@ -47,6 +50,7 @@ import { feedbackFanfare, feedbackSticker } from "@/lib/feedback";
 import { Confetti } from "@/components/Confetti";
 import { CategoryBurst } from "@/components/CategoryBurst";
 import { StarChest, type ChestBonus } from "@/components/StarChest";
+import { PetGoalBar } from "@/components/PetGoalBar";
 
 interface Props {
   /** Which album section the sticker files under (a deck id, or "frases"). */
@@ -120,6 +124,11 @@ export function DoneScreen({
   // restart the count-up mid-animation. The inputs are all settled by the time
   // `ready` flips, so this computes once and then holds — which is also what
   // ADR 014 requires of the multiplier.
+  // How close the stars just banked leave this kid to their next mascota.
+  // Filled only once the chest has actually been opened — before that the
+  // haul is still a secret, and the bar would give the size of it away.
+  const [petGoal, setPetGoal] = useState<PetGoal | null>(null);
+
   const isNew = award?.isNew ?? false;
   const reward: StarReward | null = useMemo(
     () =>
@@ -356,8 +365,15 @@ export function DoneScreen({
             onOpened={(total) => {
               // 2 hops for a floor chest, up to 5 for a big one.
               setPetHops(Math.min(5, 2 + Math.floor(total / 20)));
+              const kid = getSelectedKid() ?? kidForActivity(activity) ?? "listener";
+              setPetGoal(nextPetGoal(getPetCollection(kid), getStars(kid)));
             }}
           />
+          {/* Deliberately *not* a new beat in the ending: it appears with the
+              exits already on screen, animates nothing the kid must wait out,
+              and the done screen stays as skippable as it was. The roadmap cut
+              whole-done-screen choreography for exactly that reason. */}
+          {petGoal !== null && <PetGoalBar goal={petGoal} />}
         </div>
       )}
 

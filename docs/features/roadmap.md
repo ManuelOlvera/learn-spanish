@@ -675,12 +675,25 @@ The queue, gathered from the sub-items above so nothing hides in history:
 Deferred when the earn side was raised (see [ADR 020](../adr/020-earn-side-rebalance.md)
 and the shipped write-up). Deferred, not dropped:
 
-- **Progress toward the next mascota** — after the chest closes, a bar fills
-  toward the cheapest pet the kid cannot yet afford ("12 more for el conejo").
-  The most Duolingo-shaped piece of the original ask and the strongest pull the
-  economy could have, but it is a second feature: it needs a home for the bar on
-  `/mascota` and the home screen, and a rule for which pet it points at once the
-  cheap end is bought out. Cut to keep the chest slice small.
+- ☑ **Progress toward the next mascota** — **shipped 2026-09-20.** Both open
+  questions landed: the bar lives in **all three** places (the done screen once
+  the chest is open, `/mascota`, and home in a compact form), and it points at
+  **the cheapest unowned pet** — `PET_SPECIES` is already in cost order, so a
+  kid who bought the dragon first is still sent back to el conejo. No "too far
+  away" cutoff was added: the cheap rungs are 2–3 perfect games apart and exams
+  pay 200⭐/500⭐, so inventing a threshold had no evidence behind it. Derived
+  from the wallet and `owned`, so it stores nothing and touches neither ADR
+  007's price ladder nor ADR 020's earn rate. See `shipped.md`.
+  - ☐ **A goal pet the kid picks** — "I'm saving for el dragón", tracked
+    instead of the cheapest. The more motivating version and the one Duolingo
+    actually ships; it needs a per-kid stored goal, a snapshot field and a
+    merge rule (ADR 004), plus a rule for a goal that gets bought or is
+    already owned.
+  - ☐ **A cutoff when the target is far** — add one if the bar is observed to
+    crawl once the cheap end is bought out (the top of the ladder is 3,400⭐).
+    Deliberately not guessed at up front.
+  - ☐ **Pointing at non-pet sinks** — la caja sorpresa, themes. Rejected for
+    now: the pull the item wanted was "a pet of my own", not "a sink".
 - **Whole-done-screen choreography** — staging the full ending (celebration →
   sticker peel → chest → bonuses → exits) on one timeline. Cut because it risks
   making a 4-year-old sit through an animation they want to skip; the chest beat

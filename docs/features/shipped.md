@@ -1,5 +1,63 @@
 # Shipped features
 
+## 2026-09-20 (later) — ⭐ Faltan 29 para el conejo
+
+**For:** both kids, on the earn side — the piece ADR 020 left undone.
+
+That ADR fixed the *rate*: the cheapest mascota went from ~8 perfect games away
+to ~3, because "the saving goal was out of sight, so it stopped motivating play
+at all." But the goal was still only visible to a kid who walked to `/mascota`
+and did the arithmetic. The stars arrived in a chest and landed in a number,
+and nothing said what they were **for**.
+
+Now a bar does, in the three places a kid meets their stars:
+
+- **The done screen**, once the chest is open — the moment the stars actually
+  arrive, which is when the number means something.
+- **`/mascota`**, above the shop, where the balance is spent.
+- **Home**, compact, where a session starts.
+
+**The target is the cheapest pet the kid does not own.** `PET_SPECIES` is
+already in ascending cost order, so that is just the next rung with a gap in
+it — and because pets are bought from a shop rather than in order, a kid who
+saved up for el dragón first is still pointed back at el conejo. Affordable-
+but-unbought is a real state (the shop needs a tap), so the bar reads full and
+says *¡Ya puedes adoptar el conejo!* rather than overflowing. Once all 28 pets
+are owned there is no target and nothing renders — a bar promising otherwise
+would be a lie.
+
+**No "too far away" cutoff was added**, which was one of the two open questions
+the roadmap named when it cut this. The cheap rungs step 100 → 160 → 220 → 280
+→ 350, two or three perfect games apart, and exams now pay 200⭐ and 500⭐ — so
+a rung is rarely more than one exam away. Inventing a threshold with no
+evidence behind it would have been the wrong kind of certainty. If the bar
+*does* crawl once the cheap end is bought out, that is an observation worth
+having first, and the cutoff is a small change then.
+
+**It stores nothing.** `nextPetGoal(collection, balance)` derives everything
+from two facts that already exist and already sync — `owned` and the wallet.
+That is what keeps this clear of the two ADRs standing either side of it: it
+touches neither ADR 007's price ladder ("do not rebalance prices") nor ADR
+020's earn rate. It makes the existing economy *visible*, which is the one move
+neither of them constrains. No ADR, no key, no migration, no merge rule.
+
+**Two things it deliberately does not do.** It never nudges toward spending —
+it reports a distance and nothing on it is tappable. And it adds **no new beat
+to the done screen**: it appears with the exits already on the screen, animates
+nothing the kid has to sit through, and leaves the ending as skippable as it
+was. The roadmap cut whole-done-screen choreography for exactly that fear, and
+this had to not reintroduce it.
+
+**Where:** `domain/mascota.ts` (`nextPetGoal`, derivation only), one shared
+`components/PetGoalBar.tsx`, and three call sites — `DoneScreen`,
+`MascotaView`, `HomeView`.
+
+**Deferred (not dropped):** a goal pet the kid picks ("I'm saving for el
+dragón") — more motivating, but it needs a per-kid stored goal with a snapshot
+field and a merge rule · a cutoff when the target is far, if observed · pointing
+at non-pet sinks like la caja sorpresa, which would muddy "a pet of my own"
+into "a sink".
+
 ## 2026-09-20 — Los atributos: the pack learns what things are *like*
 
 **For:** both kids, for opposite reasons. Every game the app had asked about a
