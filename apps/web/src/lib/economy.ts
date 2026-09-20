@@ -13,6 +13,10 @@ import {
   canClaimDailyGift as coreCanClaimDailyGift,
   categoryTierFromAlbum,
   clearedPractice,
+  ALL_KIDS,
+  type KidLevel,
+  type KidLevels,
+  type LevelChange,
   type ExamPractice,
   type ExamRecords,
   dayKey,
@@ -435,6 +439,36 @@ export function getExamRecords(kid: KidId): ExamRecords {
 /** Merge-side write, for a pull that brought another device's exams in. */
 export function saveExamRecords(kid: KidId, records: ExamRecords): void {
   store.saveExamRecords(kid, records);
+}
+
+/**
+ * Every profile's level, as the one map the app reads (roadmap 18).
+ *
+ * A map rather than a per-kid call because almost everything that needs a
+ * level needs it for *whichever* kid it is rendering, and threading one
+ * lookup is cheaper than threading two.
+ */
+export function getLevels(): KidLevels {
+  const levels: Record<string, LevelChange> = {};
+  for (const kid of ALL_KIDS) {
+    const stored = store.loadLevel(kid);
+    if (stored !== null) {
+      levels[kid] = stored;
+    }
+  }
+  return levels;
+}
+
+/** A grown-up's decision, from /informe. Reversible: "she can read" is a
+ *  judgement made over weeks, so promoting early has to be undoable. */
+export function setKidLevel(kid: KidId, level: KidLevel): KidLevels {
+  store.saveLevel(kid, { level, at: Date.now() });
+  return getLevels();
+}
+
+/** Merge-side write, for a pull that brought another device's decision in. */
+export function saveLevel(kid: KidId, change: LevelChange): void {
+  store.saveLevel(kid, change);
 }
 
 /** Shelves a grown-up has opened for this kid (la llave de papá). */

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { KID_GAME_MODES, type Story } from "@learn-spanish/core";
+import { type Story } from "@learn-spanish/core";
+import { useGameModes } from "@/lib/use-kid-levels";
 import { useSelectedKidOr } from "@/lib/use-selected-kid";
 import { deckAccent } from "@/lib/deck-theme";
 
@@ -13,10 +14,11 @@ interface Props {
  *  whoever is playing, so a kid never sees a mode chooser here. */
 export function StoryShelf({ stories }: Props) {
   const kid = useSelectedKidOr("listener");
+  const modes = useGameModes(kid);
 
   // Before storage is read (and on a deep link with no kid ever picked) the
   // pre-reader's level is the safe default — it never shows written prompts.
-  const mode = KID_GAME_MODES[kid ?? "listener"].quiz;
+  const mode = modes.quiz;
 
   return (
     <main

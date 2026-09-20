@@ -1,9 +1,14 @@
-import { stickerId } from "./album";
-import { categoryTierFromAlbum, earnableActivities, tierRank } from "./category";
+import {
+  categoryTierFromAlbum,
+  earnableActivities,
+  stickerCount,
+  tierRank,
+} from "./category";
 import { examKindFor, shelfExamPassed, type ExamKind, type ExamRecords } from "./exam";
 import type { Deck } from "./deck";
 import type { DeckGroup } from "./deck-group";
 import type { KidId } from "./kid";
+import type { KidLevels } from "./kid";
 import type { StickerTier } from "./sticker-tiers";
 
 /**
@@ -86,10 +91,17 @@ function stepFor(
   kid: KidId,
   earned: ReadonlySet<string>,
   counts: Readonly<Record<string, number>>,
+  levels: KidLevels,
 ): TrailStep {
-  const activities = earnableActivities(deck, kid);
-  const done = activities.filter((activity) =>
-    earned.has(stickerId(kid, deck.id, activity)),
+  const activities = earnableActivities(deck, kid, levels);
+  // Counted through `stickerCount`, not by looking the id up directly: that
+  // is where the twin rule lives (roadmap 18), so a promoted kid's listen
+  // stickers still satisfy her read slots here exactly as they do in the
+  // album. Reading `earned` straight would have re-locked her whole route on
+  // the day she was promoted — the same two-copies-of-the-rule drift this
+  // function's docstring warns about.
+  const done = activities.filter(
+    (activity) => stickerCount(kid, deck.id, activity, counts, earned) > 0,
   ).length;
   return {
     deckId: deck.id,
@@ -99,7 +111,7 @@ function stepFor(
     // Deliberately the album's own function rather than a parallel rule: it
     // already handles the weakest-slot logic and the pre-tier stickers that
     // carry no count row.
-    tier: categoryTierFromAlbum(kid, deck.id, activities, counts, earned),
+    tier: categoryTierFromAlbum(kid, deck.id, activities, counts, earned, levels),
   };
 }
 
@@ -135,6 +147,10 @@ export function buildCamino(
   /** Shelves a grown-up has opened with la llave de papá (ADR 021's addendum).
    *  A set that only grows, so syncing can never re-lock one. */
   unlockedShelves: readonly string[] = [],
+  /** Each profile's difficulty level (roadmap 18). A promoted kid's shelf
+   *  progress is measured against the activities she can earn *now* — with the
+   *  twin rule in `stickerCount` making sure the change costs her nothing. */
+  levels: KidLevels = {},
 ): Camino {
   const owned = new Set(earned);
   const parentOpened = new Set(unlockedShelves);
@@ -151,7 +167,7 @@ export function buildCamino(
       const deck = decks.find((d) => d.id === deckId);
       return deck === undefined || deck.secret === true
         ? []
-        : [stepFor(deck, kid, owned, counts)];
+        : [stepFor(deck, kid, owned, counts, levels)];
     });
     const doneSteps = steps.filter((step) => step.complete).length;
     return {

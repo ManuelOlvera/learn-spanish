@@ -5,7 +5,9 @@ import Link from "next/link";
 import {
   accuracyByGame,
   dayKey,
+  DEFAULT_LEVEL,
   EXAM_HISTORY_LIMIT,
+  levelFor,
   examHistory,
   passMarkFor,
   questionsFor,
@@ -26,18 +28,20 @@ import {
 import type { DeckGroup } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getKidReport, getPracticeLog } from "@/lib/client-container";
-import { getAvatar, KID_META } from "@/lib/kid";
+import { getAvatar, LEVEL_META } from "@/lib/kid";
 import {
   clearKidChallenge,
   getChallenge,
   getExamPractice,
   getExamRecords,
+  setKidLevel,
   getUnlockedDecks,
   setKidChallenge,
   unlockShelf,
 } from "@/lib/economy";
 import { deckAccent } from "@/lib/deck-theme";
 import { useCamino } from "@/lib/use-camino";
+import { useKidLevels } from "@/lib/use-kid-levels";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 
 interface Props {
@@ -123,6 +127,11 @@ function ShelfSlot({ deck, mastery }: { deck: Deck; mastery: DeckMastery }) {
 }
 
 export function KidReportView({ decks, groups, kid }: Props) {
+  // The header names the level she is at now, not the one her id implies.
+  // The nonce lives here rather than inside the switch so that flipping the
+  // level updates this header too, instead of leaving it stale until a reload.
+  const [levelNonce, setLevelNonce] = useState(0);
+  const levels = useKidLevels(levelNonce);
   const [report, setReport] = useState<KidReport | null>(null);
   const [shown, setShown] = useState<readonly Deck[]>([]);
   // Avatars live in browser storage, so they are read after mount — reading
@@ -147,7 +156,7 @@ export function KidReportView({ decks, groups, kid }: Props) {
   }, [decks, kid]);
 
   const byId = new Map(shown.map((d) => [d.id, d]));
-  const meta = KID_META[kid];
+  const meta = LEVEL_META[levelFor(kid, levels)];
   // Most-mastered first, so the shelves with something to say lead the page.
   const opened = [...(report?.decks ?? [])]
     .filter((d) => d.everOpened)
@@ -260,6 +269,7 @@ export function KidReportView({ decks, groups, kid }: Props) {
           <GamesPlayed report={report} />
           <AccuracyByGame log={practice} />
           <PracticeCalendar log={practice} />
+          <LevelSwitch kid={kid} onChange={() => setLevelNonce((n) => n + 1)} />
           <ExamHistory decks={decks} groups={groups} kid={kid} />
           <CaminoKey decks={decks} groups={groups} kid={kid} />
           <Struggling report={report} byId={byId} kid={kid} />
@@ -267,6 +277,78 @@ export function KidReportView({ decks, groups, kid }: Props) {
         </>
       )}
     </main>
+  );
+}
+
+/**
+ * El nivel — the grown-up's switch between the two difficulty levels
+ * (roadmap 18, ADR 023).
+ *
+ * It lives on `/informe` for the same reason la llave de papá does: nothing on
+ * a kid-facing screen links here, so a parent arrives by typing the URL and a
+ * pre-reader cannot. And it goes **both ways** — "she can read" is a judgement
+ * made over weeks, so promoting early has to be undoable.
+ *
+ * Nothing she has earned is at stake either way: a sticker earned at one level
+ * satisfies its twin at the other, so her album, her medals and her place on
+ * el camino survive the change untouched.
+ */
+function LevelSwitch({
+  kid,
+  onChange,
+}: {
+  kid: KidId;
+  onChange: () => void;
+}) {
+  const [nonce, setNonce] = useState(0);
+  const levels = useKidLevels(nonce);
+  const level = levelFor(kid, levels);
+
+  return (
+    <section className="sticker relative flex flex-col gap-3 p-5">
+      <span aria-hidden className="sticker-peel" />
+      <h2 className="text-2xl font-extrabold">🎚️ Su nivel</h2>
+      <p className="text-sm font-semibold text-ink/60">
+        Cuando aprenda a leer, cámbiale el nivel aquí. No pierde nada — las
+        pegatinas, las medallas y el camino se quedan como están, y se puede
+        volver atrás cuando quieras.
+      </p>
+      <div className="flex gap-3">
+        {(["listen", "read"] as const).map((option) => {
+          const active = level === option;
+          return (
+            <button
+              key={option}
+              type="button"
+              onClick={() => {
+                setKidLevel(kid, option);
+                setNonce((n) => n + 1);
+                onChange();
+              }}
+              aria-pressed={active}
+              aria-label={`Set this child to the ${option} level`}
+              className={`flex flex-1 flex-col items-center gap-1 rounded-2xl border-4 px-3 py-3 font-extrabold ${
+                active
+                  ? "border-ink bg-[var(--color-lime)]"
+                  : "border-dashed border-ink/30 bg-white"
+              }`}
+            >
+              <span aria-hidden className="text-3xl">
+                {option === "listen" ? "👂" : "🔤"}
+              </span>
+              <span className="text-sm">
+                {option === "listen" ? "Escucha" : "Lee"}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {level !== DEFAULT_LEVEL[kid] && (
+        <p className="text-xs font-semibold text-ink/40">
+          Cambiado. Los juegos de este perfil ya son de {level === "read" ? "leer" : "escuchar"}.
+        </p>
+      )}
+    </section>
   );
 }
 

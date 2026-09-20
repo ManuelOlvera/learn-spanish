@@ -1,7 +1,8 @@
 import { ALL_ACTIVITIES, stickerId } from "./album";
 import type { ActivityId } from "./album";
 import type { Deck } from "./deck";
-import { kidForActivity } from "./kid";
+import { levelFor, levelForActivity, twinActivity } from "./kid";
+import type { KidLevels } from "./kid";
 import type { KidId } from "./kid";
 import { stickerTier } from "./sticker-tiers";
 import type { StickerTier } from "./sticker-tiers";
@@ -17,12 +18,14 @@ import type { StickerTier } from "./sticker-tiers";
  *  kid's own difficulty variant. A pre-reader never reaches the read/words
  *  games, so their album must not show — or count — those slots. */
 export function activitiesForKid(
-  activities: readonly ActivityId[],
+  activities: readonly ActivityId[] | undefined,
   kid: KidId,
+  levels: KidLevels = {},
 ): readonly ActivityId[] {
-  return activities.filter((activity) => {
-    const owner = kidForActivity(activity);
-    return owner === null || owner === kid;
+  const level = levelFor(kid, levels);
+  return (activities ?? ALL_ACTIVITIES).filter((activity) => {
+    const owner = levelForActivity(activity);
+    return owner === null || owner === level;
   });
 }
 
@@ -47,12 +50,15 @@ export function activitiesForKid(
 export function earnableActivities(
   deck: Deck | null | undefined,
   kid: KidId,
+  levels: KidLevels = {},
 ): readonly ActivityId[] {
   if (deck?.learnOnly === true) {
     return ["learn"];
   }
   const skip = deck?.skipActivities ?? [];
-  return activitiesForKid(ALL_ACTIVITIES, kid).filter((a) => !skip.includes(a));
+  return activitiesForKid(ALL_ACTIVITIES, kid, levels).filter(
+    (a) => !skip.includes(a),
+  );
 }
 
 /**
@@ -80,6 +86,28 @@ export function stickerCount(
   counts: Readonly<Record<string, number>>,
   earned: ReadonlySet<string>,
 ): number {
+  // The **twin rule** (roadmap 18): the same activity at the other level
+  // counts too, so promoting a kid never costs her a medal, a completed deck
+  // or her place on el camino. `max`, not a fallback or a sum — the depth must
+  // never *drop* when she starts earning the new level's sticker from one, and
+  // must never be inflated by counting both levels' play twice.
+  //
+  // A no-op for anyone who has never changed level: only one of the pair has
+  // ever been earned, so there is no twin to find.
+  const twin = twinActivity(activity);
+  return Math.max(
+    ownCount(kid, deckId, activity, counts, earned),
+    twin === null ? 0 : ownCount(kid, deckId, twin, counts, earned),
+  );
+}
+
+function ownCount(
+  kid: KidId,
+  deckId: string,
+  activity: ActivityId,
+  counts: Readonly<Record<string, number>>,
+  earned: ReadonlySet<string>,
+): number {
   const id = stickerId(kid, deckId, activity);
   return earned.has(id) ? (counts[id] ?? 1) : 0;
 }
@@ -93,8 +121,9 @@ export function categoryTierFromAlbum(
   activities: readonly ActivityId[],
   counts: Readonly<Record<string, number>>,
   earned: ReadonlySet<string>,
+  levels: KidLevels = {},
 ): StickerTier {
-  const slots = activitiesForKid(activities, kid).map((activity) =>
+  const slots = activitiesForKid(activities, kid, levels).map((activity) =>
     stickerCount(kid, deckId, activity, counts, earned),
   );
   return categoryTier(slots);

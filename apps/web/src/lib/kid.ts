@@ -1,18 +1,42 @@
 "use client";
 
-import { AVATAR_CATALOG, isKidId, type KidId } from "@learn-spanish/core";
+import {
+  AVATAR_CATALOG,
+  isKidId,
+  type KidId,
+  type KidLevel,
+} from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 
 const STORAGE_KEY = "palabras.kid.v1";
 const AVATAR_STORAGE_KEY = "palabras.avatars.v1";
 
 /** How each kid profile is drawn — avatars are presentation, levels are core. */
+/**
+ * How a *level* is labelled — 👂 and 🔤, the glyphs the games already use.
+ *
+ * This used to hang off `KidId`, which was fine while the id *was* the level.
+ * Since roadmap 18 a profile's level can change, so anything naming a level
+ * has to read it from `levelFor(kid, levels)` rather than from the id, or a
+ * promoted kid is labelled "listen level" on the screen her parent just
+ * promoted her on.
+ */
+export const LEVEL_META: Record<
+  KidLevel,
+  { readonly glyph: string; readonly english: string }
+> = {
+  listen: { glyph: "👂", english: "listen level" },
+  read: { glyph: "🔤", english: "read level" },
+};
+
+/** A profile's default avatar, plus the label of the level its id implies.
+ *  Prefer `LEVEL_META[levelFor(kid, levels)]` wherever the level is known. */
 export const KID_META: Record<
   KidId,
   { defaultAvatar: string; glyph: string; english: string }
 > = {
-  listener: { defaultAvatar: "🦖", glyph: "👂", english: "listen level" },
-  reader: { defaultAvatar: "🦄", glyph: "🔤", english: "read level" },
+  listener: { defaultAvatar: "🦖", ...LEVEL_META.listen! },
+  reader: { defaultAvatar: "🦄", ...LEVEL_META.read! },
 };
 
 /** The avatars a kid can pick from — the core catalog carries their star costs. */

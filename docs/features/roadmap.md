@@ -261,11 +261,18 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     *(Shipped 2026-07-14.)*
     - ☐ **Los miles y millones** — deferred: sparse card set, and the numbers
       shelf is full again; needs its own shelf thinking.
-18. ☐ **Listener→reader upgrade path** — the parent's real "age bracket" need
-    (2026-07-14): when the 5-year-old learns to read, promote her profile's
-    level *without* losing her progress. Today the level is welded to the kid
-    identity; an upgrade means a `level` field per kid (or a progress
-    migration listener→reader). Shape when the day approaches.
+18. ☑ **Listener→reader upgrade path** — **shipped 2026-09-20** as 🎚️ Su
+    nivel on `/informe`, both directions. The level is now a field on the
+    profile; the ids `listener`/`reader` stay as opaque keys, so nothing
+    migrates. A promotion costs her nothing — the **twin rule** makes a sticker
+    earned at one level satisfy the other, so her album, her medals and her
+    place on el camino survive untouched. It is the app's first *reversible*
+    synced field and merges by later-wins rather than additively; see ADR 023.
+    - ☐ **Per-game levels** — read quizzes but picture pairs, for a kid
+      mid-transition. A real halfway state, but this is a switch and that is a
+      matrix; revisit if one level at a time proves too blunt.
+    - ☐ **A "she seems ready" nudge** — deliberately absent: the app never
+      suggests a promotion, the parent decides.
 19. ✗ **Rethink la caja sorpresa** — considered 2026-07-14 and deliberately
     kept as-is: yes, the 15⭐ box is the cheap path to accessories, and the
     parent decided that's fine — the box is joy, prices are theater. Don't

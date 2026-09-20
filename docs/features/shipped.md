@@ -1,5 +1,67 @@
 # Shipped features
 
+## 2026-09-20 (last) — 🎚️ Su nivel: the level stops being who you are
+
+**For:** the parent, for the 5-year-old. Recorded 2026-07-14 as the real "age
+bracket" need: when she learns to read, promote her **without losing her
+progress**.
+
+**The obstacle was not the setting.** It was that the two profiles *were* the
+two levels, as `kid.ts` said out loud — *"The two difficulty profiles.
+Semantic, not personal."* Two reading children need two read-level profiles,
+and the model had no way to say that.
+
+So the level moved out into a field, and **the ids stayed exactly as they
+are**. `listener` and `reader` are now opaque profile keys: every storage key,
+every sticker id, the whole snapshot and every paired device keep working, and
+nothing migrates. The kids have always identified by 🦖 and 🦄 anyway.
+
+**A promotion costs her nothing.** A sticker earned at one level satisfies its
+counterpart at the other — the *twin rule*, in `stickerCount` — so her album,
+her medals and her place on el camino survive the change untouched. It is
+`max`, not a fallback or a sum: a fallback would drop her medal the moment she
+earned her first read sticker (count 1, against a listen count of 3), and a sum
+would count the same learning twice. And it is a **no-op for anyone who has
+never changed level**, since only one of each pair has ever been earned — which
+is what lets it apply unconditionally, with no "was promoted" flag to drift.
+
+**It goes both ways**, which is the reason it needed an ADR. The level is the
+app's first *reversible* synced field: everything else in the snapshot is a
+counter, a set or a high-water mark, chosen so merge order cannot matter. Both
+existing escape hatches were considered and rejected — device-local (ADR 014's
+boost) would leave her reading on the tablet and listening on the phone, and
+one-way (ADR 022's llave) would trap a five-year-old at a level she was
+promoted to too early. So it merges by **later `at` wins**, the shape
+`weekProgress` and `missions` already use. See **ADR 023**.
+
+**The bug the click-through caught, and the tests did not.** After promoting, a
+deck she had *finished* showed **1 of 6** on its menu and on el camino. Both
+surfaces counted by looking the sticker id up directly — `earned.has(stickerId(…))`
+— which skips the twin rule that lives in `stickerCount`. This is the same
+"two copies of the rule" drift ADR 021 and `earnableActivities` already warn
+about, and the level gave it a third way to bite. Both fixed, one pinned by a
+regression test. A second, smaller one: the `/informe` header still said
+"listen level" straight after a promotion, because the switch's re-read was
+local to itself.
+
+**`KID_META` turned out to be level metadata all along** (👂 "listen level"),
+so it is now `LEVEL_META`, keyed by level. A promoted kid labelled "listen
+level" on the very screen her parent promoted her on is the exact confusion
+this feature exists to remove.
+
+**Where:** `domain/kid.ts` (the level, `twinActivity`, `gameModesFor`),
+`category.ts` (the twin rule in `stickerCount`), `trail.ts`, `transfer.ts`,
+`lib/use-kid-levels.ts`, and the ten surfaces that used to read a mode off the
+id. ADR 023 is new.
+
+**Not verified here:** the merge. Two paired devices are the only real test of
+later-wins, and unit tests both ways are a proxy. If a level ever appears to
+flap between devices, suspect a clock rather than the rule.
+
+**Deferred (not dropped):** per-game levels (read quizzes, picture pairs) for a
+kid mid-transition · a "she seems ready" nudge, deliberately absent — the app
+never suggests a promotion.
+
 ## 2026-09-20 (later still) — Los verbos stop being a shelf you can only look at
 
 **For:** both kids. `Los verbos` was three decks and 45 words that **no game

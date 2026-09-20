@@ -51,6 +51,7 @@ import { Confetti } from "@/components/Confetti";
 import { CategoryBurst } from "@/components/CategoryBurst";
 import { StarChest, type ChestBonus } from "@/components/StarChest";
 import { PetGoalBar } from "@/components/PetGoalBar";
+import { useKidLevels } from "@/lib/use-kid-levels";
 
 interface Props {
   /** Which album section the sticker files under (a deck id, or "frases"). */
@@ -128,6 +129,8 @@ export function DoneScreen({
   // Filled only once the chest has actually been opened — before that the
   // haul is still a secret, and the bar would give the size of it away.
   const [petGoal, setPetGoal] = useState<PetGoal | null>(null);
+  // The chest measures completion against the level she plays at now.
+  const levels = useKidLevels();
 
   const isNew = award?.isNew ?? false;
   const reward: StarReward | null = useMemo(
@@ -221,7 +224,7 @@ export function DoneScreen({
             ? SENTENCE_ACTIVITIES
             : stickerDeckId === STORIES_ID
               ? STORY_ACTIVITIES
-              : earnableActivities(deck, kid);
+              : earnableActivities(deck, kid, levels);
         const earned = new Set(await getAlbum.execute(kid));
         const tier = getCategoryTier(kid, stickerDeckId, activities, earned);
         if (tier === "none") {
@@ -240,6 +243,11 @@ export function DoneScreen({
     return () => {
       cancelled = true;
     };
+    // `levels` is read here but deliberately *not* a dependency: the award
+    // runs once when the screen mounts, and a level read landing a frame later
+    // must not re-run it and re-award the sticker. The value it needs is
+    // settled before the kid can ever reach this screen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stickerDeckId, deck, activity, noAward]);
 
   // The chest's breakdown, memoised so StarChest's reveal timers aren't

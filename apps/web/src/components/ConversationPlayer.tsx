@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createConversation,
-  KID_GAME_MODES,
   type ConversationChoice,
   type Deck,
 } from "@learn-spanish/core";
+import { useGameModes } from "@/lib/use-kid-levels";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getActivePet, getPetCollection } from "@/lib/economy";
 import { petFormEmoji, petMaxForm } from "@learn-spanish/core";
@@ -34,6 +34,7 @@ const REPLY_DELAY_MS = 1400;
 export function ConversationPlayer({ deck, accent }: Props) {
   const selected = useSelectedKid();
   const kid = selected.status === "picked" ? selected.kid : null;
+  const modes = useGameModes(kid);
   const [pet, setPet] = useState<{ emoji: string; name: string } | null>(null);
   const [index, setIndex] = useState(0);
   const [said, setSaid] = useState<ConversationChoice | null>(null);
@@ -152,7 +153,7 @@ export function ConversationPlayer({ deck, accent }: Props) {
   }
 
   // The reader reads what they are saying; the pre-reader goes by picture.
-  const reads = kid !== null && KID_GAME_MODES[kid].quiz === "read";
+  const reads = kid !== null && modes.quiz === "read";
 
   return (
     <main

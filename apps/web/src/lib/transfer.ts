@@ -28,6 +28,8 @@ import {
   getRetoBests,
   saveRetoBests,
   getExamRecords,
+  getLevels,
+  saveLevel,
   saveExamRecords,
   getUnlockedShelves,
   saveUnlockedShelves,
@@ -136,6 +138,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
       unlockedShelves[kid] = keys;
     }
   }
+  const levels = getLevels();
   return {
     stickers,
     streaks,
@@ -161,6 +164,7 @@ export async function currentSnapshot(): Promise<ProgressSnapshot> {
     ...(Object.keys(categoryAwards).length > 0 ? { categoryAwards } : {}),
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
+    ...(Object.keys(levels).length > 0 ? { levels } : {}),
     ...(Object.keys(unlockedShelves).length > 0 ? { unlockedShelves } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
   };
@@ -244,6 +248,10 @@ export async function applySnapshot(merged: ProgressSnapshot): Promise<void> {
     const kidExams = merged.examRecords?.[kid];
     if (kidExams !== undefined) {
       saveExamRecords(kid, kidExams);
+    }
+    const kidLevel = merged.levels?.[kid];
+    if (kidLevel !== undefined) {
+      saveLevel(kid, kidLevel);
     }
     const kidKeys = merged.unlockedShelves?.[kid];
     if (kidKeys !== undefined) {

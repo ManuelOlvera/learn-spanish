@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ALL_KIDS,
   isLearnedStat,
+  levelFor,
   learnedThisWeek,
   pickShakyCards,
   type Deck,
@@ -21,7 +22,7 @@ import {
   getWordStats,
   sampleTrend,
 } from "@/lib/client-container";
-import { getAvatar, KID_META } from "@/lib/kid";
+import { getAvatar, LEVEL_META } from "@/lib/kid";
 import { buyFreeze, getStars, readWeekly, type WeeklySnapshot } from "@/lib/economy";
 import { syncPush } from "@/lib/sync";
 import {
@@ -32,6 +33,7 @@ import {
 import { checkSpanishVoice, type VoiceStatus } from "@/lib/speech";
 import { feedbackRacha } from "@/lib/feedback";
 import { WeeklyCard } from "@/components/WeeklyCard";
+import { useKidLevels } from "@/lib/use-kid-levels";
 
 interface Props {
   decks: readonly Deck[];
@@ -199,6 +201,8 @@ function VoiceWarning() {
 }
 
 export function InformeView({ decks }: Props) {
+  // Each card names the level that profile is at now (roadmap 18).
+  const levels = useKidLevels();
   const [reports, setReports] = useState<readonly KidReport[] | null>(null);
 
   useEffect(() => {
@@ -295,7 +299,8 @@ export function InformeView({ decks }: Props) {
                 {report.avatar}
               </span>
               <h2 className="text-2xl font-extrabold">
-                {KID_META[report.kid].glyph} {KID_META[report.kid].english}
+                {LEVEL_META[levelFor(report.kid, levels)].glyph}{" "}
+                {LEVEL_META[levelFor(report.kid, levels)].english}
               </h2>
               <span className="ml-auto text-sm font-semibold text-ink/50 underline underline-offset-4">
                 Ver todo →

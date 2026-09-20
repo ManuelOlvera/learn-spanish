@@ -208,9 +208,13 @@ No reading, no accounts, no setup.
   problem: if this device's storage is full, if its sync has stopped reaching
   the cloud, or if it has no Spanish voice installed, the parent is told there
   rather than in a log nobody reads (ADR 019). No third-party analytics, ever.
-- **Kid picker** — a listen-level kid (pre-readers) and a read-level kid,
-  each with their own chosen avatar (16 to pick from); each game menu
-  shows that kid's one right difficulty.
+- **Kid picker** — two profiles, each with their own chosen avatar (16 to pick
+  from); each game menu shows that profile's one right difficulty. **The level
+  is a setting, not an identity** (ADR 023): a grown-up switches 👂/🔤 from
+  `/informe`, in either direction, and nothing is lost either way — a sticker
+  earned at one level satisfies the other, so the album, the medals and el
+  camino all survive the change. That is the answer to "she has learned to
+  read" without starting her over.
 - **Cross-device sync** — optional, local-first (ADR 004). Pair devices once
   by scanning a QR (or typing the capability code) — one scan opens the app
   and pairs it, after a confirm on the new device (ADR 011); progress pulls on

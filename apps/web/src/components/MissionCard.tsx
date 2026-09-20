@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import {
+  gameModesFor,
   KID_GAME_MODES,
+  levelFor,
   MISSION_BONUS,
   missionTarget,
   reachableDeckIds,
@@ -11,10 +13,12 @@ import {
   type Deck,
   type DeckGroup,
   type KidId,
+  type KidLevels,
   type MissionKind,
   type MissionTarget,
   type MissionView,
 } from "@learn-spanish/core";
+import { useKidLevels } from "@/lib/use-kid-levels";
 
 /** How each misión kind is drawn — pictures only, the kid can't read, so
  *  every icon MUST match the game's icon in the deck menu (a mismatch sends
@@ -81,11 +85,12 @@ function hrefFor(
   kind: MissionKind,
   target: MissionTarget,
   kid: KidId,
+  levels: KidLevels,
 ): string | null {
   if (target === null) {
     return null;
   }
-  const modes = KID_GAME_MODES[kid];
+  const modes = gameModesFor(levelFor(kid, levels));
   if (target.scope === "shelf") {
     return `/group/${target.groupId}/adivina`;
   }
@@ -126,6 +131,7 @@ export function MissionCard({
   camino,
   onClaim,
 }: Props) {
+  const levels = useKidLevels();
   // Only content the route has opened. `null` means the camino is not known
   // yet (home renders before the album is read), and then nothing is filtered
   // — the same behaviour as before the gate existed.
@@ -165,6 +171,7 @@ export function MissionCard({
               camino?.nextGroupId ?? null,
             ),
             kid,
+            levels,
           );
           // A done kind stays a link: replaying is how a sticker tiers up,
           // and a tile that goes dead the moment it's finished reads as broken.

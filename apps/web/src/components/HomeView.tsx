@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   dailyFeature,
+  gameModesFor,
+  levelFor,
   dayIndex,
-  KID_GAME_MODES,
   challengeClaimable,
   groupsInTrailOrder,
   missionOnHome,
@@ -64,6 +65,7 @@ import { PetGoalBar } from "@/components/PetGoalBar";
 import { LockedTile, TrailBadge, TrailPips } from "@/components/TrailMarks";
 import { CaminoStrip } from "@/components/CaminoStrip";
 import { useCamino } from "@/lib/use-camino";
+import { useKidLevels } from "@/lib/use-kid-levels";
 
 interface Props {
   decks: readonly Deck[];
@@ -110,6 +112,9 @@ export function HomeView({ decks, groups }: Props) {
   // El camino: how far this kid has come along the route, and the one shelf
   // that is next. Derived from the album, so it costs no new storage.
   const camino = useCamino(groups, publicDecks, kid, syncNonce);
+  // Games play at the profile's *level*, which a grown-up can change.
+  const levels = useKidLevels(syncNonce);
+  const modes = gameModesFor(levelFor(kid ?? "listener", levels));
 
   // The one thing home says today. A domain rule, not a pile of && in JSX —
   // see domain/home-focus.ts for why claims outrank suggestions.
@@ -594,7 +599,7 @@ export function HomeView({ decks, groups }: Props) {
         })}
 
         <Link
-          href={kid ? `/frases/${KID_GAME_MODES[kid].quiz}` : "/frases"}
+          href={kid ? `/frases/${modes.quiz}` : "/frases"}
           aria-label="Las frases — sentences"
           style={{ "--accent": deckAccent("frases") } as React.CSSProperties}
           className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"

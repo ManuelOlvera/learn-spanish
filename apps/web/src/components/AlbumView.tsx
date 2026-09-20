@@ -28,6 +28,7 @@ import { getAvatar, getSelectedKid, setSelectedKid } from "@/lib/kid";
 import { deckAccent } from "@/lib/deck-theme";
 import { ACTIVITY_META } from "@/lib/activity-theme";
 import { TransferPanel } from "@/components/TransferPanel";
+import { useKidLevels } from "@/lib/use-kid-levels";
 
 interface Props {
   decks: readonly Deck[];
@@ -94,15 +95,16 @@ export function AlbumView({ decks, groups }: Props) {
   // the same slots). `kid` is briefly null before mount; default the layout to
   // the pre-reader's set, which re-renders once storage is read.
   const viewKid: KidId = kid ?? "listener";
+  const levels = useKidLevels();
   // Per deck, never one list for all of them: a learn-only deck (the verbs
   // shelf) is one sticker deep, and drawing it with the full six put five
   // slots on the page that nothing could ever fill — no medal, no chest, and
   // a denominator the kid could not reach. Same function el camino counts by.
-  const sentenceActivities = activitiesForKid(SENTENCE_ACTIVITIES, viewKid);
-  const storyActivities = activitiesForKid(STORY_ACTIVITIES, viewKid);
+  const sentenceActivities = activitiesForKid(SENTENCE_ACTIVITIES, viewKid, levels);
+  const storyActivities = activitiesForKid(STORY_ACTIVITIES, viewKid, levels);
   const total =
     shownDecks.reduce(
-      (sum, deck) => sum + earnableActivities(deck, viewKid).length,
+      (sum, deck) => sum + earnableActivities(deck, viewKid, levels).length,
       0,
     ) +
     sentenceActivities.length +
@@ -136,7 +138,7 @@ export function AlbumView({ decks, groups }: Props) {
 
   function categoryMedal(deckId: string, activities: readonly ActivityId[]) {
     const tier = categoryTier(
-      activitiesForKid(activities, viewKid).map((a) => slotCount(deckId, a)),
+      activitiesForKid(activities, viewKid, levels).map((a) => slotCount(deckId, a)),
     );
     if (tier === "none") {
       return null;
@@ -203,10 +205,10 @@ export function AlbumView({ decks, groups }: Props) {
             {deck.emoji}
           </span>
           <h3 className="text-2xl font-extrabold">{deck.nameSpanish}</h3>
-          {categoryMedal(deck.id, earnableActivities(deck, viewKid))}
+          {categoryMedal(deck.id, earnableActivities(deck, viewKid, levels))}
         </div>
         <div className="flex flex-wrap gap-3">
-          {earnableActivities(deck, viewKid).map((activity) =>
+          {earnableActivities(deck, viewKid, levels).map((activity) =>
             slot(deck.id, activity),
           )}
         </div>

@@ -5,10 +5,10 @@ import Link from "next/link";
 import {
   createQuizRound,
   earnedStars,
-  KID_GAME_MODES,
   type Deck,
   type QuizRound,
 } from "@learn-spanish/core";
+import { useGameModes } from "@/lib/use-kid-levels";
 import { cardFace } from "@/lib/emoji";
 import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { getAvatar, KID_META } from "@/lib/kid";
@@ -34,6 +34,8 @@ export const RETO_SECONDS = 60;
  *  move on — the clock is the only pressure. Best score per deck+kid. */
 export function RetoPlayer({ deck, accent }: Props) {
   const kid = useSelectedKidOr("listener");
+  // The mode comes from the profile's *level*, not its id (roadmap 18).
+  const modes = useGameModes(kid);
   const [round, setRound] = useState<QuizRound | null>(null);
   const [timeLeft, setTimeLeft] = useState(RETO_SECONDS);
   const [score, setScore] = useState(0);
@@ -54,7 +56,7 @@ export function RetoPlayer({ deck, accent }: Props) {
     };
   }, []);
 
-  const mode = kid === null ? "listen" : KID_GAME_MODES[kid].quiz;
+  const mode = kid === null ? "listen" : modes.quiz;
 
   function start() {
     if (kid === null) {

@@ -4,6 +4,7 @@ import {
   EMPTY_WALLET,
   isBoost,
   isExamPractice,
+  type LevelChange,
   sanitizeExamRecords,
   type ExamPractice,
   type ExamRecords,
@@ -57,6 +58,8 @@ const EXAMS_KEY = "palabras.exams.v1";
 // Shelves a grown-up opened with la llave de papá. A set that only grows, so
 // the merge is a union and no peer can re-lock one (ADR 022's addendum).
 const UNLOCKED_SHELVES_KEY = "palabras.unlocked-shelves.v1";
+/** Each profile's difficulty level — the one reversible synced doc (ADR 023). */
+const LEVELS_KEY = "palabras.levels.v1";
 // The post-failure retry gate. Deliberately NOT synced and NOT in the
 // snapshot: transient state cannot ride ADR 004's additive merge (ADR 014).
 const EXAM_PRACTICE_KEY = "palabras.exam-practice.v1";
@@ -292,6 +295,14 @@ export class LocalStorageEconomyStore implements EconomyStore {
     writeDoc(UNLOCKED_SHELVES_KEY, kid, shelves);
   }
 
+  loadLevel(kid: KidId): LevelChange | null {
+    const stored: unknown = readDoc<LevelChange>(LEVELS_KEY)[kid];
+    return isLevelChange(stored) ? stored : null;
+  }
+  saveLevel(kid: KidId, change: LevelChange | null): void {
+    writeDoc(LEVELS_KEY, kid, change);
+  }
+
   loadExamPractice(kid: KidId): ExamPractice | null {
     const stored: unknown = readDoc<ExamPractice>(EXAM_PRACTICE_KEY)[kid];
     return isExamPractice(stored) ? stored : null;
@@ -320,4 +331,19 @@ export class LocalStorageStickerCountsStore {
     this.economy.saveStickerCounts(counts);
     return Promise.resolve();
   }
+}
+
+/** Shape guard for a stored level, at the localStorage trust boundary. An
+ *  unknown level is dropped rather than defaulted: a profile silently landing
+ *  on the wrong difficulty is worse than one that never changed. */
+function isLevelChange(value: unknown): value is LevelChange {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const l = value as Record<string, unknown>;
+  return (
+    (l.level === "listen" || l.level === "read") &&
+    typeof l.at === "number" &&
+    Number.isSafeInteger(l.at)
+  );
 }

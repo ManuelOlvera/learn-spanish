@@ -11,7 +11,12 @@ import {
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
-import { getExamRecords, getStickerCounts, getUnlockedShelves } from "@/lib/economy";
+import {
+  getExamRecords,
+  getLevels,
+  getStickerCounts,
+  getUnlockedShelves,
+} from "@/lib/economy";
 
 /**
  * El camino for the selected kid, or null while it's unknown (storage not read
@@ -54,6 +59,10 @@ export function useCamino(
                 // must be read on the same pass as the album (ADR 021).
                 getExamRecords(kid),
                 getUnlockedShelves(kid),
+                // Read on the same pass as the album: a promotion changes
+                // which activities count toward a shelf, so a stale level
+                // would draw the route against the wrong bar.
+                getLevels(),
               ),
             );
           }

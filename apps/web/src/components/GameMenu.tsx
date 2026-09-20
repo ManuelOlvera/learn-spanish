@@ -7,15 +7,16 @@ import {
   earnableActivities,
   globoDifficulties,
   hasConversation,
-  KID_GAME_MODES,
+  gameModesFor,
+  levelFor,
   sopaDifficulties,
   stickerCount,
-  stickerId,
   stickerTier,
   type ActivityId,
   type Deck,
   type DeckGroup,
   type KidId,
+  type KidLevels,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { getAlbum } from "@/lib/client-container";
@@ -25,6 +26,7 @@ import { getAvatar, KID_META } from "@/lib/kid";
 import { useSelectedKid } from "@/lib/use-selected-kid";
 import { useCamino } from "@/lib/use-camino";
 import { LockedTile } from "@/components/TrailMarks";
+import { useKidLevels } from "@/lib/use-kid-levels";
 
 interface Props {
   deck: Deck;
@@ -43,7 +45,11 @@ interface ModeLink {
 
 /** With a kid selected, each game gets its one right button; without one
  *  (deep link before ever picking), both difficulty buttons show. */
-function gamesFor(kid: KidId | null, deck: Deck): readonly {
+function gamesFor(
+  kid: KidId | null,
+  deck: Deck,
+  levels: KidLevels,
+): readonly {
   emoji: string;
   spanish: string;
   english: string;
@@ -68,7 +74,7 @@ function gamesFor(kid: KidId | null, deck: Deck): readonly {
   const skips = (kind: string) =>
     skipped.some((activity) => activity.startsWith(`${kind}-`));
   const deckId = deck.id;
-  const modes = kid === null ? null : KID_GAME_MODES[kid];
+  const modes = kid === null ? null : gameModesFor(levelFor(kid, levels));
   const pick = (listen: ModeLink, read: ModeLink): readonly ModeLink[] =>
     modes === null ? [listen, read] : [modes.quiz === "listen" ? listen : read];
   const pickMatch = (
@@ -223,6 +229,9 @@ export function GameMenu({ deck, accent, allGroups, allDecks }: Props) {
   const selected = useSelectedKid();
   // `gamesFor` wants a real kid or nothing; "still reading" is handled below.
   const kid = selected.status === "picked" ? selected.kid : null;
+  // Which games this deck offers is a question about the profile's *level*,
+  // which a grown-up can change (roadmap 18) — not about its id.
+  const levels = useKidLevels();
   // Which of this deck's activities this kid has already finished — the
   // stickers themselves, so the ⭐ here and the ⭐ on el camino agree.
   const [earned, setEarned] = useState<ReadonlySet<string>>(new Set());
@@ -289,15 +298,22 @@ export function GameMenu({ deck, accent, allGroups, allDecks }: Props) {
     );
   }
 
-  const games = gamesFor(kid, deck);
+  const games = gamesFor(kid, deck, levels);
   // The deck's step on el camino: how many of the activities this kid can earn
   // are done. Only meaningful once a kid is picked.
-  const stepActivities = kid === null ? [] : earnableActivities(deck, kid);
+  const stepActivities =
+    kid === null ? [] : earnableActivities(deck, kid, levels);
+  // Counted through `stickerCount`, never by looking the id up directly: that
+  // is where the twin rule lives (roadmap 18), so a promoted kid's listen
+  // stickers still fill her read slots here exactly as they do in the album
+  // and on el camino. Reading `earned` straight showed 1/6 for a deck she had
+  // finished, on the day she was promoted.
   const stepDone =
     kid === null
       ? 0
-      : stepActivities.filter((a) => earned.has(stickerId(kid, deck.id, a)))
-          .length;
+      : stepActivities.filter(
+          (a) => stickerCount(kid, deck.id, a, counts, earned) > 0,
+        ).length;
 
   /** How deep this kid has gone on one activity — the album's own rule, so a
    *  🥇 here and a 🥇 in the album are the same fact. */

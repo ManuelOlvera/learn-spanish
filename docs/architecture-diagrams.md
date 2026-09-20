@@ -198,6 +198,7 @@ closes, so it is not part of this inventory.
 | `palabras.reto.v1` | `lib/economy-store.ts` | best reto scores | no (per-device) |
 | `palabras.challenge.v1` | `lib/economy-store.ts` | el reto de papá: the challenge set for a kid | no (per-device — a challenge is set on the device it is played from) |
 | `palabras.boost.v1` | `lib/economy-store.ts` | the ⚡ hora doble window | **never** (ADR 014 — an expiring timestamp is the one shape the additive merge cannot carry; expiry is decided on read) |
+| `palabras.levels.v1` | `lib/economy-store.ts` | per profile, `{ level, at }` — the difficulty a grown-up set, in **both** directions. Absent = the level the id has always implied | yes (**later `at` wins** — the one reversible field; ADR 023) |
 | `palabras.exams.v1` | `lib/economy-store.ts` | per shelf, `{ bestScore, attempts, history? }` for its camino exam — **passing is derived** (`bestScore >= EXAM_PASS_MARK`), never stored; `history` is the last 8 `{ at, score }` sittings, read only by `/informe` | yes (per-counter `max`; `history` unions on `at` then trims — ADR 022) |
 | `palabras.unlocked-shelves.v1` | `lib/economy-store.ts` | shelves a grown-up opened with **la llave de papá** | yes (**union** — a set that only grows, so a stale peer can never re-lock a shelf a parent opened; ADR 022's addendum) |
 | `palabras.exam-practice.v1` | `lib/economy-store.ts` | the deck a failed exam is waiting on before a re-sit | **never** (ADR 022 — transient state, ADR 014's rule; an unsynced gate only ever lets a kid retry sooner, which is the safe direction) |

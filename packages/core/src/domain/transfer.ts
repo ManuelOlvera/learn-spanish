@@ -1,5 +1,5 @@
 import { isKidId } from "./kid";
-import type { KidId } from "./kid";
+import type { KidId, KidLevels, LevelChange } from "./kid";
 import type { Streak } from "./daily";
 import type { WordStat, WordStats } from "./word-stats";
 import type { FormOutfit, PetCollection, PetState } from "./mascota";
@@ -79,6 +79,17 @@ export interface ProgressSnapshot {
    *  it unions by instant and trims to the most recent few, which is
    *  idempotent and order-independent for the same reason max is. */
   readonly examRecords?: Partial<Record<KidId, ExamRecords>>;
+  /**
+   * Each profile's difficulty level, with when a grown-up set it (roadmap 18).
+   *
+   * **The one reversible field in this snapshot.** Everything else here is
+   * monotonic — counters, sets, high-water marks — precisely so merge order
+   * cannot matter. A level can go back down, so it merges by *later wins*
+   * instead: the same shape `weekProgress` and `missions` already use for "a
+   * later day supersedes outright". See ADR 023 for why it syncs at all rather
+   * than staying device-local like the ⚡ boost.
+   */
+  readonly levels?: KidLevels;
 }
 
 export class InvalidTransferCodeError extends Error {
@@ -310,6 +321,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
   const missions = sanitizeKidRecord(candidate.missions, isMissionState);
   const examRecords = sanitizeKidRecord(candidate.examRecords, isExamRecords);
   const unlockedShelves = sanitizeKidRecord(candidate.unlockedShelves, isStringArray);
+  const levels = sanitizeKidRecord(candidate.levels, isLevelChange);
   return {
     stickers,
     streaks: sanitizeKidRecord(candidate.streaks, isStreak),
@@ -334,6 +346,7 @@ export function sanitizeSnapshot(raw: unknown): ProgressSnapshot {
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
     ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
+    ...(Object.keys(levels).length > 0 ? { levels } : {}),
     ...(Object.keys(unlockedShelves).length > 0 ? { unlockedShelves } : {}),
   };
 }
@@ -388,6 +401,22 @@ export function isExamRecords(value: unknown): value is ExamRecords {
   return (
     entries.length <= MAX_LIST &&
     entries.every(([groupId, record]) => isSaneText(groupId) && isExamRecord(record))
+  );
+}
+
+/** A level the app actually knows, with a sane instant. An unknown level is
+ *  dropped rather than defaulted: a profile silently landing on the wrong
+ *  difficulty is worse than one that never changed. */
+function isLevelChange(value: unknown): value is LevelChange {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const l = value as Record<string, unknown>;
+  return (
+    (l.level === "listen" || l.level === "read") &&
+    typeof l.at === "number" &&
+    Number.isSafeInteger(l.at) &&
+    l.at >= 0
   );
 }
 
@@ -643,6 +672,19 @@ function latest(mine: number | undefined, theirs: number | undefined) {
  *  `attempts` move for different reasons — a device may hold the better score
  *  while another has sat it more often — so taking whole records by the better
  *  score would quietly discard attempts (ADR 022). */
+/** Later wins. On an exact tie — near-impossible with millisecond stamps —
+ *  "read" takes it: the choice is arbitrary, but it has to be *commutative*
+ *  or the answer would depend on which device synced first. */
+const mergeLevel: Combine<LevelChange> = (mine, theirs) => {
+  if (mine === undefined || theirs.at > mine.at) {
+    return theirs;
+  }
+  if (theirs.at < mine.at) {
+    return mine;
+  }
+  return mine.level === "read" ? mine : theirs;
+};
+
 const mergeExamRecords: Combine<ExamRecords> = (mine, theirs) => {
   const merged: Record<string, ExamRecord> = { ...(mine ?? {}) };
   for (const [groupId, record] of Object.entries(theirs)) {
@@ -790,6 +832,8 @@ export function mergeProgress(
     incoming.unlockedShelves,
     union,
   );
+  // The one field here that can go backwards, so the one that needs a date.
+  const levels = mergeKidField(current.levels, incoming.levels, mergeLevel);
 
   // ---- the irregular fields ----
 
@@ -859,6 +903,7 @@ export function mergeProgress(
     ...(Object.keys(retoBests).length > 0 ? { retoBests } : {}),
     ...(Object.keys(missions).length > 0 ? { missions } : {}),
     ...(Object.keys(examRecords).length > 0 ? { examRecords } : {}),
+    ...(Object.keys(levels).length > 0 ? { levels } : {}),
     ...(Object.keys(unlockedShelves).length > 0 ? { unlockedShelves } : {}),
   };
 }

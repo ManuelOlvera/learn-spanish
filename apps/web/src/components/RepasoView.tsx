@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   dayIndex,
-  KID_GAME_MODES,
   MAX_QUIZ_ROUNDS,
   pickReviewCards,
   type Deck,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
+import { useGameModes } from "@/lib/use-kid-levels";
 import { getWordStats } from "@/lib/client-container";
 import { useSelectedKidOr } from "@/lib/use-selected-kid";
 import { QuizPlayer } from "@/components/QuizPlayer";
@@ -23,6 +23,7 @@ interface Props {
  *  is the words getting easier. */
 export function RepasoView({ decks }: Props) {
   const kid = useSelectedKidOr("listener");
+  const modes = useGameModes(kid);
   const [reviewDeck, setReviewDeck] = useState<Deck | null | undefined>(undefined);
 
   useEffect(() => {
@@ -92,7 +93,7 @@ export function RepasoView({ decks }: Props) {
   return (
     <QuizPlayer
       deck={reviewDeck}
-      mode={KID_GAME_MODES[kid].quiz}
+      mode={modes.quiz}
       accent="#a3e635"
       review
     />

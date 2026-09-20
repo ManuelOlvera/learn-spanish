@@ -314,8 +314,19 @@ export {
 } from "./domain/story";
 export { ListStoriesUseCase } from "./application/list-stories";
 export { StaticStoryRepository } from "./infrastructure/static-story-repository";
-export type { KidId } from "./domain/kid";
-export { ALL_KIDS, isKidId, KID_GAME_MODES, kidForActivity } from "./domain/kid";
+export type { KidId, KidLevel, KidLevels, LevelChange } from "./domain/kid";
+export {
+  ALL_KIDS,
+  DEFAULT_LEVEL,
+  gameModesFor,
+  isKidId,
+  KID_GAME_MODES,
+  kidForActivity,
+  levelFor,
+  levelForActivity,
+  promoteLevel,
+  twinActivity,
+} from "./domain/kid";
 export type { Streak, StreakStore } from "./domain/daily";
 export { advanceStreak, dailyCard, dailyFeature, dayIndex, dayKey } from "./domain/daily";
 export type { DailyFeature } from "./domain/daily";
