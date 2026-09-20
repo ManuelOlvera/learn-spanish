@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { StickerTier } from "@learn-spanish/core";
 import { Confetti } from "@/components/Confetti";
+import { feedbackMedal } from "@/lib/feedback";
 
 interface Props {
   /** The tier just completed — drives the medal and the copy. */
@@ -28,6 +29,15 @@ const LOOK: Record<
  *  Full-screen, confetti, tap or auto-dismiss, with the medal and star chest. */
 export function CategoryBurst({ tier, bonus, categoryEmoji, onDone }: Props) {
   const look = LOOK[tier];
+
+  // Mount only, and deliberately *not* in the effect below: every call site
+  // passes an inline arrow for `onDone`, so that effect re-runs on each parent
+  // render. Keying the sound to it would replay it on every re-render.
+  useEffect(() => {
+    // A step higher per tier, so levelling a collection up sounds like a promotion.
+    feedbackMedal(tier === "gold" ? 2 : tier === "silver" ? 1 : 0);
+    // `tier` is fixed for the life of a burst, so this still fires once.
+  }, [tier]);
 
   useEffect(() => {
     const timer = setTimeout(onDone, 4500);

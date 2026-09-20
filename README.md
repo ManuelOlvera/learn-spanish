@@ -80,7 +80,12 @@ No reading, no accounts, no setup.
   Reader-level, 🟢/🟡/🔴 word lengths, entered from the shelf screen).
 - **Game feel** — synthesized sounds (tones *and* filtered noise, so El globo
   can inflate, hiss and pop without a single audio file), haptics, confetti,
-  and a ⚡ racha burst at 3/5/10 correct in a row.
+  and a ⚡ racha burst at 3/5/10 correct in a row. **Every celebration is
+  scored**: the chest ticks as it counts and chimes per bonus chip, and the
+  exam ceremony has a beat each — the grade stamps, the trophy arrives on the
+  biggest sound the app makes (ADR 021: passing must beat opening any chest),
+  the stars tick up, a súper's swept shelves climb a scale, and the padlock
+  snaps.
 - **El camino** — a guided route through the pack that **gates**: a shelf stays
   locked until the one before it is complete *and* that shelf's **examen** is
   passed (ADR 021, which supersedes ADR 016 on this). The lock is real — a

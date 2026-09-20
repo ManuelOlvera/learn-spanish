@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Confetti } from "@/components/Confetti";
+import { feedbackFanfare } from "@/lib/feedback";
 
 interface Props {
   /** Stars the mission chest just paid out — shown on the prize badge. */
@@ -15,6 +16,14 @@ interface Props {
  *  here, so it gets the loudest celebration. Auto-dismisses so a distracted kid
  *  is never stuck. */
 export function MissionBurst({ bonus, onDone }: Props) {
+  // Mount only, and deliberately *not* in the effect below: every call site
+  // passes an inline arrow for `onDone`, so that effect re-runs on each parent
+  // render. Keying the sound to it would replay it on every re-render.
+  useEffect(() => {
+    // The day's three tasks done — the fanfare the done screen already uses.
+    feedbackFanfare();
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(onDone, 4500);
     return () => clearTimeout(timer);

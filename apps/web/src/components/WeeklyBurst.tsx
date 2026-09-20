@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { RolloverOutcome } from "@learn-spanish/core";
 import { Confetti } from "@/components/Confetti";
+import { feedbackRacha } from "@/lib/feedback";
 
 interface Props {
   /** Only "increased" | "frozen" | "reset" ever reach here; "none" shows nothing. */
@@ -40,6 +41,14 @@ const LOOK: Record<
  *  start — never a scolding). Auto-dismisses so a distracted kid isn't stuck. */
 export function WeeklyBurst({ outcome, count, onDone }: Props) {
   const look = LOOK[outcome];
+
+  // Mount only, and deliberately *not* in the effect below: every call site
+  // passes an inline arrow for `onDone`, so that effect re-runs on each parent
+  // render. Keying the sound to it would replay it on every re-render.
+  useEffect(() => {
+    // A rising run: a week held together is a streak, and streaks sound like this.
+    feedbackRacha();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(onDone, 4500);

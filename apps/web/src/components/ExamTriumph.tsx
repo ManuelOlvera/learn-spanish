@@ -3,6 +3,13 @@
 import { useEffect, useState } from "react";
 import type { ExamKind } from "@learn-spanish/core";
 import { Confetti } from "@/components/Confetti";
+import {
+  feedbackShelfLight,
+  feedbackStamp,
+  feedbackTick,
+  feedbackTriumph,
+  feedbackUnlock,
+} from "@/lib/feedback";
 
 interface Props {
   /** What they scored, out of `total`. */
@@ -112,6 +119,16 @@ export function ExamTriumph({
   const [phase, setPhase] = useState<Phase>("grade");
   const at = order.indexOf(phase);
 
+  // Each beat's sound fires once, here, rather than inside the markup — a
+  // render can happen for any reason, and a trophy fanfare that re-triggers
+  // mid-ceremony is worse than silence. Skipping early simply means the later
+  // beats never play, which is what a kid tapping past it should get.
+  useEffect(() => {
+    if (phase === "grade") feedbackStamp();
+    if (phase === "trophy") feedbackTriumph();
+    if (phase === "unlock") feedbackUnlock();
+  }, [phase]);
+
   // One timer per beat rather than one long timeline: a tap can end the whole
   // thing at any point, and a kid who taps early must not be left mid-sequence.
   useEffect(() => {
@@ -124,6 +141,18 @@ export function ExamTriumph({
     // `order` is derived from props that cannot change mid-ceremony.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, at, onDone]);
+
+  // The sweep's run, on the same stagger the shelves pop in on, so each note
+  // lands with its own picture.
+  useEffect(() => {
+    if (phase !== "sweep") {
+      return;
+    }
+    const timers = sweptEmoji.map((_, i) =>
+      setTimeout(() => feedbackShelfLight(i, sweptEmoji.length), i * SHELF_STAGGER_MS),
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [phase, sweptEmoji]);
 
   const showStars = at >= order.indexOf("stars");
   const showSweep = order.includes("sweep") && at >= order.indexOf("sweep");
@@ -254,8 +283,10 @@ function CountUp({ to }: { to: number }) {
       setShown((n) => {
         if (n + step >= to) {
           clearInterval(timer);
+          feedbackTick(1);
           return to;
         }
+        feedbackTick((n + step) / to);
         return n + step;
       });
     }, 1200 / steps);

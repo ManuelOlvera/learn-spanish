@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { DailyGift } from "@learn-spanish/core";
 import { Confetti } from "@/components/Confetti";
+import { feedbackPop } from "@/lib/feedback";
 
 interface Props {
   /** The gift just drawn — shown as its reward (stars or a ❄️). */
@@ -14,6 +15,14 @@ interface Props {
  *  confetti — a small daily delight, picture-only and tap-to-dismiss. Auto-
  *  dismisses after a beat so a distracted kid is never stuck on it. */
 export function GiftReveal({ gift, onDone }: Props) {
+  // Mount only, and deliberately *not* in the effect below: every call site
+  // passes an inline arrow for `onDone`, so that effect re-runs on each parent
+  // render. Keying the sound to it would replay it on every re-render.
+  useEffect(() => {
+    // The gift bursting open — the same pop el globo uses, and for the same reason.
+    feedbackPop();
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(onDone, 4500);
     return () => clearTimeout(timer);

@@ -1,5 +1,51 @@
 # Shipped features
 
+## 2026-09-20 (last) — The ceremony had no sound
+
+**For:** both kids. The parent's read was that the kids love the exam ceremony;
+this is that ceremony, finished.
+
+**What was actually missing.** Exactly one celebration in the app made any
+sound — `StarChest`, which ticks as the total counts and chimes as each bonus
+chip lands. That beat-by-beat audio is much of why the chest feels good.
+`ExamTriumph` had **none**: the grade stamped, the trophy dropped, the stars
+counted, the padlock broke, all in silence. So did `CategoryBurst`,
+`WeeklyBurst`, `MissionBurst` and `GiftReveal`. Meanwhile `lib/feedback.ts`
+already held twelve synthesized cues, no assets, offline.
+
+**The ceremony now has a beat each.** Four new cues, built from the same
+oscillator-and-noise palette:
+
+- `feedbackStamp` — the grade landing: short, hard and dry, a rubber stamp.
+- `feedbackTriumph` — the trophy, and **deliberately the biggest sound in the
+  file**, above `feedbackChestOpen`. ADR 021 says passing must beat opening any
+  chest; that now holds in the audio as well as the payout.
+- `feedbackShelfLight` — one note per shelf in a súper's sweep, climbing across
+  the *whole* route rather than capping early, so twelve of them read as one
+  rising run instead of a rattle.
+- `feedbackUnlock` — the padlock snapping, with the door swinging under it.
+
+The star count-up reuses `feedbackTick`, exactly as the chest does.
+
+The other four bursts got existing cues rather than new ones: a medal phrase
+pitched a step higher per tier for a collection (so silver *sounds* like a
+promotion over bronze), the balloon's pop for the daily gift, the racha run for
+a week held together, the done-screen fanfare for the daily misión.
+
+**The bug this nearly introduced.** Every burst's dismiss effect is keyed on
+`onDone`, and **every call site passes an inline arrow** — so those effects
+re-run on each parent render. Firing sound from them would have replayed it on
+every re-render of a busy screen. The sound fires from its own mount-scoped
+effect instead, which cannot re-run on an identity change.
+
+**Left alone, and worth knowing:** that same `[onDone]` keying means the
+**4.5-second auto-dismiss timer also resets on every parent render**, which
+predates this change. A burst on a frequently re-rendering screen may never
+auto-dismiss — tapping still works. Not fixed here because it changes dismissal
+behaviour rather than sound.
+
+**Where:** `lib/feedback.ts`, `ExamTriumph`, and the four bursts.
+
 ## 2026-09-20 (last) — 🧭 El camino, lighting up: the súper gets its own beat
 
 **For:** both kids, at the three biggest moments on the route.

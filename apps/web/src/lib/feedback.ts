@@ -182,3 +182,57 @@ export function feedbackChip(index: number): void {
   tone(base * 2, 0.14, 0.05, "sine", 0.06);
   vibrate([18, 22, 26]);
 }
+
+/* ── Los exámenes ──────────────────────────────────────────────────────────
+ * The ceremony was silent until 2026-09-20: the app's most elaborate moment
+ * had none of the beat-by-beat audio that makes the chest feel good. These
+ * are its four beats. ADR 021 says passing must beat opening any chest, so
+ * `feedbackTriumph` is deliberately the biggest thing in this file — louder,
+ * longer and lower-rooted than `feedbackChestOpen`.
+ */
+
+/** The grade stamping down. Short, hard and dry — a rubber stamp, not a
+ *  chime; the celebration proper is the next beat. */
+export function feedbackStamp(): void {
+  tone(160, 0.1, 0, "triangle", 0.18);
+  noiseBurst(0.07, 0.12, 2200, 600);
+  vibrate(45);
+}
+
+/** The trophy arriving — the biggest sound the app makes. A low root you feel,
+ *  a rising major triad over it, and a held octave on top. */
+export function feedbackTriumph(): void {
+  tone(65, 0.5, 0, "triangle", 0.2);
+  noiseBurst(0.35, 0.18, 6000, 500);
+  [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.28, 0.05 + i * 0.07));
+  tone(1568, 0.7, 0.42, "sine", 0.08);
+  vibrate([60, 40, 40, 40, 60, 40, 110]);
+}
+
+/** One shelf lighting up in the súper's sweep. Climbs across the whole route
+ *  rather than capping early, so twelve of them read as one rising run to the
+ *  top rather than a flat rattle. */
+export function feedbackShelfLight(index: number, total: number): void {
+  const step = total <= 1 ? 1 : index / (total - 1);
+  tone(440 * Math.pow(2, step), 0.07, 0, "sine", 0.075);
+  vibrate(12);
+}
+
+/** The padlock breaking off the next shelf — the payoff beat. A snap, then
+ *  the door swinging open under it. */
+export function feedbackUnlock(): void {
+  noiseBurst(0.06, 0.2, 5000, 900);
+  tone(110, 0.3, 0.05, "triangle", 0.16);
+  [784, 1047].forEach((f, i) => tone(f, 0.3, 0.12 + i * 0.09));
+  vibrate([70, 30, 50]);
+}
+
+/** A collection filled — bronze, then silver, then gold. The same phrase each
+ *  time, pitched a step higher per tier, so levelling one up *sounds* like a
+ *  promotion rather than a repeat. */
+export function feedbackMedal(step: 0 | 1 | 2): void {
+  const base = 659 * Math.pow(1.122, step);
+  [base, base * 1.26, base * 1.5].forEach((f, i) => tone(f, 0.2, i * 0.09));
+  tone(base * 2, 0.45, 0.3, "sine", 0.07);
+  vibrate([40, 30, 40, 30, 70]);
+}
