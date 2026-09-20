@@ -16,9 +16,15 @@ export {
 } from "./domain/errors";
 export type { RandomSource } from "./domain/random";
 export type { Quiz, QuizMode, QuizRound } from "./domain/quiz";
-export { createQuiz, createQuizRound, MAX_QUIZ_ROUNDS, QUIZ_CHOICE_COUNT } from "./domain/quiz";
+export {
+  createQuiz,
+  createQuizRound,
+  quizPrompt,
+  MAX_QUIZ_ROUNDS,
+  QUIZ_CHOICE_COUNT,
+} from "./domain/quiz";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
-export { createSiNoGame, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
+export { createSiNoGame, roundQuestion, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
 export type { StarReward, Wallet } from "./domain/stars";
 export {
   computeReward,
@@ -303,7 +309,20 @@ export { StaticStoryRepository } from "./infrastructure/static-story-repository"
 export type { KidId } from "./domain/kid";
 export { ALL_KIDS, isKidId, KID_GAME_MODES, kidForActivity } from "./domain/kid";
 export type { Streak, StreakStore } from "./domain/daily";
-export { advanceStreak, dailyCard, dayIndex, dayKey } from "./domain/daily";
+export { advanceStreak, dailyCard, dailyFeature, dayIndex, dayKey } from "./domain/daily";
+export type { DailyFeature } from "./domain/daily";
+export {
+  ATTRIBUTE_VALUES,
+  attributeClaim,
+  attributeText,
+  attributedCards,
+  cardAttributes,
+  falseAttributeFor,
+  hasAttributeValue,
+} from "./domain/attribute";
+export type { AttributeClaim, AttributeKind, CardAttribute } from "./domain/attribute";
+export { agree, cardAgreement } from "./domain/spanish";
+export type { Agreement, Gender, GrammaticalNumber } from "./domain/spanish";
 export type { ProgressSnapshot } from "./domain/transfer";
 export {
   decodeProgress,

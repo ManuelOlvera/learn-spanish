@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  dailyCard,
+  dailyFeature,
   dayIndex,
   KID_GAME_MODES,
   challengeClaimable,
@@ -17,7 +17,7 @@ import {
   type KidId,
   type ParentChallenge,
   type Streak,
-  type VocabularyCard,
+  type DailyFeature,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
@@ -70,7 +70,7 @@ interface Props {
 export function HomeView({ decks, groups }: Props) {
   // undefined = still reading storage; null = never picked (show the picker).
   const [kid, setKid] = useState<KidId | null | undefined>(undefined);
-  const [daily, setDaily] = useState<VocabularyCard | null>(null);
+  const [daily, setDaily] = useState<DailyFeature | null>(null);
   const [streak, setStreak] = useState<Streak | null>(null);
   const [weakCount, setWeakCount] = useState(0);
   const [dailyWobble, setDailyWobble] = useState(0);
@@ -117,9 +117,17 @@ export function HomeView({ decks, groups }: Props) {
   useEffect(() => {
     warmUpVoices();
     setKid(getSelectedKid());
-    // Computed client-side: a build-time "today" would freeze the card.
-    setDaily(dailyCard(publicDecks, new Date()));
   }, [publicDecks]);
+
+  // The carta del día is per level now (roadmap 10): the listener gets the
+  // word, the reader a sentence about it. Computed client-side — a build-time
+  // "today" would freeze the card — and re-run when the kid changes, so
+  // switching avatars swaps the card rather than leaving the other kid's.
+  // An unpicked kid sees the listener's word, which is what home showed
+  // before there was a level to ask about.
+  useEffect(() => {
+    setDaily(dailyFeature(publicDecks, new Date(), kid ?? "listener"));
+  }, [publicDecks, kid]);
 
   // Cross-device sync (ADR 004): pull the latest on app open — and again each
   // time the tab becomes visible, so a tablet left open all afternoon still
@@ -272,8 +280,8 @@ export function HomeView({ decks, groups }: Props) {
     return true;
   }
 
-  function hearDaily(card: VocabularyCard) {
-    speakSpanish(card.spanish);
+  function hearDaily(feature: DailyFeature) {
+    speakSpanish(feature.text);
     setDailyWobble((k) => k + 1);
     if (kid) {
       feedStreak
@@ -381,20 +389,27 @@ export function HomeView({ decks, groups }: Props) {
           type="button"
           key={`daily-${dailyWobble}`}
           onClick={() => hearDaily(daily)}
-          aria-label={`Word of the day: ${daily.spanish} (${daily.english})`}
+          aria-label={`Card of the day: ${daily.text} (${daily.card.english})`}
           className={`sticker relative flex w-full max-w-md items-center justify-center gap-4 px-6 py-4 active:translate-x-1 active:translate-y-1 active:shadow-none ${
             dailyWobble > 0 ? "wobble" : "pop-in"
           }`}
         >
           <span aria-hidden className="sticker-peel" />
           <span aria-hidden className="text-5xl">
-            {daily.emoji}
+            {daily.card.emoji}
           </span>
           <span className="flex flex-col text-left">
             <span className="text-xs font-bold uppercase tracking-wide text-ink/40">
               La carta del día
             </span>
-            <span className="text-3xl font-extrabold">{daily.spanish}</span>
+            {/* A sentence needs to wrap where a single word never did. */}
+            <span
+              className={`font-extrabold ${
+                daily.attribute === undefined ? "text-3xl" : "text-2xl"
+              }`}
+            >
+              {daily.text}
+            </span>
           </span>
           <span aria-hidden className="ml-2 text-2xl">
             🔊

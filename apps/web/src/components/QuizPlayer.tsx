@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   createQuiz,
   kidForActivity,
+  quizPrompt,
   type Deck,
   type Quiz,
   type QuizMode,
@@ -197,8 +198,16 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
                 className="sticker pop-in relative flex w-full max-w-md items-center justify-center px-8 py-6"
               >
                 <span aria-hidden className="sticker-peel" />
-                <span className="text-5xl font-extrabold sm:text-6xl">
-                  {round.answer.spanish}
+                {/* An attribute prompt is a sentence, so it needs room the
+                    single word never did — it wraps instead of overflowing. */}
+                <span
+                  className={`text-center font-extrabold ${
+                    round.attribute === undefined
+                      ? "text-5xl sm:text-6xl"
+                      : "text-3xl sm:text-4xl"
+                  }`}
+                >
+                  {quizPrompt(round)}
                 </span>
               </div>
             )}

@@ -36,3 +36,93 @@ export function bareWord(spanish: string): string | null {
   }
   return deaccent(bare).toUpperCase();
 }
+
+/**
+ * Grammatical gender and number — what an adjective has to agree with.
+ *
+ * The app teaches by *speaking*, so a claim that does not agree ("la manzana
+ * es rojo") is wrong Spanish said out loud to a child. Agreement is therefore
+ * part of the content being correct, not polish on top of it.
+ */
+export type Gender = "m" | "f";
+export type GrammaticalNumber = "singular" | "plural";
+
+export interface Agreement {
+  readonly gender: Gender;
+  readonly number: GrammaticalNumber;
+}
+
+const ARTICLE_AGREEMENT: Readonly<Record<string, Agreement>> = {
+  el: { gender: "m", number: "singular" },
+  la: { gender: "f", number: "singular" },
+  los: { gender: "m", number: "plural" },
+  las: { gender: "f", number: "plural" },
+};
+
+/**
+ * What a card's word agrees as.
+ *
+ * Read off the article the word already carries — the pack writes "la vaca",
+ * so gender is data the content already has rather than a field to add and
+ * keep in sync. A bare word falls back to its explicit `article` (letter cards
+ * speak bare but are feminine in a sentence), then to masculine singular,
+ * Spanish's unmarked default.
+ */
+export function cardAgreement(card: {
+  readonly spanish: string;
+  readonly article?: string;
+}): Agreement {
+  // The space matters: "las" in "lasaña" is not an article.
+  const [first] = card.spanish.split(" ");
+  const fromWord = first !== undefined ? ARTICLE_AGREEMENT[first] : undefined;
+  return (
+    fromWord ??
+    (card.article === undefined ? undefined : ARTICLE_AGREEMENT[card.article]) ??
+    { gender: "m", number: "singular" }
+  );
+}
+
+/** Vowels whose written accent exists only to mark final-syllable stress. */
+const STRESSED = "áéíóú";
+const UNSTRESSED = "aeiou";
+
+/**
+ * Inflect an adjective to agree.
+ *
+ * Three classes, which is all this app's closed colour and size vocabularies
+ * need:
+ *
+ * - **-o** inflects for gender (rojo / roja) and takes -s for plural.
+ * - **any other vowel** is invariant in gender (verde, naranja, rosa) and
+ *   takes -s for plural.
+ * - **a consonant** is invariant in gender (azul, marrón) and takes **-es**,
+ *   which adds a syllable — so a written accent marking stress on what *was*
+ *   the last syllable becomes wrong and is dropped (marrón → marrones).
+ */
+export function agree(adjective: string, agreement: Agreement): string {
+  const plural = agreement.number === "plural";
+  if (adjective.endsWith("o")) {
+    const stem = adjective.slice(0, -1) + (agreement.gender === "f" ? "a" : "o");
+    return plural ? `${stem}s` : stem;
+  }
+  if (!plural) {
+    return adjective;
+  }
+  return /[aeiouáéíóú]$/.test(adjective)
+    ? `${adjective}s`
+    : `${dropStressAccent(adjective)}es`;
+}
+
+/** Drop the one written accent that -es makes redundant. Only the last
+ *  accented vowel is touched: a word can carry no other by Spanish's own
+ *  accent rules, and deaccenting wholesale would break ñ-adjacent spellings
+ *  the letter games rely on. */
+function dropStressAccent(word: string): string {
+  for (let i = word.length - 1; i >= 0; i -= 1) {
+    const at = STRESSED.indexOf(word[i]!);
+    if (at !== -1) {
+      return word.slice(0, i) + UNSTRESSED[at]! + word.slice(i + 1);
+    }
+  }
+  return word;
+}

@@ -1,5 +1,88 @@
 # Shipped features
 
+## 2026-09-20 — Los atributos: the pack learns what things are *like*
+
+**For:** both kids, for opposite reasons. Every game the app had asked about a
+word's **identity** — "¿Es un gato?", "toca el perro". Nothing asked about a
+**property**, which is the whole of early sentence comprehension. Roadmap items
+2, 4 and 10 had each carried a "deferred, needs attribute content" note since
+July, all three waiting on the same missing data.
+
+**What shipped: the data, and all three things it was blocking.**
+
+- **The data.** A `VocabularyCard` may now carry
+  `attributes: [{ kind, value }]` — the same shape as the linguistic hints it
+  already held (`usesEstar`, `question`, `sceneQuestion`, `article`). Two kinds,
+  `color` and `size`, both closed vocabularies. **94 words across eleven decks**
+  (animals, food, fruit, verduras, dulces, nature, sea, aves, zoo, bugs, toys).
+- **¿Sí o no? (item 4)** — a reader's round may ask "¿La rana es negra?", true
+  or false, mixed with identity claims. The listener's game is untouched, which
+  is what the item asked for.
+- **¿Dónde está…? (item 2)** — half a reader's rounds ask for a property:
+  "Toca el que es rosa", with **exactly one** matching picture on the board.
+- **La carta del día (item 10)** — 👂 still gets the word; 🔤 gets a sentence
+  about it. Drawn from the attributed words rather than the whole pack, so the
+  reader has a sentence every day instead of only when the day's card happens
+  to have attributes.
+
+**Two rules decided everything.**
+
+**An attribute must be provable from the card's own picture.** A pre-reader
+answers by looking, so a property they cannot check is an unanswerable
+question. That is why most of the pack carries none — los meses, las letras and
+los verbos have nothing a picture shows — and why the roadmap's own example
+("Toca el animal que dice muu") is *not* in this slice: a sound is not
+something the card shows.
+
+**An attribute is typed, not free text.** A false claim is built by swapping
+within a kind, and only a kind makes that safe: swap a colour for a size and
+"el plátano es grande" is arguably true, which would mark a kid wrong for being
+right.
+
+**Agreement turned out to be the hard half.** The app teaches by *speaking*, so
+a claim that does not agree is wrong Spanish said out loud to a child — it is
+part of the content being correct, not polish. `domain/spanish.ts` gained
+`cardAgreement` and `agree`: gender read off the article the word already
+carries ("la vaca"), three inflection classes (`-o` inflects, other vowels and
+consonants are invariant in gender), and the written accent dropped when `-es`
+moves the stress (marrón → marrones, never "marrónes"). Two bugs found while
+building, both the kind a unit test catches and a demo does not:
+
+- **Plural words need *son*, not *es*.** "las palomitas es blanca" was the
+  first thing the generator produced. It now agrees the verb as well as the
+  adjective — verified end to end on home, where the reader's card today reads
+  *los guisantes son verdes*.
+- **"el agua" and "el águila" are feminine** nouns that take *el* for phonetic
+  reasons, so the article lies about their gender. Both are given only
+  invariant adjectives, and a test pins that so a later author cannot hand one
+  of them a colour like *rojo*.
+
+**What the pixels caught that the tests could not.** The content was authored
+from world knowledge and then checked against the **rendered emoji**, side by
+side in a contact sheet. Six claims did not survive: 🐦 renders grey-blue not
+blue, 🍞 is a pale cream loaf not a brown one, 🪱 is red not pink, 🐙 is
+pink-red not purple, 🍩 is chocolate-glazed not pink, and 🪸 is a red-and-pink
+cluster with no single colour. All six were corrected or dropped (97 words
+became 94). Los vehículos were left out of the pass entirely for the same
+reason: 🚗 is red on one platform and blue on another, and the app renders the
+device's own emoji.
+
+**Where:** `domain/attribute.ts` (new), `domain/spanish.ts` (agreement),
+`domain/card.ts` (the field), the three consumers in `domain/si-no.ts`,
+`quiz.ts` and `daily.ts`, the data in `infrastructure/starter-pack.ts`, and
+`SiNoPlayer` / `QuizPlayer` / `HomeView`.
+
+**No ADR, and no recount.** This adds an optional field to an existing content
+shape and stores nothing per kid — no localStorage key, no snapshot field, no
+merge rule. The README's pack counts are unchanged: no new decks or words, only
+attributes on words that already existed.
+
+**Deferred (not dropped):** more kinds (texture, sound, habitat, count) ·
+multi-attribute claims, negation, comparatives · attributes in parejas,
+conecta, la sopa, los cuentos and as Las frases tiles · attributes for the
+abstract half of the pack, which would mean inventing properties a kid cannot
+check.
+
 ## 2026-09-19 (latest) — 📋 Los exámenes on `/informe`: the sittings, not just the best
 
 **For:** the parent, on the per-kid report — the screen no kid navigates to,

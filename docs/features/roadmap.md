@@ -28,7 +28,10 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
 2. ☑ **"¿Dónde está…?" — tap-the-right-picture quiz** — app speaks a word, kid taps
    the matching picture. Younger mode: 2 giant choices, audio → picture. Older mode:
    4 choices, written-Spanish prompt (no audio) for reading practice, or a spoken
-   sentence prompt ("Toca el animal que dice muu") — sentence prompts deferred.
+   sentence prompt ("Toca el animal que dice muu") — **property prompts shipped
+   2026-09-20** with the attribute content (21): half a reader's rounds now ask
+   "Toca el que es verde", with exactly one matching picture on the board. A
+   *sound* prompt ("que dice muu") still needs a kind this content does not have.
    *(Shipped 2026-07-10: entry via a per-deck choice screen — 📖 Las tarjetas /
    👂 Escucha / 🔤 Lee. See `shipped.md`.)*
 3. ☑ **Memory match (parejas)** — flip-to-match pairs. Younger: picture ↔ picture,
@@ -37,8 +40,10 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
 4. ☑ **"Sí o no" lightning round** — picture + spoken claim, kid taps ✅/❌
    ("¿Es un gato?"). Older mode swaps in sentences ("El plátano es rojo — ¿sí o no?").
    Cheapest sentence-comprehension feature; needs no text input. *(Shipped
-   2026-07-10 with word claims — written "¿Es …?" in read mode; sentence claims
-   still deferred, they need attribute content.)*
+   2026-07-10 with word claims — written "¿Es …?" in read mode. **Sentence
+   claims shipped 2026-09-20** on the attribute content (21): a reader's round
+   may now ask "¿La rana es negra?", true or false, mixed with identity claims.
+   The listener's game is unchanged, which is what this item asked for.)*
 5. ☑ **Say-it-back (voice recording)** — after the card speaks, a big microphone
    button records the kid repeating the word, then plays both back. No grading —
    the comparison is the learning. Identical at both ages. *(Shipped 2026-07-11:
@@ -70,8 +75,11 @@ Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up 
    picker (1) lands.)*
 10. ☑ **Daily "carta del día"** — one featured word (younger) or sentence (older)
     on the home screen each day, with a small streak of suns/stars. *(Shipped
-    2026-07-10: same word for both kids, per-kid ☀️ streak; per-level sentences
-    wait on sentence content.)*
+    2026-07-10: same word for both kids, per-kid ☀️ streak. **Per-level cards
+    shipped 2026-09-20** on the attribute content (21): 👂 still gets the word,
+    🔤 gets a sentence about it, drawn from the attributed words so the reader
+    has one every day rather than only when the day's card happens to have
+    attributes.)*
 
 Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
 
@@ -264,10 +272,22 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     - ☐ **Bent-path words (true Squaredle)** — snaking selections instead of
       straight lines; deliberately cut from the first slice.
     - ☐ **Bonus words** — finding a non-target pack word still celebrates.
-21. ☐ **Sentence attribute content** — the one content pack that unblocks
-    three long-deferred items at once: quiz sentence prompts ("Toca el animal
-    que dice muu", item 2), sí-o-no sentence claims ("El plátano es rojo —
-    ¿sí o no?", item 4), and per-level daily cards (item 10).
+21. ☑ **Sentence attribute content** — **shipped 2026-09-20**, and it closed
+    all three items it was blocking in the same change: quiz property prompts
+    (item 2), sí-o-no sentence claims (item 4) and per-level daily cards
+    (item 10). 94 words across eleven decks carry typed `{ kind, value }`
+    attributes on the card itself; agreement (gender, number, and *es* vs
+    *son*) is derived at claim time in `domain/spanish.ts`. See `shipped.md`.
+    - ☐ **More kinds** — texture, sound, habitat, count. The roadmap's own
+      "Toca el animal que dice muu" is a *sound*, which this slice does not
+      cover: only what the picture proves.
+    - ☐ **Attributes for the abstract half of the pack** — los meses, las
+      letras, los números, los verbos. Deliberately none: inventing a property
+      a kid cannot check by looking is the one thing this content may not do.
+    - ☐ **Multi-attribute claims** ("es grande y verde"), negation, and
+      comparatives ("el elefante es más grande que el ratón").
+    - ☐ **Attributes in the other games** — parejas, conecta, la sopa, los
+      cuentos, and as sentence-builder tiles in Las frases.
 22. ☑ **A Duolingo-like trail** — shipped 2026-08-22 as **El camino 🧭**
     (shaped the same day; see `shipped.md` and ADR 016). Both questions this
     item said had to be settled, and how they landed:

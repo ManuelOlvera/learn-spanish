@@ -46,7 +46,10 @@ No reading, no accounts, no setup.
   (alto 🦒, pequeño 🐭) and skin tone rides on a hand, not a face.
 - **Games** — per deck (except the flashcards-only verbs shelf), each
   with 👂 listen / 🔤 read difficulties:
-  "¿Dónde está…?" (tap the right picture), "¿Sí o no?" (judge a claim),
+  "¿Dónde está…?" (tap the right picture — the reader is also asked for a
+  *property*, "toca el que es verde"), "¿Sí o no?" (judge a claim — an
+  identity for the listener, and for the reader a sentence about the picture,
+  "¿La rana es negra?"),
   "Las parejas" (memory match, with 🟢/🟡/🔴 board sizes — 3/5/8 pairs),
   "Conecta" (connect the columns),
   "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
@@ -239,8 +242,10 @@ No reading, no accounts, no setup.
   carrying the ⭐ balance. La racha semanal moved off home too — first to the
   mascota screen, then (parent-reported) to `/informe`, where the family already
   reads 🔥 and ❄️ and where buying an escudo is the grown-up call it is (ADR 017).
-- **Carta del día** — a daily featured word on the home screen with a
-  per-kid ☀️ streak. It is not part of the rotation: it's Spanish content
+- **Carta del día** — a daily featured card on the home screen with a
+  per-kid ☀️ streak, **at the kid's own level**: 👂 gets the word, 🔤 gets a
+  sentence about it ("los guisantes son verdes"), drawn from the 94 words that
+  carry attribute content. It is not part of the rotation: it's Spanish content
   rather than chrome, and it feeds the ☀️ streak, which hiding it would break.
 - **El regalo del día** — a free 🎁 on the home screen once a day (10–25⭐,
   sometimes a ❄️, sometimes a ⚡ hora doble), claimable once per calendar day.

@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   createSiNoGame,
   kidForActivity,
-  siNoQuestion,
+  roundQuestion,
   type Deck,
   type QuizMode,
   type SiNoGame,
@@ -165,8 +165,8 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
             {mode === "listen" ? (
               <button
                 type="button"
-                onClick={() => speakSpanish(siNoQuestion(round.claim))}
-                aria-label={`Hear the question (is it ${round.claim.english}?)`}
+                onClick={() => speakSpanish(roundQuestion(round))}
+                aria-label={`Hear the question about the ${round.card.english}`}
                 className="sticker flex h-28 w-28 items-center justify-center text-6xl active:translate-x-1 active:translate-y-1 active:shadow-none"
               >
                 🔊
@@ -178,7 +178,7 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
               >
                 <span aria-hidden className="sticker-peel" />
                 <span className="text-4xl font-extrabold sm:text-5xl">
-                  {siNoQuestion(round.claim)}
+                  {roundQuestion(round)}
                 </span>
               </div>
             )}

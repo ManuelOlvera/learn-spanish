@@ -1,6 +1,12 @@
 import type { Deck } from "./deck";
 import type { VocabularyCard } from "./card";
 import type { KidId } from "./kid";
+import {
+  attributeText,
+  attributedCards,
+  cardAttributes,
+  type CardAttribute,
+} from "./attribute";
 
 /** The device's LOCAL calendar day, e.g. "2026-07-10" — the unit of all
  *  daily time (carta del día, streaks, misión). Local, not UTC: the kids
@@ -30,19 +36,65 @@ export function dayIndex(date: Date): number {
   );
 }
 
+/** FNV-1a over the day key — stable across sessions and platforms, so every
+ *  device shows the same card on the same day with nothing stored. */
+function dayHash(date: Date): number {
+  let hash = 0x811c9dc5;
+  for (const char of dayKey(date)) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
+}
+
 /** The featured card of the day: deterministic for a date, varies day to day. */
 export function dailyCard(decks: readonly Deck[], date: Date): VocabularyCard {
   const cards = decks.flatMap((deck) => deck.cards);
   if (cards.length === 0) {
     throw new Error("dailyCard needs at least one card in the pack");
   }
-  // FNV-1a over the day key — stable across sessions and platforms.
-  let hash = 0x811c9dc5;
-  for (const char of dayKey(date)) {
-    hash ^= char.charCodeAt(0);
-    hash = Math.imul(hash, 0x01000193);
+  return cards[dayHash(date) % cards.length]!;
+}
+
+/**
+ * The carta del día, at the level the kid plays (roadmap 10).
+ *
+ * The listener gets the word, as they always have. The reader gets a
+ * **sentence** about it — the rung up from single nouns that item 10 deferred
+ * until there was attribute content to build one from.
+ *
+ * The reader's card is drawn from the *attributed* cards rather than the whole
+ * pack. Picking the day's card first and adding a sentence if it happened to
+ * have attributes would leave the reader a bare word on most days, since 94
+ * of 598 words carry any.
+ */
+export interface DailyFeature {
+  readonly card: VocabularyCard;
+  /** Present only when the card is being described rather than named. */
+  readonly attribute?: CardAttribute;
+  /** What to show and speak: the word, or the whole sentence. */
+  readonly text: string;
+}
+
+export function dailyFeature(
+  decks: readonly Deck[],
+  date: Date,
+  kid: KidId,
+): DailyFeature {
+  if (kid === "reader") {
+    const describable = attributedCards(decks);
+    if (describable.length > 0) {
+      const hash = dayHash(date);
+      const card = describable[hash % describable.length]!;
+      const attributes = cardAttributes(card);
+      // A second, independent draw off the same hash, so a card with two
+      // attributes does not always show the same one.
+      const attribute = attributes[(hash >>> 8) % attributes.length]!;
+      return { card, attribute, text: attributeText(card, attribute) };
+    }
   }
-  return cards[(hash >>> 0) % cards.length]!;
+  const card = dailyCard(decks, date);
+  return { card, text: card.spanish };
 }
 
 export interface Streak {

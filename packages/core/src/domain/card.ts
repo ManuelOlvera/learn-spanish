@@ -1,3 +1,5 @@
+import type { CardAttribute } from "./attribute";
+
 export interface VocabularyCard {
   readonly id: string;
   /** The word as it should be shown and spoken, article included ("el perro").
@@ -31,6 +33,11 @@ export interface VocabularyCard {
    *  Only set this where neither `spanish` nor `article` can produce a
    *  native question. */
   readonly sceneQuestion?: string;
+  /** What this thing is *like* — the content that lets a game ask about a
+   *  property rather than an identity (roadmap 21). Only ever set where the
+   *  card's own picture proves it, because a pre-reader answers by looking;
+   *  see `domain/attribute.ts` for the two kinds and why they are typed. */
+  readonly attributes?: readonly CardAttribute[];
   /** The article to use when a game needs a noun phrase but `spanish` is bare.
    *  Letter names are spoken bare ("be") yet are feminine in a sentence, so
    *  scene can still ask "¿Dónde está la be?" — never "el be", never a bare
