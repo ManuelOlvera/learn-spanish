@@ -110,3 +110,59 @@ Exams are now the spine of the economy: nine regular at 200 plus three súper at
 proves to flatten saving as a motivation, the lever is the **threshold or the
 spacing**, not the bonus — the size of the prize is the thing the kids are
 told, and cutting it is the one move that reads as a takeaway.
+
+## Addendum — 2026-09-20: the dock gets a ceiling
+
+The Consequences above say this rebalance "preserved the ratio rather than
+re-cutting the curve". This addendum re-cuts one part of it, deliberately, and
+records why that is safe.
+
+**A wrong tap is charged twice** — it costs the first-try credit for that
+round, *and* an answer's worth off the base. Uncapped, the second charge could
+eat a whole run: 5-of-8 with three wrong taps paid **6⭐** against a perfect
+run's 36⭐. A sixth, for getting five right.
+
+**The dock is now capped at half the credit actually earned.** The same run
+pays **9⭐**, and a perfect run is 4× it rather than 6×.
+
+**Why it was worth re-cutting**
+
+The roadmap has carried this since the rebalance, in its own words: *"the
+harshest part of the economy for a kid who is struggling, which is the opposite
+of who needs encouraging."* The rule cannot tell a three-year-old tapping at
+random from a five-year-old who is genuinely finding the deck hard, and it
+punished the second one hardest — the more she got right, the more there was to
+take away.
+
+**Deleting the dock entirely was considered and rejected.** The obvious reading
+is that first-try credit already punishes a wrong tap, making the second charge
+redundant. It is not: on a **2-choice** board a random tapper gets about half
+of them right on first try, so credit alone would pay them four answers' worth
+for learning nothing. The dock is what makes guessing worthless there, and that
+is the case it exists for.
+
+**The cap is proportional, not a constant.** ¿Sí o no? became 4, 8 or 12 rounds
+the same day the difficulty axis landed, so a fixed ceiling would mean three
+different things inside one game. "Never more than half of what you got right"
+means the same thing at every length.
+
+**Consequences**
+
+- **No wallet epoch, no migration.** This only ever *raises* a payout, and
+  earning only raises `earned`, which ADR 008 merges by max — the same
+  reasoning that made the original rebalance safe. ADR 007's price ladder is
+  untouched.
+- **Clean runs do not move at all.** A perfect 8-round game still pays 36⭐,
+  7-of-8 with one mistake still pays 18⭐, 6-of-8 with two still pays 12⭐: at
+  those ratios the dock was already under the cap. Only the runs that were
+  being over-punished change, which is the test of whether a softening
+  softened the right thing.
+- **Guessing is still worthless.** Wrong on every round first pays the floor
+  whatever the cap, because there is no credit to halve. A random tapper on a
+  2-choice board keeps two answers' worth instead of one — against a perfect
+  run's twelve.
+- **More mistakes can never pay more.** The dock is monotonic in `mistakes`, so
+  there is no run a kid could deliberately make worse to earn more.
+- **The ordering rules are untouched.** Nothing here moves a bonus constant, so
+  every assertion ADR 020 pinned against a constant rather than a value still
+  holds.

@@ -7,6 +7,7 @@ import {
 } from "../src/domain/avatars";
 import {
   computeReward,
+  mistakeDock,
   FIRST_TIME_BONUS,
   PERFECT_BONUS,
   STARS_PER_CORRECT,
@@ -70,7 +71,7 @@ describe("computeReward", () => {
     expect(computeReward({ firstTryCorrect: 4, streakDays: 6 }).streak).toBe(0);
   });
 
-  it("docks a whole answer's worth per mistake so random tapping can't farm the chest", () => {
+  it("docks an answer's worth per mistake so random tapping can't farm the chest", () => {
     // Six first-try answers, two wrong taps along the way → four answers' worth.
     // The penalty scales WITH the rate: after the 2026-09-15 rebalance a flat
     // one-star dock would have been noise beside a 3⭐ answer, which would have
@@ -78,7 +79,56 @@ describe("computeReward", () => {
     expect(computeReward({ firstTryCorrect: 6, mistakes: 2 }).base).toBe(4 * STARS_PER_CORRECT);
     // A run of nothing but wrong taps still floors at one answer — effort counts.
     expect(computeReward({ firstTryCorrect: 0, mistakes: 5 }).base).toBe(STARS_PER_CORRECT);
-    expect(computeReward({ firstTryCorrect: 3, mistakes: 9 }).base).toBe(STARS_PER_CORRECT);
+    // Three right among nine wrong taps keeps two answers' worth rather than
+    // being flattened to the floor: the dock can take one of her three, never
+    // all of them (2026-09-20).
+    expect(computeReward({ firstTryCorrect: 3, mistakes: 9 }).base).toBe(
+      2 * STARS_PER_CORRECT,
+    );
+  });
+
+  it("never docks more than half of what she got right", () => {
+    // The softening (2026-09-20). A wrong tap already costs the first-try
+    // credit for that round; the dock is a *second* charge for the same tap,
+    // and it used to be able to eat a struggling kid's whole run. Capped at
+    // half her credit, the penalty still bites and can never take more than
+    // it gave.
+    expect(mistakeDock(8, 0)).toBe(0);
+    expect(mistakeDock(8, 1)).toBe(1); // under the cap: unchanged
+    expect(mistakeDock(8, 4)).toBe(4); // exactly at it
+    expect(mistakeDock(8, 7)).toBe(4); // capped
+    expect(mistakeDock(5, 3)).toBe(2); // the struggling run: was 3
+    expect(mistakeDock(0, 5)).toBe(0); // nothing earned, nothing to halve
+  });
+
+  it("leaves a clean or nearly-clean run paying exactly what it always did", () => {
+    // The cap must only ever reach runs that were being over-punished. If a
+    // tidy run moves, the softening has changed the wrong thing.
+    expect(computeReward({ firstTryCorrect: 8, totalRounds: 8 }).total).toBe(36);
+    expect(computeReward({ firstTryCorrect: 7, totalRounds: 8, mistakes: 1 }).total).toBe(18);
+    expect(computeReward({ firstTryCorrect: 6, totalRounds: 8, mistakes: 2 }).total).toBe(12);
+  });
+
+  it("still floors a kid who is only guessing", () => {
+    // The case the dock exists for, and the reason it could not simply be
+    // deleted: on a 2-choice board a random tapper gets about half right on
+    // first try, so first-try credit alone would have paid them 4 answers'
+    // worth. Half of what they "earned" goes straight back.
+    expect(computeReward({ firstTryCorrect: 4, mistakes: 4 }).base).toBe(
+      2 * STARS_PER_CORRECT,
+    );
+    // Wrong on every single round first: still the floor, dock or no dock.
+    expect(computeReward({ firstTryCorrect: 0, mistakes: 8 }).base).toBe(
+      STARS_PER_CORRECT,
+    );
+  });
+
+  it("scales with the length of the game, which now varies", () => {
+    // ¿Sí o no? is 4, 8 or 12 rounds since the difficulty axis landed, so a
+    // constant cap would mean three different things. A proportional one
+    // means the same thing on all three.
+    expect(mistakeDock(12, 6)).toBe(6);
+    expect(mistakeDock(4, 3)).toBe(2);
   });
 
   it("streak doubles the already-docked base, not the pre-penalty score", () => {
@@ -106,17 +156,20 @@ describe("computeReward", () => {
     expect(pays({ firstTryCorrect: 8, totalRounds: 8, streakDays: 7 })).toBe(60);
     expect(pays({ firstTryCorrect: 6, totalRounds: 6 })).toBe(30); // perfect duel
     expect(pays({ firstTryCorrect: 6, totalRounds: 8, mistakes: 2 })).toBe(12); // messy run
+    expect(pays({ firstTryCorrect: 5, totalRounds: 8, mistakes: 3 })).toBe(9); // struggling
     expect(pays({ firstTryCorrect: 0, mistakes: 9 })).toBe(3); // the floor
   });
 
-  it("docks a missed round twice — once in the count, once in the penalty", () => {
-    // Long-standing behaviour, pinned here because the rebalance made it easy
-    // to misread. A wrong tap costs a kid the first-try credit for that round
-    // AND an answer's worth off the base, so 5-of-8 with 3 wrong taps pays
-    // 3 × (5 − 3) = 6, not 3 × 5 = 15. The rebalance kept the ratio to a
-    // perfect run exactly where it was (~6×) rather than re-cutting the curve.
-    expect(computeReward({ firstTryCorrect: 5, totalRounds: 8, mistakes: 3 }).total).toBe(6);
-    expect(computeReward({ firstTryCorrect: 8, totalRounds: 8 }).total / 6).toBe(6);
+  it("docks a missed round twice, but no longer without limit", () => {
+    // A wrong tap still costs a kid the first-try credit for that round AND an
+    // answer's worth off the base — two charges for one tap, which is the
+    // point when the tap was a guess. What changed on 2026-09-20 is the
+    // ceiling: the second charge can never exceed half the credit earned, so
+    // 5-of-8 with 3 wrong now pays 3 × (5 − 2) = 9 rather than 3 × (5 − 3) = 6.
+    // A perfect run is 4× that, not 6× — still a clear gap, on a curve that no
+    // longer punishes the kid who is trying hardest the most.
+    expect(computeReward({ firstTryCorrect: 5, totalRounds: 8, mistakes: 3 }).total).toBe(9);
+    expect(computeReward({ firstTryCorrect: 8, totalRounds: 8 }).total / 9).toBe(4);
   });
 
   it("puts the cheapest mascot within about three good games", () => {

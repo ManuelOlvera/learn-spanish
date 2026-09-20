@@ -765,13 +765,13 @@ and the shipped write-up). Deferred, not dropped:
   deliberately left alone, so both got relatively cheaper. Watch whether la caja
   sorpresa stops feeling like a save-up treat; if it does, re-price *the box*,
   never the earn rate (ADR 020).
-- **The double-dock on a missed round.** A wrong tap costs the first-try credit
-  *and* an answer's worth off the base, so 5-of-8 with 3 wrong taps pays 6⭐
-  against a perfect run's 36⭐. Long-standing and left exactly as it was — the
-  rebalance preserved the ratio rather than re-cutting the curve — but it is the
-  harshest part of the economy for a kid who is struggling, which is the opposite
-  of who needs encouraging. Softening it is a deliberate balance decision, not a
-  tweak.
+- ☑ **The double-dock on a missed round** — **softened 2026-09-20.** A wrong
+  tap still costs the first-try credit *and* an answer's worth off the base, but
+  the second charge is now **capped at half the credit earned**: 5-of-8 with 3
+  wrong pays 9⭐ rather than 6⭐, against a perfect run's unchanged 36⭐.
+  Deleting the dock was considered and rejected — on a 2-choice board a random
+  tapper gets about half right on first try, so credit alone would pay them for
+  guessing. Clean runs did not move at all. See ADR 020's 2026-09-20 addendum.
 
 ## Build order
 

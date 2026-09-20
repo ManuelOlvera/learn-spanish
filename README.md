@@ -168,8 +168,10 @@ No reading, no accounts, no setup.
   to Universal Studios Japan.
   All ten are illustrated — 68 pages of art, one picture per page. Built from pack vocabulary.
 - **Star economy** — a treasure chest on every finish pays **3⭐ per
-  first-try answer**, less one answer's worth per wrong tap (so guessing can't
-  farm the chest; floored at one answer), with ✨ perfect / 🔥 streak / 🆕
+  first-try answer**, less one answer's worth per wrong tap — so guessing can't
+  farm the chest — but **never more than half of what she got right**, so a
+  hard run for a kid who is trying is not flattened to the floor (ADR 020's
+  2026-09-20 addendum); floored at one answer either way, with ✨ perfect / 🔥 streak / 🆕
   first-time bonuses. Opening it is the celebration, not the toll gate: the
   ways off the screen dim while it is shut, the haul **counts up** with the
   bonus chips landing on it one at a time, la mascota hops in proportion to the

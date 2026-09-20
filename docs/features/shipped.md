@@ -1,5 +1,47 @@
 # Shipped features
 
+## 2026-09-20 (last) — The dock gets a ceiling
+
+**For:** the kid who is finding it hard — which is not the kid the rule was
+written for.
+
+A wrong tap is charged **twice**: it costs the first-try credit for that round,
+and an answer's worth off the base. Uncapped, the second charge could eat a
+whole run. 5-of-8 with three wrong taps paid **6⭐** against a perfect run's
+36⭐ — a sixth, for getting five right. The roadmap had carried the objection
+since the September rebalance: *"the harshest part of the economy for a kid who
+is struggling, which is the opposite of who needs encouraging."*
+
+**The dock is now capped at half the credit actually earned.** That run pays
+**9⭐**, and a perfect run is 4× it rather than 6×.
+
+**Deleting the dock was the obvious fix and it was wrong.** First-try credit
+looks like it already punishes a wrong tap, making the second charge redundant
+— but on a **2-choice** board a random tapper gets about half of them right on
+first try, so credit alone would have paid a guesser four answers' worth for
+learning nothing. The dock is exactly what makes guessing worthless there. The
+problem was never that it existed; it was that it had no ceiling.
+
+**The cap is proportional rather than a constant**, because ¿Sí o no? became 4,
+8 or 12 rounds the same day the difficulty axis landed. A fixed ceiling would
+mean three different things inside one game; "never more than half of what you
+got right" means the same thing at every length.
+
+**Clean runs did not move at all** — a perfect 8-round game still pays 36⭐,
+7-of-8 with one mistake still pays 18⭐, 6-of-8 with two still pays 12⭐. At
+those ratios the dock was already under the cap. Only the runs that were being
+over-punished changed, which is the test of whether a softening softened the
+right thing, and it is pinned.
+
+**No wallet epoch and no migration:** this only ever raises a payout, and
+earning only raises `earned`, which ADR 008 merges by max. ADR 007's price
+ladder is untouched. More mistakes can still never pay more — the dock is
+monotonic in `mistakes`, so there is no run a kid could deliberately make worse
+to earn more.
+
+**Where:** `domain/stars.ts` (`mistakeDock`), and ADR 020's 2026-09-20
+addendum.
+
 ## 2026-09-20 (also) — 🟢🟡🔴 on two more games, and one picker instead of three
 
 **For:** both kids. Roadmap 12 proved the board-size axis on Las parejas in

@@ -37,6 +37,7 @@ export {
 export type { StarReward, Wallet } from "./domain/stars";
 export {
   computeReward,
+  mistakeDock,
   earnedStars,
   EMPTY_WALLET,
   EXAM_BONUS,

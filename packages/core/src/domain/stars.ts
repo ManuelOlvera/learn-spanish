@@ -115,12 +115,37 @@ export interface StarReward {
   readonly total: number;
 }
 
+/**
+ * How many answers' worth a run's wrong taps cost it.
+ *
+ * One answer per mistake — **capped at half the credit actually earned**.
+ *
+ * A wrong tap is already charged once, by costing the first-try credit for
+ * that round; this is a second charge for the same tap, and it is deliberate,
+ * because on a 2-choice board a random tapper gets about half of them right on
+ * first try and would otherwise be paid for it. Deleting the dock was
+ * considered for exactly that reason and rejected.
+ *
+ * What the cap fixes is who it landed on. Uncapped, the second charge could
+ * eat a whole run: 5-of-8 with 3 wrong taps paid 6⭐ against a perfect run's
+ * 36⭐ — a sixth, for getting five right. That is the harshest the economy
+ * gets, aimed at the kid who is trying hardest and finding it difficult, which
+ * is the opposite of who needs encouraging.
+ *
+ * Proportional rather than a constant on purpose: ¿Sí o no? is 4, 8 or 12
+ * rounds since the difficulty axis landed, so a fixed cap would mean three
+ * different things across one game.
+ */
+export function mistakeDock(firstTryCorrect: number, mistakes: number): number {
+  return Math.min(mistakes, Math.floor(firstTryCorrect / 2));
+}
+
 export function computeReward(opts: {
   readonly firstTryCorrect: number;
-  /** Wrong taps across the whole activity — each one docks a whole answer's
-   *  worth from the base, so tapping without looking earns the floor, not a
-   *  full chest. The dock is counted in answers rather than stars so the
-   *  penalty keeps its bite whatever STARS_PER_CORRECT is set to. */
+  /** Wrong taps across the whole activity — each docks an answer's worth from
+   *  the base, up to `mistakeDock`'s ceiling, so tapping without looking earns
+   *  the floor rather than a full chest. Counted in answers rather than stars
+   *  so the penalty keeps its bite whatever STARS_PER_CORRECT is set to. */
   readonly mistakes?: number;
   /** Given only for round-based games, so "perfect" is meaningful. */
   readonly totalRounds?: number;
@@ -128,7 +153,11 @@ export function computeReward(opts: {
   readonly firstTime?: boolean;
 }): StarReward {
   const base =
-    STARS_PER_CORRECT * Math.max(1, opts.firstTryCorrect - (opts.mistakes ?? 0));
+    STARS_PER_CORRECT *
+    Math.max(
+      1,
+      opts.firstTryCorrect - mistakeDock(opts.firstTryCorrect, opts.mistakes ?? 0),
+    );
   const perfect =
     opts.totalRounds !== undefined &&
     opts.totalRounds > 0 &&
