@@ -641,6 +641,44 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     expect adivina to be asked for next, and expect the deck choice screen to
     need grouping before a fifth tile lands.
 
+## Watch list — what needs a kid, not a commit
+
+Added 2026-09-20 after six features shipped in two days, none of them yet seen
+by a child. **These are not small items; they are items whose next step is
+evidence.** Several roadmap entries are explicitly parked on one of them, so
+guessing here would be building on an assumption rather than an observation.
+Each says what to look for and what it unblocks.
+
+- **A newly locked camino.** Los verbos joining the games took shelf 12's
+  completion cost from 3 stickers to 14, so a profile that had finished it is
+  now incomplete and the capstone súper examen is un-sittable. *Look at:*
+  `/informe/<kid>` → 🔑 La llave del camino. *If it matters:* open the shelf,
+  one tap. *Unblocks:* nothing — it is a courtesy check before a kid hits it.
+- **The attribute claims, on the real device.** The colour content was checked
+  against headless Chromium on macOS. The app renders the *device's* emoji, so
+  a claim that is true on this machine can be false on the tablet. *Look at:*
+  `/deck/animals/si-no/read` as 🦄, a few rounds. *Unblocks:* more attribute
+  kinds (21) — do not author more until the first 94 are confirmed.
+- **The difficulty picker's extra tap.** ¿Dónde está? and ¿Sí o no? now ask
+  "how big?" before every play. For a 3-year-old that is real friction on games
+  that used to start instantly. *Look at:* whether she picks, hesitates, or
+  taps whatever is nearest. *Unblocks:* the "remember the last pick" variant,
+  which was considered and deliberately not built.
+- **Los súper exámenes actually landing.** The bespoke ceremony was cut on the
+  principle that a second celebration is worth designing only once the first
+  has been watched; per-súper and per-profile thresholds both say "watch this
+  before loosening any bar". *Look at:* a kid sitting one. *Unblocks:* three
+  camino follow-ons at once.
+- **Whether exam history tells a parent anything.** It has no data yet — nobody
+  has sat an exam since it shipped. *Unblocks:* the side-by-side kid
+  comparison, and per-question breakdowns.
+- **Whether the mascota bar crawls.** Cheap rungs are 2–3 perfect games apart,
+  but the top of the ladder is 3,400⭐. *Unblocks:* the "hide it when the
+  target is far" cutoff, deliberately not guessed at up front.
+- **Whether a level ever flaps between devices.** The promote/demote merge is
+  later-wins and was only ever tested one device at a time. *Look at:* two
+  paired devices. *If it flaps:* suspect a clock, not the rule (ADR 023).
+
 ## Build-later shortlist (consolidated 2026-07-14)
 
 The queue, gathered from the sub-items above so nothing hides in history:

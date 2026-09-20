@@ -3,7 +3,7 @@
 Markers: **[living]** kept current with the code · **[append-log]** grows, never rewritten · **[archived]** historical.
 
 - [features/shipped.md](features/shipped.md) — **[append-log]** write-ups of shipped features
-- [features/roadmap.md](features/roadmap.md) — **[living]** planned two-kid interactivity features and build order
+- [features/roadmap.md](features/roadmap.md) — **[living]** planned two-kid interactivity features, the build order, and the **watch list** (items whose next step is watching a kid, not writing code)
 - [bugs.md](bugs.md) — **[living]** the parent's running bug/idea inbox; items get struck through with their resolution as they're fixed, shipped, or parked
 - [features/pairing.md](features/pairing.md) — **[living]** parent-facing how-to for cross-device sync (pairing codes)
 - [storybook/](storybook/) — **[living]** copy-paste image-generation prompts, one file per cuento, plus the cast bible and house style that keep the pictures one book ([index](storybook/README.md))
