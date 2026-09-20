@@ -4,9 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createQuiz,
+  DIFFICULTIES,
+  QUIZ_CHOICES,
   kidForActivity,
   quizPrompt,
   type Deck,
+  type Difficulty,
   type Quiz,
   type QuizMode,
   type WordStats,
@@ -20,6 +23,7 @@ import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
 import { CardFace } from "./CardFace";
+import { DifficultyPicker } from "@/components/DifficultyPicker";
 
 interface Props {
   deck: Deck;
@@ -34,6 +38,9 @@ const CELEBRATE_MS = 1100;
 export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
   // Rounds are random, so the quiz is built client-side only — building it
   // during SSR would hydrate against a different shuffle.
+  // Board size is picked per play, like Las parejas — until then the chooser
+  // stands in place of the game.
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [index, setIndex] = useState(0);
   const [correctId, setCorrectId] = useState<string | null>(null);
@@ -58,6 +65,10 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
 
   useEffect(() => {
     warmUpVoices();
+    if (difficulty === null) {
+      setQuiz(null);
+      return;
+    }
     let cancelled = false;
     // Stats bias the deal toward missed words (smart review).
     getWordStats
@@ -69,7 +80,7 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
       .then((stats) => {
         if (!cancelled) {
           statsRef.current = stats;
-          setQuiz(createQuiz(deck, mode, Math.random, stats));
+          setQuiz(createQuiz(deck, mode, Math.random, stats, difficulty));
         }
       });
     return () => {
@@ -81,14 +92,15 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
     // currentKid reads client-only storage and is stable per mount; the deal
     // must re-run only when the deck or mode changes, not per render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deck, mode]);
+  }, [deck, mode, difficulty]);
 
   const rounds = quiz?.rounds ?? [];
   const done = quiz !== null && index >= rounds.length;
   const round = rounds[index];
 
   function restart() {
-    setQuiz(createQuiz(deck, mode, Math.random, statsRef.current));
+    if (difficulty === null) return;
+    setQuiz(createQuiz(deck, mode, Math.random, statsRef.current, difficulty));
     setIndex(0);
     setCorrectId(null);
     setWrongTap(null);
@@ -157,7 +169,15 @@ export function QuizPlayer({ deck, mode, accent, review = false }: Props) {
       {combo.racha !== null && !done && (
         <RachaBurst key={combo.racha} count={combo.racha} />
       )}
-      {done ? (
+      {difficulty === null ? (
+        <DifficultyPicker
+          question="¿Cuántas fotos?"
+          levels={DIFFICULTIES}
+          amount={(level) => QUIZ_CHOICES[level]}
+          amountLabel="choices"
+          onPick={setDifficulty}
+        />
+      ) : done ? (
         <DoneScreen
           stickerDeckId={deck.id}
           deck={deck}

@@ -6,6 +6,7 @@ import {
   type CardAttribute,
 } from "./attribute";
 import { agree, cardAgreement } from "./spanish";
+import type { Difficulty } from "./difficulty";
 import { QuizDeckTooSmallError } from "./errors";
 import { shuffled } from "./random";
 import type { RandomSource } from "./random";
@@ -40,6 +41,23 @@ export interface Quiz {
 export const QUIZ_CHOICE_COUNT: Record<QuizMode, number> = {
   listen: 2,
   read: 4,
+};
+
+/**
+ * Choices per question when a kid picks a board size (roadmap 12).
+ *
+ * The quiz's board *is* its choices, so this is the same axis Las parejas
+ * scales on. Independent of the listen/read level: four **pictures** need no
+ * more reading than two do — ADR 021 made exactly that call for the exam — so
+ * a pre-reader who wants 🔴 loses nothing by it.
+ *
+ * `QUIZ_CHOICE_COUNT` above stays the default for callers with no difficulty
+ * to hand, which today means el reto.
+ */
+export const QUIZ_CHOICES: Record<Difficulty, number> = {
+  easy: 2,
+  medium: 3,
+  hard: 4,
 };
 
 /** Kid-sized session: a quiz never asks more than this many rounds. */
@@ -130,8 +148,11 @@ export function createQuiz(
   mode: QuizMode,
   random: RandomSource = Math.random,
   stats?: WordStats,
+  /** Absent means "the board this level has always had" — el reto's case. */
+  difficulty?: Difficulty,
 ): Quiz {
-  const choiceCount = QUIZ_CHOICE_COUNT[mode];
+  const choiceCount =
+    difficulty === undefined ? QUIZ_CHOICE_COUNT[mode] : QUIZ_CHOICES[difficulty];
   if (deck.cards.length < choiceCount) {
     throw new QuizDeckTooSmallError(deck.id, deck.cards.length, choiceCount);
   }

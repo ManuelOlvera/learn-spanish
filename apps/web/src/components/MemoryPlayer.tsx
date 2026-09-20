@@ -18,6 +18,7 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { feedbackMatch, feedbackWrong } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
 import { CardFace } from "./CardFace";
+import { DifficultyPicker } from "@/components/DifficultyPicker";
 
 interface Props {
   deck: Deck;
@@ -28,15 +29,6 @@ interface Props {
 const FLIP_BACK_MS = 950;
 
 /** Board-size levels, shown as pictures alone so a pre-reader can pick. */
-const DIFFICULTY_META: Record<
-  MemoryDifficulty,
-  { emoji: string; spanish: string; english: string }
-> = {
-  easy: { emoji: "🟢", spanish: "Fácil", english: "Easy" },
-  medium: { emoji: "🟡", spanish: "Medio", english: "Medium" },
-  hard: { emoji: "🔴", spanish: "Difícil", english: "Hard" },
-};
-
 export function MemoryPlayer({ deck, mode, accent }: Props) {
   // Board size is picked per play; until then, show the difficulty chooser.
   const [difficulty, setDifficulty] = useState<MemoryDifficulty | null>(null);
@@ -143,45 +135,13 @@ export function MemoryPlayer({ deck, mode, accent }: Props) {
       </header>
 
       {difficulty === null ? (
-        <section className="flex flex-1 flex-col items-center justify-center gap-8 py-6">
-          <p className="pop-in text-2xl font-extrabold text-ink/70 sm:text-3xl">
-            ¿Cuántas parejas?
-          </p>
-          <div className="flex w-full max-w-md flex-col gap-5">
-            {MEMORY_DIFFICULTIES.map((level, i) => {
-              const meta = DIFFICULTY_META[level];
-              const pairs = MEMORY_PAIR_COUNT[level];
-              return (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => setDifficulty(level)}
-                  aria-label={`${meta.english} — ${pairs} pairs`}
-                  className="sticker pop-in flex items-center justify-between gap-4 p-4 active:translate-x-1 active:translate-y-1 active:shadow-none"
-                  style={{ animationDelay: `${i * 70}ms` }}
-                >
-                  <span className="flex items-center gap-3">
-                    <span aria-hidden className="text-5xl">
-                      {meta.emoji}
-                    </span>
-                    <span className="text-2xl font-extrabold sm:text-3xl">
-                      {meta.spanish}
-                    </span>
-                  </span>
-                  {/* Board size as dots, so it reads without letters. */}
-                  <span aria-hidden className="flex max-w-[7rem] flex-wrap justify-end gap-1">
-                    {Array.from({ length: pairs }).map((_, d) => (
-                      <span
-                        key={d}
-                        className="h-3 w-3 rounded-full bg-ink/30"
-                      />
-                    ))}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        <DifficultyPicker
+          question="¿Cuántas parejas?"
+          levels={MEMORY_DIFFICULTIES}
+          amount={(level) => MEMORY_PAIR_COUNT[level]}
+          amountLabel="pairs"
+          onPick={setDifficulty}
+        />
       ) : done ? (
         <DoneScreen
           stickerDeckId={deck.id}

@@ -164,8 +164,18 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
 
 12. ☑ **Difficulty levels** — 🟢/🟡/🔴 board sizes. *(Shipped 2026-07-12 for
     Las parejas: 3/5/8 pairs, a new `MemoryDifficulty` axis. See `shipped.md`.)*
-    - ☐ **Difficulty for the other board-scalable games** — quiz choice count
-      (2→4), sí/no round count, reto length. The pattern is proven on parejas.
+    - ☑ **Difficulty for the other board-scalable games** — **shipped
+      2026-09-20** for ¿Dónde está? (2/3/4 choices) and ¿Sí o no? (4/8/12
+      rounds), on one shared 🟢/🟡/🔴 axis and one shared picker screen.
+      Sí-o-no offers only the levels a deck can fill — a round asks about a
+      distinct card, and the pack holds decks at 10–17 — the same "offer what
+      fits" rule la sopa already used.
+      - ✗ **El reto's length** — cut, with a reason: `retoBests` is a single
+        max-merged number per deck, so a longer reto would set a record that
+        is neither comparable nor ever beatable, and the sibling record chase
+        would compare incomparable numbers. Giving el reto difficulty means
+        keying that record by difficulty first — a change to a synced shape
+        ADR 004 governs, and its own slice.
     - ☐ **A timer / lose-state on Hard** — pressure mode; deliberately cut to
       keep the first slice about board size only.
 

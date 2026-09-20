@@ -1,5 +1,55 @@
 # Shipped features
 
+## 2026-09-20 (also) — 🟢🟡🔴 on two more games, and one picker instead of three
+
+**For:** both kids. Roadmap 12 proved the board-size axis on Las parejas in
+July and left the note *"the pattern is proven on parejas"* against the other
+scalable games. Two of them now have it:
+
+- **¿Dónde está?** scales by **choices** — 2 / 3 / 4. The quiz's board *is* its
+  choices, so that is the same axis parejas scales on.
+- **¿Sí o no?** has no board to grow, so it scales by **length** — 4 / 8 / 12
+  rounds.
+
+**Difficulty is independent of the listen/read level**, as it always was for
+parejas. A pre-reader may pick 🔴 and get four pictures: four *pictures* need
+no more reading than two do, which is the same call ADR 021 made for the exam.
+
+**Sí-o-no offers only the levels a deck can fill.** A round asks about a
+distinct card and the pack holds decks at 10–17, so Las aves (10) offers 🟢 and
+🟡 and not 🔴 — the "offer what fits" rule la sopa and el globo already used,
+rather than silently dealing a nine-round game that calls itself hard.
+
+**El reto was cut, and the reason is the interesting part.** `retoBests` is a
+single number per deck per kid, merged by `max` — monotonic, so a record can
+never be taken back. That is deliberate everywhere else. But if a 90-second
+reto and a 60-second reto share that slot, one long game sets a record neither
+kid can ever beat at normal length, and the sibling record chase (2026-08-22)
+starts comparing incomparable numbers. Giving el reto a difficulty means keying
+its record by difficulty **first** — a change to a synced shape ADR 004 governs
+— so it is its own slice with the record problem as its actual subject.
+
+**The cleanup that came with it.** `DIFFICULTY_META` existed twice, in
+`MemoryPlayer` and `SopaPlayer`, and the copies had already drifted — one
+carried Spanish labels and one did not. There is now one `DifficultyPicker`
+component holding the labels and the screen, and Las parejas was moved onto it,
+so the next game to scale does not draw a third version. `MemoryDifficulty` is
+now an alias of a shared `Difficulty`: that game named the rungs first, and
+they are the app's rungs now.
+
+**Difficulty never touches the album.** The sticker is `si-no-listen` whatever
+the length, exactly as parejas' is `match-pictures` whatever the board — a
+difficulty-specific sticker would make a deck's category impossible to
+complete without playing every level. Pinned by a test.
+
+**Where:** `domain/difficulty.ts` (new), `quiz.ts` (`QUIZ_CHOICES`), `si-no.ts`
+(`SI_NO_ROUND_COUNT`, `siNoDifficulties`), `components/DifficultyPicker.tsx`
+(new), and the three players.
+
+**Deferred (not dropped):** el reto's length, behind the record change · a
+timer / lose-state on Hard, still cut — this axis is about board size, not
+pressure.
+
 ## 2026-09-20 (last) — 🎚️ Su nivel: the level stops being who you are
 
 **For:** the parent, for the 5-year-old. Recorded 2026-07-14 as the real "age

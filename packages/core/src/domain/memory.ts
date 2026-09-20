@@ -1,3 +1,5 @@
+import { DIFFICULTIES } from "./difficulty";
+import type { Difficulty } from "./difficulty";
 import type { Deck } from "./deck";
 import type { VocabularyCard } from "./card";
 import { QuizDeckTooSmallError } from "./errors";
@@ -11,14 +13,13 @@ export type MemoryMode = "pictures" | "words";
 export const MEMORY_MODES: readonly MemoryMode[] = ["pictures", "words"];
 
 /** How many pairs are on the board — chosen per play, independent of the
- *  pictures/words mode. More pairs = more to remember. */
-export type MemoryDifficulty = "easy" | "medium" | "hard";
+ *  pictures/words mode. More pairs = more to remember.
+ *
+ *  An alias for the app-wide axis: this game named the rungs first, and the
+ *  other scalable games now share them (`domain/difficulty.ts`). */
+export type MemoryDifficulty = Difficulty;
 
-export const MEMORY_DIFFICULTIES: readonly MemoryDifficulty[] = [
-  "easy",
-  "medium",
-  "hard",
-];
+export const MEMORY_DIFFICULTIES: readonly MemoryDifficulty[] = DIFFICULTIES;
 
 export interface MemoryTile {
   readonly id: string;

@@ -4,9 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   createSiNoGame,
+  siNoDifficulties,
+  SI_NO_ROUND_COUNT,
   kidForActivity,
   roundQuestion,
   type Deck,
+  type Difficulty,
   type QuizMode,
   type SiNoGame,
 } from "@learn-spanish/core";
@@ -19,6 +22,7 @@ import { useCombo } from "@/lib/use-combo";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
 import { CardFace } from "./CardFace";
+import { DifficultyPicker } from "@/components/DifficultyPicker";
 
 interface Props {
   deck: Deck;
@@ -30,6 +34,8 @@ const CELEBRATE_MS = 1100;
 
 export function SiNoPlayer({ deck, mode, accent }: Props) {
   // Rounds are random, so the game is built client-side only (hydration).
+  // Length is picked per play, like Las parejas.
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(null);
   const [game, setGame] = useState<SiNoGame | null>(null);
   const [index, setIndex] = useState(0);
   const [correctPick, setCorrectPick] = useState<boolean | null>(null);
@@ -44,20 +50,20 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
 
   useEffect(() => {
     warmUpVoices();
-    setGame(createSiNoGame(deck, mode));
+    setGame(difficulty === null ? null : createSiNoGame(deck, mode, Math.random, difficulty));
     return () => {
       if (advanceTimer.current !== null) {
         window.clearTimeout(advanceTimer.current);
       }
     };
-  }, [deck, mode]);
+  }, [deck, mode, difficulty]);
 
   const rounds = game?.rounds ?? [];
   const done = game !== null && index >= rounds.length;
   const round = rounds[index];
 
   function restart() {
-    setGame(createSiNoGame(deck, mode));
+    setGame(difficulty === null ? null : createSiNoGame(deck, mode, Math.random, difficulty));
     setIndex(0);
     setCorrectPick(null);
     setWrongTap(null);
@@ -128,7 +134,15 @@ export function SiNoPlayer({ deck, mode, accent }: Props) {
       {combo.racha !== null && !done && (
         <RachaBurst key={combo.racha} count={combo.racha} />
       )}
-      {done ? (
+      {difficulty === null ? (
+        <DifficultyPicker
+          question="¿Cuántas preguntas?"
+          levels={siNoDifficulties(deck)}
+          amount={(level) => SI_NO_ROUND_COUNT[level]}
+          amountLabel="rounds"
+          onPick={setDifficulty}
+        />
+      ) : done ? (
         <DoneScreen
           stickerDeckId={deck.id}
           deck={deck}

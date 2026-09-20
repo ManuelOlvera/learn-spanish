@@ -21,10 +21,19 @@ export {
   createQuizRound,
   quizPrompt,
   MAX_QUIZ_ROUNDS,
+  QUIZ_CHOICES,
   QUIZ_CHOICE_COUNT,
 } from "./domain/quiz";
+export { DIFFICULTIES, type Difficulty } from "./domain/difficulty";
 export type { SiNoGame, SiNoRound } from "./domain/si-no";
-export { createSiNoGame, roundQuestion, SI_NO_ROUNDS, siNoQuestion } from "./domain/si-no";
+export {
+  createSiNoGame,
+  roundQuestion,
+  siNoDifficulties,
+  SI_NO_ROUNDS,
+  SI_NO_ROUND_COUNT,
+  siNoQuestion,
+} from "./domain/si-no";
 export type { StarReward, Wallet } from "./domain/stars";
 export {
   computeReward,

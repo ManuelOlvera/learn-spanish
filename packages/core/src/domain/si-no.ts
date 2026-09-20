@@ -7,6 +7,7 @@ import {
   type CardAttribute,
 } from "./attribute";
 import type { QuizMode } from "./quiz";
+import { DIFFICULTIES, type Difficulty } from "./difficulty";
 import { QuizDeckTooSmallError } from "./errors";
 import { shuffled } from "./random";
 import type { RandomSource } from "./random";
@@ -36,6 +37,27 @@ export interface SiNoGame {
 }
 
 export const SI_NO_ROUNDS = 8;
+
+/**
+ * Rounds per board size (roadmap 12). ¿Sí o no? has no board to grow, so its
+ * difficulty is **length** — how many claims a kid sits through.
+ *
+ * A round asks about a distinct card, so a level is only offered on a deck
+ * with enough cards to fill it (`siNoDifficulties`). The pack holds decks at
+ * 10-17 cards, so easy and medium are always available and hard is not.
+ */
+export const SI_NO_ROUND_COUNT: Record<Difficulty, number> = {
+  easy: 4,
+  medium: SI_NO_ROUNDS,
+  hard: 12,
+};
+
+/** The levels this deck can actually fill — the same "offer what fits" rule
+ *  la sopa and el globo already use, rather than silently dealing a short
+ *  game that calls itself hard. */
+export function siNoDifficulties(deck: Deck): readonly Difficulty[] {
+  return DIFFICULTIES.filter((d) => deck.cards.length >= SI_NO_ROUND_COUNT[d]);
+}
 
 /** The claim as a native speaker would ask it about a picture:
  *  countable nouns swap their article for the indefinite ("¿Es un gato?",
@@ -72,13 +94,17 @@ export function createSiNoGame(
   deck: Deck,
   mode: QuizMode,
   random: RandomSource = Math.random,
+  /** Absent means the length this game has always had. */
+  difficulty?: Difficulty,
 ): SiNoGame {
   // A false claim needs at least one other card to lie with.
   if (deck.cards.length < 2) {
     throw new QuizDeckTooSmallError(deck.id, deck.cards.length, 2);
   }
 
-  const cards = shuffled(deck.cards, random).slice(0, SI_NO_ROUNDS);
+  const wanted =
+    difficulty === undefined ? SI_NO_ROUNDS : SI_NO_ROUND_COUNT[difficulty];
+  const cards = shuffled(deck.cards, random).slice(0, wanted);
   const rounds = cards.map((card): SiNoRound => {
     const isTrue = random() < 0.5;
     const attributeRound =

@@ -50,11 +50,12 @@ No reading, no accounts, no setup.
   (alto 🦒, pequeño 🐭) and skin tone rides on a hand, not a face.
 - **Games** — per deck (a deck may skip a game it has no natural question
   for — see Los verbos), each with 👂 listen / 🔤 read difficulties:
-  "¿Dónde está…?" (tap the right picture — the reader is also asked for a
-  *property*, "toca el que es verde"), "¿Sí o no?" (judge a claim — an
+  "¿Dónde está…?" (tap the right picture, 🟢/🟡/🔴 — 2/3/4 choices; the reader
+  is also asked for a *property*, "toca el que es verde"), "¿Sí o no?" (judge a
+  claim, 🟢/🟡/🔴 — 4/8/12 rounds, offering only what a deck can fill; an
   identity for the listener, and for the reader a sentence about the picture,
   "¿La rana es negra?"),
-  "Las parejas" (memory match, with 🟢/🟡/🔴 board sizes — 3/5/8 pairs),
+  "Las parejas" (memory match, 🟢/🟡/🔴 — 3/5/8 pairs),
   "Conecta" (connect the columns),
   "Busca y toca" (I-spy scene), "El duelo" (pass-the-tablet versus),
   "El reto" (60-second lightning round — and it shows the *other* kid's best
