@@ -12,7 +12,126 @@ Design principle: **one content pack, two difficulty layers.** Every game reuses
 existing decks/words and scales along a single per-kid mode switch, so nothing is
 built twice.
 
-Status legend: ☐ not started · ◐ in progress · ☑ shipped (move write-up to shipped.md)
+**Status:** ☐ pending · ◐ in progress · ☑ shipped (write-up in `shipped.md`)
+· ⏸️ parked behind a decision · ✗ **decided against — do not re-propose without
+new evidence, and engage with the reason by name.**
+
+Most pending work lives as sub-items *under the shipped thing it was cut from*,
+because the reason it was cut is the most useful thing about it. That makes it
+hard to see all at once, so **[What's pending](#whats-pending)** below indexes
+every open item in one place. The detail stays where it is.
+
+## What's pending
+
+Every ☐ in this document, grouped by the decision you'd actually be making.
+**49 items.** Nothing at the top level is unbuilt — items 1–26 are all shipped,
+rejected or parked — so everything here is a refinement of something that
+works.
+
+### ⏳ Blocked on watching a kid, not on effort
+See **[Watch list](#watch-list--what-needs-a-kid-not-a-commit)** — seven
+observations, several of which unblock more than one item below. This is the
+shortest path to making the rest of this list smaller.
+
+### 📚 Content authoring
+No new mechanics; someone has to write the words.
+- A third food deck: **las bebidas** · **futuro / condicional** verb decks
+- **Los miles y millones** · letter→word **"A de avión"**
+- Sentences and cuentos over the food words · **En la mesa** in the conversation
+- Drawn card art for the food decks (every new card is emoji)
+- Attributes: **more kinds** (texture, sound, habitat) · the **abstract half of
+  the pack** · **multi-attribute claims**, negation, comparatives · attributes
+  in **parejas, conecta, la sopa, los cuentos**
+- A claim shape for **el infinitivo and el imperativo**, if natural phrasing turns up
+
+### 🧭 El camino & los exámenes
+The densest cluster, and the one most gated on the watch list.
+- A dedicated **`/camino` map screen** — "the thing kids like about Duolingo is
+  looking at the map"
+- **A step per game, not per deck** · **frases, cuentos and the secret deck as steps**
+- **Re-examining a section that has gone stale** (ADR 018 already knows which)
+- **Per-súper** and **per-profile** exam thresholds *(both say: watch first)*
+- **Exam history:** comparing the two kids side by side · per-question breakdown
+  · a parent reset of a passed exam
+- **Watch the súper ceremony land** — shipped unobserved 2026-09-20
+
+### ⭐ The economy
+- **Progress toward the next mascota:** a goal pet the kid picks · a cutoff when
+  the target is far · pointing at non-pet sinks
+- **La hora doble:** multiply more than the chest · a parent-triggered window ·
+  **a boost that starts a session** (the only item here that *recruits* rather
+  than rewards) · buying one in the shop · a per-chest ceiling
+- **Richer weekly missions**
+
+### 🐾 La mascota & dress-up
+- **Moods elsewhere** (home is full — revisit only if the badge lands)
+- Per-form default spots · sharing a shape across pets · copying an outfit
+  between forms · guided placement · resize / rotate
+
+### 🎮 Games & difficulty
+- A **timer / lose-state on Hard** — pressure mode, deliberately cut
+- La sopa: **bent-path words** (true Squaredle) · **bonus words**
+
+### 👨‍👩‍👧 Parent tools
+- **El reto set from the parent's own phone** · **word-level challenges** ·
+  **a message from the parent**
+- **Per-game levels** (read quizzes, picture pairs) · a **"she seems ready"
+  nudge** *(deliberately absent — the app never suggests a promotion)*
+
+### 🔄 Cross-device sync
+All four are ADR 004 territory; none is small.
+- Live realtime · daily misión/reto state in sync · accounts & recovery ·
+  multi-parent / household sharing
+
+### ✗ Decided against — do not re-propose cold
+- **CI on GitHub** (2026-09-20) · **el reto's length** as a difficulty
+  (2026-09-20) · **the mascota bar on home or the done screen** (2026-09-20)
+- **Rethink la caja sorpresa** (2026-07-14) · **pack-wide answers** in adivina
+  (2026-08-02) · **whole-done-screen choreography**
+- ⏸️ **Habla conmigo** with a real LLM (ADR 010) · ⏸️ **a Spanish dictionary**
+
+
+## Watch list — what needs a kid, not a commit
+
+Added 2026-09-20 after six features shipped in two days, none of them yet seen
+by a child. **These are not small items; they are items whose next step is
+evidence.** Several roadmap entries are explicitly parked on one of them, so
+guessing here would be building on an assumption rather than an observation.
+Each says what to look for and what it unblocks.
+
+- **A newly locked camino.** Los verbos joining the games took shelf 12's
+  completion cost from 3 stickers to 14, so a profile that had finished it is
+  now incomplete and the capstone súper examen is un-sittable. *Look at:*
+  `/informe/<kid>` → 🔑 La llave del camino. *If it matters:* open the shelf,
+  one tap. *Unblocks:* nothing — it is a courtesy check before a kid hits it.
+- **The attribute claims, on the real device.** The colour content was checked
+  against headless Chromium on macOS. The app renders the *device's* emoji, so
+  a claim that is true on this machine can be false on the tablet. *Look at:*
+  `/deck/animals/si-no/read` as 🦄, a few rounds. *Unblocks:* more attribute
+  kinds (21) — do not author more until the first 94 are confirmed.
+- **The difficulty picker's extra tap.** ¿Dónde está? and ¿Sí o no? now ask
+  "how big?" before every play. For a 3-year-old that is real friction on games
+  that used to start instantly. *Look at:* whether she picks, hesitates, or
+  taps whatever is nearest. *Unblocks:* the "remember the last pick" variant,
+  which was considered and deliberately not built.
+- **Los súper exámenes actually landing.** Per-súper and per-profile
+  thresholds both say "watch this before loosening any bar", and the bespoke
+  ceremony shipped 2026-09-20 *without* the observation the cut asked for —
+  so its extra beat is unwatched too. *Look at:* a kid sitting one, and
+  whether the sweep beat is something they enjoy or something they tap past.
+  *Unblocks:* two camino follow-ons, and confirms or undoes one shipped beat.
+- **Whether exam history tells a parent anything.** It has no data yet — nobody
+  has sat an exam since it shipped. *Unblocks:* the side-by-side kid
+  comparison, and per-question breakdowns.
+- **Whether the mascota bar crawls.** Cheap rungs are 2–3 perfect games apart,
+  but the top of the ladder is 3,400⭐. *Unblocks:* the "hide it when the
+  target is far" cutoff, deliberately not guessed at up front.
+- **Whether a level ever flaps between devices.** The promote/demote merge is
+  later-wins and was only ever tested one device at a time. *Look at:* two
+  paired devices. *If it flaps:* suspect a clock, not the rule (ADR 023).
+
+<!-- Everything below is the history: what was decided, why, and what each
+     shipped thing cut. Pending work is indexed at the top. -->
 
 ## The unlocking feature
 
@@ -647,7 +766,7 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       generation step and its own ADR. Revisit only if the kids actually hit
       refusals often enough to complain — and then add those specific words to
       the pack, don't ship a dictionary.
-    - ☐ **Pack-wide answers** — considered and rejected 2026-08-02: 63/83/78
+    - ✗ **Pack-wide answers** — considered and rejected 2026-08-02: 63/83/78
       candidates would make it true wordle, but the parent's call is that it's
       too hard for these kids without a theme, and they're right. The theme is
       the scaffold, not a decoration.
@@ -659,48 +778,13 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     expect adivina to be asked for next, and expect the deck choice screen to
     need grouping before a fifth tile lands.
 
-## Watch list — what needs a kid, not a commit
-
-Added 2026-09-20 after six features shipped in two days, none of them yet seen
-by a child. **These are not small items; they are items whose next step is
-evidence.** Several roadmap entries are explicitly parked on one of them, so
-guessing here would be building on an assumption rather than an observation.
-Each says what to look for and what it unblocks.
-
-- **A newly locked camino.** Los verbos joining the games took shelf 12's
-  completion cost from 3 stickers to 14, so a profile that had finished it is
-  now incomplete and the capstone súper examen is un-sittable. *Look at:*
-  `/informe/<kid>` → 🔑 La llave del camino. *If it matters:* open the shelf,
-  one tap. *Unblocks:* nothing — it is a courtesy check before a kid hits it.
-- **The attribute claims, on the real device.** The colour content was checked
-  against headless Chromium on macOS. The app renders the *device's* emoji, so
-  a claim that is true on this machine can be false on the tablet. *Look at:*
-  `/deck/animals/si-no/read` as 🦄, a few rounds. *Unblocks:* more attribute
-  kinds (21) — do not author more until the first 94 are confirmed.
-- **The difficulty picker's extra tap.** ¿Dónde está? and ¿Sí o no? now ask
-  "how big?" before every play. For a 3-year-old that is real friction on games
-  that used to start instantly. *Look at:* whether she picks, hesitates, or
-  taps whatever is nearest. *Unblocks:* the "remember the last pick" variant,
-  which was considered and deliberately not built.
-- **Los súper exámenes actually landing.** Per-súper and per-profile
-  thresholds both say "watch this before loosening any bar", and the bespoke
-  ceremony shipped 2026-09-20 *without* the observation the cut asked for —
-  so its extra beat is unwatched too. *Look at:* a kid sitting one, and
-  whether the sweep beat is something they enjoy or something they tap past.
-  *Unblocks:* two camino follow-ons, and confirms or undoes one shipped beat.
-- **Whether exam history tells a parent anything.** It has no data yet — nobody
-  has sat an exam since it shipped. *Unblocks:* the side-by-side kid
-  comparison, and per-question breakdowns.
-- **Whether the mascota bar crawls.** Cheap rungs are 2–3 perfect games apart,
-  but the top of the ladder is 3,400⭐. *Unblocks:* the "hide it when the
-  target is far" cutoff, deliberately not guessed at up front.
-- **Whether a level ever flaps between devices.** The promote/demote merge is
-  later-wins and was only ever tested one device at a time. *Look at:* two
-  paired devices. *If it flaps:* suspect a clock, not the rule (ADR 023).
-
 ## Build-later shortlist (consolidated 2026-07-14)
 
-The queue, gathered from the sub-items above so nothing hides in history:
+> **Historical.** This was the first attempt at gathering the sub-items into
+> one queue. **[What's pending](#whats-pending)** at the top of this document
+> supersedes it and is generated against the actual ☐ marks; several lines
+> below have since shipped. Kept because the groupings and the reasons still
+> read well.
 
 - **Content follow-ons:** letter→word association "A de avión" (16) ·
   los miles y millones (17) · verbs in the games so the verbs shelf drops
