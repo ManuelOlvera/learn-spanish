@@ -14,16 +14,13 @@ import type { PetGoal } from "@learn-spanish/core";
  * carries the distance, and the Spanish line is for whoever is reading over
  * the kid's shoulder. Nothing here is tappable — it reports, it never nudges
  * toward spending.
+ *
+ * **It lives on `/mascota` and nowhere else.** It shipped on home and on the
+ * done screen too; the kid did not like it on home (2026-09-20), and the
+ * screen with the pets and the balance on it is where a bar about saving for a
+ * pet belongs. A `compact` variant existed for home and went with it.
  */
-export function PetGoalBar({
-  goal,
-  compact = false,
-}: {
-  goal: PetGoal;
-  /** Home's form: one line, no card of its own — it is the fifth thing on that
-   *  screen and must not claim a row like the misión does. */
-  compact?: boolean;
-}) {
+export function PetGoalBar({ goal }: { goal: PetGoal }) {
   const pct = Math.round(goal.progress * 100);
   const ready = goal.remaining === 0;
   // The youngest form: what the kid would actually bring home.
@@ -31,22 +28,20 @@ export function PetGoalBar({
 
   return (
     <div
-      className={`flex w-full items-center gap-3 ${compact ? "" : "max-w-md"}`}
+      className="flex w-full max-w-md items-center gap-3"
       aria-label={
         ready
           ? `You can adopt ${goal.species.nameEnglish} now`
           : `${goal.remaining} more stars for ${goal.species.nameEnglish}`
       }
     >
-      <span aria-hidden className={compact ? "text-2xl" : "text-4xl"}>
+      <span aria-hidden className="text-4xl">
         {face}
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span
           aria-hidden
-          className={`flex overflow-hidden rounded-full border-2 border-ink bg-[color-mix(in_srgb,var(--color-ink)_10%,white)] ${
-            compact ? "h-3" : "h-4"
-          }`}
+          className="flex h-4 overflow-hidden rounded-full border-2 border-ink bg-[color-mix(in_srgb,var(--color-ink)_10%,white)]"
         >
           <span
             className="bg-[var(--color-lime-deep)] transition-[width] duration-500"
@@ -54,7 +49,7 @@ export function PetGoalBar({
           />
         </span>
         <span
-          className={`truncate font-bold ${compact ? "text-xs" : "text-sm"} ${
+          className={`truncate text-sm font-bold ${
             ready ? "text-[var(--color-lime-deep)]" : "text-ink/60"
           }`}
         >

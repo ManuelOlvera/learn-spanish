@@ -739,8 +739,9 @@ Deferred when the earn side was raised (see [ADR 020](../adr/020-earn-side-rebal
 and the shipped write-up). Deferred, not dropped:
 
 - ☑ **Progress toward the next mascota** — **shipped 2026-09-20.** Both open
-  questions landed: the bar lives in **all three** places (the done screen once
-  the chest is open, `/mascota`, and home in a compact form), and it points at
+  questions landed: the bar went into all three places (the done screen,
+  `/mascota`, home) and **was pulled back to `/mascota` alone the same day** —
+  the kid did not like it on home. It points at
   **the cheapest unowned pet** — `PET_SPECIES` is already in cost order, so a
   kid who bought the dragon first is still sent back to el conejo. No "too far
   away" cutoff was added: the cheap rungs are 2–3 perfect games apart and exams
@@ -757,6 +758,10 @@ and the shipped write-up). Deferred, not dropped:
     Deliberately not guessed at up front.
   - ☐ **Pointing at non-pet sinks** — la caja sorpresa, themes. Rejected for
     now: the pull the item wanted was "a pet of my own", not "a sink".
+  - ✗ **The bar on home, or on the done screen** — tried and removed the same
+    day on the kid's verdict. Home already carries the misión, el regalo, el
+    camino and la carta del día; a fifth thing was one too many. Don't put it
+    back without new evidence.
 - **Whole-done-screen choreography** — staging the full ending (celebration →
   sticker peel → chest → bonuses → exits) on one timeline. Cut because it risks
   making a 4-year-old sit through an animation they want to skip; the chest beat

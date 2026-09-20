@@ -10,7 +10,6 @@ import {
   challengeClaimable,
   groupsInTrailOrder,
   missionOnHome,
-  nextPetGoal,
   pickHomeFocus,
   reviewCount,
   REVIEW_MIN,
@@ -20,7 +19,6 @@ import {
   type ParentChallenge,
   type Streak,
   type DailyFeature,
-  type PetGoal,
 } from "@learn-spanish/core";
 import { log } from "@learn-spanish/config";
 import { deckAccent } from "@/lib/deck-theme";
@@ -61,7 +59,6 @@ import { SecretDeckTile } from "@/components/SecretDeckTile";
 import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
-import { PetGoalBar } from "@/components/PetGoalBar";
 import { LockedTile, TrailBadge, TrailPips } from "@/components/TrailMarks";
 import { CaminoStrip } from "@/components/CaminoStrip";
 import { useCamino } from "@/lib/use-camino";
@@ -84,9 +81,6 @@ export function HomeView({ decks, groups }: Props) {
   const [challenge, setChallenge] = useState<ParentChallenge | null>(null);
   const [stars, setStars] = useState(0);
   const [petFace, setPetFace] = useState("🥚");
-  // The next mascota within reach — home's reason to start a session, where
-  // the chest's bar is a reason to have finished one.
-  const [petGoal, setPetGoal] = useState<PetGoal | null>(null);
   const [petHungry, setPetHungry] = useState(false);
   const [unlockedDecks, setUnlockedDecks] = useState<readonly string[]>([]);
   const [weekly, setWeekly] = useState<WeeklyView | null>(null);
@@ -200,7 +194,6 @@ export function HomeView({ decks, groups }: Props) {
     setChallenge(getChallenge(kid));
     setStars(getStars(kid));
     const collection = getPetCollection(kid);
-    setPetGoal(nextPetGoal(collection, getStars(kid)));
     const activePet = getActivePet(kid);
     const activeMaxForm = petMaxForm(collection.active, activePet.meals);
     setPetFace(
@@ -395,15 +388,6 @@ export function HomeView({ decks, groups }: Props) {
       </header>
 
       <BoostBadge kid={kid} nonce={boostNonce} />
-
-      {/* Compact on purpose: this is the fifth thing on home (misión, regalo,
-          camino, carta del día), so it rides under the badge rather than
-          claiming a card of its own. */}
-      {petGoal !== null && (
-        <div className="w-full max-w-md">
-          <PetGoalBar goal={petGoal} compact />
-        </div>
-      )}
 
       {daily && (
         <button

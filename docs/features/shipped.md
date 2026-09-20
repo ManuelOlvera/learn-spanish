@@ -1,5 +1,31 @@
 # Shipped features
 
+## 2026-09-20 (later) — The mascota bar comes off home
+
+**Reported by the parent, hours after it shipped:** *"My kid don't like having
+the mascot bar on the home page."*
+
+It is now on **`/mascota` only** — off home and off the done screen. That is
+the screen with the pets, the shop and the balance on it, so a bar about saving
+for a pet is in context there in a way it is not anywhere else.
+
+**Home was the placement I flagged when it went in**, and the note in the code
+said why: it was the fifth thing competing for a pre-reader's attention, after
+la misión, el regalo del día, el camino and la carta del día. The compact form
+was an attempt to make a fifth thing cheap. It wasn't cheap enough.
+
+**The done screen went with it**, on the parent's "just leave it on the mascot
+page". That one was the original ask's own position — *"after the chest closes,
+a bar fills"* — so it is the more surprising half of the removal and the easier
+half to put back: it is one line, and the state it needs is still computed
+right there.
+
+**Nothing was unbuilt.** `nextPetGoal` is untouched and still derives from the
+wallet and the pets owned, so the feature is intact and only its placement
+changed. The `compact` variant went with home, since nothing else used it.
+
+**Where:** `HomeView`, `DoneScreen`, `PetGoalBar`.
+
 ## 2026-09-20 (last) — The dock gets a ceiling
 
 **For:** the kid who is finding it hard — which is not the kid the rule was

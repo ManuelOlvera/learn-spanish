@@ -175,15 +175,13 @@ No reading, no accounts, no setup.
   first-time bonuses. Opening it is the celebration, not the toll gate: the
   ways off the screen dim while it is shut, the haul **counts up** with the
   bonus chips landing on it one at a time, la mascota hops in proportion to the
-  win, and an un-opened chest still banks on the way out. Once it is open, a
-  bar shows how much closer the haul left the kid to **the cheapest mascota
-  they don't own yet** ("⭐ Faltan 29 para el conejo") — the same bar rides on
-  home and on `/mascota`, so what the stars are *for* is visible from wherever
-  they are earned or spent;
+  win, and an un-opened chest still banks on the way out;
   the daily misión (drawn from each kid's own pool — the reader's
   includes ✏️ Deletrea) adds a +25⭐ bonus chest, and every finish rotates a
   spoken cheer with the pet cheering along. Stars feed and grow **la
-  mascota** (a collection of adoptable pets, 5⭐ a meal; name it too), buy 🛍️
+  mascota** (a collection of adoptable pets, 5⭐ a meal; name it too — and
+  `/mascota` carries a bar showing how close they are to **the cheapest pet
+  they don't own yet**, "⭐ Faltan 29 para el conejo"), buy 🛍️
   wardrobe accessories and drag them anywhere on the pet (saved per pet
   *shape* — an egg and the hen it grows into each keep their own outfit),
   open 🎁 surprise boxes, unlock 29 avatars, and buy 🎨 paper
