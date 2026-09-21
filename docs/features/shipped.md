@@ -1,5 +1,51 @@
 # Shipped features
 
+## 2026-09-21 (last) — 🗺️ El camino gets a map
+
+**For:** both kids. The parent's words: *"Now that we've locked future work it
+makes sense"* — with the feature list closed off, the route stops being
+plumbing and becomes the thing to look at.
+
+`/camino` draws all twelve shelves as a **vertical snaking map**: one card per
+stop with its picture, a pip per deck, its medal and its lock, and the three
+**súper exámenes** gold on the path between shelves. Reached from the Tu camino
+strip's label, which is now a link carrying a 🗺️.
+
+**Modelled on the sibling `word-quest` project's zone map**, at the parent's
+request — I had no memory of that project and looked at its screenshots rather
+than guessing. Its pattern is Duolingo's: alternating cards down a scroll, a
+circular picture per zone, progress pips, tier stars, and locked zones greyed
+with *"Finish the last one to open"*. Here that becomes *Termina la anterior*,
+in this app's sticker language rather than word-quest's.
+
+**One rule inverts from the strip.** The strip makes only the current stop
+tappable, on the reasoning that the other eleven would be a less legible copy
+of the shelf grid below it. On a whole screen that reasoning flips: the map
+**is** the navigation, so every unlocked shelf is a door. A locked one is inert
+rather than a link that refuses — a door opening on to a *no* is worse than one
+that is visibly shut (ADR 021).
+
+**The roadmap's condition was waived.** It read *"Only worth it if the pips and
+badges prove too quiet"*, and nobody has watched them be quiet. The parent
+overrode it deliberately; recorded rather than argued, and the watch list now
+carries the question this actually raises — whether kids start navigating from
+the map instead of the home grid, which would change the grid's job.
+
+**Two bugs the pixels caught, and the tests could not:**
+
+- **Every finished shelf rendered white instead of lime.** `.sticker` sets
+  `background` in an *unlayered* rule, so it beats Tailwind's `bg-*`
+  utilities — the face has to travel as `--sticker-face`. `globals.css` says so
+  in a comment, and the `/verify` skill lists it as a known gotcha; I wrote
+  `bg-[var(--color-lime)]` anyway and only saw it in a screenshot.
+- **Every locked stop hugged the left.** Its wrapper carried `flex w-full`
+  *and* `contents`; the width won, the wrapper became the flex item and
+  stretched across the row, so `justify-end` could not move it. The snake
+  straightened out for exactly the shelves a kid has not reached yet.
+
+**Where:** `app/camino/page.tsx`, `components/CaminoView.tsx`,
+`components/CaminoMap.tsx`, and the strip's label.
+
 ## 2026-09-21 (later) — ⭐ ¡Palabra sorpresa! — la sopa hides more than it asks for
 
 **For:** both kids, though the reader meets it first — la sopa is reader-level.

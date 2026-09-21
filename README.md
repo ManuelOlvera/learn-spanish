@@ -87,7 +87,11 @@ No reading, no accounts, no setup.
   biggest sound the app makes (ADR 021: passing must beat opening any chest),
   the stars tick up, a súper's swept shelves climb a scale, and the padlock
   snaps.
-- **El camino** — a guided route through the pack that **gates**: a shelf stays
+- **El camino** — a guided route through the pack, with a map of its own at
+  **`/camino`** (reached from the Tu camino strip): twelve stops snaking down
+  the screen, each with its picture, its deck pips, its medal and its lock, and
+  the three súper exámenes gold on the path between them. The strip answers
+  "where am I?"; the map is the one you look at. It **gates**: a shelf stays
   locked until the one before it is complete *and* that shelf's **examen** is
   passed (ADR 021, which supersedes ADR 016 on this). The lock is real — a
   locked shelf's tile is padlocked and untappable on the home grid, not merely

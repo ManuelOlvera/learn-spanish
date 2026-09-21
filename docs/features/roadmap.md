@@ -46,8 +46,8 @@ No new mechanics; someone has to write the words.
 
 ### 🧭 El camino & los exámenes
 The densest cluster, and the one most gated on the watch list.
-- A dedicated **`/camino` map screen** — "the thing kids like about Duolingo is
-  looking at the map"
+- **Watch whether the `/camino` map replaces the home grid** as the way kids
+  navigate
 - **A step per game, not per deck** · **frases, cuentos and the secret deck as steps**
 - **Re-examining a section that has gone stale** (ADR 018 already knows which)
 - **Per-súper** and **per-profile** exam thresholds *(both say: watch first)*
@@ -550,9 +550,20 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       pre-reader finds it punishing in practice.
     - ☐ **Re-examining a section that has gone stale** — ADR 018 already knows
       which words have gone quiet; a passed exam currently stays passed forever.
-    - ☐ **A dedicated `/camino` map screen** — the thing kids like about
-      Duolingo is looking at the map. Only worth it if the pips and badges
-      prove too quiet.
+    - ☑ **A dedicated `/camino` map screen** — **shipped 2026-09-21.** A
+      vertical snaking map of all twelve shelves: one card each with its
+      picture, its deck pips, its medal and its lock, with the three súper
+      stops gold on the path between them. Reached from the Tu camino strip's
+      label (🗺️).
+      **The "only worth it if the pips and badges prove too quiet" condition
+      was waived**, deliberately, by the parent: with the feature list closed
+      off the map became the point rather than a nice-to-have. Modelled on the
+      sibling **word-quest** project's zone map (and Duolingo's) at the
+      parent's request — same idea, this app's sticker language.
+      - ☐ **Watch whether it replaces the grid.** The map makes every
+        unlocked shelf tappable, which is a second way to reach the same
+        content. If kids navigate from here rather than from home, the home
+        grid's job changes and is worth revisiting.
     - ☐ **Frases, cuentos and the secret deck as steps** — the route covers
       the shelved decks only.
 23. ☑ **Los cuentos — short stories** — the rung above Las frases: connected
