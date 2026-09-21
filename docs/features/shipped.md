@@ -44,7 +44,18 @@ the map instead of the home grid, which would change the grid's job.
   straightened out for exactly the shelves a kid has not reached yet.
 
 **Where:** `app/camino/page.tsx`, `components/CaminoView.tsx`,
-`components/CaminoMap.tsx`, and the strip's label.
+`components/CaminoMap.tsx`, and a 🗺️ in home's header.
+
+**Follow-up the same day — the map had no door.** It shipped reachable only
+from the Tu camino strip's label: 10px of uppercase text at 40% opacity, a
+20px-tall tap target. The parent's report was *"I still see the old UI?"* and
+they were right — the deploy was fine and `/camino` was live, but nothing on
+any screen the kids use looked different, because the only entrance read as a
+heading. The design language asks for **≥64px** touch targets and that was
+20px. The way in is now a 🗺️ button in home's header, beside la mascota and
+the album, where navigation already lives; the strip's label went back to
+being a label. Two doors to one screen was never the intent — one findable
+door is.
 
 ## 2026-09-21 (later) — ⭐ ¡Palabra sorpresa! — la sopa hides more than it asks for
 

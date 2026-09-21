@@ -377,6 +377,19 @@ export function HomeView({ decks, groups }: Props) {
               ⭐{stars}
             </span>
           </Link>
+          {/* El camino's map. It shipped behind the strip's label — a 10px
+              line of uppercase text at 40% opacity — which is not a door a
+              kid (or an adult) finds, and is a long way under the ≥64px
+              target the design language asks for. Navigation lives in this
+              header, beside la mascota and the album. */}
+          <Link
+            href="/camino"
+            aria-label="Open the camino map"
+            style={{ "--accent": "var(--color-lime-deep)" } as React.CSSProperties}
+            className="sticker flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
+          >
+            🗺️
+          </Link>
           <Link
             href="/album"
             aria-label="Open the sticker album"

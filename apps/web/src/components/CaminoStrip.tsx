@@ -61,16 +61,12 @@ export function CaminoStrip({ camino, groups }: Props) {
       className="sticker pop-in relative w-full px-4 py-3"
       style={{ "--accent": "var(--color-lime-deep)" } as React.CSSProperties}
     >
-      {/* The label is the way in to the map. The strip summarises; /camino is
-          the same route big enough to look at, which is the thing kids like
-          about Duolingo's. A 🗺️ carries it for a pre-reader. */}
-      <Link
-        href="/camino"
-        aria-label="Open the whole camino map"
-        className="mb-1 flex items-center justify-center gap-1 text-xs font-extrabold uppercase tracking-widest text-ink/40"
-      >
-        Tu camino <span aria-hidden className="text-sm">🗺️</span>
-      </Link>
+      {/* A label, not a door: the way into the map is the 🗺️ in home's header,
+          beside la mascota and the album. This was briefly a link and nobody
+          could see it — 10px of uppercase at 40% opacity is a heading. */}
+      <p className="mb-1 text-center text-xs font-extrabold uppercase tracking-widest text-ink/40">
+        Tu camino
+      </p>
       <div className="flex items-center gap-0 overflow-x-auto pb-1">
         {ordered.map((group, i) => {
           const shelf = camino.shelves.find((s) => s.groupId === group.id);
