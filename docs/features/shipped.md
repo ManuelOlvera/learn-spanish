@@ -57,6 +57,18 @@ the album, where navigation already lives; the strip's label went back to
 being a label. Two doors to one screen was never the intent — one findable
 door is.
 
+**And a second follow-up: the map was in a render loop.** Reported as *"the
+home icon doesn't work and I can't go back"*. The button was fine — 64px, top
+of the stacking order, nothing covering it — but `CaminoView` filtered its
+decks inline, minting a new array every render, and `useCamino`'s effect
+depended on array identity. `/camino` read the album **11,616 times in 2.5
+seconds** against home's **1**, so nothing on the page was ever stable enough
+to tap. Fixed in the hook (it keys on ids now, so no future caller can
+reintroduce it) and memoized in the caller. The report's second half was a
+separate, real problem: at ~1,970px the map scrolls its header away, stranding
+a kid mid-route — the header is now sticky, which no other screen needs. Full
+write-up in the `/investigate` case log.
+
 ## 2026-09-21 (later) — ⭐ ¡Palabra sorpresa! — la sopa hides more than it asks for
 
 **For:** both kids, though the reader meets it first — la sopa is reader-level.

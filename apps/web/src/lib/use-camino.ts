@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildCamino,
   groupsInTrailOrder,
@@ -37,6 +37,18 @@ export function useCamino(
 ): Camino | null {
   const [camino, setCamino] = useState<Camino | null>(null);
 
+  // Keyed on *content*, not on array identity. A caller that filters inline —
+  // `decks.filter(d => !d.secret)` — mints a fresh array every render, and
+  // with the arrays themselves as dependencies this effect re-ran, set state,
+  // and re-rendered, forever: /camino read the album ~4,700 times a second and
+  // nothing on the page was ever stable enough to tap. HomeView had memoized
+  // around it and left a comment; the second caller did not, so the guard
+  // belongs here rather than in each caller.
+  const deckKey = decks.map((d) => d.id).join(",");
+  const groupKey = groups.map((g) => g.id).join(",");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const pack = useMemo(() => ({ groups, decks }), [groupKey, deckKey]);
+
   useEffect(() => {
     if (!kid) {
       setCamino(null);
@@ -50,8 +62,8 @@ export function useCamino(
           if (!cancelled) {
             setCamino(
               buildCamino(
-                groupsInTrailOrder(groups),
-                decks,
+                groupsInTrailOrder(pack.groups),
+                pack.decks,
                 kid,
                 earned,
                 getStickerCounts(),
@@ -80,7 +92,7 @@ export function useCamino(
       cancelled = true;
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [groups, decks, kid, nonce]);
+  }, [pack, kid, nonce]);
 
   return camino;
 }

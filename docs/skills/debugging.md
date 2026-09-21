@@ -86,6 +86,25 @@ Find the *true* cause and fix it once, at the right layer.
   real backend with two contexts — the unit layer can't see a push that
   never fires.
 
+- **2026-09-21 — "the home icon doesn't work and I can't go back"**: reported
+  on the new `/camino` map. The button was fine — a 64px link, top of the
+  stacking order, `pointer-events: auto`, nothing over it — and still
+  unclickable, because **the whole screen was in a render loop**. `CaminoView`
+  filtered inline (`decks.filter(d => !d.secret)`), minting a new array every
+  render, and `useCamino`'s effect listed the arrays as dependencies: effect →
+  `setCamino` → render → new array → effect. Measured by counting
+  `palabras.album.v1` reads: **1** on home, **11,616 in 2.5 seconds** on
+  `/camino`. Nothing was ever stable enough to receive a tap, and a tablet
+  would have been burning battery. `HomeView` had memoized around this and left
+  a comment explaining why; the second caller did not. Fixed **in the hook** —
+  it now keys on deck and group *ids* rather than array identity, so no caller
+  can reintroduce it — and memoized in the caller as well. The report's second
+  half was real and separate: at 1,972px the map scrolls the header off, so a
+  kid who scrolls has no way back. The header is now sticky, which no other
+  screen needs. Lessons: an unclickable element that is demonstrably on top is
+  a *stability* problem, not a hit-testing one; and when a hook has a
+  memoization requirement that one caller documents in a comment, the next
+  caller will not read it — enforce it in the hook.
 - **2026-09-21 — the exam ceremony stalls on a beat**: found while adding
   sound, not reported. Every celebration keyed its `setTimeout` on the
   `onDone` prop, and **every call site passes an inline arrow**, so the effect

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import type { Deck, DeckGroup } from "@learn-spanish/core";
 import { useSelectedKidOr } from "@/lib/use-selected-kid";
@@ -20,7 +21,9 @@ export function CaminoView({
   groups: readonly DeckGroup[];
 }) {
   const kid = useSelectedKidOr("listener");
-  const publicDecks = decks.filter((d) => !d.secret);
+  // Memoized for the same reason HomeView memoizes it: a fresh array identity
+  // every render is what made this screen spin.
+  const publicDecks = useMemo(() => decks.filter((d) => !d.secret), [decks]);
   const camino = useCamino(groups, publicDecks, kid);
 
   const passed = camino?.shelves.filter((s) => s.complete).length ?? 0;
@@ -28,7 +31,12 @@ export function CaminoView({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-4 p-4 sm:p-6">
-      <header className="flex items-center justify-between">
+      {/* Sticky, unlike every other screen's header: the map is the one page
+          that scrolls far enough to strand a kid — twelve stops is ~1950px
+          against a phone viewport, so a header pinned to the top of the
+          document leaves no way back once you have scrolled past it. The
+          paper background is what stops the cards showing through. */}
+      <header className="sticky top-0 z-20 -mx-4 flex items-center justify-between bg-paper px-4 py-2 sm:-mx-6 sm:px-6">
         <Link
           href="/"
           aria-label="Back to all decks"
