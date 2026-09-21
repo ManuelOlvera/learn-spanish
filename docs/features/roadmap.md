@@ -24,7 +24,7 @@ every open item in one place. The detail stays where it is.
 ## What's pending
 
 Every ☐ in this document, grouped by the decision you'd actually be making.
-**49 items.** Nothing at the top level is unbuilt — items 1–26 are all shipped,
+**46 items.** Nothing at the top level is unbuilt — items 1–26 are all shipped,
 rejected or parked — so everything here is a refinement of something that
 works.
 
@@ -65,12 +65,11 @@ The densest cluster, and the one most gated on the watch list.
 
 ### 🐾 La mascota & dress-up
 - **Moods elsewhere** (home is full — revisit only if the badge lands)
-- Per-form default spots · sharing a shape across pets · copying an outfit
-  between forms · guided placement · resize / rotate
+- Per-form default spots · guided placement · resize / rotate
 
 ### 🎮 Games & difficulty
 - A **timer / lose-state on Hard** — pressure mode, deliberately cut
-- La sopa: **bent-path words** (true Squaredle) · **bonus words**
+- La sopa: **bent-path words** (true Squaredle)
 
 ### 👨‍👩‍👧 Parent tools
 - **El reto set from the parent's own phone** · **word-level challenges** ·
@@ -85,7 +84,9 @@ All four are ADR 004 territory; none is small.
 
 ### ✗ Decided against — do not re-propose cold
 - **CI on GitHub** (2026-09-20) · **el reto's length** as a difficulty
-  (2026-09-20) · **the mascota bar on home or the done screen** (2026-09-20)
+  (2026-09-20) · **the mascota bar on home or the done screen** (2026-09-20) ·
+  **sharing a shape across pets** and **copying an outfit between forms**
+  (2026-09-21)
 - **Rethink la caja sorpresa** (2026-07-14) · **pack-wide answers** in adivina
   (2026-08-02) · **whole-done-screen choreography**
 - ⏸️ **Habla conmigo** with a real LLM (ADR 010) · ⏸️ **a Spanish dictionary**
@@ -327,11 +328,12 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       50%/8% on an egg as on a hen. Only kid-dragged spots are per shape.
       The cheap version is a per-form nudge table; the real one is a spot per
       (accessory × form), which is 38 × 4 numbers nobody wants to hand-write.
-    - ☐ **Sharing a shape across pets** — every 🥚 in the roster dressed alike
-      (dress one egg, the turtle's and the dragón's match). Considered while
-      shaping and rejected: outfits stay per pet, per form.
-    - ☐ **Copy an outfit between forms** — "put this on my other shapes too".
-      Wanted only if kids find re-dressing each form a chore.
+    - ✗ **Sharing a shape across pets** and ✗ **copying an outfit between
+      forms** — **decided against 2026-09-21: not needed.** Offered as the
+      cheapest kid-facing fun left and declined. Dressing each pet and each
+      form from scratch is the feature, not a chore to be automated away — the
+      first was already "considered while shaping and rejected" on the same
+      reasoning. Don't re-propose.
     - ☐ **Guided placement (learning variant)** — snap to the correct spot with
       a happy cue; teaches where things go. The other half of the original idea.
     - ☐ **Resize / rotate accessories** — richer dress-up; out of the first cut.
@@ -422,7 +424,13 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
     reader-level; opened to both kids 2026-07-15. See `shipped.md`.)*
     - ☐ **Bent-path words (true Squaredle)** — snaking selections instead of
       straight lines; deliberately cut from the first slice.
-    - ☐ **Bonus words** — finding a non-target pack word still celebrates.
+    - ☑ **Bonus words** — **shipped 2026-09-21.** Up to two extra pack words
+      are hidden in the same grid and **not listed**; finding one pays a gold
+      flash (¡Palabra sorpresa!), a gold trail and el globo's pop. Deliberately
+      seated rather than accidental — fill letters are random, so waiting for a
+      word to appear by chance would be a feature that almost never fires. They
+      obey the same no-collision rule as the targets, never count toward
+      finishing the board, and pay no stars: joy, not economy.
 21. ☑ **Sentence attribute content** — **shipped 2026-09-20**, and it closed
     all three items it was blocking in the same change: quiz property prompts
     (item 2), sí-o-no sentence claims (item 4) and per-level daily cards

@@ -464,6 +464,7 @@ export {
   gridWord,
   lineBetween,
   SOPA_BOARDS,
+  isBonusWord,
   SOPA_DIFFICULTIES,
   sopaDifficulties,
 } from "./domain/sopa";

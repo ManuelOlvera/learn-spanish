@@ -44,7 +44,26 @@ export interface SopaGame {
   /** Row-major letters, size × size. */
   readonly grid: readonly string[];
   readonly words: readonly SopaWord[];
+  /**
+   * Extra pack words hidden in the same grid and **not listed** (roadmap 20).
+   *
+   * Finding one is a surprise, never a requirement: the board still asks for
+   * `words` and nothing else, so a kid who ignores them finishes exactly as
+   * before. They are seated best-effort after the targets — a crowded board
+   * simply hides none — and they obey the same no-collision rule, because a
+   * selection must still credit exactly one card.
+   *
+   * Deliberately hidden rather than accidental: fill letters are random, so
+   * waiting for a real word to appear by chance would mean a feature that
+   * almost never fires.
+   */
+  readonly bonus: readonly SopaWord[];
 }
+
+/** How many unlisted words to *try* to hide beyond the targets. Two is enough
+ *  to make a board feel generous without crowding out the ones a kid is
+ *  actually being asked for. */
+const BONUS_WORDS = 2;
 
 const MIN_LETTERS = 3;
 const MAX_LETTERS = 8; // the largest grid side
@@ -194,12 +213,29 @@ export function createSopaGame(
     }
     const grid: string[] = Array.from({ length: board.size * board.size }, () => "");
     if (words.every((word) => tryPlace(grid, board.size, word.answer, random))) {
+      // The targets are down and unambiguous. Now try to tuck a couple more
+      // pack words into what is left — each still checked against everything
+      // already seated, and dropped silently if it will not fit.
+      const bonus: SopaWord[] = [];
+      const seated = [...words];
+      for (const extra of shuffled(pool, random)) {
+        if (bonus.length === BONUS_WORDS) {
+          break;
+        }
+        if (seated.some((w) => collide(w.answer, extra.answer))) {
+          continue;
+        }
+        if (tryPlace(grid, board.size, extra.answer, random)) {
+          bonus.push(extra);
+          seated.push(extra);
+        }
+      }
       for (let i = 0; i < grid.length; i++) {
         if (grid[i] === "") {
           grid[i] = FILL_ALPHABET[Math.floor(random() * FILL_ALPHABET.length)]!;
         }
       }
-      return { deckId: deck.id, size: board.size, grid, words };
+      return { deckId: deck.id, size: board.size, grid, words, bonus };
     }
   }
   // Practically unreachable; a typed error beats a corrupt board.
@@ -245,10 +281,16 @@ export function findSopaWord(
   const letters = cells.map((index) => game.grid[index]).join("");
   const reversed = [...letters].reverse().join("");
   return (
-    game.words.find(
+    [...game.words, ...game.bonus].find(
       (word) =>
         !foundCardIds.includes(word.card.id) &&
         (word.answer === letters || word.answer === reversed),
     ) ?? null
   );
+}
+
+/** Was this found word one of the unlisted extras? The player celebrates a
+ *  bonus differently and never counts it toward finishing the board. */
+export function isBonusWord(game: SopaGame, cardId: string): boolean {
+  return game.bonus.some((word) => word.card.id === cardId);
 }

@@ -65,7 +65,8 @@ No reading, no accounts, no setup.
   "La sopa de letras" (word search, both kids, 🟢/🟡/🔴 grid
   sizes, on decks whose words fit a grid; each hidden word has a colour of its
   own, matched by its chip in the word list, and a letter two words cross on is
-  painted with the two of them mixed), "El globo" (guess the word
+  painted with the two of them mixed; the grid also hides **two words that are
+  not on the list**, and finding one is a gold ¡Palabra sorpresa!), "El globo" (guess the word
   letter by letter before the balloon pops — both kids, 🟢/🟡/🔴 word
   lengths, the 💡 tip costs a life), "Habla conmigo" (🗣️ the mascota says something in Spanish, the kid
   taps one of 2–3 things to say back, hears their own sentence spoken, and the

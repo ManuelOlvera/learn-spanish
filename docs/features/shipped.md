@@ -1,5 +1,45 @@
 # Shipped features
 
+## 2026-09-21 (later) — ⭐ ¡Palabra sorpresa! — la sopa hides more than it asks for
+
+**For:** both kids, though the reader meets it first — la sopa is reader-level.
+
+The board asked for 3/5 words and filled the rest of the grid with random
+letters. It now hides **up to two more pack words that are never listed**.
+Finding one pays a gold flash, a gold trail through the letters, and el globo's
+pop rather than the workmanlike "pair locked in" chime.
+
+**Deliberately seated, not accidental.** The roadmap line reads *"finding a
+non-target pack word still celebrates"*, which sounds like it should just be a
+looser check on the selection. It is not: fill letters are random, so a real
+word appearing by chance is vanishingly rare and the feature would almost never
+fire. The extras are placed on purpose, after the targets, into whatever space
+is left — best-effort, so a crowded board simply hides none and the game is
+exactly what it was.
+
+**Three rules keep it from changing the game it is decorating:**
+
+- **The same no-collision rule as the targets.** A selection must still credit
+  exactly one card, so a bonus that reads inside a target — ARAÑA in TELARAÑA —
+  is dropped rather than seated. Pinned by a test that checks every hidden word
+  against every other, forwards and backwards.
+- **A bonus never finishes the board.** `done` counts the *listed* words only.
+  Before that fix, finding a surprise would have ended a game with targets
+  still hidden.
+- **A bonus pays no stars.** The chest is untouched; this is joy, not economy,
+  and it stays clear of ADR 020 entirely.
+
+**The pixels caught one thing:** the flash first landed on top of the word-list
+chips, hiding the words still to be found. It now sits in the gap between the
+list and the grid.
+
+**Verified by solving a real board:** the hard board listed five words and hid
+seven — the two extras were VACA and POLLO on one seed, PEZ and CABALLO on
+another. Selecting one fired the flash and the board correctly did not end.
+
+**Where:** `domain/sopa.ts` (`bonus` on `SopaGame`, `isBonusWord`),
+`lib/sopa-colors.ts` (`BONUS_OWNER`), `SopaPlayer`.
+
 ## 2026-09-21 — 🥺🙂😋⭐ La mascota says how it feels
 
 **For:** both kids, on the pet's own screen.

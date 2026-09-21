@@ -31,8 +31,18 @@ export const SOPA_WORD_COLORS: readonly string[] = [
 
 /** The color of the nth hidden word. Wraps, though no board hides more than
  *  the palette holds (`SOPA_BOARDS.hard.words` is 5). */
+/** The owner index used for an unlisted bonus word. Negative so it can never
+ *  collide with a real index into `game.words`. */
+export const BONUS_OWNER = -1;
+
+/** Gold, and only for bonuses — a found surprise should not look like one more
+ *  word off the list. */
+const BONUS_COLOR = "#f5a524";
+
 export function sopaWordColor(index: number): string {
-  return SOPA_WORD_COLORS[index % SOPA_WORD_COLORS.length]!;
+  return index === BONUS_OWNER
+    ? BONUS_COLOR
+    : SOPA_WORD_COLORS[index % SOPA_WORD_COLORS.length]!;
 }
 
 function channels(hex: string): readonly [number, number, number] {

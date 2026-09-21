@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   createSopaGame,
   findSopaWord,
+  isBonusWord,
   kidForActivity,
   lineBetween,
   SOPA_BOARDS,
@@ -18,10 +19,10 @@ import { speakSpanish, warmUpVoices } from "@/lib/speech";
 import { recordAnswer } from "@/lib/client-container";
 import { getSelectedKid } from "@/lib/kid";
 import { useCombo } from "@/lib/use-combo";
-import { feedbackMatch } from "@/lib/feedback";
+import { feedbackMatch, feedbackPop } from "@/lib/feedback";
 import { DoneScreen } from "@/components/DoneScreen";
 import { RachaBurst } from "@/components/RachaBurst";
-import { mixSopaColors, sopaWordColor } from "@/lib/sopa-colors";
+import { BONUS_OWNER, mixSopaColors, sopaWordColor } from "@/lib/sopa-colors";
 import { CardFace } from "./CardFace";
 
 interface Props {
@@ -50,6 +51,9 @@ export function SopaPlayer({ deck, accent }: Props) {
   // Which found words own each cell, by their index in `game.words`. A list,
   // not one owner: two words may legally cross on a shared letter, and that
   // cell is painted with both of them mixed.
+  // How many unlisted words this board has given up. Bumped for the flash and
+  // shown on the done screen; it changes no score.
+  const [bonusFound, setBonusFound] = useState(0);
   const [cellOwners, setCellOwners] = useState<
     ReadonlyMap<number, readonly number[]>
   >(new Map());
@@ -64,7 +68,12 @@ export function SopaPlayer({ deck, accent }: Props) {
   }, []);
 
   const offered = sopaDifficulties(deck);
-  const done = game !== null && foundIds.length === game.words.length;
+  // Only the *listed* words finish a board. A bonus is a surprise, not a
+  // requirement, so finding one must never end the game early — or, worse,
+  // end it while a target is still hidden.
+  const foundTargets =
+    game === null ? 0 : game.words.filter((w) => foundIds.includes(w.card.id)).length;
+  const done = game !== null && foundTargets === game.words.length;
 
   function start(level: SopaDifficulty) {
     setDifficulty(level);
@@ -112,11 +121,19 @@ export function SopaPlayer({ deck, accent }: Props) {
       setWrongNonce((n) => n + 1);
       return;
     }
-    feedbackMatch();
+    const bonus = isBonusWord(game, word.card.id);
+    // A surprise sounds like a surprise. The pop is el globo's, and it is the
+    // one sound in the sopa that is not the workmanlike "pair locked in".
+    if (bonus) {
+      feedbackPop();
+      setBonusFound((n) => n + 1);
+    } else {
+      feedbackMatch();
+    }
     combo.correct();
     speakSpanish(word.card.spanish);
     setFoundIds((prev) => [...prev, word.card.id]);
-    const owner = game.words.indexOf(word);
+    const owner = bonus ? BONUS_OWNER : game.words.indexOf(word);
     setCellOwners((prev) => {
       const next = new Map(prev);
       for (const cell of line) {
@@ -159,6 +176,19 @@ export function SopaPlayer({ deck, accent }: Props) {
         </span>
       </header>
 
+      {/* A found surprise gets its own flash: gold, and in the gap between the
+          word list and the grid — a kid must be told something extra happened,
+          and the word list cannot tell them because a bonus was never on it.
+          It sat over the chips at first, hiding the words still to find. */}
+      {bonusFound > 0 && !done && (
+        <span
+          key={`bonus-${bonusFound}`}
+          aria-label="You found a surprise word"
+          className="pop-in pointer-events-none fixed left-1/2 top-48 z-40 -translate-x-1/2 rounded-full border-4 border-ink bg-[#f5a524] px-5 py-2 text-xl font-extrabold"
+        >
+          ⭐ ¡Palabra sorpresa!
+        </span>
+      )}
       {combo.racha !== null && !done && (
         <RachaBurst key={combo.racha} count={combo.racha} />
       )}

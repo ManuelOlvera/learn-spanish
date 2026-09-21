@@ -184,6 +184,7 @@ describe("findSopaWord", () => {
         { card: card("sol"), answer: "SOL" },
         { card: card("sal"), answer: "SAL" },
       ],
+      bonus: [],
     };
     const sol = lineBetween(3, 0, 2)!; // row: S O L
     const sal = lineBetween(3, 0, 6)!; // column: S A L, shares cell 0
