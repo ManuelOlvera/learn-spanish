@@ -1,5 +1,56 @@
 # Shipped features
 
+## 2026-09-21 (last) — El camino *is* home
+
+**Reported by the parent:** *"The current home page looks too crowded."*
+
+Measured before touching anything, on a phone: home was **2,368px — 2.8
+screens**, the app's own name was truncated to **"¡Pal…"** because four header
+buttons no longer fit, and the subtitle said *"Tap a sticker to play"* above a
+fold with no sticker behind it. Four stacked bands (carta, regalo, misión, the
+camino strip) filled ~70% of the first screen.
+
+**`domain/home-focus.ts` had already fought this exact battle** — *"eight
+things shouting is the same as none to a pre-reader"* — and `pickHomeFocus`
+shows exactly one of {gift, challenge, repaso}. Home had crept back to four
+bands because three things are **documented exceptions** to that rule: la
+carta, la misión and el camino. The crowding was the exceptions accumulating,
+not a layout accident.
+
+Four directions went to the parent via `/design-variants`. They picked the
+boldest: **the camino is the home.**
+
+**The grid and the strip were the same thing, twice.** The home grid already
+rendered `groupsInTrailOrder` — it *was* the route, drawn as tiles — with a
+strip directly above it that *summarised* the same route in the same order.
+Both are gone; the map took their place. `/camino` as a separate screen went
+with them: it had been the map, and home is the map now.
+
+**What it cost, measured on the tablet this app actually lives on:** chrome
+above the content went from **~506px to 280px**, the title fits again, three
+header buttons instead of four (🗺️ is redundant when home *is* the map), and
+four route stops sit above the fold. Home is *longer* overall (a route is
+taller than a two-column grid) — but long is not crowded, and the length is
+now content rather than chrome.
+
+**What was deliberately not done.** The winning direction's sketch implied
+folding la carta and la misión into `pickHomeFocus` too. Both exclusions are
+argued in `home-focus.ts` — la carta feeds the ☀️ streak, la misión resets at
+midnight and has nowhere else to live — so overturning them inside a layout
+change would have been two decisions smuggled into one. Instead the focus card
+and la misión now share a **row**: `flex-wrap`, so it degrades to the old
+stacking when both are wide, and buys a line back when they fit. On a 390px
+phone they still stack; on the tablet they do not, which is the device that
+matters.
+
+**Las frases, los cuentos and the secret decks keep a grid below the road** —
+they sit outside the shelved pack, which is exactly the open roadmap item
+*"frases, cuentos and the secret deck as steps"*. The new layout makes that gap
+visible rather than hiding it.
+
+**Where:** `HomeView` (the swap, the row, a sticky header now that home
+scrolls), and the deletion of `CaminoStrip`, `CaminoView` and `app/camino/`.
+
 ## 2026-09-21 (last) — 🗺️ El camino gets a map
 
 **For:** both kids. The parent's words: *"Now that we've locked future work it

@@ -8,7 +8,6 @@ import {
   levelFor,
   dayIndex,
   challengeClaimable,
-  groupsInTrailOrder,
   missionOnHome,
   pickHomeFocus,
   reviewCount,
@@ -59,8 +58,7 @@ import { SecretDeckTile } from "@/components/SecretDeckTile";
 import { feedbackFanfare, feedbackRacha } from "@/lib/feedback";
 import { getAvatar, getSelectedKid, KID_META, setSelectedKid } from "@/lib/kid";
 import { KidPicker } from "@/components/KidPicker";
-import { LockedTile, TrailBadge, TrailPips } from "@/components/TrailMarks";
-import { CaminoStrip } from "@/components/CaminoStrip";
+import { CaminoMap } from "@/components/CaminoMap";
 import { useCamino } from "@/lib/use-camino";
 import { useKidLevels } from "@/lib/use-kid-levels";
 
@@ -328,7 +326,10 @@ export function HomeView({ decks, groups }: Props) {
       {/* A real three-column row rather than a title with buttons absolutely
           placed on top of it: with a third button (la mascota) the old layout
           put the egg straight through "¡Palabras!" at phone width. */}
-      <header className="flex w-full items-start justify-between gap-2">
+      {/* Sticky since the map moved in: home is now a long scroll, and a
+          header pinned to the top of the document puts la mascota and the
+          album out of reach the moment a kid starts walking the route. */}
+      <header className="sticky top-0 z-20 -mx-4 flex w-[calc(100%+2rem)] items-start justify-between gap-2 bg-paper px-4 py-2 sm:-mx-6 sm:w-[calc(100%+3rem)] sm:px-6">
         <button
           type="button"
           onClick={() => setKid(null)}
@@ -376,19 +377,6 @@ export function HomeView({ decks, groups }: Props) {
             >
               ⭐{stars}
             </span>
-          </Link>
-          {/* El camino's map. It shipped behind the strip's label — a 10px
-              line of uppercase text at 40% opacity — which is not a door a
-              kid (or an adult) finds, and is a long way under the ≥64px
-              target the design language asks for. Navigation lives in this
-              header, beside la mascota and the album. */}
-          <Link
-            href="/camino"
-            aria-label="Open the camino map"
-            style={{ "--accent": "var(--color-lime-deep)" } as React.CSSProperties}
-            className="sticker flex h-16 w-16 items-center justify-center rounded-2xl text-3xl active:translate-x-1 active:translate-y-1 active:shadow-none"
-          >
-            🗺️
           </Link>
           <Link
             href="/album"
@@ -448,152 +436,90 @@ export function HomeView({ decks, groups }: Props) {
           person's challenge outranks the app's own. Everything not shown is
           still reachable — el repaso by the camino, la mascota from the
           header. La misión is NOT in this rotation: see below. */}
-      {focus === "gift" && (
-        <button
-          type="button"
-          onClick={openGift}
-          aria-label="El regalo del día — open today's free gift"
-          className="sticker chest-tease relative flex items-center gap-3 px-6 py-3 text-xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
-          style={{ "--accent": "var(--color-lime)" } as React.CSSProperties}
-        >
-          <span aria-hidden className="text-4xl">
-            🎁
-          </span>
-          El regalo del día
-        </button>
-      )}
-
-      {(focus === "challenge" || focus === "challenge-claim") &&
-        challenge !== null &&
-        (() => {
-          const deck = decks.find((d) => d.id === challenge.deckId);
-          return deck === undefined ? null : (
-            <ChallengeCard
-              challenge={challenge}
-              deck={deck}
-              onClaim={claimChallengeReward}
-            />
-          );
-        })()}
-
-      {/* La misión is drawn outside the slot above, like el camino: it resets
-          at midnight and no other screen can show it, so competing for one slot
-          meant a kid with stuck words never saw it at all. It leaves home only
-          once it is done and the chest is open (missionOnHome). */}
-      {missionOnHome(mission) && (
-        <MissionCard
-          mission={mission}
-          kid={kid}
-          decks={publicDecks}
-          groups={groups}
-          camino={camino}
-          onClaim={claimBonus}
-        />
-      )}
-
-      {focus === "repaso" && (
-        <Link
-          href="/repaso"
-          aria-label={`Review ${weakCount} tricky words`}
-          className="sticker pop-in relative flex items-center gap-3 px-6 py-2 active:translate-x-1 active:translate-y-1 active:shadow-none"
-          style={{ "--accent": "var(--color-lime-deep)" } as React.CSSProperties}
-        >
-          <span aria-hidden className="text-3xl">
-            🔁
-          </span>
-          <span className="text-xl font-extrabold">El repaso</span>
-          <span
-            aria-hidden
-            className="rounded-full border-2 border-ink bg-[var(--color-lime)] px-2 text-sm font-extrabold"
+      {/* Today's one thing, and la misión, in a single row instead of two
+          stacked bands. `flex-wrap` means this degrades to exactly the old
+          stacking when both cards are wide — it only buys a line back when
+          they fit, which on a phone is the common case (a 🎁 beside three
+          misión icons). The bands above home's content were the crowding;
+          the route below is long, but long is not crowded. */}
+      <div className="flex w-full flex-wrap items-stretch justify-center gap-3">
+        {focus === "gift" && (
+          <button
+            type="button"
+            onClick={openGift}
+            aria-label="El regalo del día — open today's free gift"
+            className="sticker chest-tease relative flex items-center gap-3 px-6 py-3 text-xl font-extrabold active:translate-x-1 active:translate-y-1 active:shadow-none"
+            style={{ "--accent": "var(--color-lime)" } as React.CSSProperties}
           >
-            {weakCount}
-          </span>
-        </Link>
-      )}
+            <span aria-hidden className="text-4xl">
+              🎁
+            </span>
+            El regalo del día
+          </button>
+        )}
 
-      {/* The ladder on one line: home's grid keeps its browsing order, so the
-          route needs its own place to be seen. */}
-      {camino !== null && <CaminoStrip camino={camino} groups={groups} />}
-
-      <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
-        {groupsInTrailOrder(groups).map((group, i) => {
-          const previews = group.deckIds.flatMap((id) => {
-            const deck = decks.find((d) => d.id === id);
-            return deck ? [deck] : [];
-          });
-          const shelf = camino?.shelves.find((s) => s.groupId === group.id);
-          const face = (
-            <>
-              <span
-                aria-hidden
-                className="text-5xl sm:text-6xl"
-                style={{ animationDelay: `${i * 60}ms` }}
-              >
-                {group.emoji}
-              </span>
-              <span className="text-center text-xl font-extrabold sm:text-2xl">
-                {group.nameSpanish}
-              </span>
-              <span className="text-xs font-semibold text-ink/50">
-                {group.nameEnglish}
-              </span>
-              <span aria-hidden className="text-base tracking-wide">
-                {previews.map((d) => d.emoji).join(" ")}
-              </span>
-              {shelf !== undefined && (
-                <TrailPips
-                  filled={shelf.doneSteps}
-                  total={shelf.steps.length}
-                  label={`${group.nameSpanish}, mazos terminados`}
-                />
-              )}
-            </>
-          );
-
-          // The gate is real on the home grid, not only on the strip: this is
-          // the surface a kid actually navigates by, so gating anywhere else
-          // would gate nothing at all (ADR 021).
-          if (shelf?.locked === true) {
-            return (
-              <LockedTile
-                key={group.id}
-                label={group.nameSpanish}
-                className="min-h-40"
-              >
-                {face}
-              </LockedTile>
+        {(focus === "challenge" || focus === "challenge-claim") &&
+          challenge !== null &&
+          (() => {
+            const deck = decks.find((d) => d.id === challenge.deckId);
+            return deck === undefined ? null : (
+              <ChallengeCard
+                challenge={challenge}
+                deck={deck}
+                onClaim={claimChallengeReward}
+              />
             );
-          }
+          })()}
 
-          // A finished shelf whose exam is due sends the kid to the exam
-          // rather than back into decks they have already completed.
-          const href = shelf?.examPending === true
-            ? `/examen/${group.id}`
-            : `/group/${group.id}`;
-          return (
-            <Link
-              key={group.id}
-              href={href}
-              style={{ "--accent": deckAccent(group.id) } as React.CSSProperties}
-              className="sticker pop-in relative flex min-h-40 flex-col items-center justify-center gap-1.5 p-4 transition-transform active:translate-x-1 active:translate-y-1 active:shadow-none motion-safe:hover:-rotate-1"
+        {/* La misión is drawn outside the slot above, like el camino: it resets
+            at midnight and no other screen can show it, so competing for one slot
+            meant a kid with stuck words never saw it at all. It leaves home only
+            once it is done and the chest is open (missionOnHome). */}
+        {missionOnHome(mission) && (
+          <MissionCard
+            mission={mission}
+            kid={kid}
+            decks={publicDecks}
+            groups={groups}
+            camino={camino}
+            onClaim={claimBonus}
+          />
+        )}
+
+        {focus === "repaso" && (
+          <Link
+            href="/repaso"
+            aria-label={`Review ${weakCount} tricky words`}
+            className="sticker pop-in relative flex items-center gap-3 px-6 py-2 active:translate-x-1 active:translate-y-1 active:shadow-none"
+            style={{ "--accent": "var(--color-lime-deep)" } as React.CSSProperties}
+          >
+            <span aria-hidden className="text-3xl">
+              🔁
+            </span>
+            <span className="text-xl font-extrabold">El repaso</span>
+            <span
+              aria-hidden
+              className="rounded-full border-2 border-ink bg-[var(--color-lime)] px-2 text-sm font-extrabold"
             >
-              <span aria-hidden className="sticker-peel" />
-              {/* El camino: the exam is waiting, this is the next stop, or
-                  it's finished. The exam outranks the pointer — it IS the
-                  next thing. */}
-              {shelf?.examPending === true ? (
-                <TrailBadge
-                  state={shelf.examKind === "super" ? "super" : "exam"}
-                />
-              ) : camino !== null && group.id === camino.nextGroupId ? (
-                <TrailBadge state="next" />
-              ) : shelf?.complete === true ? (
-                <TrailBadge state="done" tier={shelf.tier} />
-              ) : null}
-              {face}
-            </Link>
-          );
-        })}
+              {weakCount}
+            </span>
+          </Link>
+        )}
+      </div>
+
+      {/* El camino *is* home now. The 12-tile grid it replaces already
+          rendered `groupsInTrailOrder`, so this is the same shelves in the
+          same order drawn as a route rather than a grid — and it retires the
+          duplication home carried since the strip shipped: a strip that
+          summarised the route sitting directly above a grid that was the
+          route. One navigation, not two. */}
+      {camino !== null && <CaminoMap camino={camino} groups={groups} />}
+
+      {/* What the route does not cover. Las frases, los cuentos and the secret
+          decks sit outside the shelved pack, which is exactly the open roadmap
+          item "frases, cuentos and the secret deck as steps" — until that
+          lands they keep a grid of their own, below the road. */}
+      <div className="grid w-full grid-cols-2 gap-5 sm:gap-6">
 
         <Link
           href={kid ? `/frases/${modes.quiz}` : "/frases"}

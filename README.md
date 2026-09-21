@@ -88,10 +88,11 @@ No reading, no accounts, no setup.
   the stars tick up, a súper's swept shelves climb a scale, and the padlock
   snaps.
 - **El camino** — a guided route through the pack, with a map of its own at
-  **`/camino`** (the 🗺️ in home's header): twelve stops snaking down
-  the screen, each with its picture, its deck pips, its medal and its lock, and
-  the three súper exámenes gold on the path between them. The strip answers
-  "where am I?"; the map is the one you look at. It **gates**: a shelf stays
+  **and it is the home screen**: twelve stops snaking down the page, each with
+  its picture, its deck pips, its medal and its lock, and the three súper
+  exámenes gold on the path between them. Home used to carry a strip that
+  *summarised* the route directly above a grid that *was* the route (both in
+  ladder order) — one navigation replaced two. It **gates**: a shelf stays
   locked until the one before it is complete *and* that shelf's **examen** is
   passed (ADR 021, which supersedes ADR 016 on this). The lock is real — a
   locked shelf's tile is padlocked and untappable on the home grid, not merely

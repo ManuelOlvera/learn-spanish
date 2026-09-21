@@ -560,10 +560,14 @@ Engagement pass (2026-07-18) — depth over new games, aimed at emotional pull:
       off the map became the point rather than a nice-to-have. Modelled on the
       sibling **word-quest** project's zone map (and Duolingo's) at the
       parent's request — same idea, this app's sticker language.
-      - ☐ **Watch whether it replaces the grid.** The map makes every
-        unlocked shelf tappable, which is a second way to reach the same
-        content. If kids navigate from here rather than from home, the home
-        grid's job changes and is worth revisiting.
+      **Then it *became* home, 2026-09-21**, on the parent's report that the
+      home screen was too crowded: the 12-tile grid and the strip above it
+      were the same twelve shelves in the same ladder order, drawn twice. The
+      grid and the strip are gone, `/camino` as a separate route is gone, and
+      home is the map. Chosen from four directions via `/design-variants`.
+      - ☐ **Watch whether losing the grid costs anything.** The grid let a kid
+        see twelve shelves at once; the route shows three or four. Nobody has
+        used it yet.
     - ☐ **Frases, cuentos and the secret deck as steps** — the route covers
       the shelved decks only.
 23. ☑ **Los cuentos — short stories** — the rung above Las frases: connected
