@@ -96,6 +96,13 @@ function Stop({
   const left = index % 2 === 0;
   const done = shelf.complete;
   const name = group?.nameSpanish ?? shelf.groupId;
+  // A regular exam that is the next move. ADR 021: "Regular exams stay a badge
+  // on their shelf" — not a stop of their own, because a ten-question
+  // checkpoint must not carry the same visual weight as a twenty-question
+  // sweep. (Its other reason, that stops would overflow the strip, died with
+  // the strip; this one did not.) Los súper get `SuperStop` instead.
+  const examDue =
+    shelf.examKind === "regular" && shelf.examPending && !shelf.examPassed;
 
   // The face colour must travel as `--sticker-face`: `.sticker` sets
   // `background` in an unlayered rule, which beats Tailwind's `bg-*`
@@ -153,6 +160,11 @@ function Stop({
           </>
         )}
       </span>
+      {examDue && (
+        <span className="absolute -top-3 right-4 flex items-center gap-1 rounded-full border-4 border-ink bg-[var(--color-lime)] px-3 py-0.5 text-xs font-extrabold">
+          <span aria-hidden>🎓</span> ¡Examen!
+        </span>
+      )}
       {isNext && (
         <span className="absolute -top-3 left-4 rounded-full border-4 border-ink bg-white px-3 py-0.5 text-xs font-extrabold">
           Aquí estás
@@ -163,7 +175,9 @@ function Stop({
 
   const label = shelf.locked
     ? `${name} — locked, finish the shelf before it`
-    : `${name} — ${shelf.doneSteps} of ${shelf.steps.length} decks, ${TIER_LABEL[shelf.tier]}`;
+    : examDue
+      ? `${name} — sit the exam`
+      : `${name} — ${shelf.doneSteps} of ${shelf.steps.length} decks, ${TIER_LABEL[shelf.tier]}`;
 
   return (
     <span className={`flex ${left ? "justify-start" : "justify-end"}`}>
@@ -181,7 +195,10 @@ function Stop({
         </span>
       ) : (
         <Link
-          href={`/group/${shelf.groupId}`}
+          // While the exam is due it *is* the shelf's next move, so the card
+          // goes there rather than back into decks that are already finished.
+          // The strip did this and the map lost it when the strip was deleted.
+          href={examDue ? `/examen/${shelf.groupId}` : `/group/${shelf.groupId}`}
           aria-label={label}
           className="contents"
         >

@@ -51,6 +51,22 @@ visible rather than hiding it.
 **Where:** `HomeView` (the swap, the row, a sticky header now that home
 scrolls), and the deletion of `CaminoStrip`, `CaminoView` and `app/camino/`.
 
+**Follow-up: the map showed súper exámenes but not regular ones.** Reported the
+next day, and a regression the map introduced: a regular exam appeared only as
+a small 🎓 in a card's meta line **once already passed**, so the nine regular
+checkpoints were invisible at the one moment they matter. The deleted strip had
+carried this — *"a 🎓 marks the shelf whose exam is the next move"*, and tapping
+that stop went to the exam rather than back into finished decks — and the map
+did not inherit it.
+
+Fixed as a **badge, not a stop**, which is what ADR 021 requires: *"Regular
+exams stay a badge on their shelf."* One of that decision's two reasons died
+with the strip (stops would have overflowed it); the other governs and still
+holds — a ten-question checkpoint must not carry the same visual weight as a
+twenty-question sweep. So a due exam wears a 🎓 ¡Examen! pill on its shelf card
+and the card links to the exam while it is due; los súper keep their own gold
+stops on the path.
+
 ## 2026-09-21 (last) — 🗺️ El camino gets a map
 
 **For:** both kids. The parent's words: *"Now that we've locked future work it
